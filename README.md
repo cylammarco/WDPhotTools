@@ -42,24 +42,23 @@ L/I/H are used to denote the availability in the low, intermediate and high mass
 The brackets denote the core type/atmosphere type/mass range/other special properties.
 
 1. Montreal models
-    i. Bedard et al. 2020 -- LIH [CO/DA+DB/0.2-1.3]
+    1. Bedard et al. 2020 -- LIH [CO/DA+DB/0.2-1.3]
 2. LaPlata models
-    i.  Panei et al. 2007 -- L [He+CO/DA/0.187-0.448]
-    ii. Althaus et al. 2009 -- L [He/DA/0.220-0.521]
-    iii. Renedo et al. 2010 -- I [CO/DA/0.505-0.934/Z=0.001-0.01]
-    iv. Althaus et al. 2015 -- I [CO/DA/0.506-0.826/Z=0.0003-0.001]
-    v. Althaus et al. 2017 -- LI [CO/DA/0.434-0.838/Y=0.4]
-    vi. Camisassa et al. 2017 -- I [CO/DB/0.51-1.0]
-    vii. Althaus et al. 2007 -- H [ONe/DA/1.06-1.28]
-    viii. Camisassa et al. 2019 -- H [ONe/DA+B/1.10-1.29]
+    1.  Panei et al. 2007 -- L [He+CO/DA/0.187-0.448]
+    2. Althaus et al. 2009 -- L [He/DA/0.220-0.521]
+    3. Renedo et al. 2010 -- I [CO/DA/0.505-0.934/Z=0.001-0.01]
+    4. Althaus et al. 2015 -- I [CO/DA/0.506-0.826/Z=0.0003-0.001]
+    5. Althaus et al. 2017 -- LI [CO/DA/0.434-0.838/Y=0.4]
+    6. Camisassa et al. 2017 -- I [CO/DB/0.51-1.0]
+    7. Althaus et al. 2007 -- H [ONe/DA/1.06-1.28]
+    8. Camisassa et al. 2019 -- H [ONe/DA+B/1.10-1.29]
 3. BaSTI models
-    i. Salaris et al. 2010 -- IH [CO/DA+B/0.54-1.2/ps+nps]
+    1. Salaris et al. 2010 -- IH [CO/DA+B/0.54-1.2/ps+nps]
 4. MESA models
-    i Lauffer et al. 2018 -- H [CONe/DA+B/1.012-1.308]
+    1. Lauffer et al. 2018 -- H [CONe/DA+B/1.012-1.308]
 
 ## An example set of WDLFs with 1 Gyr of star burst
 ![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/burst_Bressan-EB18_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
 
 ## An example set of WDLFs with 1 Gyr of halflife in the star formation rate
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/decay_Bressan-EB18_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png
-?raw=true)
+![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/decay_Bressan-EB18_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
