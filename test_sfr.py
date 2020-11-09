@@ -9,7 +9,7 @@ wdlf.set_sfr_model(mode='burst')
 wdlf.compute_cooling_age_interpolator()
 
 
-L = 10.**np.arange(28, 34., 0.1)
+L = 10.**np.arange(28, 34., 0.01)
 age = 1E9 * np.arange(8, 15, 2)
 num = np.zeros((len(age), len(L)))
 
@@ -22,7 +22,7 @@ wdlf.set_sfr_model(mode='decay')
 wdlf.compute_cooling_age_interpolator()
 
 
-L = 10.**np.arange(28, 34., 0.1)
+L = 10.**np.arange(28, 34., 0.01)
 age = 1E9 * np.arange(8, 15, 2)
 num = np.zeros((len(age), len(L)))
 

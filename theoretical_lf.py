@@ -836,16 +836,18 @@ class WDLF:
 
             t0 = 0
             t1 = duration
-            t2 = 1e20
+            t2 = 2e10
 
-            self.sfr = interp1d(np.array((t0, t1, t2)), np.array((1., 1., 0.)))
+            self.sfr = interp1d(np.array((t0, t1, t1+1e-10, t2)),
+                                np.array((1., 1., 0., 0.)),
+                                fill_value='extrapolate')
 
         elif mode == 'decay':
 
-            t = 10.**np.linspace(0, 20, 10000)
+            t = 10.**np.linspace(0, 10.3, 10000)
             sfr = np.exp(-decay_constant * t)
 
-            self.sfr = interp1d(t, sfr)
+            self.sfr = interp1d(t, sfr, fill_value='extrapolate')
 
         elif mode == 'manual':
 
@@ -856,7 +858,7 @@ class WDLF:
             else:
 
                 warnings.warn('The sfr_model provided is not callable, '
-                              'None is applied')
+                              'None is applied, i.e. constant star fomration.')
                 self.sfr = None
 
         else:
