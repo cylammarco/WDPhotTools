@@ -1,0 +1,141 @@
+J/A+A/625/A87   Ultra-massive white dwarfs evolution models   (Camisassa+, 2019)
+================================================================================
+The evolution of ultra-massive white dwarfs.
+    Camisassa M.E., Althaus L.G., Corsico, A.H., De Geronimo F.C.,
+    Miller Bertolami M.M., Novarino M.L., Rohrmann R.D., Wachlin F.C.,
+    Garcia-Berro E.
+    <Astron. Astrophys. 625, A87 (2019)>
+    =2019A&A...625A..87C        (SIMBAD/NED BibCode)
+================================================================================
+ADC_Keywords: Models, evolutionary ; Stars, white dwarf ; Stars, ages
+Keywords: stars: evolution - stars: interiors - white dwarfs
+
+Abstract:
+    Ultra-massive white dwarfs are powerful tools to study various
+    physical processes in the Asymptotic Giant Branch (AGB), type Ia
+    supernova explosions and the theory of crystallization through white
+    dwarf asteroseismology. Despite the interest in these white dwarfs,
+    there are few evolutionary studies in the literature devoted to them.
+    Here, we present new ultra-massive white dwarf evolutionary sequences
+    that constitute an improvement over previous ones. In these new
+    sequences, we take into account for the first time the process of
+    phase separation expected during the crystallization stage of these
+    white dwarfs, by relying on the most up-to-date phase diagram of dense
+    oxygen/neon mixtures. Realistic chemical profiles resulting from the
+    full computation of progenitor evolution during the semidegenerate
+    carbon burning along the super-AGB phase are also considered in our
+    sequences. Outer boundary conditions for our evolving models are
+    provided by detailed non-gray white dwarf model atmospheres for
+    hydrogen and helium composition. We assessed the impact of all these
+    improvements on the evolutionary properties of ultra-massive white
+    dwarfs, providing up-dated evolutionary sequences for these stars. We
+    conclude that crystallization is expected to affect the majority of
+    the massive white dwarfs observed with effective temperatures below
+    40000K. Moreover, the calculation of the phase separation process
+    induced by crystallization is necessary to accurately determine the
+    cooling age and the mass-radius relation of massive white dwarfs. We
+    also provide colors in the GAIA photometric bands for our H-rich white
+    dwarf evolutionary sequences on the basis of new models atmospheres.
+    Finally, these new white dwarf sequences provide a new theoretical
+    frame to perform asteroseismological studies on the recently detected
+    ultra-massive pulsating white dwarfs.
+
+Description:
+    New ultra-massive ONe white dwarf evolutionary sequences that take
+    into account the process of phase separation expected during the
+    crystallization stage based on phase diagram of dense oxygen/neon
+    mixtures. Realistic chemical profiles resulting from the full
+    computation of progenitor evolution during the semi-degenerate carbon
+    burning along the super-AGB phase are also considered in our
+    sequences. Outer boundary conditions for our evolving models are
+    provided by detailed non-gray white dwarf model atmospheres for
+    hydrogen and helium composition. Magnitudes in GAIA filters are also
+    provided for our H rich white dwarf models.
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName   Lrecl  Records  Explanations
+--------------------------------------------------------------------------------
+ReadMe         80        .  This file
+110hdef.dat   192      511  Evolutionary track of our 1.10Msun H-deficient model
+110hrich.dat  192      748  Evolutionary track of our 1.10Msun H-rich model
+110gaia.dat   164      609  Absolute magnitudes of the evolutionary track of
+                             our 1.10Msun H-rich model in GAIA filters
+116hdef.dat   192      738  Evolutionary track of our 1.16Msun H-deficient model
+116hrich.dat  192      756  Evolutionary track of our 1.16Msun H-rich model
+116gaia.dat   164      592  Absolute magnitudes of the evolutionary track of
+                             our 1.16Msun H-rich model in GAIA filters
+122hdef.dat   192     1111  Evolutionary track of our 1.22Msun H-deficient model
+122hrich.dat  192      717  Evolutionary track of our 1.22Msun H-rich model
+122gaia.dat   164      562  Absolute magnitudes of the evolutionary track of
+                             our 1.22Msun H-rich model in GAIA filters
+129hdef.dat   192      698  Evolutionary track of our 1.29Msun H-deficient model
+129hrich.dat  192      831  Evolutionary track of our 1.29Msun H-rich model
+129gaia.dat   164      650  Absolute magnitudes of the evolutionary track of
+                             our 1.29Msun H-rich model in GAIA filters
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file (#): *hdef.dat *hrich.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label      Explanations
+--------------------------------------------------------------------------------
+   1-  9  F9.6  [Lsun]  logL       Logarithm of the surface luminosity
+                                    in solar units
+  11- 19  F9.6  K       logTeff    Logarithm of the effective temperature
+  21- 29  F9.6  10+6K   logTc      Logarithm of the central temperature
+                                    (million degree)
+  31- 39  F9.6  [g/cm3] logRoc     Logarithm of the central density (CGS units)
+  41- 49  F9.6  ---     Hc         Central hydrogen abundance
+  51- 59  F9.6  ---     Hec        Central helium abundance
+  61- 66  F6.3  %       Cons       Percentage of mass of the
+                                    outer convective zone
+  68- 73  F6.3  %       Conc       Percentage of mass of the
+                                    inner convective zone
+  75- 94 F20.15 [Myr]   log(edad)  Logarithm of the total age in million years
+                                    counted from an arbitrary starting point (1)
+  96-103  F8.5  Msun    M*         Stellar mass (in solar units)
+ 105-113  F9.5  Msun/yr dM/dt      Mass loss
+ 115-125  F11.7 [Lsun]  log(Lnu)   Logarithm of luminosity (in solar units) due
+                                    to neutrino losses
+ 127-137  F11.7 [Msun]  logMHtot   ? Logarithm of the hydrogen content
+                                    in solar mass
+     138  A1    ---   n_logMHtot   [I] I for -Infinity
+ 140-150  F11.7 [cm/s2] logg       Logarithm of surface gravity (CGS units)
+ 152-162  F11.7 Rsun    Rad        Stellar radius in solar units
+ 164-177  E14.7 10-7W   LH         Energy released as latent heat during
+                                    crystallization (CGS units)
+ 179-192  E14.7 10-7W   SepFase    Energy released by phase separation during
+                                    crystallization (CGS units)
+--------------------------------------------------------------------------------
+Note (1): to obtain the white dwarf cooling time, the first value of this column
+  must be considered as the starting point.
+  The cooling time is defined as zero at the moment when the star reaches the
+  maximum effective temperature. In order to accurately obtain the white dwarf
+  cooling time, the zero point in the stellar age has to be obtained when the
+  effective temperature reaches the maximum value.
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: *gaia.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label     Explanations
+--------------------------------------------------------------------------------
+   3- 14  E12.7 K       Teff      Logarithm of the effective temperature
+  16- 29  E14.7 [Lsun]  logL      Logarithm of the surface luminosity
+                                   in solar units
+  31- 44  E14.7 Gyr     Age       Cooling time in Gyr (10^9^yr) (starting point
+                                   at the beginning of the cooling sequence)
+  46- 59  E14.7 [cm/s2] logg      Logarithm of surface gravity (CGS units)
+  61- 74  E14.7 Rsun    Rad       Stellar radius in solar units
+  76- 89  E14.7 mag     GMAG      Absolute Magnitude in the Gaia band G
+  91-104  E14.7 mag     BPMAG     Absolute Magnitude in the Gaia band BP
+ 106-119  E14.7 mag     RPMAG     Absolute Magnitude in the Gaia band G
+ 121-134  E14.7 mag     BP-G      Color index BP-G
+ 136-149  E14.7 mag     G-RP      Color index G-RP
+ 151-164  E14.7 mag     BP-RP     Color index BP-RP
+--------------------------------------------------------------------------------
+
+Acknowledgements:
+    Maria E. Camisassa, camisassam(at)googlemail.com
+
+================================================================================
+(End) Maria Camisassa [La Plata, Argentina], Patricia Vannier [CDS]  20-Mar-2019

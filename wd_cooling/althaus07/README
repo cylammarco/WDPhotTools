@@ -1,0 +1,29 @@
+White dwarf cooling sequences for massive white dwarfs with oxygen-neon cores and stellar masses from 1.06 to 1.28 Msun, and described in Althaus, García-Berro , Isern at al. 2007, A&A, 465, 249, are provided. Element diffusion and detailed non-gray model atmospheres to derive the outer boundary conditions of the evolving models are considered. Calculations are extended down to stellar luminosities of log L/Lsun=-5.2. Our cooling sequences are based on evolutionary calculations that take into account the chemical composition expected from massive white dwarf progenitors that burned carbon in partially degenerate conditions. Thus, an oxygen-neon composition is expected in the core of our massive white dwarfs. Broadband color indices have been calculated using the optical BVRI and infrared JHK passbands of Bessell (1990) and Bessell & Brett (1988), respectively, with calibration constants from Bergeron et al. (1997), see Althaus et al 2007 for details.
+
+White dwarf cooling tracks are provided for stellar masses of 1.06, 1.10, 1.16, 1.20, 1.24 and 1.28 Msun. Each cooling sequence file lists from left to right:
+
+Log L/Lo: The logarithm of the surface luminosity in solar unit
+
+Log Teff: The logarithm of the effective temperature (K)
+
+B_V: B-V color index
+
+V_R: V-R color index
+
+V_K: V-K color index
+
+R_I: R-I color index
+
+J_H: J-H color index
+
+H_K: H-K color index
+
+V_I: V-I color index
+
+U_V: U-V color index
+
+BC(V): bolometric correction
+
+dmag_v: Absolute visual magnitude
+
+Log age (yr): The logarthm of cooling age in year

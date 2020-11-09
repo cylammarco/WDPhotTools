@@ -1,0 +1,20 @@
+"Full evolution of low-mass white dwarfs with helium and oxygen cores"
+Panei, J. A., Althaus, L. G., Chen, X., and Han, Z; 
+2007, MNRAS, 382, 779
+
+Sloan Digital Sky Survey filters:
+
+CO-WD sequences with masses 0.3515, 0.3844, 0.3986, 0.4160 and 0.4481
+M_sun.  Ages are counted from the end of mass transfer. Only the evolutionary
+stages corresponding to the final cooling branch are shown. For each file,
+it is listed from left to right:
+
+Teff: effective temperature
+
+log g: logarithm_10 of gravity (cm/s**2)
+
+log L/Lo: logarithm_10 of luminosity (in solar units)
+
+Age: age in Gyr
+
+u, g, r, i, z filters

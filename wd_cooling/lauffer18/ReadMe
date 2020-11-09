@@ -1,0 +1,77 @@
+J/MNRAS/480/1547    Full Evolutionary Sequences of Massive WDs  (Lauffer+, 2018)
+================================================================================
+New full evolutionary sequences of H- and He-atmosphere massive
+white dwarf stars using MESA.
+    Lauffer G.R., Romero A.D., Kepler S.O.
+    <Mon. Not. R. Astron. Soc. 480, 1547 (2018)>
+    =2018MNRAS.480.1547L        (SIMBAD/NED BibCode)
+================================================================================
+ADC_Keywords: Models, atmosphere ; Stars, white dwarf
+Keywords: methods: numerical - stars: evolution - stars: white dwarfs
+
+Abstract:
+    We explore the evolution of hydrogen-rich and hydrogen-deficient white
+    dwarf stars with masses between 1.012 and 1.307M_{sun}, and initial
+    metallicity of Z=0.02. These sequences are the result of
+    main-sequence stars with masses between 8.8 and 11.8M_{sun}. The
+    simulations were performed with MESA (Modules for Experiments in
+    Stellar Astrophysics), starting at the zero-age main sequence, through
+    thermally pulsing and mass-loss phases, ending at the white dwarf
+    cooling sequence. We present reliable chemical profiles for the whole
+    mass range considered, covering the different expected central
+    compositions (i.e. C/O, O/Ne and Ne/O/Mg) and its dependence on the
+    stellar mass. In addition, we present detailed chemical profiles of
+    hybrid C/O-O/Ne core white dwarfs, found in the mass range between
+    1.024 and 1.15M_{sun}. We present the initial-to-final mass
+    relation, the mass-radius relation and cooling times considering the
+    effects of atmosphere and core composition.
+
+Description:
+    Set of 16 .dat files with the cooling tracks for all evolutionary
+    sequences computed. Which .dat file is named as
+    Atmosphere_composition-Mass.dat. For example: H_atm-M1.0124.dat,
+    He_atm-M1.22.dat
+
+File Summary:
+--------------------------------------------------------------------------------
+ FileName      Lrecl  Records   Explanations
+--------------------------------------------------------------------------------
+ReadMe            80        .   This file
+table1.dat        60       16   List of evolutionary tracks sequences
+tracks/*           .       32   Individual tracks for H and He
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file: table1.dat
+--------------------------------------------------------------------------------
+   Bytes Format Units   Label        Explanations
+--------------------------------------------------------------------------------
+   1-  5  F5.2  Msun    MZAMS        Values of initial mass at ZAMS
+   7- 11  F5.3  Msun    MWD          White dwarfs mass
+  13- 17  F5.3  ---     mlogMH/MWD   Hydrogen content for H-rich sequence
+                                      (-logMH/MWD)
+  19- 23  F5.3  ---     mlogMHe/MWD  Helium content for H-rich sequence
+                                      (-logMHe/MWD)
+  25- 41  A17   ---     NameH        Name of evolutionary tracks sequence with
+                                      H atmosphere in subdirectory tracks
+  43- 60  A18   ---     NameHe       Name of evolutionary tracks sequence with
+                                      He atmosphere in subdirectory tracks
+--------------------------------------------------------------------------------
+
+Byte-by-byte Description of file (#): tracks/*
+--------------------------------------------------------------------------------
+   Bytes Format   Units   Label     Explanations
+--------------------------------------------------------------------------------
+   1- 18 F18.16   [K]     logTeff   Effective temperature in log scale
+  20- 42 F23.20   [Lsun]  logL      Luminosity in log scale
+  44- 61 F18.16   [cm/s2] logg      Surface gravity in log scale
+  63- 81 F19.16   [Rsun]  logR      Radius in log scale
+  83-100 F18.16   Msun    Mass      Mass
+ 102-123 E22.15   Gyr     Age       Cooling age
+ 125-144 F20.18   Gyr     AgeTot    Total age
+--------------------------------------------------------------------------------
+
+Acknowledgements:
+    Gabriel Lauffer Ramos, gabriel.lauffer(at)ufrgs.br
+
+================================================================================
+(End)       Gabriel Lauffer Ramos [UFRGS], Patricia Vannier [CDS]    24-Sep-2018
