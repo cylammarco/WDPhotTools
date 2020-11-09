@@ -15,8 +15,7 @@ num = np.zeros((len(age), len(L)))
 
 wdlf.compute_density(L=L, T0=age)
 
-wdlf.plot_cooling_model(display=False)
-wdlf.plot_wdlf(display=False)
+wdlf.plot_wdlf(display=False, savefig=True)
 
 
 wdlf.set_sfr_model(mode='decay')
@@ -29,5 +28,5 @@ num = np.zeros((len(age), len(L)))
 
 wdlf.compute_density(L=L, T0=age)
 
-wdlf.plot_wdlf(display=True)
+wdlf.plot_wdlf(display=True, savefig=True)
 

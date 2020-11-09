@@ -37,14 +37,29 @@ to be added:
 
 ### White Dwarf cooling time
 
-1. 'montreal_thick' - Montreal hydrogen atmospheremodel (2020)
-2. 'montreal_thin' - Montreal helium atmosphere model (2020)
-3. 'laplata' - La Plata model (2000)
+L/I/H are used to denote the availability in the low, intermediate and high mass models, where the dividing points are at 0.5 and 1.0 solar masses.
 
-to be added:
+The brackets denote the core type/atmosphere type/mass range/other special properties.
 
-4. 'basti' - BASTI model (2000)
-5. 'bastips' - BASTI model with phase separation (2000)
+1. Montreal models
+    i. Bedard et al. 2020 -- LIH [CO/DA+DB/0.2-1.3]
+2. LaPlata models
+    i.  Panei et al. 2007 -- L [He+CO/DA/0.187-0.448]
+    ii. Althaus et al. 2009 -- L [He/DA/0.220-0.521]
+    iii. Renedo et al. 2010 -- I [CO/DA/0.505-0.934/Z=0.001-0.01]
+    iv. Althaus et al. 2015 -- I [CO/DA/0.506-0.826/Z=0.0003-0.001]
+    v. Althaus et al. 2017 -- LI [CO/DA/0.434-0.838/Y=0.4]
+    vi. Camisassa et al. 2017 -- I [CO/DB/0.51-1.0]
+    vii. Althaus et al. 2007 -- H [ONe/DA/1.06-1.28]
+    viii. Camisassa et al. 2019 -- H [ONe/DA+B/1.10-1.29]
+3. BaSTI models
+    i. Salaris et al. 2010 -- IH [CO/DA+B/0.54-1.2/ps+nps]
+4. MESA models
+    i Lauffer et al. 2018 -- H [CONe/DA+B/1.012-1.308]
 
-## An example set of WDLFs with constant star formation rate
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/wdlf_constant_sfr.png?raw=true)
+## An example set of WDLFs with 1 Gyr of star burst
+![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/burst_Bressan-EB18_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
+
+## An example set of WDLFs with 1 Gyr of halflife in the star formation rate
+![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/decay_Bressan-EB18_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png
+?raw=true)

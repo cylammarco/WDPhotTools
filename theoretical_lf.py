@@ -838,8 +838,7 @@ class WDLF:
             t1 = duration
             t2 = 1e20
 
-            self.sfr = interp1d(np.array((t0, t1, t2)),
-                                   np.array((1., 1., 0.)))
+            self.sfr = interp1d(np.array((t0, t1, t2)), np.array((1., 1., 0.)))
 
         elif mode == 'decay':
 
@@ -863,6 +862,8 @@ class WDLF:
         else:
 
             "Please choose a valid mode of SFR model."
+
+        self.sfr_mode = mode
 
     def compute_density(self,
                         L,
@@ -930,7 +931,11 @@ class WDLF:
         self.T0 = T0
         self.number_density = number_density
 
-    def plot_cooling_model(self, mag=True, display=True):
+    def plot_cooling_model(self,
+                           mag=True,
+                           display=True,
+                           savefig=False,
+                           filename=None):
 
         plt.figure(figsize=(12, 8))
 
@@ -955,10 +960,17 @@ class WDLF:
         plt.legend()
         plt.tight_layout()
 
+        if savefig:
+            if filename is None:
+                filename = self.low_mass_cooling_model + '_' +\
+                self.intermediate_mass_cooling_model + '_' +\
+                self.high_mass_cooling_model + '.png'
+            plt.savefig(filename)
+
         if display:
             plt.show()
 
-    def plot_wdlf(self, mag=True, display=True):
+    def plot_wdlf(self, mag=True, display=True, savefig=False, filename=None):
 
         plt.figure(figsize=(12, 8))
 
@@ -984,6 +996,14 @@ class WDLF:
         plt.grid()
         plt.legend()
         plt.tight_layout()
+
+        if savefig:
+            if filename is None:
+                filename = self.sfr_mode + '_' + self.ms_model + '-' +\
+                    self.ifmr_model + '_' + self.low_mass_cooling_model +\
+                    '_' + self.intermediate_mass_cooling_model + '_' +\
+                    self.high_mass_cooling_model + '.png'
+            plt.savefig(filename)
 
         if display:
             plt.show()
