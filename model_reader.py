@@ -127,7 +127,7 @@ def althaus15_formatter(model):
     return mass, cooling_model
 
 
-def althaus17_formatter(model):
+def althaus17_formatter(model, mass_range='all'):
     '''
     A formatter to load the Althaus et al. 2009 WD cooling model
 
@@ -464,7 +464,7 @@ def renedo10_formatter(model):
     return mass, cooling_model
 
 
-def salaris10_formatter(model, mass_range):
+def salaris10_formatter(model, mass_range='all'):
     '''
     A formatter to load the Salaris et al. 2010 WD cooling model from
 
