@@ -58,7 +58,7 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
     1. Lauffer et al. 2018 -- H [CONe/DA+B/1.012-1.308]
 
 ## An example set of WDLFs with 1 Gyr of star burst
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/burst_Bressan-EB18_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
+![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/burst_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
 
 ## An example set of WDLFs with 1 Gyr of halflife in the star formation rate
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/decay_Bressan-EB18_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
+![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/decay_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)

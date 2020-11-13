@@ -12,42 +12,6 @@ import warnings
 from model_reader import *
 
 
-def itp2D_gradient(f, val1, val2, frac=1e-6):
-    '''
-    A function to find the gradient in the direction in the first dimension of
-    a 2D function at a given coordinate.
-
-    Parameters
-    ----------
-    f: callable function
-        A 2D function
-    val1: float
-        The first input value accepted by f. The gradient is computed in this
-        direction.
-    val2: float
-        The first input value accepted by f.
-    frac: float (Default: 1e-6)
-        The small fractional increment of val1.
-
-    Return
-    ------
-    Gradient in the direction of val1.
-
-    '''
-
-    if not callable(f):
-        raise TypeError('f has to be a callable function.')
-
-    increment = val1 * frac / 2.
-    grad = np.asarray((f(val1 + increment, val2) - f(val1 - increment, val2)) /
-                      (increment * 2.)).reshape(-1)
-
-    # cooling((L+1), m) - cooling(L, m) must be negative
-    grad[grad > 0.] = 0.
-
-    return grad
-
-
 class WDLF:
     '''
     Computing the theoretical WDLFs based on the input IFMR, WD cooling and
@@ -69,7 +33,7 @@ class WDLF:
                  low_mass_cooling_model='montreal_co_da_20',
                  intermediate_mass_cooling_model='montreal_co_da_20',
                  high_mass_cooling_model='montreal_co_da_20',
-                 ms_model='Bressan'):
+                 ms_model='C16'):
         # The IFMR, WD cooling and MS lifetime models are required to
         # initialise the object.
         self.set_imf_model(imf_model)
@@ -81,6 +45,117 @@ class WDLF:
         self.set_ms_model(ms_model)
 
         self.cooling_interpolator = None
+
+    def _imf(self, M):
+        '''
+        Compute the initial mass function based on the pre-selected IMF model
+        and the given mass (M).
+
+        See set_imf_model() for more details.
+
+        Parameters
+        ----------
+        M: float, list of float or array of float
+            Input MS mass
+
+        Returns
+        -------
+        MF: array
+            Array of MF, normalised to 1 at 1M_sun.
+
+        '''
+
+        M = np.asarray(M).reshape(-1)
+
+        if self.imf_model == 'K01':
+
+            MF = M**-2.3
+
+            # mass lower than 0.08 is impossible, so that range is ignored.
+            if (M < 0.5).any():
+
+                M_mask = M < 0.5
+                MF[M_mask] = M[M_mask]**1.3
+
+        elif self.imf_model == 'C03':
+
+            MF = M**-2.3
+            if (M < 1).any():
+                M_mask = np.array(M < 1.).reshape(-1)
+                # 0.158 / (ln(10) * M) = 0.06861852814 / M
+                # log(0.079) = -1.1023729087095586
+                # 2 * 0.69**2. = 0.9522
+                MF[M_mask] = (0.06861852814 / M[M_mask]) * np.exp(
+                    -(np.log10(M[M_mask]) + 1.1023729087095586)**2. / 0.9522)
+
+        elif self.imf_model == 'C03b':
+
+            MF = M**-2.3
+
+            if (M <= 1).any():
+                M_mask = np.array(M <= 1.).reshape(-1)
+                # 0.086 * 1. / (ln(10) * M) = 0.03734932544 / M
+                # log(0.22) = -0.65757731917
+                # 2 * 0.57**2. = 0.6498
+                MF[M_mask] = (0.03734932544 / M[M_mask]) * np.exp(
+                    -(np.log10(M[M_mask]) + 0.65757731917)**2. / 0.6498)
+
+        elif self.imf_model == 'manual':
+
+            MF = self.imf_function(M)
+
+        else:
+
+            raise ValueError(
+                'Please choose from K01, C03 and C03b. Use set_imf_model() to '
+                'change to a valid model.')
+
+        return MF
+
+    def _ms_age(self, M):
+        '''
+        Compute the main sequence lifetime based on the pre-selected MS model
+        and the given mass (M).
+
+        See set_ms_model() for more details.
+
+        Parameters
+        ----------
+        M: float, list of float or array of float
+            Input MS mass
+
+        Returns
+        -------
+        age: array
+            Array of total MS lifetime, same size as M.
+
+        '''
+
+        M = np.asarray(M).reshape(-1)
+
+        if self.ms_model == 'Bressan':
+            datatable = np.loadtxt('ms_lifetime/bressan00170279.csv',
+                                   delimiter=',')
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.ms_model == 'C16':
+            age = 10**(13.37807 - 6.292517 * M + 4.451837 * M**2 -
+                       1.773315 * M**3 + 0.2944963 * M**4)
+            if (M > 2.11).any():
+                age[M > 2.11] = 10**(10.75941 - 1.043523 * M[M > 2.11] +
+                                     0.1366088 * M[M > 2.11]**2 -
+                                     7.110290e-3 * M[M > 2.11]**3)
+
+        elif self.ms_model == 'manual':
+
+            age = self.ms_function(M)
+
+        else:
+            raise ValueError('Please choose from a valid MS model.')
+
+        return age
 
     def _ifmr(self, M, fill_value=0):
         '''
@@ -168,184 +243,43 @@ class WDLF:
 
         return m
 
-    def _imf(self, M):
+    def _itp2D_gradient(self, f, val1, val2, frac=1e-6):
         '''
-        Compute the initial mass function based on the pre-selected IMF model
-        and the given mass (M).
-
-        See set_imf_model() for more details.
+        A function to find the gradient in the direction in the first dimension of
+        a 2D function at a given coordinate.
 
         Parameters
         ----------
-        M: float, list of float or array of float
-            Input MS mass
-
-        Returns
-        -------
-        MF: array
-            Array of MF, normalised to 1 at 1M_sun.
-
-        '''
-
-        M = np.asarray(M).reshape(-1)
-
-        if self.imf_model == 'K01':
-
-            MF = M**-2.3
-
-            # mass lower than 0.08 is impossible, so that range is ignored.
-            if (M < 0.5).any():
-
-                M_mask = M < 0.5
-                MF[M_mask] = M[M_mask]**1.3
-
-        elif self.imf_model == 'C03':
-
-            MF = M**-2.3
-
-            if (M < 1).any():
-                M_mask = M < 1.
-                # 0.158 / (ln(10) * M) = 0.06861852814 / M
-                # log(0.079) = -1.1023729087095586
-                # 2 * 0.69**2. = 0.9522
-                MF[M_mask] = (0.06861852814 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 1.1023729087095586)**2. / 0.9522)
-                # Normalise to m=1
-                ratio = MF[max(np.where(M_mask)[0])]
-                MF[M_mask] /= ratio
-
-        elif self.imf_model == 'C03b':
-
-            MF = M**-2.3
-
-            if (M < 1).any():
-                M_mask = M < 1.
-                # 0.086 * 1. / (ln(10) * M) = 0.03734932544 / M
-                # log(0.22) = -0.65757731917
-                # 2 * 0.57**2. = 0.6498
-                MF[M_mask] = (0.03734932544 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 0.65757731917)**2. / 0.6498)
-                # Normalise to M=1
-                ratio = MF[max(np.where(M_mask)[0])]
-                MF[M_mask] /= ratio
-
-        elif self.imf_model == 'manual':
-
-            MF = self.imf_function(M)
-
-        else:
-
-            raise ValueError(
-                'Please choose from K01, C03 and C03b. Use set_imf_model() to '
-                'change to a valid model.')
-
-        return MF
-
-    def _ms_age(self, M):
-        '''
-        Compute the main sequence lifetime based on the pre-selected MS model
-        and the given mass (M).
-
-        See set_ms_model() for more details.
-
-        Parameters
-        ----------
-        M: float, list of float or array of float
-            Input MS mass
-
-        Returns
-        -------
-        age: array
-            Array of total MS lifetime, same size as M.
-
-        '''
-
-        M = np.asarray(M).reshape(-1)
-
-        if self.ms_model == 'Bressan':
-            datatable = np.loadtxt('ms_lifetime/bressan00170279.csv',
-                                   delimiter=',')
-            massi = np.array(datatable[:, 0]).astype(np.float64)
-            time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
-
-        elif self.ms_model == 'C16':
-            age = 10**(13.37807 - 6.292517 * M + 4.451837 * M**2 -
-                       1.773315 * M**3 + 0.2944963 * M**4)
-            if (M > 2.11).any():
-                age[M > 2.11] = 10**(10.75941 - 1.043523 * M[M > 2.11] +
-                                     0.1366088 * M[M > 2.11]**2 -
-                                     7.110290e-3 * M[M > 2.11]**3)
-
-        elif self.ms_model == 'manual':
-
-            age = self.ms_function(M)
-
-        else:
-            raise ValueError('Please choose from a valid MS model.')
-
-        return age
-
-    def _integrand(self, M, L, T0):
-        '''
-        The integrand of the number density computation based on the
-        pre-selected (1) MS lifetime model, (2) initial mass function,
-        (3) initial-final mass relation, and (4) WD cooling model.
-
-        Parameters
-        ----------
-        M: float
-            Main sequence stellar mass
-        L: float
-            Luminosity
-        T0: float
-            Look-back time
-        SFR: callable function (Default: None)
-            The star formation rate at a given time since T0. In unit of years.
-            If not callable, it uses a constant star formation rate.
+        f: callable function
+            A 2D function
+        val1: float
+            The first input value accepted by f. The gradient is computed in this
+            direction.
+        val2: float
+            The first input value accepted by f.
+        frac: float (Default: 1e-6)
+            The small fractional increment of val1.
 
         Return
         ------
-        The product for integrating to the number density.
+        Gradient in the direction of val1.
 
         '''
 
-        if self.cooling_interpolator is None:
-            self.compute_cooling_age_interpolator()
+        if not callable(f):
+            raise TypeError('f has to be a callable function.')
 
-        # Get the WD mass
-        m = self._ifmr(M)
-        if m == M:
-            return 0.
+        increment = val1 * frac / 2.
+        grad = np.asarray((f(val1 + increment, val2) - f(val1 - increment, val2)) /
+                          (increment * 2.)).reshape(-1)
 
-        # Get the mass function
-        MF = self._imf(M)
+        # cooling((L+1), m) - cooling(L, m) must be negative
+        grad[grad > 0.] = 0.
+        grad[np.isnan(grad)] = 0.
 
-        # Get the WD cooling time
-        t_cool = self.cooling_interpolator(L, m)
-        if t_cool < 0.:
-            return 0.
+        return grad
 
-        # Get the MS lifetime
-        t_ms = self._ms_age(M)
-        if t_ms < 0.:
-            return 0.
-
-        # Get the time since star formation
-        time = T0 - t_cool - t_ms
-
-        # Get the derivative of the cooling rate
-        dLdt = -itp2D_gradient(self.cooling_interpolator, L, m)
-
-        if dLdt > -1e10:
-
-            return MF * self.sfr(time) * dLdt
-
-        else:
-
-            return 0.
-
-    def _Mmin(self, M, L, T0):
+    def _find_M_min(self, M, logL, T0):
         '''
         A function to be minimised to find the minimum mass limit that a MS
         star could have turned into a WD in the given age, T0, of the 
@@ -355,8 +289,8 @@ class WDLF:
         ----------
         M: float
             MS mass.
-        L: float
-            WD luminosity.
+        logL: float
+            log WD luminosity.
         T0: float
             Age of the system.
 
@@ -371,37 +305,322 @@ class WDLF:
         m = self._ifmr(M)
 
         # Get the cooling age from the WD mass and the luminosity
-        t_cool = self.cooling_interpolator(L, m)
-
-        # If the cooling time is longer than the total age, reject
-        if t_cool > T0:
-
-            return np.inf
-
-        if np.isnan(t_cool) or (t_cool == 0):
+        t_cool = self.cooling_interpolator(logL, m)
+        if t_cool <= 0.:
             return np.inf
 
         # Get the MS life time
         t_ms = self._ms_age(M)
+        if t_ms <= 0.:
+            return np.inf
 
-        # If the MS life time exceeds the total age, rejct
-        if t_ms > T0:
+        t_diff = T0 - t_cool - t_ms
+
+        if t_diff < 0.:
 
             return np.inf
 
-        # Get the difference between the total age and the cooling + MS time
-        T_diff = T0 - t_cool - t_ms
-
-        # If the value is not numeric, reject
-        if (not np.isfinite(T_diff)) or (T_diff < 0):
-
-            return np.inf
-
-        # Else return the square of the time difference, we want it to be as
-        # close to 0 as possible
         else:
 
-            return T_diff**2.
+            return M**2.
+
+    def _integrand(self, M, logL, T0):
+        '''
+        The integrand of the number density computation based on the
+        pre-selected (1) MS lifetime model, (2) initial mass function,
+        (3) initial-final mass relation, and (4) WD cooling model.
+
+        Parameters
+        ----------
+        M: float
+            Main sequence stellar mass
+        logL: float
+            log(Luminosity) / (erg/s)
+        T0: float
+            Look-back time
+
+        Return
+        ------
+        The product for integrating to the number density.
+
+        '''
+        # Get the WD mass
+        m = self._ifmr(M)
+
+        # Get the mass function
+        MF = self._imf(M)
+
+        # Get the WD cooling time
+        t_cool = self.cooling_interpolator(logL, m)
+
+        # Get the MS lifetime
+        t_ms = self._ms_age(M)
+
+        # Get the time since star formation
+        time = T0 - t_cool - t_ms
+
+        if time < 0.:
+
+            return 0.
+
+        # Get the SFR
+        sfr = self.sfr(time)
+
+        # Get the cooling rate
+        dLdt = self.cooling_rate_interpolator(logL, m)
+
+        if np.isfinite(dLdt) & np.isfinite(sfr):
+
+            return MF * sfr * dLdt
+
+        else:
+
+            return 0.
+
+    def set_sfr_model(self,
+                      mode='constant',
+                      duration=1E9,
+                      decay_constant=6.9314718056e-10,
+                      sfr_model=None):
+        '''
+        Set the SFR scenario, we only provide a few basic forms, free format
+        can be supplied as a callable function.
+
+        The SFR function accepts the time in unit of year, it is the time since
+        T0 provided in compute_density().
+
+        Parameters
+        ----------
+        mode: str (Default: 'constant')
+            Choose from 'constant', 'burst', 'decay' and 'manual'
+        duration: float (Default: 1E9)
+            Only used if mode is 'burst'.
+        decay_constant: float (Default: 6.9314718056e-10)
+            Only used if mode is 'decay'. The default value has a SFR decay
+            half-life of 1 Gyr.
+        sfr_model: callable function (Default: None)
+            The star formation rate at a given time since T0. In unit of years.
+            If not callable, it uses a constant star formation rate.
+
+        '''
+
+        if mode == 'constant':
+
+            self.sfr = None
+
+        elif mode == 'burst':
+
+            t0 = 0.
+            t1 = duration
+            t2 = 3e10
+
+            self.sfr = interp1d(np.array(
+                (-t2, t0 - 1e-10, t0, t1, t1 + 1e-10, t2)),
+                                np.array((0., 0., 1., 1., 0., 0.)),
+                                fill_value='extrapolate')
+
+        elif mode == 'decay':
+
+            t = 10.**np.linspace(0, 10.5, 10000)
+            sfr = np.exp(-decay_constant * t)
+
+            self.sfr = interp1d(t, sfr, fill_value='extrapolate')
+
+        elif mode == 'manual':
+
+            if callable(sfr_model):
+
+                self.sfr = sfr_model
+
+            else:
+
+                warnings.warn('The sfr_model provided is not callable, '
+                              'None is applied, i.e. constant star fomration.')
+                self.sfr = None
+
+        else:
+
+            "Please choose a valid mode of SFR model."
+
+        self.sfr_mode = mode
+
+    def set_imf_model(self, model, ifmr_function=None):
+        '''
+        Set the main sequence total lifetime model.
+
+        Parameter
+        ---------
+        model: str (Default: 'C16')
+            Choice of IFMR model:
+                1. K01 - Kroupa 2001
+                2. C03 - Charbrier 2003
+                3. C03b - Charbrier 2003 (including binary)
+                4. manual
+        imf_function: callable function (Default: None)
+            A callable imf function, only used if model is 'manual'.
+
+        '''
+
+        self.imf_model = model
+        self.imf_function = ifmr_function
+
+    def set_ms_model(self, model, ms_function=None):
+        '''
+        Set the main sequence total lifetime model.
+
+        Parameter
+        ---------
+        model: str (Default: 'C16')
+            Choice of IFMR model:
+                1. C16 - Choi et al. 2016
+                2. Bressan - BASTI
+                3. manual
+        ifmr_function: callable function (Default: None)
+            A callable ifmr function, only used if model is 'manual'.
+
+        '''
+
+        self.ms_model = model
+        self.ms_function = ms_function
+
+    def set_ifmr_model(self, model, ifmr_function=None):
+        '''
+        Set the initial-final mass relation (IFMR).
+
+        Parameter
+        ---------
+        model: str (Default: 'EB18')
+            Choice of IFMR model:
+                1. C08 - Catalan et al. 2008
+                2. C08b - Catalan et al. 2008 (two-part)
+                3. S09 - Salaris et al. 2009
+                4. S09b - Salaris et al. 2009 (two-part)
+                5. W09 - Williams, Bolte & Koester 2009
+                6. K09 - Kalirai et al. 2009
+                7. K09b - Kalirai et al. 2009 (two-part)
+                8. C18 - Cummings et al. 2018
+                9. EB18 - El-Badry et al. 2018
+                10. manual
+        ifmr_function: callable function (Default: None)
+            A callable ifmr function, only used if model is 'manual'.
+
+        '''
+
+        self.ifmr_model = model
+        self.ifmr_function = ifmr_function
+
+    def set_low_mass_cooling_model(self, model):
+        '''
+        Set the WD cooling model.
+
+        Parameter
+        ---------
+        model: str (Default: 'montreal_co_da_20')
+            Choice of WD cooling model:
+            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
+            2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
+            3. 'lpcode_he_da_07' - Panei et al. 2007 He DA
+            4. 'lpcode_co_da_07' - Panei et al. 2007 CO DA
+            5. 'lpcode_he_da_09' - Althaus et al. 2009 He DA
+
+            The naming convention follows this format:
+            [model]_[core composition]_[atmosphere]_[publication year]
+            where a few models continue to have extra property description
+            terms trailing after the year, currently they are either the
+            progenitor metallicity or the (lack of) phase separation in the
+            evolution model.
+
+        '''
+
+        if model in [
+                'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_he_da_07',
+                'lpcode_co_da_07', 'lpcode_he_da_09', None
+        ]:
+            self.low_mass_cooling_model = model
+        else:
+            raise ValueError('Please provide a valid model.')
+
+    def set_intermediate_mass_cooling_model(self, model):
+        '''
+        Set the WD cooling model.
+
+        Parameter
+        ---------
+        model: str (Default: 'montreal_co_da_20')
+            Choice of WD cooling model:
+            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
+            2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
+            3. 'lpcode_co_da_10_z001' - Renedo et al. 2010 CO DA Z=0.01
+            4. 'lpcode_co_da_10_z0001' - Renedo et al. 2010 CO DA Z=0.001
+            5. 'lpcode_co_da_15_z00003' - Althaus et al. 2015 DA Z=0.00003
+            6. 'lpcode_co_da_15_z0001' - Althaus et al. 2015 DA Z=0.0001
+            7. 'lpcode_co_da_15_z0005' - Althaus et al. 2015 DA Z=0.0005
+            8. 'lpcode_co_da_17_y04' - Althaus et al. 2017 DB Y=0.4
+            9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
+            10. 'basti_co_da_10' - Salari et al. 2010 CO DA
+            11. 'basti_co_db_10' - Salari et al. 2010 CO DB
+            12. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
+            13. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
+
+            The naming convention follows this format:
+            [model]_[core composition]_[atmosphere]_[publication year]
+            where a few models continue to have extra property description
+            terms trailing after the year, currently they are either the
+            progenitor metallicity or the (lack of) phase separation in the
+            evolution model.
+
+        '''
+
+        if model in [
+                'montreal_co_da_20', 'montreal_co_db_20',
+                'lpcode_co_da_10_z001', 'lpcode_co_da_10_z0001',
+                'lpcode_co_da_15_z00003', 'lpcode_co_da_15_z0001',
+                'lpcode_co_da_15_z0005', 'lpcode_co_da_17_y04',
+                'lpcode_co_db_17', 'basti_co_da_10', 'basti_co_db_10',
+                'basti_co_da_10_nps', 'basti_co_db_10_nps', None
+        ]:
+            self.intermediate_mass_cooling_model = model
+        else:
+            raise ValueError('Please provide a valid model.')
+
+    def set_high_mass_cooling_model(self, model):
+        '''
+        Set the WD cooling model.
+
+        Parameter
+        ---------
+        model: str (Default: 'montreal_co_da_20')
+            Choice of WD cooling model:
+            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
+            2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
+            3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
+            4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
+            5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
+            6. 'basti_co_da_10' - Salari et al. 2010 CO DA
+            7. 'basti_co_db_10' - Salari et al. 2010 CO DB
+            8. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
+            9. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
+            10. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
+            11. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
+
+            The naming convention follows this format:
+            [model]_[core composition]_[atmosphere]_[publication year]
+            where a few models continue to have extra property description
+            terms trailing after the year, currently they are either the
+            progenitor metallicity or the (lack of) phase separation in the
+            evolution model.
+
+        '''
+
+        if model in [
+                'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_one_da_07',
+                'lpcode_one_da_19', 'lpcode_one_db_19', 'basti_co_da_10',
+                'basti_co_db_10', 'basti_co_da_10_nps', 'basti_co_db_10_nps',
+                'mesa_one_da_18', 'mesa_one_db_18', None
+        ]:
+            self.high_mass_cooling_model = model
+        else:
+            raise ValueError('Please provide a valid model.')
 
     def compute_cooling_age_interpolator(self):
         '''
@@ -616,263 +835,34 @@ class WDLF:
         self.age = np.concatenate((age_low, age_intermediate, age_high))
 
         self.cooling_interpolator = CloughTocher2DInterpolator(
-            (self.luminosity, self.mass),
+            (np.log10(self.luminosity), self.mass),
             self.age,
             fill_value=-np.inf,
             tol=1e-10,
-            maxiter=1e6,
+            maxiter=1000000,
             rescale=True)
 
-    def set_ifmr_model(self, model, ifmr_function=None):
-        '''
-        Set the initial-final mass relation (IFMR).
+        self.dLdt = -self._itp2D_gradient(self.cooling_interpolator,
+                               np.log10(self.luminosity), self.mass)
 
-        Parameter
-        ---------
-        model: str (Default: 'EB18')
-            Choice of IFMR model:
-                1. C08 - Catalan et al. 2008
-                2. C08b - Catalan et al. 2008 (two-part)
-                3. S09 - Salaris et al. 2009
-                4. S09b - Salaris et al. 2009 (two-part)
-                5. W09 - Williams, Bolte & Koester 2009
-                6. K09 - Kalirai et al. 2009
-                7. K09b - Kalirai et al. 2009 (two-part)
-                8. C18 - Cummings et al. 2018
-                9. EB18 - El-Badry et al. 2018
-                10. manual
-        ifmr_function: callable function (Default: None)
-            A callable ifmr function, only used if model is 'manual'.
+        finite_mask = np.isfinite(self.dLdt)
 
-        '''
-
-        self.ifmr_model = model
-        self.ifmr_function = ifmr_function
-
-    def set_low_mass_cooling_model(self, model):
-        '''
-        Set the WD cooling model.
-
-        Parameter
-        ---------
-        model: str (Default: 'montreal_co_da_20')
-            Choice of WD cooling model:
-            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
-            2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
-            3. 'lpcode_he_da_07' - Panei et al. 2007 He DA
-            4. 'lpcode_co_da_07' - Panei et al. 2007 CO DA
-            5. 'lpcode_he_da_09' - Althaus et al. 2009 He DA
-
-            The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
-
-        '''
-
-        if model in [
-                'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_he_da_07',
-                'lpcode_co_da_07', 'lpcode_he_da_09', None
-        ]:
-            self.low_mass_cooling_model = model
-        else:
-            raise ValueError('Please provide a valid model.')
-
-    def set_intermediate_mass_cooling_model(self, model):
-        '''
-        Set the WD cooling model.
-
-        Parameter
-        ---------
-        model: str (Default: 'montreal_co_da_20')
-            Choice of WD cooling model:
-            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
-            2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
-            3. 'lpcode_co_da_10_z001' - Renedo et al. 2010 CO DA Z=0.01
-            4. 'lpcode_co_da_10_z0001' - Renedo et al. 2010 CO DA Z=0.001
-            5. 'lpcode_co_da_15_z00003' - Althaus et al. 2015 DA Z=0.00003
-            6. 'lpcode_co_da_15_z0001' - Althaus et al. 2015 DA Z=0.0001
-            7. 'lpcode_co_da_15_z0005' - Althaus et al. 2015 DA Z=0.0005
-            8. 'lpcode_co_da_17_y04' - Althaus et al. 2017 DB Y=0.4
-            9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
-            10. 'basti_co_da_10' - Salari et al. 2010 CO DA
-            11. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            12. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
-            13. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
-
-            The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
-
-        '''
-
-        if model in [
-                'montreal_co_da_20', 'montreal_co_db_20',
-                'lpcode_co_da_10_z001', 'lpcode_co_da_10_z0001',
-                'lpcode_co_da_15_z00003', 'lpcode_co_da_15_z0001',
-                'lpcode_co_da_15_z0005', 'lpcode_co_da_17_y04',
-                'lpcode_co_db_17', 'basti_co_da_10', 'basti_co_db_10',
-                'basti_co_da_10_nps', 'basti_co_db_10_nps', None
-        ]:
-            self.intermediate_mass_cooling_model = model
-        else:
-            raise ValueError('Please provide a valid model.')
-
-    def set_high_mass_cooling_model(self, model):
-        '''
-        Set the WD cooling model.
-
-        Parameter
-        ---------
-        model: str (Default: 'montreal_co_da_20')
-            Choice of WD cooling model:
-            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
-            2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
-            3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
-            4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
-            5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
-            6. 'basti_co_da_10' - Salari et al. 2010 CO DA
-            7. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            8. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
-            9. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
-            10. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
-            11. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
-
-            The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
-
-        '''
-
-        if model in [
-                'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_one_da_07',
-                'lpcode_one_da_19', 'lpcode_one_db_19', 'basti_co_da_10',
-                'basti_co_db_10', 'basti_co_da_10_nps', 'basti_co_db_10_nps',
-                'mesa_one_da_18', 'mesa_one_db_18', None
-        ]:
-            self.high_mass_cooling_model = model
-        else:
-            raise ValueError('Please provide a valid model.')
-
-    def set_ms_model(self, model, ms_function=None):
-        '''
-        Set the main sequence total lifetime model.
-
-        Parameter
-        ---------
-        model: str (Default: 'C16')
-            Choice of IFMR model:
-                1. C16 - Choi et al. 2016
-                2. Bressan - BASTI
-                3. manual
-        ifmr_function: callable function (Default: None)
-            A callable ifmr function, only used if model is 'manual'.
-
-        '''
-
-        self.ms_model = model
-        self.ms_function = ms_function
-
-    def set_imf_model(self, model, ifmr_function=None):
-        '''
-        Set the main sequence total lifetime model.
-
-        Parameter
-        ---------
-        model: str (Default: 'C16')
-            Choice of IFMR model:
-                1. K01 - Kroupa 2001
-                2. C03 - Charbrier 2003
-                3. C03b - Charbrier 2003 (including binary)
-                4. manual
-        imf_function: callable function (Default: None)
-            A callable imf function, only used if model is 'manual'.
-
-        '''
-
-        self.imf_model = model
-        self.imf_function = ifmr_function
-
-    def set_sfr_model(self,
-                      mode='constant',
-                      duration=1E9,
-                      decay_constant=6.9314718056e-10,
-                      sfr_model=None):
-        '''
-        Set the SFR scenario, we only provide a few basic forms, free format
-        can be supplied as a callable function.
-
-        The SFR function accepts the time in unit of year, it is the time since
-        T0 provided in compute_density().
-
-        Parameters
-        ----------
-        mode: str (Default: 'constant')
-            Choose from 'constant', 'burst', 'decay' and 'manual'
-        duration: float (Default: 1E9)
-            Only used if mode is 'burst'.
-        decay_constant: float (Default: 6.9314718056e-10)
-            Only used if mode is 'decay'. The default value has a SFR decay
-            half-life of 1 Gyr.
-        sfr_model: callable function (Default: None)
-            The star formation rate at a given time since T0. In unit of years.
-            If not callable, it uses a constant star formation rate.
-
-        '''
-
-        if mode == 'constant':
-
-            self.sfr = None
-
-        elif mode == 'burst':
-
-            t0 = 0
-            t1 = duration
-            t2 = 2e10
-
-            self.sfr = interp1d(np.array((t0, t1, t1+1e-10, t2)),
-                                np.array((1., 1., 0., 0.)),
-                                fill_value='extrapolate')
-
-        elif mode == 'decay':
-
-            t = 10.**np.linspace(0, 10.3, 10000)
-            sfr = np.exp(-decay_constant * t)
-
-            self.sfr = interp1d(t, sfr, fill_value='extrapolate')
-
-        elif mode == 'manual':
-
-            if callable(sfr_model):
-
-                self.sfr = sfr_model
-
-            else:
-
-                warnings.warn('The sfr_model provided is not callable, '
-                              'None is applied, i.e. constant star fomration.')
-                self.sfr = None
-
-        else:
-
-            "Please choose a valid mode of SFR model."
-
-        self.sfr_mode = mode
+        self.cooling_rate_interpolator = CloughTocher2DInterpolator(
+            (np.log10(self.luminosity)[finite_mask], self.mass[finite_mask]),
+            self.dLdt[finite_mask],
+            fill_value=0.,
+            tol=1e-10,
+            maxiter=1000000,
+            rescale=True)
 
     def compute_density(self,
-                        L,
+                        logL,
                         T0,
                         M_max=8.0,
-                        limit=1000000,
-                        tolerance=1e-10):
+                        limit=10000,
+                        epsabs=1e-6,
+                        epsrel=1e-6,
+                        save_csv=False):
         '''
         Compute the density based on the pre-selected models: (1) MS lifetime
         model, (2) initial mass function, (3) initial-final mass relation, and
@@ -880,56 +870,67 @@ class WDLF:
 
         Parameters
         ----------
-        L: float
-            Luminosity
-        T0: float
+        logL: float or array of float
+            log(Luminosity) / (erg/s)
+        T0: float or array of float
             Look-back time
         M_max: float (Deafult: 8.0)
             The upper limit of the main sequence stellar mass. This may not
             be used if it exceeds the upper bound of the IFMR model.
         limit: int (Default: 1000000)
             The maximum number of steps of integration
-        tolerance: float (Default: 1e-10)
+        epsabs: float (Default: 1e-6)
+            The absolute tolerance of the integration step
+        epsrel: float (Default: 1e-6)
             The relative tolerance of the integration step
-
-        Return
-        ------
-        The integrated number density.
+        save_csv: boolean (Default: False)
+            Set to True to save the WDLF as CSV files. One CSV per T0.
 
         '''
 
-        T0 = np.asarray(T0).reshape(-1)
-        L = np.asarray(L).reshape(-1)
+        if self.cooling_interpolator is None:
 
-        number_density = np.zeros((len(T0), len(L)))
+            self.compute_cooling_age_interpolator()
+
+        T0 = np.asarray(T0).reshape(-1)
+        logL = np.asarray(logL).reshape(-1)
+
+        number_density = np.zeros((len(T0), len(logL)))
 
         for j, t in enumerate(T0):
 
-            # In our computation, the mass limit is decreasing in each step, so we
-            # include that as our bound to improve the rate of convergence
-            M_bound = M_max
+            print('Computing T0 = ' + str(t * 1e-9) + 'Gyr.')
 
-            for i, L_i in enumerate(L):
+            M_upper_bound = M_max
 
-                M_min = optimize.fminbound(self._Mmin,
-                                           0.6,
-                                           M_bound,
-                                           args=(L_i, t),
-                                           full_output=0,
-                                           maxfun=1e5,
-                                           disp=0)
+            for i, logL_i in enumerate(logL):
 
-                if (M_min < M_max) & (M_min > 0.6):
-                    number_density[j][i] = integrate.quad(
-                        self._integrand,
-                        M_min,
-                        M_max,
-                        args=(L_i, t),
-                        limit=limit,
-                        epsrel=tolerance)[0] * L_i
-                    M_bound = M_min
+                M_min = optimize.fminbound(self._find_M_min,
+                                           0.5,
+                                           M_upper_bound,
+                                           args=(logL_i, t),
+                                           xtol=1e-5,
+                                           maxfun=10000)
 
-        self.L = L
+                number_density[j][i] = integrate.quad(self._integrand,
+                                                      M_min,
+                                                      M_max,
+                                                      args=(logL_i, t),
+                                                      limit=limit,
+                                                      epsabs=epsabs,
+                                                      epsrel=epsrel)[0]
+
+                M_upper_bound = M_min
+
+            if save_csv:
+
+                filename = str(t) + 'Gyr_' + self.sfr_mode + '_' + self.ms_model + '_' +\
+                    self.ifmr_model + '_' + self.low_mass_cooling_model +\
+                    '_' + self.intermediate_mass_cooling_model + '_' +\
+                    self.high_mass_cooling_model + '.csv'
+                np.savetxt(filename, np.column_stack((logL, number_density[j])), delimiter=',')
+
+        self.logL = logL
         self.T0 = T0
         self.number_density = number_density
 
@@ -980,7 +981,7 @@ class WDLF:
 
             if mag:
 
-                plt.plot(-2.5 * np.log10(self.L / 3.826E33) + 4.75,
+                plt.plot(-2.5 * (self.logL - np.log10(3.826E33)) + 4.75,
                          np.log10(self.number_density[i]),
                          label=str(t * 1e-9) + ' Gyr')
                 plt.xlim(4, 20)
@@ -988,7 +989,7 @@ class WDLF:
 
             else:
 
-                plt.plot(np.log10(self.L / 3.826E33),
+                plt.plot(self.logL - np.log10(3.826E33),
                          np.log10(self.number_density[i]),
                          label=str(t * 1e-9) + ' Gyr')
                 plt.xlim(0, -5)
@@ -1001,7 +1002,7 @@ class WDLF:
 
         if savefig:
             if filename is None:
-                filename = self.sfr_mode + '_' + self.ms_model + '-' +\
+                filename = self.sfr_mode + '_' + self.ms_model + '_' +\
                     self.ifmr_model + '_' + self.low_mass_cooling_model +\
                     '_' + self.intermediate_mass_cooling_model + '_' +\
                     self.high_mass_cooling_model + '.png'
