@@ -1,5 +1,7 @@
 # WDLFBuilder
 
+![example workflow name](https://github.com/cylammarco/WDLFBuilder/workflows/Python%20package/badge.svg)
+
 This software constructs theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) main sequence total lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
 
 The options for the various models include:

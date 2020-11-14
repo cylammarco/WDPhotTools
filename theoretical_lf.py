@@ -922,6 +922,9 @@ class WDLF:
 
                 M_upper_bound = M_min
 
+            # Normalise the WDLF
+            number_density[j] /= np.sum(number_density[j])
+
             if save_csv:
 
                 filename = str(t) + 'Gyr_' + self.sfr_mode + '_' + self.ms_model + '_' +\
@@ -933,6 +936,8 @@ class WDLF:
         self.logL = logL
         self.T0 = T0
         self.number_density = number_density
+
+        return logL, number_density
 
     def plot_cooling_model(self,
                            mag=True,
