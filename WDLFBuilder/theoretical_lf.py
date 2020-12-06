@@ -1,15 +1,11 @@
-import glob
-import os
 import numpy as np
-import scipy
 from scipy import optimize, integrate
 from scipy.interpolate import interp1d
 from scipy.interpolate import CloughTocher2DInterpolator
-from scipy.misc import derivative
 from matplotlib import pyplot as plt
 import warnings
 
-from model_reader import *
+from .model_reader import *
 
 
 class WDLF:
@@ -245,16 +241,16 @@ class WDLF:
 
     def _itp2D_gradient(self, f, val1, val2, frac=1e-6):
         '''
-        A function to find the gradient in the direction in the first dimension of
-        a 2D function at a given coordinate.
+        A function to find the gradient in the direction in the first dimension
+        of a 2D function at a given coordinate.
 
         Parameters
         ----------
         f: callable function
             A 2D function
         val1: float
-            The first input value accepted by f. The gradient is computed in this
-            direction.
+            The first input value accepted by f. The gradient is computed in
+            this direction.
         val2: float
             The first input value accepted by f.
         frac: float (Default: 1e-6)
@@ -270,8 +266,9 @@ class WDLF:
             raise TypeError('f has to be a callable function.')
 
         increment = val1 * frac / 2.
-        grad = np.asarray((f(val1 + increment, val2) - f(val1 - increment, val2)) /
-                          (increment * 2.)).reshape(-1)
+        grad = np.asarray(
+            (f(val1 + increment, val2) - f(val1 - increment, val2)) /
+            (increment * 2.)).reshape(-1)
 
         # cooling((L+1), m) - cooling(L, m) must be negative
         grad[grad > 0.] = 0.
@@ -282,7 +279,7 @@ class WDLF:
     def _find_M_min(self, M, logL, T0):
         '''
         A function to be minimised to find the minimum mass limit that a MS
-        star could have turned into a WD in the given age, T0, of the 
+        star could have turned into a WD in the given age, T0, of the
         population.
 
         Parameters
@@ -559,8 +556,10 @@ class WDLF:
             9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
             10. 'basti_co_da_10' - Salari et al. 2010 CO DA
             11. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            12. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
-            13. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
+            12. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA,
+                                       no phase separation
+            13. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB,
+                                       no phase separation
 
             The naming convention follows this format:
             [model]_[core composition]_[atmosphere]_[publication year]
@@ -598,8 +597,10 @@ class WDLF:
             5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
             6. 'basti_co_da_10' - Salari et al. 2010 CO DA
             7. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            8. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
-            9. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
+            8. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA,
+                                      no phase separation
+            9. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB,
+                                      no phase separation
             10. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
             11. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 
@@ -667,43 +668,45 @@ class WDLF:
                 'montreal_co_da_20', 'montreal_co_db_20'
         ]:
 
-            mass_intermediate, cooling_model_intermediate = bedard20_formatter(
-                self.intermediate_mass_cooling_model,
-                mass_range='intermediate')
+            mass_intermediate, cooling_model_intermediate =\
+                bedard20_formatter(
+                    self.intermediate_mass_cooling_model,
+                    mass_range='intermediate')
 
         elif self.intermediate_mass_cooling_model in [
                 'lpcode_co_da_10_z001', 'lpcode_co_da_10_z0001'
         ]:
 
-            mass_intermediate, cooling_model_intermediate = renedo10_formatter(
-                self.intermediate_mass_cooling_model)
+            mass_intermediate, cooling_model_intermediate =\
+                renedo10_formatter(self.intermediate_mass_cooling_model)
 
         elif self.intermediate_mass_cooling_model in [
                 'lpcode_co_da_15_z00003', 'lpcode_co_da_15_z0001',
                 'lpcode_co_da_15_z0005'
         ]:
 
-            mass_intermediate, cooling_model_intermediate = althaus15_formatter(
-                self.intermediate_mass_cooling_model)
+            mass_intermediate, cooling_model_intermediate =\
+                althaus15_formatter(self.intermediate_mass_cooling_model)
 
         elif self.intermediate_mass_cooling_model == 'lpcode_co_da_17_y04':
 
-            mass_intermediate, cooling_model_intermediate = althaus17_formatter(
-                mass_range='intermediate')
+            mass_intermediate, cooling_model_intermediate =\
+                althaus17_formatter(mass_range='intermediate')
 
         elif self.intermediate_mass_cooling_model == 'lpcode_co_db_17':
 
-            mass_intermediate, cooling_model_intermediate = camisassa17_formatter(
-            )
+            mass_intermediate, cooling_model_intermediate =\
+                 camisassa17_formatter()
 
         elif self.intermediate_mass_cooling_model in [
                 'basti_co_da_10', 'basti_co_db_10', 'basti_co_da_10_nps',
                 'basti_co_db_10_nps'
         ]:
 
-            mass_intermediate, cooling_model_intermediate = salaris10_formatter(
-                self.intermediate_mass_cooling_model,
-                mass_range='intermediate')
+            mass_intermediate, cooling_model_intermediate =\
+                salaris10_formatter(
+                    self.intermediate_mass_cooling_model,
+                    mass_range='intermediate')
 
         elif self.intermediate_mass_cooling_model is None:
 
@@ -843,7 +846,7 @@ class WDLF:
             rescale=True)
 
         self.dLdt = -self._itp2D_gradient(self.cooling_interpolator,
-                               np.log10(self.luminosity), self.mass)
+                                          np.log10(self.luminosity), self.mass)
 
         finite_mask = np.isfinite(self.dLdt)
 
@@ -862,6 +865,7 @@ class WDLF:
                         limit=10000,
                         epsabs=1e-6,
                         epsrel=1e-6,
+                        normed=True,
                         save_csv=False):
         '''
         Compute the density based on the pre-selected models: (1) MS lifetime
@@ -883,6 +887,9 @@ class WDLF:
             The absolute tolerance of the integration step
         epsrel: float (Default: 1e-6)
             The relative tolerance of the integration step
+        normed: boolean (Default: True)
+            Set to True to return a WDLF sum to 1. Otherwise, it is arbitrary
+            to the integrator.
         save_csv: boolean (Default: False)
             Set to True to save the WDLF as CSV files. One CSV per T0.
 
@@ -899,7 +906,7 @@ class WDLF:
 
         for j, t in enumerate(T0):
 
-            print('Computing T0 = ' + str(t * 1e-9) + 'Gyr.')
+            print('Computing T0 = {0:.2f} Gyr.'.format(t/1e9))
 
             M_upper_bound = M_max
 
@@ -923,15 +930,19 @@ class WDLF:
                 M_upper_bound = M_min
 
             # Normalise the WDLF
-            number_density[j] /= np.sum(number_density[j])
+            if normed:
+                number_density[j] /= np.sum(number_density[j])
 
             if save_csv:
 
-                filename = str(t) + 'Gyr_' + self.sfr_mode + '_' + self.ms_model + '_' +\
-                    self.ifmr_model + '_' + self.low_mass_cooling_model +\
-                    '_' + self.intermediate_mass_cooling_model + '_' +\
+                filename = "{0:.2f}".format(t/1e9) + 'Gyr_' + self.sfr_mode + '_' +\
+                    self.ms_model + '_' + self.ifmr_model + '_' +\
+                    self.low_mass_cooling_model + '_' +\
+                    self.intermediate_mass_cooling_model + '_' +\
                     self.high_mass_cooling_model + '.csv'
-                np.savetxt(filename, np.column_stack((logL, number_density[j])), delimiter=',')
+                np.savetxt(filename,
+                           np.column_stack((logL, number_density[j])),
+                           delimiter=',')
 
         self.logL = logL
         self.T0 = T0
@@ -971,8 +982,8 @@ class WDLF:
         if savefig:
             if filename is None:
                 filename = self.low_mass_cooling_model + '_' +\
-                self.intermediate_mass_cooling_model + '_' +\
-                self.high_mass_cooling_model + '.png'
+                    self.intermediate_mass_cooling_model + '_' +\
+                    self.high_mass_cooling_model + '.png'
             plt.savefig(filename)
 
         if display:
@@ -988,7 +999,7 @@ class WDLF:
 
                 plt.plot(-2.5 * (self.logL - np.log10(3.826E33)) + 4.75,
                          np.log10(self.number_density[i]),
-                         label=str(t * 1e-9) + ' Gyr')
+                         label="{0:.2f}".format(t/1e9) + ' Gyr')
                 plt.xlim(4, 20)
                 plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
 
@@ -996,7 +1007,7 @@ class WDLF:
 
                 plt.plot(self.logL - np.log10(3.826E33),
                          np.log10(self.number_density[i]),
-                         label=str(t * 1e-9) + ' Gyr')
+                         label="{0:.2f}".format(t/1e9) + ' Gyr')
                 plt.xlim(0, -5)
                 plt.xlabel(r'L/L$_{\odot}$')
 

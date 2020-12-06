@@ -1,6 +1,7 @@
 import io
 import glob
 import numpy as np
+import pkg_resources
 
 
 def althaus07_formatter():
@@ -9,7 +10,8 @@ def althaus07_formatter():
 
     '''
 
-    filelist = glob.glob('wd_cooling/althaus07/*.dat')
+    filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/althaus07/*.dat'))
 
     # Prepare the array column dtype
     column_key = np.array(('lum', 'logg', 'B-V', 'V-R', 'V-K', 'R-I', 'J-H',
@@ -43,7 +45,8 @@ def althaus09_formatter(mass_range='all'):
 
     '''
 
-    filelist = glob.glob('wd_cooling/althaus09/z.*')
+    filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/althaus09/z.*'))
 
     # Prepare the array column dtype
     column_key = np.array(('Teff', 'logg', 'lum', 'age', 'BC', 'M_V', 'U', 'B',
@@ -87,15 +90,18 @@ def althaus15_formatter(model):
 
     # Z=0.00003 models
     if model == 'lpcode_co_da_15_z00003':
-        filelist = glob.glob('wd_cooling/althaus15/Z=3d-5/*.trk')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/althaus15/Z=3d-5/*.trk'))
 
     # Z=0.0001 models
     if model == 'lpcode_co_da_15_z0001':
-        filelist = glob.glob('wd_cooling/althaus15/Z=1d-4/*.trk')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/althaus15/Z=1d-4/*.trk'))
 
     # Z=0.0005 models
     if model == 'lpcode_co_da_15_z0005':
-        filelist = glob.glob('wd_cooling/althaus15/Z=5d-4/*.trk')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/althaus15/Z=5d-4/*.trk'))
 
     # Prepare the array column dtype
     column_key = np.array(
@@ -135,11 +141,13 @@ def althaus17_formatter(model, mass_range='all'):
 
     # Y=0.4, Z=0.001 models
     if model == 'lpcode_co_db_17_z00005':
-        filelist = glob.glob('wd_cooling/althaus17/*d4.trk')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/althaus17/*d4.trk'))
 
     # Y=0.4, Z=0.0005 models
     if model == 'lpcode_co_db_17_z0001':
-        filelist = glob.glob('wd_cooling/althaus17/*d3.trk')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/althaus17/*d3.trk'))
 
     # Prepare the array column dtype
     column_key = np.array(
@@ -195,11 +203,13 @@ def bedard20_formatter(model, mass_range='all'):
 
     # DA models
     if model == 'montreal_co_da_20':
-        filelist = glob.glob('wd_cooling/bedard20/*thick*')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/bedard20/*thick*'))
 
     # DB models
     if model == 'montreal_co_db_20':
-        filelist = glob.glob('wd_cooling/bedard20/*thin*')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/bedard20/*thin*'))
 
     # Prepare the array column dtype
     column_key = np.array(
@@ -306,11 +316,13 @@ def camisassa19_formatter(model):
 
     # DA model
     if model == 'lpcode_one_da_19':
-        filelist = glob.glob('wd_cooling/camisassa19/*hrich.dat')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/camisassa19/*hrich.dat'))
 
     # DB model
     if model == 'lpcode_one_db_19':
-        filelist = glob.glob('wd_cooling/camisassa19/*hdef.dat')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/camisassa19/*hdef.dat'))
 
     # Prepare the array column dtype
     column_key = np.array(
@@ -348,11 +360,13 @@ def lauffer18_formatter(model):
 
     # H models
     if model == 'mesa_one_da_18':
-        filelist = glob.glob('wd_cooling/lauffer18/H_*.dat')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/lauffer18/H_*.dat'))
 
     # He models
     if model == 'mesa_one_db_18':
-        filelist = glob.glob('wd_cooling/lauffer18/He_*.dat')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/lauffer18/He_*.dat'))
 
     # Prepare the array column dtype
     column_key = np.array(
@@ -388,11 +402,13 @@ def panei07_formatter(model):
 
     # He core models
     if model == 'lpcode_he_da_07':
-        filelist = glob.glob('wd_cooling/panei07/*He.SDSS')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/panei07/*He.SDSS'))
 
     # CO core models
     if model == 'lpcode_co_da_07':
-        filelist = glob.glob('wd_cooling/panei07/*CO.SDSS')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/panei07/*CO.SDSS'))
 
     # Prepare the array column dtype
     column_key = np.array(
@@ -431,11 +447,13 @@ def renedo10_formatter(model):
 
     # Solar metallicity model
     if model == 'lpcode_co_da_10':
-        filelist = glob.glob('wd_cooling/renedo10/*z001.trk')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/renedo10/*z001.trk'))
 
     # Low metallicity model
     if model == 'lpcode_co_da_10_z0001':
-        filelist = glob.glob('wd_cooling/renedo10/*z0001.trk')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/renedo10/*z0001.trk'))
 
     # Prepare the array column dtype
     column_key = np.array(
@@ -472,19 +490,23 @@ def salaris10_formatter(model, mass_range='all'):
 
     # DA model with phase separation
     if model == 'basti_co_da_10':
-        filelist = glob.glob('wd_cooling/salaris10/*DAsep.sdss')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/salaris10/*DAsep.sdss'))
 
     # DB model with phase separation
     if model == 'basti_co_db_10':
-        filelist = glob.glob('wd_cooling/salaris10/*DBsep.sdss')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/salaris10/*DBsep.sdss'))
 
     # DA model without phase separation
     if model == 'basti_co_da_10_nps':
-        filelist = glob.glob('wd_cooling/salaris10/*DAnosep.sdss')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/salaris10/*DAnosep.sdss'))
 
     # DB model without phase separation
     if model == 'basti_co_db_10_nps':
-        filelist = glob.glob('wd_cooling/salaris10/*DBnosep.sdss')
+        filelist = glob.glob(pkg_resources.resource_filename(
+                    'WDLFBuilder', 'wd_cooling/salaris10/*DBnosep.sdss'))
 
     # Prepare the array column dtype
     column_key = np.array(
