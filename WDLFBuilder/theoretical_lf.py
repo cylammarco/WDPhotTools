@@ -5,7 +5,7 @@ from scipy.interpolate import CloughTocher2DInterpolator
 from matplotlib import pyplot as plt
 import warnings
 
-from .model_reader import *
+from .cooling_model_reader import *
 
 
 class WDLF:
