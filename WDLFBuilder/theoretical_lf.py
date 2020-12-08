@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import warnings
 
 from .cooling_model_reader import *
+from .atmosphere_model_reader import *
 
 
 class WDLF:
