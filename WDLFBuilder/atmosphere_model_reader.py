@@ -1,10 +1,9 @@
-import glob
 import numpy as np
 import pkg_resources
 from scipy.interpolate import CloughTocher2DInterpolator
 
 
-def interp_atm(z='G3',
+def interp_atm(passband='G3',
                atmosphere='H',
                variables=['logg', 'Mbol'],
                fill_value=-np.inf,
@@ -17,7 +16,7 @@ def interp_atm(z='G3',
 
     Parameters
     ----------
-    z: str (Default: 'G3')
+    passband: str (Default: 'G3')
         The value to be interpolated over. Choose from:
         'Teff', 'logg', 'mass', 'Mbol', 'BC', 'U', 'B', 'V', 'R', 'I', 'J',
         'H', 'Ks', 'Y_ukidss', 'J_ukidss', 'H_ukidss', 'K_ukidss', 'W1', 'W2',
@@ -27,7 +26,7 @@ def interp_atm(z='G3',
     atmosphere: str (Default: 'H')
         The atmosphere type, 'H' or 'He'.
     variables: list (Default: ['logg', 'Mbol'])
-        The parameters to be interpolated over for z.
+        The parameters to be interpolated over for passband.
     fill_value: numeric (Default: -np.inf)
         The fill_value in the CloughTocher2DInterpolator.
     tol: float (Default: 1e-10)
@@ -45,12 +44,12 @@ def interp_atm(z='G3',
 
     # DA atmosphere
     if atmosphere == 'H':
-        filepath = pkg_resources.resource_filename('WDLFBuilder',
-                                            'wd_photometry/Table_DA.txt')
+        filepath = pkg_resources.resource_filename(
+            'WDLFBuilder', 'wd_photometry/Table_DA.txt')
     # DB atmosphere
     elif atmosphere == 'He':
-        filepath = pkg_resources.resource_filename('WDLFBuilder',
-                                            'wd_photometry/Table_DB.txt')
+        filepath = pkg_resources.resource_filename(
+            'WDLFBuilder', 'wd_photometry/Table_DB.txt')
     else:
         raise ValueError('Please choose from "H" or "He" as the atmophere '
                          'type, you have provided {}.'.format(atmosphere))
@@ -72,7 +71,7 @@ def interp_atm(z='G3',
     # Interpolate with the scipy CloughTocher2DInterpolator
     atmosphere_interpolator = CloughTocher2DInterpolator(
         (model[variables[0]], model[variables[1]]),
-        model[z],
+        model[passband],
         fill_value=fill_value,
         tol=tol,
         maxiter=maxiter,

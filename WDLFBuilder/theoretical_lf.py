@@ -40,6 +40,7 @@ class WDLF:
             intermediate_mass_cooling_model)
         self.set_high_mass_cooling_model(high_mass_cooling_model)
         self.set_ms_model(ms_model)
+        self.set_sfr_model()
 
         self.cooling_interpolator = None
 
@@ -138,12 +139,12 @@ class WDLF:
             age = interp1d(massi, time)(M)
 
         elif self.ms_model == 'C16':
-            age = 10**(13.37807 - 6.292517 * M + 4.451837 * M**2 -
-                       1.773315 * M**3 + 0.2944963 * M**4)
+            age = 10.**(13.37807 - 6.292517 * M + 4.451837 * M**2 -
+                        1.773315 * M**3 + 0.2944963 * M**4)
             if (M > 2.11).any():
-                age[M > 2.11] = 10**(10.75941 - 1.043523 * M[M > 2.11] +
-                                     0.1366088 * M[M > 2.11]**2 -
-                                     7.110290e-3 * M[M > 2.11]**3)
+                age[M > 2.11] = 10.**(10.75941 - 1.043523 * M[M > 2.11] +
+                                      0.1366088 * M[M > 2.11]**2 -
+                                      7.110290e-3 * M[M > 2.11]**3)
 
         elif self.ms_model == 'manual':
 
@@ -277,7 +278,7 @@ class WDLF:
 
         return grad
 
-    def _find_M_min(self, M, logL, T0):
+    def _find_M_min(self, M, Mag, T0):
         '''
         A function to be minimised to find the minimum mass limit that a MS
         star could have turned into a WD in the given age, T0, of the
@@ -302,6 +303,13 @@ class WDLF:
         # Get the WD mass
         m = self._ifmr(M)
 
+        # Get the bolometric magnitude
+        Mbol = self.Mag_to_Mbol_itp(m, Mag)
+        if Mbol == -np.inf:
+            return np.inf
+
+        logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
+
         # Get the cooling age from the WD mass and the luminosity
         t_cool = self.cooling_interpolator(logL, m)
         if t_cool <= 0.:
@@ -322,7 +330,7 @@ class WDLF:
 
             return M**2.
 
-    def _integrand(self, M, logL, T0):
+    def _integrand(self, M, Mag, T0):
         '''
         The integrand of the number density computation based on the
         pre-selected (1) MS lifetime model, (2) initial mass function,
@@ -332,10 +340,12 @@ class WDLF:
         ----------
         M: float
             Main sequence stellar mass
-        logL: float
-            log(Luminosity) / (erg/s)
+        Mag: float
+            Absolute magnitude in a given passband
         T0: float
             Look-back time
+        passband: str (Default: Mbol)
+            passband to be integrated in
 
         Return
         ------
@@ -347,6 +357,12 @@ class WDLF:
 
         # Get the mass function
         MF = self._imf(M)
+
+        Mbol = self.Mag_to_Mbol_itp(m, Mag)
+        if Mbol == -np.inf:
+            return 0.
+
+        logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
 
         # Get the WD cooling time
         t_cool = self.cooling_interpolator(logL, m)
@@ -404,7 +420,7 @@ class WDLF:
 
         if mode == 'constant':
 
-            self.sfr = None
+            self.sfr = lambda x: x
 
         elif mode == 'burst':
 
@@ -434,7 +450,7 @@ class WDLF:
 
                 warnings.warn('The sfr_model provided is not callable, '
                               'None is applied, i.e. constant star fomration.')
-                self.sfr = None
+                self.sfr = lambda x: x
 
         else:
 
@@ -591,7 +607,7 @@ class WDLF:
         ---------
         model: str (Default: 'montreal_co_da_20')
             Choice of WD cooling model:
-            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
+            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DApass
             2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
             3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
             4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
@@ -860,12 +876,15 @@ class WDLF:
             rescale=True)
 
     def compute_density(self,
-                        logL,
+                        Mag,
                         T0,
+                        passband='Mbol',
+                        atmosphere='H',
                         M_max=8.0,
                         limit=10000,
-                        epsabs=1e-6,
-                        epsrel=1e-6,
+                        mass_interval=0.05,
+                        epsabs=1e-8,
+                        epsrel=1e-8,
                         normed=True,
                         save_csv=False):
         '''
@@ -875,18 +894,32 @@ class WDLF:
 
         Parameters
         ----------
-        logL: float or array of float
-            log(Luminosity) / (erg/s)
+        Mag: float or array of float
+            Absolute magnitude in the given passband
         T0: float or array of float
             Look-back time
+        passband: str (Default: Mbol)
+            The passband to be integrated in.
+        atmosphere: str (Default: H)
+            The atmosphere type.
         M_max: float (Deafult: 8.0)
             The upper limit of the main sequence stellar mass. This may not
             be used if it exceeds the upper bound of the IFMR model.
         limit: int (Default: 1000000)
             The maximum number of steps of integration
-        epsabs: float (Default: 1e-6)
+        mass_interval: float (Default: 0.01)
+            The maximum mass interval for the initial integration sampling,
+            too high a value will lead to failed integration because all
+            integrands can return zero. While too low a value will lead to
+            low performance due to oversampling, though the accuracy is
+            guaranteed. The default value is sufficient to compute WDLF
+            for star burst as short as 1E8 years. For star burst with a
+            duration of 1E9 years, this value can go up to 0.1 without
+            losing any accuracy. For burst as short as 1E7, we recommand
+            an interval smaller than 0.01.
+        epsabs: float (Default: 1e-8)
             The absolute tolerance of the integration step
-        epsrel: float (Default: 1e-6)
+        epsrel: float (Default: 1e-8)
             The relative tolerance of the integration step
         normed: boolean (Default: True)
             Set to True to return a WDLF sum to 1. Otherwise, it is arbitrary
@@ -901,30 +934,39 @@ class WDLF:
             self.compute_cooling_age_interpolator()
 
         T0 = np.asarray(T0).reshape(-1)
-        logL = np.asarray(logL).reshape(-1)
+        Mag = np.asarray(Mag).reshape(-1)
 
-        number_density = np.zeros((len(T0), len(logL)))
+        number_density = np.zeros((len(T0), len(Mag)))
+
+        self.Mag_to_Mbol_itp = interp_atm(passband='Mbol',
+                                          atmosphere=atmosphere,
+                                          variables=['mass', passband])
 
         for j, t in enumerate(T0):
 
-            print('Computing T0 = {0:.2f} Gyr.'.format(t/1e9))
+            print('Computing T0 = {0:.2f} Gyr.'.format(t / 1e9))
 
             M_upper_bound = M_max
 
-            for i, logL_i in enumerate(logL):
+            for i, Mag_i in enumerate(Mag):
 
                 M_min = optimize.fminbound(self._find_M_min,
                                            0.5,
                                            M_upper_bound,
-                                           args=(logL_i, t),
+                                           args=(Mag_i, t),
                                            xtol=1e-5,
                                            maxfun=10000)
 
+                # Note that the points are needed because it can fail to integrate if the
+                # star burst is short
                 number_density[j][i] = integrate.quad(self._integrand,
                                                       M_min,
                                                       M_max,
-                                                      args=(logL_i, t),
+                                                      args=(Mag_i, t),
                                                       limit=limit,
+                                                      points=np.arange(
+                                                          M_min, M_max,
+                                                          mass_interval),
                                                       epsabs=epsabs,
                                                       epsrel=epsrel)[0]
 
@@ -942,35 +984,23 @@ class WDLF:
                     self.intermediate_mass_cooling_model + '_' +\
                     self.high_mass_cooling_model + '.csv'
                 np.savetxt(filename,
-                           np.column_stack((logL, number_density[j])),
+                           np.column_stack((Mag, number_density[j])),
                            delimiter=',')
 
-        self.logL = logL
+        self.Mag = Mag
         self.T0 = T0
         self.number_density = number_density
 
-        return logL, number_density
+        return Mag, number_density
 
-    def plot_cooling_model(self,
-                           mag=True,
-                           display=True,
-                           savefig=False,
-                           filename=None):
+    def plot_cooling_model(self, display=True, savefig=False, filename=None):
 
         plt.figure(figsize=(12, 8))
-
-        if mag:
-            plt.scatter(np.log10(self.age),
-                        -2.5 * np.log10(self.luminosity / 3.826E33) + 4.75,
-                        c=self.mass,
-                        s=5)
-            plt.ylabel(r'M$_{\mathrm{bol}}$ / mag')
-        else:
-            plt.scatter(np.log10(self.age),
-                        np.log10(self.luminosity / 3.826E33),
-                        c=self.mass,
-                        s=5)
-            plt.ylabel(r'L/L$_{\odot}$')
+        plt.scatter(np.log10(self.age),
+                    4.75 - (self.luminosity - 33.582744965691276) * 2.5,
+                    c=self.mass,
+                    s=5)
+        plt.ylabel(r'M$_{\mathrm{bol}}$ / mag')
 
         plt.xlim(6, 10.5)
         plt.xlabel(r'Age / Gyr')
@@ -990,27 +1020,17 @@ class WDLF:
         if display:
             plt.show()
 
-    def plot_wdlf(self, mag=True, display=True, savefig=False, filename=None):
+    def plot_wdlf(self, display=True, savefig=False, filename=None):
 
         plt.figure(figsize=(12, 8))
 
         for i, t in enumerate(self.T0):
 
-            if mag:
-
-                plt.plot(-2.5 * (self.logL - np.log10(3.826E33)) + 4.75,
-                         np.log10(self.number_density[i]),
-                         label="{0:.2f}".format(t/1e9) + ' Gyr')
-                plt.xlim(4, 20)
-                plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
-
-            else:
-
-                plt.plot(self.logL - np.log10(3.826E33),
-                         np.log10(self.number_density[i]),
-                         label="{0:.2f}".format(t/1e9) + ' Gyr')
-                plt.xlim(0, -5)
-                plt.xlabel(r'L/L$_{\odot}$')
+            plt.plot(self.Mag,
+                     np.log10(self.number_density[i]),
+                     label="{0:.2f}".format(t / 1e9) + ' Gyr')
+            plt.xlim(4, 20)
+            plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
 
         plt.ylabel(r'$\log{(N)}$')
         plt.grid()

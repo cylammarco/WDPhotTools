@@ -1,19 +1,15 @@
 import numpy as np
-from matplotlib import pyplot as plt
+from WDLFBuilder import theoretical_lf
 
-from theoretical_lf import WDLF
+wdlf = theoretical_lf.WDLF()
 
-wdlf = WDLF()
-
-#wdlf.set_imf_model('K01')
 wdlf.compute_cooling_age_interpolator()
 
+Mag = np.arange(0, 20., 0.2)
+age = 1E9 * np.arange(8, 15, 1)
+num = np.zeros((len(age), len(Mag)))
 
-L = 10.**np.arange(28, 34., 0.01)
-age = 1E9 * np.arange(8, 15, 2)
-num = np.zeros((len(age), len(L)))
-
-wdlf.compute_density(L=L, T0=age)
+wdlf.compute_density(Mag=Mag, T0=age, mass_interval=0.1)
 
 wdlf.plot_cooling_model(display=False)
 wdlf.plot_wdlf(display=False)
@@ -23,8 +19,7 @@ wdlf.set_intermediate_mass_cooling_model('basti_co_da_10')
 wdlf.set_high_mass_cooling_model('basti_co_da_10')
 wdlf.compute_cooling_age_interpolator()
 
-wdlf.compute_density(L=L, T0=age)
+wdlf.compute_density(Mag=Mag, T0=age, mass_interval=0.1)
 
 wdlf.plot_cooling_model(display=False)
 wdlf.plot_wdlf(display=True)
-
