@@ -16,10 +16,9 @@ num = np.zeros((len(age), len(Mag)))
 wdlf.compute_density(Mag=Mag,
                      passband='G3',
                      T0=age,
-                     mass_interval=0.1,
                      save_csv=True)
 
-wdlf.plot_wdlf(display=False, savefig=True)
+wdlf.plot_wdlf(display=True, savefig=True)
 
 # Exponential decay SFR
 wdlf.set_sfr_model(mode='decay')
@@ -27,6 +26,6 @@ wdlf.compute_cooling_age_interpolator()
 
 num = np.zeros((len(age), len(Mag)))
 
-wdlf.compute_density(Mag=Mag, T0=age, mass_interval=0.1, save_csv=True)
+wdlf.compute_density(Mag=Mag, T0=age, save_csv=True)
 
 wdlf.plot_wdlf(display=True, savefig=True)

@@ -320,9 +320,10 @@ class WDLF:
         if t_ms <= 0.:
             return np.inf
 
-        t_diff = T0 - t_cool - t_ms
+        # Time since star formation
+        time = T0 - t_cool - t_ms
 
-        if t_diff < 0.:
+        if time < 0.:
 
             return np.inf
 
@@ -379,6 +380,10 @@ class WDLF:
 
         # Get the SFR
         sfr = self.sfr(time)
+
+        if sfr <= 0.:
+
+            return 0.
 
         # Get the cooling rate
         dLdt = self.cooling_rate_interpolator(logL, m)
@@ -882,7 +887,7 @@ class WDLF:
                         atmosphere='H',
                         M_max=8.0,
                         limit=10000,
-                        mass_interval=0.05,
+                        n_points=100,
                         epsabs=1e-8,
                         epsrel=1e-8,
                         normed=True,
@@ -907,16 +912,15 @@ class WDLF:
             be used if it exceeds the upper bound of the IFMR model.
         limit: int (Default: 1000000)
             The maximum number of steps of integration
-        mass_interval: float (Default: 0.01)
-            The maximum mass interval for the initial integration sampling,
-            too high a value will lead to failed integration because all
-            integrands can return zero. While too low a value will lead to
+        n_points: int (Default: 100)
+            The number of points for initial integration sampling,
+            too small a value will lead to failed integration because the
+            integrato can underestimate the density if the star formation
+            periods are short. While too large a value will lead to
             low performance due to oversampling, though the accuracy is
             guaranteed. The default value is sufficient to compute WDLF
-            for star burst as short as 1E8 years. For star burst with a
-            duration of 1E9 years, this value can go up to 0.1 without
-            losing any accuracy. For burst as short as 1E7, we recommand
-            an interval smaller than 0.01.
+            for star burst as short as 1E8 years. For burst as short as
+            1E7, we recommand an n_points of 1000 or larger.
         epsabs: float (Default: 1e-8)
             The absolute tolerance of the integration step
         epsrel: float (Default: 1e-8)
@@ -956,17 +960,17 @@ class WDLF:
                                            args=(Mag_i, t),
                                            xtol=1e-5,
                                            maxfun=10000)
+                points = 10.**np.linspace(np.log10(M_min), np.log10(M_max),
+                                          n_points)
 
-                # Note that the points are needed because it can fail to integrate if the
-                # star burst is short
+                # Note that the points are needed because it can fail to integrate if
+                # the star burst is short
                 number_density[j][i] = integrate.quad(self._integrand,
                                                       M_min,
                                                       M_max,
                                                       args=(Mag_i, t),
                                                       limit=limit,
-                                                      points=np.arange(
-                                                          M_min, M_max,
-                                                          mass_interval),
+                                                      points=points,
                                                       epsabs=epsabs,
                                                       epsrel=epsrel)[0]
 
