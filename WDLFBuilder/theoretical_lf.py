@@ -79,24 +79,26 @@ class WDLF:
 
             MF = M**-2.3
             if (M < 1).any():
-                M_mask = np.array(M < 1.).reshape(-1)
+                M_mask = np.array(M < 1.)
                 # 0.158 / (ln(10) * M) = 0.06861852814 / M
                 # log(0.079) = -1.1023729087095586
                 # 2 * 0.69**2. = 0.9522
+                # Normalisation factor (at M=1) is 0.01915058
                 MF[M_mask] = (0.06861852814 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 1.1023729087095586)**2. / 0.9522)
+                    -(np.log10(M[M_mask]) + 1.1023729087095586)**2. / 0.9522) / 0.01915058
 
         elif self.imf_model == 'C03b':
 
             MF = M**-2.3
 
             if (M <= 1).any():
-                M_mask = np.array(M <= 1.).reshape(-1)
+                M_mask = np.array(M <= 1.)
                 # 0.086 * 1. / (ln(10) * M) = 0.03734932544 / M
                 # log(0.22) = -0.65757731917
                 # 2 * 0.57**2. = 0.6498
+                # Normalisation factor (at M=1) is 0.01919917
                 MF[M_mask] = (0.03734932544 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 0.65757731917)**2. / 0.6498)
+                    -(np.log10(M[M_mask]) + 0.65757731917)**2. / 0.6498) / 0.01919917
 
         elif self.imf_model == 'manual':
 
@@ -425,7 +427,7 @@ class WDLF:
 
         if mode == 'constant':
 
-            self.sfr = lambda x: x
+            self.sfr = lambda x: np.ones_like(x)
 
         elif mode == 'burst':
 
@@ -469,7 +471,7 @@ class WDLF:
 
         Parameter
         ---------
-        model: str (Default: 'C16')
+        model: str (Default: 'C03')
             Choice of IFMR model:
                 1. K01 - Kroupa 2001
                 2. C03 - Charbrier 2003
@@ -888,8 +890,8 @@ class WDLF:
                         M_max=8.0,
                         limit=10000,
                         n_points=100,
-                        epsabs=1e-8,
-                        epsrel=1e-8,
+                        epsabs=1e-6,
+                        epsrel=1e-6,
                         normed=True,
                         save_csv=False):
         '''
@@ -921,10 +923,12 @@ class WDLF:
             guaranteed. The default value is sufficient to compute WDLF
             for star burst as short as 1E8 years. For burst as short as
             1E7, we recommand an n_points of 1000 or larger.
-        epsabs: float (Default: 1e-8)
-            The absolute tolerance of the integration step
-        epsrel: float (Default: 1e-8)
-            The relative tolerance of the integration step
+        epsabs: float (Default: 1e-6)
+            The absolute tolerance of the integration step. For star burst,
+            we recommend a step smaller than 1e-8.
+        epsrel: float (Default: 1e-6)
+            The relative tolerance of the integration step. For star burst,
+            we recommend a step smaller than 1e-8.
         normed: boolean (Default: True)
             Set to True to return a WDLF sum to 1. Otherwise, it is arbitrary
             to the integrator.
@@ -999,14 +1003,17 @@ class WDLF:
 
     def plot_cooling_model(self, display=True, savefig=False, filename=None):
 
+        mag = 4.75 - (self.luminosity - 33.582744965691276) * 2.5
+
         plt.figure(figsize=(12, 8))
         plt.scatter(np.log10(self.age),
-                    4.75 - (self.luminosity - 33.582744965691276) * 2.5,
+                    mag,
                     c=self.mass,
                     s=5)
         plt.ylabel(r'M$_{\mathrm{bol}}$ / mag')
 
         plt.xlim(6, 10.5)
+        plt.ylim(mag[np.argmin(self.age)], mag[np.argmax(self.age)])
         plt.xlabel(r'Age / Gyr')
         cbar = plt.colorbar()
         cbar.ax.set_ylabel('Solar Mass', rotation=270)
@@ -1019,6 +1026,80 @@ class WDLF:
                 filename = self.low_mass_cooling_model + '_' +\
                     self.intermediate_mass_cooling_model + '_' +\
                     self.high_mass_cooling_model + '.png'
+            plt.savefig(filename)
+
+        if display:
+            plt.show()
+
+    def plot_sfh(self, age_range=[0, 15], log=False, display=True, savefig=False, filename=None):
+
+        t = np.linspace(age_range[0], age_range[-1], 1000) 
+
+        plt.figure(figsize=(12,8))
+
+        if log:
+            plt.plot(age_range[-1] - t, np.log10(self.sfr(t * 1E9)))
+            plt.ylabel('log(Relative Star Formation Rate)')
+        else:
+            plt.plot(age_range[-1] - t, self.sfr(t * 1E9))
+            plt.ylabel('Relative Star Formation Rate')
+
+        plt.xlabel('Look-back Time / Gyr')
+        plt.grid()
+        plt.tight_layout()
+
+        if savefig:
+            if filename is None:
+                filename = 'sfh_' + self.sfr_mode + '_' + age_range[0] + '_' +\
+                    age_range[-1] + '.png'
+            plt.savefig(filename)
+
+        if display:
+            plt.show()
+
+
+    def plot_imf(self, log=False, display=True, savefig=False, filename=None):
+
+        m = np.linspace(0.25, 8.25, 1000) 
+
+        plt.figure(figsize=(12,8))
+
+        if log:
+            plt.plot(m, np.log10(self._imf(m)))
+            plt.ylabel('log(Initial Mass Function))')
+        else:
+            plt.plot(m, self._imf(m))
+            plt.ylabel('Initial Mass Function')
+
+        plt.xlabel(r'Mass / M$_\odot$')
+        plt.xlim(0.25, 8.25)
+        plt.grid()
+        plt.tight_layout()
+
+        if savefig:
+            if filename is None:
+                filename = 'imf_' + self.imf_model + '.png'
+            plt.savefig(filename)
+
+        if display:
+            plt.show()
+
+
+    def plot_ifmr(self, display=True, savefig=False, filename=None):
+
+        m = np.linspace(0.25, 8.25, 1000) 
+
+        plt.figure(figsize=(12,8))
+        plt.plot(m, self._ifmr(m))
+        plt.ylabel(r'Final Mass / M$_\odot$')
+        plt.xlabel(r'Initial Mass / M$_\odot$')
+        plt.xlim(0.25, 8.25)
+        plt.grid()
+        plt.tight_layout()
+
+        if savefig:
+            if filename is None:
+                filename = 'ifmr_' + self.ifmr_model + '.png'
             plt.savefig(filename)
 
         if display:
