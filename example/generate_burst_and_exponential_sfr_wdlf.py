@@ -9,7 +9,7 @@ wdlf.set_ifmr_model('C08')
 wdlf.set_sfr_model(mode='burst', duration=1e9)
 wdlf.compute_cooling_age_interpolator()
 
-Mag = np.arange(0, 20., 0.2)
+Mag = np.arange(4, 20., 0.2)
 age = 1E9 * np.arange(8, 15, 1)
 num = np.zeros((len(age), len(Mag)))
 

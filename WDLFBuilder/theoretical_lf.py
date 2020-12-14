@@ -85,7 +85,8 @@ class WDLF:
                 # 2 * 0.69**2. = 0.9522
                 # Normalisation factor (at M=1) is 0.01915058
                 MF[M_mask] = (0.06861852814 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 1.1023729087095586)**2. / 0.9522) / 0.01915058
+                    -(np.log10(M[M_mask]) + 1.1023729087095586)**2. /
+                    0.9522) / 0.01915058
 
         elif self.imf_model == 'C03b':
 
@@ -98,7 +99,8 @@ class WDLF:
                 # 2 * 0.57**2. = 0.6498
                 # Normalisation factor (at M=1) is 0.01919917
                 MF[M_mask] = (0.03734932544 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 0.65757731917)**2. / 0.6498) / 0.01919917
+                    -(np.log10(M[M_mask]) + 0.65757731917)**2. /
+                    0.6498) / 0.01919917
 
         elif self.imf_model == 'manual':
 
@@ -967,8 +969,8 @@ class WDLF:
                 points = 10.**np.linspace(np.log10(M_min), np.log10(M_max),
                                           n_points)
 
-                # Note that the points are needed because it can fail to integrate if
-                # the star burst is short
+                # Note that the points are needed because it can fail to
+                # integrate if the star burst is too short
                 number_density[j][i] = integrate.quad(self._integrand,
                                                       M_min,
                                                       M_max,
@@ -986,8 +988,8 @@ class WDLF:
 
             if save_csv:
 
-                filename = "{0:.2f}".format(t/1e9) + 'Gyr_' + self.sfr_mode + '_' +\
-                    self.ms_model + '_' + self.ifmr_model + '_' +\
+                filename = "{0:.2f}".format(t/1e9) + 'Gyr_' + self.sfr_mode +\
+                    '_' + self.ms_model + '_' + self.ifmr_model + '_' +\
                     self.low_mass_cooling_model + '_' +\
                     self.intermediate_mass_cooling_model + '_' +\
                     self.high_mass_cooling_model + '.csv'
@@ -1006,10 +1008,7 @@ class WDLF:
         mag = 4.75 - (self.luminosity - 33.582744965691276) * 2.5
 
         plt.figure(figsize=(12, 8))
-        plt.scatter(np.log10(self.age),
-                    mag,
-                    c=self.mass,
-                    s=5)
+        plt.scatter(np.log10(self.age), mag, c=self.mass, s=5)
         plt.ylabel(r'M$_{\mathrm{bol}}$ / mag')
 
         plt.xlim(6, 10.5)
@@ -1031,11 +1030,16 @@ class WDLF:
         if display:
             plt.show()
 
-    def plot_sfh(self, age_range=[0, 15], log=False, display=True, savefig=False, filename=None):
+    def plot_sfh(self,
+                 age_range=[0, 15],
+                 log=False,
+                 display=True,
+                 savefig=False,
+                 filename=None):
 
-        t = np.linspace(age_range[0], age_range[-1], 1000) 
+        t = np.linspace(age_range[0], age_range[-1], 1000)
 
-        plt.figure(figsize=(12,8))
+        plt.figure(figsize=(12, 8))
 
         if log:
             plt.plot(age_range[-1] - t, np.log10(self.sfr(t * 1E9)))
@@ -1057,12 +1061,11 @@ class WDLF:
         if display:
             plt.show()
 
-
     def plot_imf(self, log=False, display=True, savefig=False, filename=None):
 
-        m = np.linspace(0.25, 8.25, 1000) 
+        m = np.linspace(0.25, 8.25, 1000)
 
-        plt.figure(figsize=(12,8))
+        plt.figure(figsize=(12, 8))
 
         if log:
             plt.plot(m, np.log10(self._imf(m)))
@@ -1084,12 +1087,11 @@ class WDLF:
         if display:
             plt.show()
 
-
     def plot_ifmr(self, display=True, savefig=False, filename=None):
 
-        m = np.linspace(0.25, 8.25, 1000) 
+        m = np.linspace(0.25, 8.25, 1000)
 
-        plt.figure(figsize=(12,8))
+        plt.figure(figsize=(12, 8))
         plt.plot(m, self._ifmr(m))
         plt.ylabel(r'Final Mass / M$_\odot$')
         plt.xlabel(r'Initial Mass / M$_\odot$')
@@ -1109,14 +1111,17 @@ class WDLF:
 
         plt.figure(figsize=(12, 8))
 
+        log_density = np.log10(self.number_density)
         for i, t in enumerate(self.T0):
 
             plt.plot(self.Mag,
-                     np.log10(self.number_density[i]),
+                     log_density[i],
                      label="{0:.2f}".format(t / 1e9) + ' Gyr')
             plt.xlim(4, 20)
             plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
 
+        plt.ylim(np.floor(np.min(log_density[np.isfinite(log_density)])),
+                 np.ceil(np.max(log_density[np.isfinite(log_density)])))
         plt.ylabel(r'$\log{(N)}$')
         plt.grid()
         plt.legend()
