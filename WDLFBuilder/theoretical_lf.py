@@ -26,7 +26,7 @@ class WDLF:
     '''
     def __init__(self,
                  imf_model='C03',
-                 ifmr_model='EB18',
+                 ifmr_model='C08',
                  low_mass_cooling_model='montreal_co_da_20',
                  intermediate_mass_cooling_model='montreal_co_da_20',
                  high_mass_cooling_model='montreal_co_da_20',
@@ -276,17 +276,17 @@ class WDLF:
             (f(val1 + increment, val2) - f(val1 - increment, val2)) /
             (increment * 2.)).reshape(-1)
 
-        # cooling((L+1), m) - cooling(L, m) must be negative
+        # cooling((L+1), m) - cooling(L, m) is always negative
         grad[grad > 0.] = 0.
         grad[np.isnan(grad)] = 0.
 
         return grad
 
-    def _find_M_min(self, M, Mag, T0):
+    def _find_M_min(self, M, Mag):
         '''
         A function to be minimised to find the minimum mass limit that a MS
-        star could have turned into a WD in the given age, T0, of the
-        population.
+        star could have turned into a WD in the given age of the
+        population (which is given by the SFR).
 
         Parameters
         ----------
@@ -294,8 +294,6 @@ class WDLF:
             MS mass.
         logL: float
             log WD luminosity.
-        T0: float
-            Age of the system.
 
         Return
         ------
@@ -325,7 +323,7 @@ class WDLF:
             return np.inf
 
         # Time since star formation
-        time = T0 - t_cool - t_ms
+        time = self.T0 - t_cool - t_ms
 
         if time < 0.:
 
@@ -335,7 +333,7 @@ class WDLF:
 
             return M**2.
 
-    def _integrand(self, M, Mag, T0):
+    def _integrand(self, M, Mag):
         '''
         The integrand of the number density computation based on the
         pre-selected (1) MS lifetime model, (2) initial mass function,
@@ -363,8 +361,12 @@ class WDLF:
         # Get the mass function
         MF = self._imf(M)
 
+        if MF < 0.:
+
+            return 0.
+
         Mbol = self.Mag_to_Mbol_itp(m, Mag)
-        if Mbol == -np.inf:
+        if not np.isfinite(Mbol):
             return 0.
 
         logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
@@ -376,7 +378,7 @@ class WDLF:
         t_ms = self._ms_age(M)
 
         # Get the time since star formation
-        time = T0 - t_cool - t_ms
+        time = t_cool + t_ms
 
         if time < 0.:
 
@@ -392,7 +394,7 @@ class WDLF:
         # Get the cooling rate
         dLdt = self.cooling_rate_interpolator(logL, m)
 
-        if np.isfinite(dLdt) & np.isfinite(sfr):
+        if np.isfinite(MF) & np.isfinite(sfr) & np.isfinite(dLdt):
 
             return MF * sfr * dLdt
 
@@ -402,50 +404,75 @@ class WDLF:
 
     def set_sfr_model(self,
                       mode='constant',
+                      age=10E9,
                       duration=1E9,
-                      decay_constant=6.9314718056e-10,
+                      mean_lifetime=3e9,
                       sfr_model=None):
         '''
         Set the SFR scenario, we only provide a few basic forms, free format
         can be supplied as a callable function.
 
-        The SFR function accepts the time in unit of year, it is the time since
-        T0 provided in compute_density().
+        The SFR function accepts the time in unit of year, which is the
+        lookback time (i.e. today is 0, age of the university is ~13.8E9).
+
+        For burst and constant SFH, tophat functions are used:
+            t1 is the beginning of the star burst
+            t2 is the end
+            t0 and t3 are for interpolation
+        
+        SFR
+         ^                x-------x
+         |                |       |
+         |                |       |
+         |     x----------x       x-----------x
+             30E9      t0/t1    t2/t3   0   -30E9
+                     Lookback Time
 
         Parameters
         ----------
         mode: str (Default: 'constant')
             Choose from 'constant', 'burst', 'decay' and 'manual'
+        age: float (Default: 10E9)
+            Lookback time in unit of years.
         duration: float (Default: 1E9)
-            Only used if mode is 'burst'.
-        decay_constant: float (Default: 6.9314718056e-10)
-            Only used if mode is 'decay'. The default value has a SFR decay
-            half-life of 1 Gyr.
+            Duration of the starburst, only used if mode is 'burst'.
+        mean_lifetime: float (Default: 3E9)
+            Only used if mode is 'decay'. The default value has a SFR mean
+            lifetime of 3 Gyr (SFR dropped by a factor of e after 3 Gyr).
         sfr_model: callable function (Default: None)
-            The star formation rate at a given time since T0. In unit of years.
-            If not callable, it uses a constant star formation rate.
+            The free-form star formation rate, in unit of years. If not
+            callable, it reverts to using a constant star formation rate.
+            It is necessary to fill in the age argument.
 
         '''
 
         if mode == 'constant':
 
-            self.sfr = lambda x: np.ones_like(x)
+            t1 = age
+            t0 = t1 + 1.
+            # current time = 0.
+            t2 = 0.
+            t3 = t2 - 1.
+
+            self.sfr = interp1d(np.array((30E9, t0, t1, t2, t3, -30E9)),
+                                np.array((0., 0., 1., 1., 0., 0.)),
+                                fill_value='extrapolate')
 
         elif mode == 'burst':
 
-            t0 = 0.
-            t1 = duration
-            t2 = 3e10
+            t1 = age
+            t0 = t1 + 1.
+            t2 = t1 - duration
+            t3 = t2 - 1.
 
-            self.sfr = interp1d(np.array(
-                (-t2, t0 - 1e-10, t0, t1, t1 + 1e-10, t2)),
+            self.sfr = interp1d(np.array((30E9, t0, t1, t2, t3, -30E9)),
                                 np.array((0., 0., 1., 1., 0., 0.)),
                                 fill_value='extrapolate')
 
         elif mode == 'decay':
 
-            t = 10.**np.linspace(0, 10.5, 10000)
-            sfr = np.exp(-decay_constant * t)
+            t = 10.**np.linspace(0, np.log10(age), 10000)
+            sfr = np.exp((age - t) / mean_lifetime)
 
             self.sfr = interp1d(t, sfr, fill_value='extrapolate')
 
@@ -459,12 +486,21 @@ class WDLF:
 
                 warnings.warn('The sfr_model provided is not callable, '
                               'None is applied, i.e. constant star fomration.')
-                self.sfr = lambda x: x
+                t1 = age
+                t0 = t1 + 1.
+                # current time = 0.
+                t2 = 0.
+                t3 = t2 - 1.
+
+                self.sfr = interp1d(np.array((30E9, t0, t1, t2, t3, -30E9)),
+                                    np.array((0., 0., 1., 1., 0., 0.)),
+                                    fill_value='extrapolate')
 
         else:
 
             "Please choose a valid mode of SFR model."
 
+        self.T0 = age
         self.sfr_mode = mode
 
     def set_imf_model(self, model, ifmr_function=None):
@@ -886,12 +922,11 @@ class WDLF:
 
     def compute_density(self,
                         Mag,
-                        T0,
                         passband='Mbol',
                         atmosphere='H',
                         M_max=8.0,
                         limit=10000,
-                        n_points=100,
+                        n_points=50,
                         epsabs=1e-6,
                         epsrel=1e-6,
                         normed=True,
@@ -905,8 +940,6 @@ class WDLF:
         ----------
         Mag: float or array of float
             Absolute magnitude in the given passband
-        T0: float or array of float
-            Look-back time
         passband: str (Default: Mbol)
             The passband to be integrated in.
         atmosphere: str (Default: H)
@@ -914,9 +947,9 @@ class WDLF:
         M_max: float (Deafult: 8.0)
             The upper limit of the main sequence stellar mass. This may not
             be used if it exceeds the upper bound of the IFMR model.
-        limit: int (Default: 1000000)
+        limit: int (Default: 10000)
             The maximum number of steps of integration
-        n_points: int (Default: 100)
+        n_points: int (Default: 50)
             The number of points for initial integration sampling,
             too small a value will lead to failed integration because the
             integrato can underestimate the density if the star formation
@@ -943,62 +976,61 @@ class WDLF:
 
             self.compute_cooling_age_interpolator()
 
-        T0 = np.asarray(T0).reshape(-1)
         Mag = np.asarray(Mag).reshape(-1)
 
-        number_density = np.zeros((len(T0), len(Mag)))
+        number_density = np.zeros_like(Mag)
 
         self.Mag_to_Mbol_itp = interp_atm(passband='Mbol',
                                           atmosphere=atmosphere,
                                           variables=['mass', passband])
 
-        for j, t in enumerate(T0):
+        print("The earliest star formation happened at a lookback time of "
+              "{0:.2f} Gyr.".format(self.T0 / 1e9))
 
-            print('Computing T0 = {0:.2f} Gyr.'.format(t / 1e9))
+        M_upper_bound = M_max
 
-            M_upper_bound = M_max
+        for i, Mag_i in enumerate(Mag):
 
-            for i, Mag_i in enumerate(Mag):
+            M_min = optimize.fminbound(self._find_M_min,
+                                       0.5,
+                                       M_upper_bound,
+                                       args=[Mag_i],
+                                       xtol=1e-5,
+                                       maxfun=10000)
 
-                M_min = optimize.fminbound(self._find_M_min,
-                                           0.5,
-                                           M_upper_bound,
-                                           args=(Mag_i, t),
-                                           xtol=1e-5,
-                                           maxfun=10000)
-                points = 10.**np.linspace(np.log10(M_min), np.log10(M_max),
-                                          n_points)
+            points = 10.**np.linspace(np.log10(M_min), np.log10(M_max),
+                                      n_points)
 
-                # Note that the points are needed because it can fail to
-                # integrate if the star burst is too short
-                number_density[j][i] = integrate.quad(self._integrand,
-                                                      M_min,
-                                                      M_max,
-                                                      args=(Mag_i, t),
-                                                      limit=limit,
-                                                      points=points,
-                                                      epsabs=epsabs,
-                                                      epsrel=epsrel)[0]
+            # Note that the points are needed because it can fail to
+            # integrate if the star burst is too short
+            number_density[i] = integrate.quad(self._integrand,
+                                               M_min,
+                                               M_max,
+                                               args=[Mag_i],
+                                               limit=limit,
+                                               points=points,
+                                               epsabs=epsabs,
+                                               epsrel=epsrel)[0]
 
-                M_upper_bound = M_min
+            M_upper_bound = M_min
 
-            # Normalise the WDLF
-            if normed:
-                number_density[j] /= np.sum(number_density[j])
+        # Normalise the WDLF
+        if normed:
+            number_density /= np.sum(number_density)
 
-            if save_csv:
+        if save_csv:
 
-                filename = "{0:.2f}".format(t/1e9) + 'Gyr_' + self.sfr_mode +\
-                    '_' + self.ms_model + '_' + self.ifmr_model + '_' +\
-                    self.low_mass_cooling_model + '_' +\
-                    self.intermediate_mass_cooling_model + '_' +\
-                    self.high_mass_cooling_model + '.csv'
-                np.savetxt(filename,
-                           np.column_stack((Mag, number_density[j])),
-                           delimiter=',')
+            filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
+                self.sfr_mode + '_' + self.ms_model + '_' +\
+                self.ifmr_model + '_' +\
+                self.low_mass_cooling_model + '_' +\
+                self.intermediate_mass_cooling_model + '_' +\
+                self.high_mass_cooling_model + '.csv'
+            np.savetxt(filename,
+                       np.column_stack((Mag, number_density)),
+                       delimiter=',')
 
         self.Mag = Mag
-        self.T0 = T0
         self.number_density = number_density
 
         return Mag, number_density
@@ -1042,10 +1074,10 @@ class WDLF:
         plt.figure(figsize=(12, 8))
 
         if log:
-            plt.plot(age_range[-1] - t, np.log10(self.sfr(t * 1E9)))
+            plt.plot(t, np.log10(self.sfr(t * 1E9)))
             plt.ylabel('log(Relative Star Formation Rate)')
         else:
-            plt.plot(age_range[-1] - t, self.sfr(t * 1E9))
+            plt.plot(t, self.sfr(t * 1E9))
             plt.ylabel('Relative Star Formation Rate')
 
         plt.xlabel('Look-back Time / Gyr')
@@ -1054,7 +1086,8 @@ class WDLF:
 
         if savefig:
             if filename is None:
-                filename = 'sfh_' + self.sfr_mode + '_' + age_range[0] + '_' +\
+                filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
+                    'sfh_' + self.sfr_mode + '_' + age_range[0] + '_' +\
                     age_range[-1] + '.png'
             plt.savefig(filename)
 
@@ -1112,13 +1145,12 @@ class WDLF:
         plt.figure(figsize=(12, 8))
 
         log_density = np.log10(self.number_density)
-        for i, t in enumerate(self.T0):
 
-            plt.plot(self.Mag,
-                     log_density[i],
-                     label="{0:.2f}".format(t / 1e9) + ' Gyr')
-            plt.xlim(4, 20)
-            plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
+        plt.plot(self.Mag,
+                 log_density,
+                 label="{0:.2f}".format(self.T0 / 1e9) + ' Gyr')
+        plt.xlim(0, 20)
+        plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
 
         plt.ylim(np.floor(np.min(log_density[np.isfinite(log_density)])),
                  np.ceil(np.max(log_density[np.isfinite(log_density)])))
@@ -1129,7 +1161,8 @@ class WDLF:
 
         if savefig:
             if filename is None:
-                filename = self.sfr_mode + '_' + self.ms_model + '_' +\
+                filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
+                    self.sfr_mode + '_' + self.ms_model + '_' +\
                     self.ifmr_model + '_' + self.low_mass_cooling_model +\
                     '_' + self.intermediate_mass_cooling_model + '_' +\
                     self.high_mass_cooling_model + '.png'

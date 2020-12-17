@@ -1,25 +1,32 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from WDLFBuilder import theoretical_lf
 
 wdlf = theoretical_lf.WDLF()
-
 wdlf.compute_cooling_age_interpolator()
 
 Mag = np.arange(4, 20., 0.2)
-age = 1E9 * np.arange(8, 15, 1)
-num = np.zeros((len(age), len(Mag)))
+age_list = 1E9 * np.arange(8, 15, 1)
 
-wdlf.compute_density(Mag=Mag, T0=age)
+fig1 = plt.figure(2, figsize=(12, 8))
+ax1 = plt.gca()
 
-wdlf.plot_cooling_model(display=False)
-wdlf.plot_wdlf(display=False)
+for i, age in enumerate(age_list):
 
-wdlf.set_low_mass_cooling_model('montreal_co_da_20')
-wdlf.set_intermediate_mass_cooling_model('basti_co_da_10')
-wdlf.set_high_mass_cooling_model('basti_co_da_10')
-wdlf.compute_cooling_age_interpolator()
+    # Constant SFR
+    wdlf.set_sfr_model(age=age)
+    _, constant_density = wdlf.compute_density(Mag=Mag, save_csv=True)
+    ax1.plot(Mag,
+             np.log10(constant_density),
+             label="{0:.2f} Gyr".format(age / 1e9))
 
-wdlf.compute_density(Mag=Mag, T0=age)
-
-wdlf.plot_cooling_model(display=False)
-wdlf.plot_wdlf(display=True)
+ax1.legend()
+ax1.grid()
+ax1.set_xlabel(r'M$_{bol}$ / mag')
+ax1.set_ylabel('log(arbitrary number density)')
+ax1.set_xlim(5, 20)
+ax1.set_ylim(-5, 0)
+ax1.set_title('Star Formation History: Constant')
+fig1.savefig(
+    'constant_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png'
+)
