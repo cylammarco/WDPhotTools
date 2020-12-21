@@ -472,9 +472,9 @@ class WDLF:
         elif mode == 'decay':
 
             t = 10.**np.linspace(0, np.log10(age), 10000)
-            sfr = np.exp((age - t) / mean_lifetime)
+            sfr = np.exp((t - age) / mean_lifetime)
 
-            self.sfr = interp1d(t, sfr, fill_value='extrapolate')
+            self.sfr = interp1d(t, sfr, bounds_error=False, fill_value=0.)
 
         elif mode == 'manual':
 
@@ -984,8 +984,7 @@ class WDLF:
                                           atmosphere=atmosphere,
                                           variables=['mass', passband])
 
-        print("The earliest star formation happened at a lookback time of "
-              "{0:.2f} Gyr.".format(self.T0 / 1e9))
+        print("The input age is {0:.2f} Gyr.".format(self.T0 / 1e9))
 
         M_upper_bound = M_max
 
@@ -1063,21 +1062,20 @@ class WDLF:
             plt.show()
 
     def plot_sfh(self,
-                 age_range=[0, 15],
                  log=False,
                  display=True,
                  savefig=False,
                  filename=None):
 
-        t = np.linspace(age_range[0], age_range[-1], 1000)
+        t = np.linspace(0, self.T0, 1000)
 
         plt.figure(figsize=(12, 8))
 
         if log:
-            plt.plot(t, np.log10(self.sfr(t * 1E9)))
+            plt.plot(t, np.log10(self.sfr(t)))
             plt.ylabel('log(Relative Star Formation Rate)')
         else:
-            plt.plot(t, self.sfr(t * 1E9))
+            plt.plot(t, self.sfr(t))
             plt.ylabel('Relative Star Formation Rate')
 
         plt.xlabel('Look-back Time / Gyr')
