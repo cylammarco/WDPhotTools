@@ -6,7 +6,13 @@ from cooling_model_reader import list_model_parameters as lmp
 from cooling_model_reader import get_cooling_model
 from atmosphere_model_reader import atm_reader
 
-ar = None
+
+class Dummy:
+    pass
+
+
+__dummy = Dummy()
+__dummy.ar = None
 
 plt.rc('font', size=18)
 plt.rc('legend', fontsize=12)
@@ -71,30 +77,34 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
     """
 
-    if ar is None:
+    if __dummy.ar is None:
 
-        ar = atm_reader()
+        __dummy.ar = atm_reader()
 
     x = x.split('-')
     y = y.split('-')
 
     if len(x) == 2:
 
-        x_name = ar.column_names[x[0]] + r' $-$ ' + ar.column_names[
-            x[1]] + ' / ' + ar.column_units[x[0]]
+        x_name = __dummy.ar.column_names[
+            x[0]] + r' $-$ ' + __dummy.ar.column_names[
+                x[1]] + ' / ' + __dummy.ar.column_units[x[0]]
 
     else:
 
-        x_name = ar.column_names[x[0]] + ' / ' + ar.column_units[x[0]]
+        x_name = __dummy.ar.column_names[
+            x[0]] + ' / ' + __dummy.ar.column_units[x[0]]
 
     if len(y) == 2:
 
-        y_name = ar.column_names[y[0]] + r' $-$ ' + ar.column_names[
-            y[1]] + ' / ' + ar.column_units[y[0]]
+        y_name = __dummy.ar.column_names[
+            y[0]] + r' $-$ ' + __dummy.ar.column_names[
+                y[1]] + ' / ' + __dummy.ar.column_units[y[0]]
 
     else:
 
-        y_name = ar.column_names[y[0]] + ' / ' + ar.column_units[y[0]]
+        y_name = __dummy.ar.column_names[
+            y[0]] + ' / ' + __dummy.ar.column_units[y[0]]
 
     if title is None:
 
@@ -113,40 +123,40 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         if len(x) == 2:
 
-            x0_itp = ar.interp_atm(depedent=x[0],
-                                   atmosphere=atmosphere,
-                                   independent=independent)
-            x1_itp = ar.interp_atm(depedent=x[1],
-                                   atmosphere=atmosphere,
-                                   independent=independent)
+            x0_itp = __dummy.ar.interp_atm(depedent=x[0],
+                                           atmosphere=atmosphere,
+                                           independent=independent)
+            x1_itp = __dummy.ar.interp_atm(depedent=x[1],
+                                           atmosphere=atmosphere,
+                                           independent=independent)
             x_out.append(
                 x0_itp(i_v, independent_values[1]) -
                 x1_itp(i_v, independent_values[1]))
 
         else:
 
-            x_itp = ar.interp_atm(depedent=x[0],
-                                  atmosphere=atmosphere,
-                                  independent=independent)
+            x_itp = __dummy.ar.interp_atm(depedent=x[0],
+                                          atmosphere=atmosphere,
+                                          independent=independent)
             x_out.append(x_itp(i_v, independent_values[1]))
 
         if len(y) == 2:
 
-            y0_itp = ar.interp_atm(depedent=y[0],
-                                   atmosphere=atmosphere,
-                                   independent=independent)
-            y1_itp = ar.interp_atm(depedent=y[1],
-                                   atmosphere=atmosphere,
-                                   independent=independent)
+            y0_itp = __dummy.ar.interp_atm(depedent=y[0],
+                                           atmosphere=atmosphere,
+                                           independent=independent)
+            y1_itp = __dummy.ar.interp_atm(depedent=y[1],
+                                           atmosphere=atmosphere,
+                                           independent=independent)
             y_out.append(
                 y0_itp(i_v, independent_values[1]) -
                 y1_itp(i_v, independent_values[1]))
 
         else:
 
-            y_itp = ar.interp_atm(depedent=y[0],
-                                  atmosphere=atmosphere,
-                                  independent=independent)
+            y_itp = __dummy.ar.interp_atm(depedent=y[0],
+                                          atmosphere=atmosphere,
+                                          independent=independent)
             y_out.append(y_itp(i_v, independent_values[1]))
 
     if fig is not None:
@@ -159,11 +169,11 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
     for i in range(len(x_out)):
 
-        label = ar.column_names[independent[0]] + ' = {:.2f}'.format(
+        label = __dummy.ar.column_names[independent[0]] + ' = {:.2f}'.format(
             independent_values[0][i])
         ax.plot(x_out[i], y_out[i], label=label, **kwargs_for_plot)
 
-    if ar.column_units[y[0]] == 'mag':
+    if __dummy.ar.column_units[y[0]] == 'mag':
 
         ax.invert_yaxis()
 

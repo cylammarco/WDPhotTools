@@ -873,9 +873,10 @@ class WDLF:
 
         number_density = np.zeros_like(Mag)
 
-        self.Mag_to_Mbol_itp = self.atm_reader.interp_atm(depedent='Mbol',
-                                              atmosphere=atmosphere,
-                                              independent=['mass', passband])
+        self.Mag_to_Mbol_itp = self.atm_reader.interp_atm(
+            depedent='Mbol',
+            atmosphere=atmosphere,
+            independent=['mass', passband])
 
         print("The input age is {0:.2f} Gyr.".format(self.T0 / 1e9))
 
