@@ -5,8 +5,8 @@ from scipy.interpolate import CloughTocher2DInterpolator
 from matplotlib import pyplot as plt
 import warnings
 
-from .cooling_model_reader import *
-from .atmosphere_model_reader import *
+import cooling_model_reader as cmr
+import atmosphere_model_reader as amr
 
 
 class WDLF:
@@ -31,6 +31,29 @@ class WDLF:
                  intermediate_mass_cooling_model='montreal_co_da_20',
                  high_mass_cooling_model='montreal_co_da_20',
                  ms_model='C16'):
+
+        self.cooling_interpolator = None
+
+        self.low_mass_cooling_model_list = [
+            'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_he_da_07',
+            'lpcode_co_da_07', 'lpcode_he_da_09', None
+        ]
+
+        self.intermediate_mass_cooling_model_list = [
+            'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_co_da_10_z001',
+            'lpcode_co_da_10_z0001', 'lpcode_co_da_15_z00003',
+            'lpcode_co_da_15_z0001', 'lpcode_co_da_15_z0005',
+            'lpcode_co_da_17_y04', 'lpcode_co_db_17', 'basti_co_da_10',
+            'basti_co_db_10', 'basti_co_da_10_nps', 'basti_co_db_10_nps', None
+        ]
+
+        self.high_mass_cooling_model_list = [
+            'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_one_da_07',
+            'lpcode_one_da_19', 'lpcode_one_db_19', 'basti_co_da_10',
+            'basti_co_db_10', 'basti_co_da_10_nps', 'basti_co_db_10_nps',
+            'mesa_one_da_18', 'mesa_one_db_18', None
+        ]
+
         # The IFMR, WD cooling and MS lifetime models are required to
         # initialise the object.
         self.set_imf_model(imf_model)
@@ -42,7 +65,7 @@ class WDLF:
         self.set_ms_model(ms_model)
         self.set_sfr_model()
 
-        self.cooling_interpolator = None
+        self.atm_reader = amr.atm_reader()
 
     def _imf(self, M):
         '''
@@ -410,7 +433,7 @@ class WDLF:
                       sfr_model=None):
         '''
         Set the SFR scenario, we only provide a few basic forms, free format
-        can be supplied as a callable function.
+        can be supplied as a callable function through sfr_model.
 
         The SFR function accepts the time in unit of year, which is the
         lookback time (i.e. today is 0, age of the university is ~13.8E9).
@@ -418,14 +441,15 @@ class WDLF:
         For burst and constant SFH, tophat functions are used:
             t1 is the beginning of the star burst
             t2 is the end
-            t0 and t3 are for interpolation
-        
+            t0 and t3 are tiny deviations from t1 and t2 required for
+                interpolation
+
         SFR
          ^                x-------x
          |                |       |
          |                |       |
-         |     x----------x       x-----------x
-             30E9      t0/t1    t2/t3   0   -30E9
+         |    x-----------x       x-----------------x
+            -30E9   0   t3/t2    t1/t0   13.8E9   30E9
                      Lookback Time
 
         Parameters
@@ -591,10 +615,7 @@ class WDLF:
 
         '''
 
-        if model in [
-                'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_he_da_07',
-                'lpcode_co_da_07', 'lpcode_he_da_09', None
-        ]:
+        if model in self.low_mass_cooling_model_list:
             self.low_mass_cooling_model = model
         else:
             raise ValueError('Please provide a valid model.')
@@ -632,14 +653,7 @@ class WDLF:
 
         '''
 
-        if model in [
-                'montreal_co_da_20', 'montreal_co_db_20',
-                'lpcode_co_da_10_z001', 'lpcode_co_da_10_z0001',
-                'lpcode_co_da_15_z00003', 'lpcode_co_da_15_z0001',
-                'lpcode_co_da_15_z0005', 'lpcode_co_da_17_y04',
-                'lpcode_co_db_17', 'basti_co_da_10', 'basti_co_db_10',
-                'basti_co_da_10_nps', 'basti_co_db_10_nps', None
-        ]:
+        if model in self.intermediate_mass_cooling_model_list:
             self.intermediate_mass_cooling_model = model
         else:
             raise ValueError('Please provide a valid model.')
@@ -652,7 +666,7 @@ class WDLF:
         ---------
         model: str (Default: 'montreal_co_da_20')
             Choice of WD cooling model:
-            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DApass
+            1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
             2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
             3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
             4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
@@ -675,12 +689,7 @@ class WDLF:
 
         '''
 
-        if model in [
-                'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_one_da_07',
-                'lpcode_one_da_19', 'lpcode_one_db_19', 'basti_co_da_10',
-                'basti_co_db_10', 'basti_co_da_10_nps', 'basti_co_db_10_nps',
-                'mesa_one_da_18', 'mesa_one_db_18', None
-        ]:
+        if model in self.high_mass_cooling_model_list:
             self.high_mass_cooling_model = model
         else:
             raise ValueError('Please provide a valid model.')
@@ -694,136 +703,20 @@ class WDLF:
         '''
 
         # Set the low mass cooling model, i.e. M < 0.5 M_sun
-        if self.low_mass_cooling_model in [
-                'montreal_co_da_20', 'montreal_co_db_20'
-        ]:
-
-            mass_low, cooling_model_low = bedard20_formatter(
-                self.low_mass_cooling_model, mass_range='low')
-
-        elif self.low_mass_cooling_model in [
-                'lpcode_he_da_07', 'lpcode_co_da_07'
-        ]:
-
-            mass_low, cooling_model_low = panei07_formatter(
-                self.low_mass_cooling_model)
-
-        elif self.low_mass_cooling_model == 'lpcode_he_da_09':
-
-            mass_low, cooling_model_low = althaus09_formatter(mass_range='low')
-
-        elif self.low_mass_cooling_model == 'lpcode_co_da_17_y04':
-
-            mass_low, cooling_model_low = althaus17_formatter(mass_range='low')
-
-        elif self.low_mass_cooling_model is None:
-
-            mass_low = None
-            cooling_model_low = None
-
-        else:
-
-            raise ValueError('Invalid low mass model.')
+        mass_low, cooling_model_low, _, _ = cmr.get_cooling_model(
+            self.low_mass_cooling_model, mass_range='low')
 
         # Set the intermediate mass cooling model, i.e. 0.5 < M < 1.0 M_sun
-        if self.intermediate_mass_cooling_model in [
-                'montreal_co_da_20', 'montreal_co_db_20'
-        ]:
-
-            mass_intermediate, cooling_model_intermediate =\
-                bedard20_formatter(
-                    self.intermediate_mass_cooling_model,
-                    mass_range='intermediate')
-
-        elif self.intermediate_mass_cooling_model in [
-                'lpcode_co_da_10_z001', 'lpcode_co_da_10_z0001'
-        ]:
-
-            mass_intermediate, cooling_model_intermediate =\
-                renedo10_formatter(self.intermediate_mass_cooling_model)
-
-        elif self.intermediate_mass_cooling_model in [
-                'lpcode_co_da_15_z00003', 'lpcode_co_da_15_z0001',
-                'lpcode_co_da_15_z0005'
-        ]:
-
-            mass_intermediate, cooling_model_intermediate =\
-                althaus15_formatter(self.intermediate_mass_cooling_model)
-
-        elif self.intermediate_mass_cooling_model == 'lpcode_co_da_17_y04':
-
-            mass_intermediate, cooling_model_intermediate =\
-                althaus17_formatter(mass_range='intermediate')
-
-        elif self.intermediate_mass_cooling_model == 'lpcode_co_db_17':
-
-            mass_intermediate, cooling_model_intermediate =\
-                 camisassa17_formatter()
-
-        elif self.intermediate_mass_cooling_model in [
-                'basti_co_da_10', 'basti_co_db_10', 'basti_co_da_10_nps',
-                'basti_co_db_10_nps'
-        ]:
-
-            mass_intermediate, cooling_model_intermediate =\
-                salaris10_formatter(
-                    self.intermediate_mass_cooling_model,
-                    mass_range='intermediate')
-
-        elif self.intermediate_mass_cooling_model is None:
-
-            mass_intermediate = None
-            cooling_model_intermediate = None
-
-        else:
-
-            raise ValueError('Invalid intermediate mass model.')
+        mass_intermediate, cooling_model_intermediate, _, _ =\
+            cmr.get_cooling_model(
+                self.intermediate_mass_cooling_model,
+                mass_range='intermediate')
 
         # Set the high mass cooling model, i.e. 1.0 < M M_sun
-        if self.high_mass_cooling_model in [
-                'montreal_co_da_20', 'montreal_co_db_20'
-        ]:
-
-            mass_high, cooling_model_high = bedard20_formatter(
-                self.high_mass_cooling_model, mass_range='high')
-
-        elif self.high_mass_cooling_model == 'lpcode_one_da_07':
-
-            mass_high, cooling_model_high = althaus07_formatter()
-
-        elif self.high_mass_cooling_model in [
-                'lpcode_one_da_19', 'lpcode_one_db_19'
-        ]:
-
-            mass_high, cooling_model_high = camisassa19_formatter(
-                self.high_mass_cooling_model)
-
-        elif self.high_mass_cooling_model in [
-                'mesa_one_da_18', 'mesa_one_db_18'
-        ]:
-
-            mass_high, cooling_model_high = lauffer18_formatter(
-                self.high_mass_cooling_model)
-
-        elif self.high_mass_cooling_model in [
-                'basti_co_da_10', 'basti_co_db_10', 'basti_co_da_10_nps',
-                'basti_co_db_10_nps'
-        ]:
-
-            mass_high, cooling_model_high = salaris10_formatter(
-                self.high_mass_cooling_model, mass_range='high')
-
-        elif self.high_mass_cooling_model is None:
-
-            mass_high = None
-            cooling_model_high = None
-
-        else:
-
-            raise ValueError('Invalid high mass model.')
+        mass_high, cooling_model_high, _, _ = cmr.get_cooling_model(
+            self.high_mass_cooling_model, mass_range='high')
 
         # Gather all the models in different mass ranges
-
         if mass_low is not None:
             # Reshaping the WD mass array to match the shape of the other two.
             mass_low = np.concatenate(
@@ -926,7 +819,7 @@ class WDLF:
                         atmosphere='H',
                         M_max=8.0,
                         limit=10000,
-                        n_points=50,
+                        n_points=100,
                         epsabs=1e-6,
                         epsrel=1e-6,
                         normed=True,
@@ -949,7 +842,7 @@ class WDLF:
             be used if it exceeds the upper bound of the IFMR model.
         limit: int (Default: 10000)
             The maximum number of steps of integration
-        n_points: int (Default: 50)
+        n_points: int (Default: 100)
             The number of points for initial integration sampling,
             too small a value will lead to failed integration because the
             integrato can underestimate the density if the star formation
@@ -980,9 +873,9 @@ class WDLF:
 
         number_density = np.zeros_like(Mag)
 
-        self.Mag_to_Mbol_itp = interp_atm(passband='Mbol',
-                                          atmosphere=atmosphere,
-                                          variables=['mass', passband])
+        self.Mag_to_Mbol_itp = self.atm_reader.interp_atm(depedent='Mbol',
+                                              atmosphere=atmosphere,
+                                              independent=['mass', passband])
 
         print("The input age is {0:.2f} Gyr.".format(self.T0 / 1e9))
 
@@ -1015,7 +908,8 @@ class WDLF:
 
         # Normalise the WDLF
         if normed:
-            number_density /= np.sum(number_density)
+
+            number_density /= np.nansum(number_density)
 
         if save_csv:
 
@@ -1038,7 +932,7 @@ class WDLF:
 
         mag = 4.75 - (self.luminosity - 33.582744965691276) * 2.5
 
-        plt.figure(figsize=(12, 8))
+        fig = plt.figure(figsize=(12, 8))
         plt.scatter(np.log10(self.age), mag, c=self.mass, s=5)
         plt.ylabel(r'M$_{\mathrm{bol}}$ / mag')
 
@@ -1061,15 +955,13 @@ class WDLF:
         if display:
             plt.show()
 
-    def plot_sfh(self,
-                 log=False,
-                 display=True,
-                 savefig=False,
-                 filename=None):
+        return fig, fig.gca()
+
+    def plot_sfh(self, log=False, display=True, savefig=False, filename=None):
 
         t = np.linspace(0, self.T0, 1000)
 
-        plt.figure(figsize=(12, 8))
+        fig = plt.figure(figsize=(12, 8))
 
         if log:
             plt.plot(t, np.log10(self.sfr(t)))
@@ -1085,18 +977,20 @@ class WDLF:
         if savefig:
             if filename is None:
                 filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                    'sfh_' + self.sfr_mode + '_' + age_range[0] + '_' +\
-                    age_range[-1] + '.png'
+                    'sfh_' + self.sfr_mode + '_' + t[0] + '_' +\
+                    t[-1] + '.png'
             plt.savefig(filename)
 
         if display:
             plt.show()
 
+        return fig, fig.gca()
+
     def plot_imf(self, log=False, display=True, savefig=False, filename=None):
 
         m = np.linspace(0.25, 8.25, 1000)
 
-        plt.figure(figsize=(12, 8))
+        fig = plt.figure(figsize=(12, 8))
 
         if log:
             plt.plot(m, np.log10(self._imf(m)))
@@ -1118,11 +1012,13 @@ class WDLF:
         if display:
             plt.show()
 
+        return fig, fig.gca()
+
     def plot_ifmr(self, display=True, savefig=False, filename=None):
 
         m = np.linspace(0.25, 8.25, 1000)
 
-        plt.figure(figsize=(12, 8))
+        fig = plt.figure(figsize=(12, 8))
         plt.plot(m, self._ifmr(m))
         plt.ylabel(r'Final Mass / M$_\odot$')
         plt.xlabel(r'Initial Mass / M$_\odot$')
@@ -1138,9 +1034,11 @@ class WDLF:
         if display:
             plt.show()
 
+        return fig, fig.gca()
+
     def plot_wdlf(self, display=True, savefig=False, filename=None):
 
-        plt.figure(figsize=(12, 8))
+        fig = plt.figure(figsize=(12, 8))
 
         log_density = np.log10(self.number_density)
 
@@ -1168,3 +1066,5 @@ class WDLF:
 
         if display:
             plt.show()
+
+        return fig, fig.gca()
