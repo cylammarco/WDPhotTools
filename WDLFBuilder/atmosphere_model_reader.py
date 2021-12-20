@@ -61,10 +61,18 @@ class atm_reader:
         self.model_da = np.loadtxt(filepath_da, skiprows=2, dtype=self.dtype)
         self.model_db = np.loadtxt(filepath_db, skiprows=2, dtype=self.dtype)
 
+    def list_atmosphere_parameters(self):
+
+        for i, j in zip(self.column_names.items(), self.column_units.items()):
+
+            print('Parameter: {}, Column Name: {}, Unit: {}'.format(
+                i[1], i[0], j[1]))
+
     def interp_atm(self,
-                   depedent='G3',
+                   dependent='G3',
                    atmosphere='H',
                    independent=['logg', 'Mbol'],
+                   logg=8.0,
                    fill_value=-np.inf,
                    tol=1e-10,
                    maxiter=100000,
@@ -77,7 +85,7 @@ class atm_reader:
 
         Parameters
         ----------
-        depedent: str (Default: 'G3')
+        dependent: str (Default: 'G3')
             The value to be interpolated over. Choose from:
             'Teff', 'logg', 'mass', 'Mbol', 'BC', 'U', 'B', 'V', 'R', 'I', 'J',
             'H', 'Ks', 'Y_ukidss', 'J_ukidss', 'H_ukidss', 'K_ukidss', 'W1',
@@ -88,7 +96,7 @@ class atm_reader:
         atmosphere: str (Default: 'H')
             The atmosphere type, 'H' or 'He'.
         independent: list (Default: ['logg', 'Mbol'])
-            The parameters to be interpolated over for depedent.
+            The parameters to be interpolated over for dependent.
         fill_value: numeric (Default: -np.inf)
             The fill_value has to be numeric for CloughTocher2DInterpolator.
             It can be "extrapolate" with the interp1d
@@ -126,9 +134,11 @@ class atm_reader:
 
         if len(variables) == 1:
 
+            mask = (model['logg'] == logg)
+
             # Interpolate with the scipy interp1d
-            atmosphere_interpolator = interp1d(model[variables[0]],
-                                               model[depedent],
+            atmosphere_interpolator = interp1d(model[variables[0]][mask],
+                                               model[dependent][mask],
                                                kind=kind,
                                                fill_value=fill_value)
 
@@ -137,7 +147,7 @@ class atm_reader:
             # Interpolate with the scipy CloughTocher2DInterpolator
             atmosphere_interpolator = CloughTocher2DInterpolator(
                 (model[variables[0]], model[variables[1]]),
-                model[depedent],
+                model[dependent],
                 fill_value=fill_value,
                 tol=tol,
                 maxiter=maxiter,
