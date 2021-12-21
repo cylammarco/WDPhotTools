@@ -1,6 +1,6 @@
-# WDLFBuilder
+# WDPhotTools
 
-![example workflow name](https://github.com/cylammarco/WDLFBuilder/workflows/Python%20package/badge.svg)
+![example workflow name](https://github.com/cylammarco/WDPhotTools/workflows/Python%20package/badge.svg)
 
 This software constructs theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) main sequence total lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
 
@@ -60,15 +60,15 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
     1. Lauffer et al. 2018 -- H [CONe/DA+B/1.012-1.308]
 
 ## An example set of WDLFs with constant star formation rate
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/constant_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/constant_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
 
 ## An example set of WDLFs with 1 Gyr of star burst
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/burst_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/burst_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
 
 ## An example set of WDLFs with a mean lifetime of 3 Gyr in the star formation rate
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/decay_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/decay_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
 
 ### Mapping to the synthetic photometry
 The cooling models only include the modelling of the bolometric lumninosity, the synthetic photometry is not usually provided. We have included the synthetic colours computed by the [Montreal group](http://www.astro.umontreal.ca/~bergeron/CoolingModels/). By default, it maps the (logg, Mbol) to Gaia G band (DR3).
 
-![alt text](https://github.com/cylammarco/WDLFBuilder/blob/main/DA_cooling_tracks.png?raw=true)
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/DA_cooling_tracks.png?raw=true)

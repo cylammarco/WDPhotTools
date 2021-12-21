@@ -1,7 +1,6 @@
 import numpy as np
 import pkg_resources
-from scipy.interpolate import CloughTocher2DInterpolator
-from scipy.interpolate import interp1d
+from scipy.interpolate import RBFInterpolator
 
 
 class atm_reader:
@@ -38,20 +37,30 @@ class atm_reader:
              r'$G_{\mathrm{DR2}}$', r'$G_{\mathrm{BP, DR2}}$',
              r'$G_{\mathrm{RP, DR2}}$', r'$G{_{\mathrm{DR3}}$',
              r'$G_{\mathrm{BP, DR3}}$', r'$G_{\mathrm{RP, DR3}}$', 'FUV',
-             'NUV', 'Age'))
+             'NUV', 'log(Age)'))
         self.column_key_unit = np.array(
-            ('K', '(cgs)', r'M$_\odot$', 'mag', 'mag', 'mag', 'mag', 'mag',
+            ('K', r'(cm/s$^2$)', r'M$_\odot$', 'mag', 'mag', 'mag', 'mag',
              'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag',
              'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag',
              'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag',
-             'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'yr'))
+             'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag',
+             'log(yr)'))
+        self.column_key_wavelength = np.array((
+            0., 0., 0., 0., 0., 3585., 4371., 5478., 6504., 8020.,
+            12350., 16460., 21600., 10310., 12500., 16360., 22060.,
+            33682., 46179., 120717., 221944., 35378., 44780., 56962., 77978., 3557.,
+            4702., 6175., 7491., 8946., 4849., 6201., 7535., 8674., 9628.,
+            6229., 5037., 7752., 6218., 5110., 7769., 1535., 2301., 0.
+        ))
 
         self.column_names = {}
         self.column_units = {}
-        for i, j, k in zip(self.column_key, self.column_key_formatted,
-                           self.column_key_unit):
+        self.column_wavelengths = {}
+        for i, j, k, l in zip(self.column_key, self.column_key_formatted,
+                           self.column_key_unit, self.column_key_wavelength):
             self.column_names[i] = j
             self.column_units[i] = k
+            self.column_wavelengths[i] = l
 
         self.column_type = np.array(([np.float64] * len(self.column_key)))
         self.dtype = [(i, j)
@@ -60,6 +69,9 @@ class atm_reader:
         # Load the synthetic photometry file in a recarray
         self.model_da = np.loadtxt(filepath_da, skiprows=2, dtype=self.dtype)
         self.model_db = np.loadtxt(filepath_db, skiprows=2, dtype=self.dtype)
+
+        self.model_da['age'] = np.log10(self.model_da['age'])
+        self.model_db['age'] = np.log10(self.model_db['age'])
 
     def list_atmosphere_parameters(self):
 
@@ -73,11 +85,11 @@ class atm_reader:
                    atmosphere='H',
                    independent=['logg', 'Mbol'],
                    logg=8.0,
-                   fill_value=-np.inf,
-                   tol=1e-10,
-                   maxiter=100000,
-                   rescale=True,
-                   kind='cubic'):
+                   neighbors=None,
+                   smoothing=0.0,
+                   kernel='thin_plate_spline',
+                   epsilon=None,
+                   degree=None):
         """
         This function interpolates the grid of synthetic photometry and a few
         other physical properties as a function of 2 independent variables,
@@ -97,9 +109,8 @@ class atm_reader:
             The atmosphere type, 'H' or 'He'.
         independent: list (Default: ['logg', 'Mbol'])
             The parameters to be interpolated over for dependent.
-        fill_value: numeric (Default: -np.inf)
-            The fill_value has to be numeric for CloughTocher2DInterpolator.
-            It can be "extrapolate" with the interp1d
+        logg: float (Default: 8.0)
+            Only used if independent is of length 1.
         tol: float (Default: 1e-10)
             The tolerance in the CloughTocher2DInterpolator.
         maxiter: int (Default: 100000)
@@ -130,28 +141,39 @@ class atm_reader:
             raise ValueError('Please choose from "H" or "He" as the atmophere '
                              'type, you have provided {}.'.format(atmosphere))
 
-        variables = np.asarray(independent).reshape(-1)
+        independent = np.asarray(independent).reshape(-1)
 
-        if len(variables) == 1:
+        if len(independent) == 1:
 
-            mask = (model['logg'] == logg)
+            if independent[0] in ['Teff', 'mass', 'Mbol', 'age']:
+
+                independent = np.concatenate((['logg'], independent))
+
+            else:
+
+                raise ValueError(
+                    'When ony interpolating in 1-dimension, the independent '
+                    'variable has to be one of: Teff, mass, Mbol, or age.')
+
+            _atmosphere_interpolator = RBFInterpolator(
+                np.stack((model[independent[0]], model[independent[1]]),
+                         -1), model[dependent], neighbors, smoothing, kernel,
+                epsilon, degree)
 
             # Interpolate with the scipy interp1d
-            atmosphere_interpolator = interp1d(model[variables[0]][mask],
-                                               model[dependent][mask],
-                                               kind=kind,
-                                               fill_value=fill_value)
+            atmosphere_interpolator = lambda x: _atmosphere_interpolator(
+                np.array([logg, x], dtype=object).reshape(1, 2))
 
-        elif len(variables) == 2:
+        elif len(independent) == 2:
 
             # Interpolate with the scipy CloughTocher2DInterpolator
-            atmosphere_interpolator = CloughTocher2DInterpolator(
-                (model[variables[0]], model[variables[1]]),
-                model[dependent],
-                fill_value=fill_value,
-                tol=tol,
-                maxiter=maxiter,
-                rescale=rescale)
+            _atmosphere_interpolator = RBFInterpolator(
+                np.stack((model[independent[0]], model[independent[1]]),
+                         -1), model[dependent], neighbors, smoothing, kernel,
+                epsilon, degree)
+
+            atmosphere_interpolator = lambda x: _atmosphere_interpolator(
+                np.asarray(x).reshape(1, 2))
 
         else:
 
