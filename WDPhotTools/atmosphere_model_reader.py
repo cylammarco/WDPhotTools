@@ -1,6 +1,6 @@
 import numpy as np
 import pkg_resources
-from scipy.interpolate import RBFInterpolator
+from scipy.interpolate import CloughTocher2DInterpolator
 
 
 class atm_reader:
@@ -8,11 +8,11 @@ class atm_reader:
 
         # DA atmosphere
         filepath_da = pkg_resources.resource_filename(
-            'WDLFBuilder', 'wd_photometry/Table_DA.txt')
+            'WDPhotTools', 'wd_photometry/Table_DA.txt')
 
         # DB atmosphere
         filepath_db = pkg_resources.resource_filename(
-            'WDLFBuilder', 'wd_photometry/Table_DB.txt')
+            'WDPhotTools', 'wd_photometry/Table_DB.txt')
 
         # Prepare the array column dtype
         self.column_key = np.array(
@@ -85,11 +85,8 @@ class atm_reader:
                    atmosphere='H',
                    independent=['logg', 'Mbol'],
                    logg=8.0,
-                   neighbors=None,
-                   smoothing=0.0,
-                   kernel='thin_plate_spline',
-                   epsilon=None,
-                   degree=None):
+                   kwargs_for_interpolator={'fill_value': -np.inf, 'tol': 1e-10,
+                   'maxiter': 100000}):
         """
         This function interpolates the grid of synthetic photometry and a few
         other physical properties as a function of 2 independent variables,
@@ -155,25 +152,22 @@ class atm_reader:
                     'When ony interpolating in 1-dimension, the independent '
                     'variable has to be one of: Teff, mass, Mbol, or age.')
 
-            _atmosphere_interpolator = RBFInterpolator(
-                np.stack((model[independent[0]], model[independent[1]]),
-                         -1), model[dependent], neighbors, smoothing, kernel,
-                epsilon, degree)
+            _atmosphere_interpolator = CloughTocher2DInterpolator(
+                (model[independent[0]], model[independent[1]]),
+                model[dependent],
+                **kwargs_for_interpolator)
 
             # Interpolate with the scipy interp1d
             atmosphere_interpolator = lambda x: _atmosphere_interpolator(
-                np.array([logg, x], dtype=object).reshape(1, 2))
+                logg, x)
 
         elif len(independent) == 2:
 
             # Interpolate with the scipy CloughTocher2DInterpolator
-            _atmosphere_interpolator = RBFInterpolator(
-                np.stack((model[independent[0]], model[independent[1]]),
-                         -1), model[dependent], neighbors, smoothing, kernel,
-                epsilon, degree)
-
-            atmosphere_interpolator = lambda x: _atmosphere_interpolator(
-                np.asarray(x).reshape(1, 2))
+            atmosphere_interpolator = CloughTocher2DInterpolator(
+                (model[independent[0]], model[independent[1]]),
+                model[dependent],
+                **kwargs_for_interpolator)
 
         else:
 

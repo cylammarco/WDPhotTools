@@ -1,20 +1,23 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from WDLFBuilder.atmosphere_model_reader import interp_atm
+from WDPhotTools.atmosphere_model_reader import atm_reader
+
+atm = atm_reader()
 
 # Default passband is G3
-G = interp_atm()
-BP = interp_atm(passband='G3_BP')
-RP = interp_atm(passband='G3_RP')
+G = atm.interp_atm()
+BP = atm.interp_atm(dependent='G3_BP')
+RP = atm.interp_atm(dependent='G3_RP')
 
 logg = np.arange(7., 10., 0.5)
 Mbol = np.arange(0., 20., 0.1)
 
 plt.figure(1, figsize=(8, 8))
-for logg_i in logg:
+for i in logg:
+    logg_i = np.ones_like(Mbol) * i
     plt.plot(BP(logg_i, Mbol) - RP(logg_i, Mbol),
              G(logg_i, Mbol),
-             label="$\log(g) = {}$".format(logg_i))
+             label="$\log(g) = {}$".format(i))
 
 plt.ylim(20., 6.)
 plt.grid()

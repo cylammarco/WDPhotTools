@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from WDLFBuilder import theoretical_lf
+from WDPhotTools import theoretical_lf
 
 wdlf = theoretical_lf.WDLF()
 

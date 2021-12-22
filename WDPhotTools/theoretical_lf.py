@@ -5,8 +5,8 @@ from scipy.interpolate import CloughTocher2DInterpolator
 from matplotlib import pyplot as plt
 import warnings
 
-import cooling_model_reader as cmr
-import atmosphere_model_reader as amr
+from . import cooling_model_reader as cmr
+from . import atmosphere_model_reader as amr
 
 
 class WDLF:
@@ -874,7 +874,7 @@ class WDLF:
         number_density = np.zeros_like(Mag)
 
         self.Mag_to_Mbol_itp = self.atm_reader.interp_atm(
-            depedent='Mbol',
+            dependent='Mbol',
             atmosphere=atmosphere,
             independent=['mass', passband])
 
@@ -943,7 +943,6 @@ class WDLF:
         cbar = plt.colorbar()
         cbar.ax.set_ylabel('Solar Mass', rotation=270)
         plt.grid()
-        plt.legend()
         plt.tight_layout()
 
         if savefig:

@@ -1,10 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from cooling_model_reader import list_cooling_model as lcm
-from cooling_model_reader import list_model_parameters as lmp
-from cooling_model_reader import get_cooling_model
-from atmosphere_model_reader import atm_reader
+from .cooling_model_reader import list_cooling_model as lcm
+from .cooling_model_reader import list_model_parameters as lmp
+from .cooling_model_reader import get_cooling_model
+from .atmosphere_model_reader import atm_reader
 
 
 class Dummy:
@@ -123,10 +123,10 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         if len(x) == 2:
 
-            x0_itp = __dummy.ar.interp_atm(depedent=x[0],
+            x0_itp = __dummy.ar.interp_atm(dependent=x[0],
                                            atmosphere=atmosphere,
                                            independent=independent)
-            x1_itp = __dummy.ar.interp_atm(depedent=x[1],
+            x1_itp = __dummy.ar.interp_atm(dependent=x[1],
                                            atmosphere=atmosphere,
                                            independent=independent)
             x_out.append(
@@ -135,17 +135,17 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         else:
 
-            x_itp = __dummy.ar.interp_atm(depedent=x[0],
+            x_itp = __dummy.ar.interp_atm(dependent=x[0],
                                           atmosphere=atmosphere,
                                           independent=independent)
             x_out.append(x_itp(i_v, independent_values[1]))
 
         if len(y) == 2:
 
-            y0_itp = __dummy.ar.interp_atm(depedent=y[0],
+            y0_itp = __dummy.ar.interp_atm(dependent=y[0],
                                            atmosphere=atmosphere,
                                            independent=independent)
-            y1_itp = __dummy.ar.interp_atm(depedent=y[1],
+            y1_itp = __dummy.ar.interp_atm(dependent=y[1],
                                            atmosphere=atmosphere,
                                            independent=independent)
             y_out.append(
@@ -154,7 +154,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         else:
 
-            y_itp = __dummy.ar.interp_atm(depedent=y[0],
+            y_itp = __dummy.ar.interp_atm(dependent=y[0],
                                           atmosphere=atmosphere,
                                           independent=independent)
             y_out.append(y_itp(i_v, independent_values[1]))

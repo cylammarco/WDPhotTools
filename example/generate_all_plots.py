@@ -1,5 +1,5 @@
 import numpy as np
-from WDLFBuilder import theoretical_lf
+from WDPhotTools import theoretical_lf
 
 wdlf = theoretical_lf.WDLF()
 
