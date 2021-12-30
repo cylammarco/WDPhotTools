@@ -2,6 +2,7 @@
 
 ![example workflow name](https://github.com/cylammarco/WDPhotTools/workflows/Python%20package/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/cylammarco/WDPhotTools/badge.svg?branch=main)](https://coveralls.io/github/cylammarco/WDPhotTools?branch=main)
+[![Documentation Status](https://readthedocs.org/projects/wdphottools/badge/?version=latest)](https://wdphottools.readthedocs.io/en/latest/?badge=latest)
 
 This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) main sequence total lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
 
