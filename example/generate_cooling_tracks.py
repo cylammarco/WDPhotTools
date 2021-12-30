@@ -9,7 +9,7 @@ G = atm.interp_atm()
 BP = atm.interp_atm(dependent='G3_BP')
 RP = atm.interp_atm(dependent='G3_RP')
 
-logg = np.arange(7., 10., 0.5)
+logg = np.arange(7., 9.5, 0.5)
 Mbol = np.arange(0., 20., 0.1)
 
 plt.figure(1, figsize=(8, 8))

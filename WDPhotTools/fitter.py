@@ -1,7 +1,7 @@
-import emcee
 from matplotlib import pyplot as plt
 import numpy as np
 from scipy import optimize
+import time
 
 from .atmosphere_model_reader import atm_reader
 
@@ -172,17 +172,20 @@ class WDfitter:
 
                     if distance is None:
 
-                        self.bestfit_params[j][i] = float(self.interpolator[j][i](
-                            self.results[j].x[:2]))
-                        self.bestfit_params[j]['distance'] = self.results[j].x[2]
-                        self.bestfit_params[j]['dist_mod'] = 5. * (np.log10(self.results[j].x[2]) - 1)
+                        self.bestfit_params[j][i] = float(
+                            self.interpolator[j][i](self.results[j].x[:2]))
+                        self.bestfit_params[j]['distance'] = self.results[j].x[
+                            2]
+                        self.bestfit_params[j]['dist_mod'] = 5. * (
+                            np.log10(self.results[j].x[2]) - 1)
 
                     else:
 
-                        self.bestfit_params[j][i] = float(self.interpolator[j][i](
-                            self.results[j].x))
+                        self.bestfit_params[j][i] = float(
+                            self.interpolator[j][i](self.results[j].x))
                         self.bestfit_params[j]['distance'] = distance
-                        self.bestfit_params[j]['dist_mod'] = 5. * (np.log10(distance) - 1)
+                        self.bestfit_params[j]['dist_mod'] = 5. * (
+                            np.log10(distance) - 1)
 
         elif method == 'emcee':
 
@@ -214,7 +217,10 @@ class WDfitter:
                       atmosphere=['H', 'He'],
                       color=['red', 'blue'],
                       title=None,
-                      display=True):
+                      display=True,
+                      savefig=False,
+                      figname=None,
+                      ext='png'):
 
         if isinstance(color, str):
 
@@ -250,7 +256,8 @@ class WDfitter:
         for j, k in enumerate(atmosphere):
 
             ax.scatter(self.pivot_wavelengths,
-                       self.best_fit_mag[k] + self.bestfit_params[k]['dist_mod'],
+                       self.best_fit_mag[k] +
+                       self.bestfit_params[k]['dist_mod'],
                        label='Best-fit {}'.format(k),
                        color=color[j],
                        zorder=15)
@@ -277,7 +284,26 @@ class WDfitter:
 
         fig.tight_layout()
 
+        if savefig:
+
+            if isinstance(ext, str):
+
+                ext = [ext]
+
+            for e in ext:
+
+                if figname is None:
+
+                    figname = 'bestfit_wd_solution_{}.{}'.format(time.time(), e)
+
+                else:
+
+                    figname = figname + '.' + e
+
+                plt.savefig(figname)
+
         if display:
+
             plt.show()
 
         return fig

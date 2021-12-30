@@ -1,10 +1,25 @@
 # WDPhotTools
 
 ![example workflow name](https://github.com/cylammarco/WDPhotTools/workflows/Python%20package/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/cylammarco/WDPhotTools/badge.svg?branch=main)](https://coveralls.io/github/cylammarco/WDPhotTools?branch=main)
 
 This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) main sequence total lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
 
 the core parts of this work are three-fold: the first and the backbone of this work is the formatters that handle the output models from various works in the format as they are downloaded. This will allow the software to be updated with the newer models easily in the future. The second core part is the photometric fitter that solves for the WD parameters based on the photometry, with or without distance and reddening. The last part is to generate white dwarf luminosity function in bolometric magnitudes or in any of the photometric systems availalbe from the atmosphere model.
+
+
+## Model Inspection
+
+### Plotting the WD cooling sequence in Gaia filters
+The cooling models only include the modelling of the bolometric lumninosity, the synthetic photometry is not usually provided. We have included the synthetic colours computed by the [Montreal group](http://www.astro.umontreal.ca/~bergeron/CoolingModels/). By default, it maps the (logg, Mbol) to Gaia G band (DR3).
+
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/DA_cooling_tracks.png?raw=true)
+
+## Photometric fitting
+An example photometric fit of PSO J1801+6254 in 3 Gaia and 5 Pan-STARRS filters.
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/PSOJ1801p6254.png?raw=true)
+
+## Theoretical White Dwarf Luminosity Function
 
 The options for the various models include:
 
@@ -61,16 +76,11 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
 4. MESA models
     1. Lauffer et al. 2018 -- H [CONe/DA+B/1.012-1.308]
 
-## An example set of WDLFs with constant star formation rate
+#### An example set of WDLFs with constant star formation rate
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/constant_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
 
-## An example set of WDLFs with 1 Gyr of star burst
+#### An example set of WDLFs with 1 Gyr of star burst
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/burst_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
 
-## An example set of WDLFs with a mean lifetime of 3 Gyr in the star formation rate
+#### An example set of WDLFs with a mean lifetime of 3 Gyr in the star formation rate
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/decay_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png?raw=true)
-
-### Mapping to the synthetic photometry
-The cooling models only include the modelling of the bolometric lumninosity, the synthetic photometry is not usually provided. We have included the synthetic colours computed by the [Montreal group](http://www.astro.umontreal.ca/~bergeron/CoolingModels/). By default, it maps the (logg, Mbol) to Gaia G band (DR3).
-
-![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/DA_cooling_tracks.png?raw=true)
