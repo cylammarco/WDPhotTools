@@ -71,6 +71,8 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
                           ],
                           contour=True,
                           figsize=(8, 8),
+                          invert_xaxis=False,
+                          invert_yaxis=False,
                           title=None,
                           display=True,
                           savefig=False,
@@ -103,6 +105,10 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
         Set to True to plot the contour levels.
     figsize: array of size 2 (Default: (8, 8))
         Set the dimension of the figure.
+    invert_xaxis: bool (default: False)
+        Set to invert the abscissa.
+    invert_yaxis: bool (default: False)
+        Set to invert the ordinate.
     title: str (Default: None)
         Set the title of the figure.
     display: bool (Default: True)
@@ -221,10 +227,6 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
             independent_values[0][i])
         ax.plot(x_out[i], y_out[i], label=label, **kwargs_for_plot)
 
-    if __dummy.ar.column_units[y[0]] == 'mag':
-
-        ax.invert_yaxis()
-
     if contour:
 
         contourf_ = ax.tricontourf(
@@ -237,6 +239,15 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
     plt.grid()
     plt.legend()
+
+    if invert_xaxis:
+
+        ax.invert_xaxis()
+
+    if invert_yaxis:
+
+        ax.invert_yaxis()
+
     plt.tight_layout()
 
     if savefig:
@@ -272,6 +283,8 @@ def plot_cooling_model(model='montreal_co_da_20',
                        log_y=True,
                        mass='all',
                        figsize=(8, 8),
+                       invert_xaxis=False,
+                       invert_yaxis=False,
                        title=None,
                        display=True,
                        savefig=False,
@@ -329,6 +342,10 @@ def plot_cooling_model(model='montreal_co_da_20',
         The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
     figsize: array of size 2 (Default: (8, 8))
         Set the dimension of the figure.
+    invert_xaxis: bool (default: False)
+        Set to invert the abscissa.
+    invert_yaxis: bool (default: False)
+        Set to invert the ordinate.
     title: str (Default: None)
         Set the title of the figure.
     display: bool (Default: True)
@@ -399,6 +416,14 @@ def plot_cooling_model(model='montreal_co_da_20',
     if log_y:
 
         ax.set_yscale('log')
+
+    if invert_xaxis:
+
+        ax.invert_xaxis()
+
+    if invert_yaxis:
+
+        ax.invert_yaxis()
 
     plt.grid()
     plt.legend()

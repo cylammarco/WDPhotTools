@@ -1,8 +1,10 @@
+import glob
 import numpy as np
 from scipy import optimize, integrate
 from scipy.interpolate import interp1d
 from scipy.interpolate import CloughTocher2DInterpolator
 from matplotlib import pyplot as plt
+import pkg_resources
 import warnings
 
 from . import cooling_model_reader as cmr
@@ -159,7 +161,9 @@ class WDLF:
         M = np.asarray(M).reshape(-1)
 
         if self.ms_model == 'Bressan':
-            datatable = np.loadtxt('ms_lifetime/bressan00170279.csv',
+            datatable = np.loadtxt(glob.glob(
+                pkg_resources.resource_filename(
+                    'WDPhotTools', 'ms_lifetime/bressan00170279.csv'))[0],
                                    delimiter=',')
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
