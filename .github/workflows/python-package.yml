@@ -44,9 +44,5 @@ jobs:
       uses: AndreMiras/coveralls-python-action@develop
       with:
         flag-name: Test with pytest
-    - name: Coveralls
-      if: startsWith(matrix.os, 'ubuntu') && endsWith(matrix.python-version, 3.8)
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
         github-token: ${{ secrets.COVERALL_TOKEN }}
         

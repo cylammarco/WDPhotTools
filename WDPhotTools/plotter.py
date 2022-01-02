@@ -48,7 +48,7 @@ def list_cooling_parameters(model):
     return lcp(model)
 
 
-def list_atmosphere_parameters(model):
+def list_atmosphere_parameters():
     '''
     Print the formatted list of parameters available from the atmophere
     models.
@@ -58,7 +58,7 @@ def list_atmosphere_parameters(model):
 
         __dummy.ar = atm_reader()
 
-    return __dummy.ar.list_atmosphere_parameters(model)
+    return __dummy.ar.list_atmosphere_parameters()
 
 
 def plot_atmosphere_model(x='G3_BP-G3_RP',
