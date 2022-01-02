@@ -527,9 +527,9 @@ class WDLF:
         self.T0 = age
         self.sfr_mode = mode
 
-    def set_imf_model(self, model, ifmr_function=None):
+    def set_imf_model(self, model, imf_function=None):
         '''
-        Set the main sequence total lifetime model.
+        Set the initial mass function.
 
         Parameter
         ---------
@@ -545,7 +545,7 @@ class WDLF:
         '''
 
         self.imf_model = model
-        self.imf_function = ifmr_function
+        self.imf_function = imf_function
 
     def set_ms_model(self, model, ms_function=None):
         '''
@@ -558,7 +558,7 @@ class WDLF:
                 1. C16 - Choi et al. 2016
                 2. Bressan - BASTI
                 3. manual
-        ifmr_function: callable function (Default: None)
+        ms_function: callable function (Default: None)
             A callable ifmr function, only used if model is 'manual'.
 
         '''
@@ -929,142 +929,452 @@ class WDLF:
 
         return Mag, number_density
 
-    def plot_cooling_model(self, display=True, savefig=False, filename=None):
+    def plot_cooling_model(self,
+                           use_mag=True,
+                           figsize=(12, 8),
+                           title=None,
+                           display=True,
+                           savefig=False,
+                           filename=None,
+                           ext=['png'],
+                           fig=None,
+                           kwargs_for_colorbar={}):
+        '''
+        Plot the input cooling model.
 
-        mag = 4.75 - (self.luminosity - 33.582744965691276) * 2.5
+        Parameters
+        ----------
+        use_mag: bool (Default: True)
+            Set to use magnitude instead of luminosity
+        figsize: array of size 2 (Default: (12, 8))
+            Set the dimension of the figure.
+        title: str (Default: None)
+            Set the title of the figure.
+        display: bool (Default: True)
+            Set to display the figure.
+        savefig: bool (Default: False)
+            Set to save the figure.
+        filename: str (Default: None)
+            The filename (relative path) of the figure.
+        ext: str (Default: ['png'])
+            Image type to be saved, multiple extensions can be provided. The
+            supported types are those available in `matplotlib.pyplot.savefig`.
+        fig: matplotlib.figure.Figure (Default: None)
+            Overplotting on an existing Figure.
+        kwargs_for_colorbar: dict (Default: {})
+            Keyword arguments for the colorbar()
 
-        fig = plt.figure(figsize=(12, 8))
-        plt.scatter(np.log10(self.age), mag, c=self.mass, s=5)
-        plt.ylabel(r'M$_{\mathrm{bol}}$ / mag')
+        '''
 
-        plt.xlim(6, 10.5)
-        plt.ylim(mag[np.argmin(self.age)], mag[np.argmax(self.age)])
-        plt.xlabel(r'Age / Gyr')
-        cbar = plt.colorbar()
+        if use_mag:
+
+            # Get absolute magnitude from the bolometric luminosity
+            brightness = 4.75 - (self.luminosity - 33.582744965691276) * 2.5
+
+        else:
+
+            brightness = self.luminosity
+
+        if fig is None:
+
+            fig = plt.figure(figsize=figsize)
+
+        ax = fig.gca()
+        sc = ax.scatter(np.log10(self.age), brightness, c=self.mass, s=5)
+
+        # colorbar
+        cbar = plt.colorbar(mappable=sc, ax=ax, **kwargs_for_colorbar)
         cbar.ax.set_ylabel('Solar Mass', rotation=270)
+
+        # y axis
+        ax.set_ylabel(r'M$_{\mathrm{bol}}$ / mag')
+        ax.set_ylim(brightness[np.argmin(self.age)],
+                    brightness[np.argmax(self.age)])
+        if not use_mag:
+            ax.set_yscale('log')
+
+        # x axis
+        plt.xlabel(r'Age / Gyr')
+        plt.xlim(6, 10.5)
+
+
         plt.grid()
+
+        if title is None:
+
+            title = 'Cooling Model'
+
+        plt.title(title)
         plt.tight_layout()
 
         if savefig:
-            if filename is None:
-                filename = self.low_mass_cooling_model + '_' +\
-                    self.intermediate_mass_cooling_model + '_' +\
-                    self.high_mass_cooling_model + '.png'
-            plt.savefig(filename)
+
+            if isinstance(ext, str):
+
+                ext = [ext]
+
+            # Loop through the ext list to save figure into each image type
+            for e in ext:
+
+                if filename is None:
+
+                    _filename = self.low_mass_cooling_model + '_' +\
+                        self.intermediate_mass_cooling_model + '_' +\
+                        self.high_mass_cooling_model + '.' + e
+
+                else:
+
+                    _filename = filename + '.' + e
+
+            plt.savefig(_filename)
 
         if display:
+
             plt.show()
 
-        return fig, fig.gca()
+        return fig
 
-    def plot_sfh(self, log=False, display=True, savefig=False, filename=None):
+    def plot_sfh(self,
+                 log=False,
+                 figsize=(12, 8),
+                 title=None,
+                 display=True,
+                 savefig=False,
+                 filename=None,
+                 ext=['png'],
+                 fig=None):
+        '''
+        Plot the input Star Formation History.
+
+        Parameters
+        ----------
+        log: bool (Default: False)
+            Set to plot the SFH in logarithmic space
+        figsize: array of size 2 (Default: (12, 8))
+            Set the dimension of the figure.
+        title: str (Default: None)
+            Set the title of the figure.
+        display: bool (Default: True)
+            Set to display the figure.
+        savefig: bool (Default: False)
+            Set to save the figure.
+        filename: str (Default: None)
+            The filename (relative path) of the figure.
+        ext: str (Default: ['png'])
+            Image type to be saved, multiple extensions can be provided. The
+            supported types are those available in `matplotlib.pyplot.savefig`.
+        fig: matplotlib.figure.Figure (Default: None)
+            Overplotting on an existing Figure.
+
+        '''
 
         t = np.linspace(0, self.T0, 1000)
 
-        fig = plt.figure(figsize=(12, 8))
+        if fig is None:
 
+            fig = plt.figure(figsize=figsize)
+
+        ax = fig.gca()
+
+        plt.plot(t, self.sfr(t))
         if log:
-            plt.plot(t, np.log10(self.sfr(t)))
+
+            ax.set_yscale('log')
             plt.ylabel('log(Relative Star Formation Rate)')
+
         else:
-            plt.plot(t, self.sfr(t))
+
             plt.ylabel('Relative Star Formation Rate')
 
         plt.xlabel('Look-back Time / Gyr')
         plt.grid()
+
+        if title is None:
+
+            title = 'Star Formation History'
+
+        plt.title(title)
         plt.tight_layout()
 
         if savefig:
-            if filename is None:
-                filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                    'sfh_' + self.sfr_mode + '_' + t[0] + '_' +\
-                    t[-1] + '.png'
-            plt.savefig(filename)
+
+            if isinstance(ext, str):
+
+                ext = [ext]
+
+            # Loop through the ext list to save figure into each image type
+            for e in ext:
+
+                if filename is None:
+
+                    _filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
+                        'sfh_' + self.sfr_mode + '_' + t[0] + '_' +\
+                        t[-1] + '.' + e
+
+                else:
+
+                    _filename = filename + '.' + e
+
+                plt.savefig(_filename)
 
         if display:
+
             plt.show()
 
-        return fig, fig.gca()
+        return fig
 
-    def plot_imf(self, log=False, display=True, savefig=False, filename=None):
+    def plot_imf(self,
+                 log=False,
+                 figsize=(12, 8),
+                 title=None,
+                 display=True,
+                 savefig=False,
+                 filename=None,
+                 ext=['png'],
+                 fig=None):
+        '''
+        Plot the input Initial Mass Function.
+
+        Parameters
+        ----------
+        log: bool (Default: False)
+            Set to plot the IMF in logarithmic space
+        figsize: array of size 2 (Default: (12, 8))
+            Set the dimension of the figure.
+        title: str (Default: None)
+            Set the title of the figure.
+        display: bool (Default: True)
+            Set to display the figure.
+        savefig: bool (Default: False)
+            Set to save the figure.
+        filename: str (Default: None)
+            The filename (relative path) of the figure.
+        ext: str (Default: ['png'])
+            Image type to be saved, multiple extensions can be provided. The
+            supported types are those available in `matplotlib.pyplot.savefig`.
+        fig: matplotlib.figure.Figure (Default: None)
+            Overplotting on an existing Figure.
+
+        '''
 
         m = np.linspace(0.25, 8.25, 1000)
 
-        fig = plt.figure(figsize=(12, 8))
+        if fig is None:
+
+            fig = plt.figure(figsize=figsize)
 
         if log:
+
             plt.plot(m, np.log10(self._imf(m)))
             plt.ylabel('log(Initial Mass Function))')
+
         else:
+
             plt.plot(m, self._imf(m))
             plt.ylabel('Initial Mass Function')
 
         plt.xlabel(r'Mass / M$_\odot$')
         plt.xlim(0.25, 8.25)
         plt.grid()
+
+        if title is None:
+
+            title = 'Initial Mass Function'
+
+        plt.title(title)
         plt.tight_layout()
 
         if savefig:
-            if filename is None:
-                filename = 'imf_' + self.imf_model + '.png'
-            plt.savefig(filename)
+
+            if isinstance(ext, str):
+
+                ext = [ext]
+
+            # Loop through the ext list to save figure into each image type
+            for e in ext:
+
+                if filename is None:
+
+                    _filename = 'imf_' + self.imf_model + '.' + e
+
+                else:
+
+                    _filename = _filename + '.' + e
+
+                plt.savefig(_filename)
 
         if display:
+
             plt.show()
 
-        return fig, fig.gca()
+        return fig
 
-    def plot_ifmr(self, display=True, savefig=False, filename=None):
+    def plot_ifmr(self,
+                  figsize=(12, 8),
+                  title=None,
+                  display=True,
+                  savefig=False,
+                  filename=None,
+                  ext=['png'],
+                  fig=None):
+        '''
+        Plot the input Initial-Final Mass Relation.
+
+        Parameters
+        ----------
+        figsize: array of size 2 (Default: (12, 8))
+            Set the dimension of the figure.
+        title: str (Default: None)
+            Set the title of the figure.
+        display: bool (Default: True)
+            Set to display the figure.
+        savefig: bool (Default: False)
+            Set to save the figure.
+        filename: str (Default: None)
+            The filename (relative path) of the figure.
+        ext: str (Default: ['png'])
+            Image type to be saved, multiple extensions can be provided. The
+            supported types are those available in `matplotlib.pyplot.savefig`.
+        fig: matplotlib.figure.Figure (Default: None)
+            Overplotting on an existing Figure.
+
+        '''
 
         m = np.linspace(0.25, 8.25, 1000)
 
-        fig = plt.figure(figsize=(12, 8))
+        if fig is None:
+
+            fig = plt.figure(figsize=figsize)
+
         plt.plot(m, self._ifmr(m))
         plt.ylabel(r'Final Mass / M$_\odot$')
         plt.xlabel(r'Initial Mass / M$_\odot$')
         plt.xlim(0.25, 8.25)
         plt.grid()
+
+        if title is None:
+
+            title = 'Initial-Final Mass Relation'
+
+        plt.title(title)
         plt.tight_layout()
 
         if savefig:
-            if filename is None:
-                filename = 'ifmr_' + self.ifmr_model + '.png'
-            plt.savefig(filename)
+
+            if isinstance(ext, str):
+
+                ext = [ext]
+
+            # Loop through the ext list to save figure into each image type
+            for e in ext:
+
+                if filename is None:
+
+                    _filename = 'ifmr_' + self.ifmr_model + '.' + e
+
+                else:
+
+                    _filename = filename + '.' + e
+
+                plt.savefig(_filename)
 
         if display:
+
             plt.show()
 
-        return fig, fig.gca()
+        return fig
 
-    def plot_wdlf(self, display=True, savefig=False, filename=None):
+    def plot_wdlf(self,
+                  log=True, 
+                  figsize=(12, 8),
+                  title=None,
+                  display=True,
+                  savefig=False,
+                  filename=None,
+                  ext=['png'],
+                  fig=None):
+        '''
+        Plot the input Initial-Final Mass Relation.
 
-        fig = plt.figure(figsize=(12, 8))
+        Parameters
+        ----------
+        log: bool (Default: True)
+            Set to plot the WDLF in logarithmic space
+        figsize: array of size 2 (Default: (12, 8))
+            Set the dimension of the figure.
+        title: str (Default: None)
+            Set the title of the figure.
+        display: bool (Default: True)
+            Set to display the figure.
+        savefig: bool (Default: False)
+            Set to save the figure.
+        filename: str (Default: None)
+            The filename (relative path) of the figure.
+        ext: str (Default: ['png'])
+            Image type to be saved, multiple extensions can be provided. The
+            supported types are those available in `matplotlib.pyplot.savefig`.
+        fig: matplotlib.figure.Figure (Default: None)
+            Overplotting on an existing Figure.
 
-        log_density = np.log10(self.number_density)
+        '''
+
+        if fig is None:
+
+            fig = plt.figure(figsize=figsize)
+
+        if log:
+
+            _density = np.log10(self.number_density)
+
+        else:
+
+            _density = self.number_density
 
         plt.plot(self.Mag,
-                 log_density,
+                 _density,
                  label="{0:.2f}".format(self.T0 / 1e9) + ' Gyr')
         plt.xlim(0, 20)
         plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
 
-        plt.ylim(np.floor(np.min(log_density[np.isfinite(log_density)])),
-                 np.ceil(np.max(log_density[np.isfinite(log_density)])))
+        plt.ylim(np.floor(np.min(_density[np.isfinite(_density)])),
+                 np.ceil(np.max(_density[np.isfinite(_density)])))
         plt.ylabel(r'$\log{(N)}$')
+
         plt.grid()
         plt.legend()
+
+        if title is None:
+
+            title = 'WDLF: ' + "{0:.2f} Gyr ".format(self.T0 / 1e9)
+
+        plt.title(title)
         plt.tight_layout()
 
         if savefig:
-            if filename is None:
-                filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                    self.sfr_mode + '_' + self.ms_model + '_' +\
-                    self.ifmr_model + '_' + self.low_mass_cooling_model +\
-                    '_' + self.intermediate_mass_cooling_model + '_' +\
-                    self.high_mass_cooling_model + '.png'
-            plt.savefig(filename)
+
+            if isinstance(ext, str):
+
+                ext = [ext]
+
+            # Loop through the ext list to save figure into each image type
+            for e in ext:
+
+                if filename is None:
+
+                    _filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
+                        self.sfr_mode + '_' + self.ms_model + '_' +\
+                        self.ifmr_model + '_' + self.low_mass_cooling_model +\
+                        '_' + self.intermediate_mass_cooling_model + '_' +\
+                        self.high_mass_cooling_model + '.' + e
+
+                else:
+
+                    _filename = filename + '.' + e
+
+                plt.savefig(_filename)
 
         if display:
+
             plt.show()
 
-        return fig, fig.gca()
+        return fig

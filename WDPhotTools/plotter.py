@@ -1,10 +1,10 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from .cooling_model_reader import list_cooling_model as lcm
-from .cooling_model_reader import list_model_parameters as lmp
-from .cooling_model_reader import get_cooling_model
 from .atmosphere_model_reader import atm_reader
+from .cooling_model_reader import list_cooling_model as lcm
+from .cooling_model_reader import list_cooling_parameters as lcp
+from .cooling_model_reader import get_cooling_model
 
 
 class Dummy:
@@ -27,11 +27,38 @@ def _preset_figure(xlabel, ylabel, title, figsize):
 
 
 def list_cooling_model():
+    '''
+    Print the formatted list of available cooling models.
+
+    '''
     return lcm()
 
 
-def list_model_parameters(model):
-    return lmp(model)
+def list_cooling_parameters(model):
+    '''
+    Print the formatted list of parameters available for the specified cooling
+    models.
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+
+    '''
+    return lcp(model)
+
+
+def list_atmosphere_parameters(model):
+    '''
+    Print the formatted list of parameters available from the atmophere
+    models.
+
+    '''
+    if __dummy.ar is None:
+
+        __dummy.ar = atm_reader()
+
+    return __dummy.ar.list_atmosphere_parameters(model)
 
 
 def plot_atmosphere_model(x='G3_BP-G3_RP',
@@ -48,6 +75,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
                           display=True,
                           savefig=False,
                           filename=None,
+                          ext=['png'],
                           fig=None,
                           kwargs_for_plot={'marker': '+'},
                           kwargs_for_contour={'levels': 100},
@@ -56,24 +84,44 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
     Paramters
     ---------
     x: str (Default: 'G3_BP-G3_RP')
-
+        Model parameter(s) of the abscissa. Two formats are supported:
+        (1) single parameter (2) two parameters delimited with a '-' for the
+        colour in those filters.
     y: str (Default: 'G3')
-
-    atmosphere: str (Default: 'H')
-
+        Model parameter of the ordinate. Same as x.
+    atmosphere: list of str (Default: 'H')
+        Choose to plot from the pure hydrogen atmosphere model or pure
+        helium atmosphere model. Only 1 atmosphere model can be plotted
+        at a time, if both models are to be plotted, reuse the Figure object
+        returned and overplot on it.
     independent: list of str (Default: ['logg', 'Teff'])
-
+        Independent variables to be interpolated in the atmosphere model.
     independent_values: list of list or list of arrays
         (Default: [np.linspace(7.0, 9.0, 11),
          10.**np.linspace(3.17610, 5.17609, 101)])
-
+    contour: bool (Default: True)
+        Set to True to plot the contour levels.
     figsize: array of size 2 (Default: (8, 8))
-
+        Set the dimension of the figure.
     title: str (Default: None)
-
+        Set the title of the figure.
     display: bool (Default: True)
+        Set to display the figure.
+    savefig: bool (Default: False)
+        Set to save the figure.
+    filename: str (Default: None)
+        The filename (relative path) of the figure.
+    ext: str (Default: ['png'])
+        Image type to be saved, multiple extensions can be provided. The
+        supported types are those available in `matplotlib.pyplot.savefig`.
+    fig: matplotlib.figure.Figure (Default: None)
+        Overplotting on an existing Figure.
+    **kwargs_for_plot: dict (Default: {'marker': '+'})
 
-    **kwargs: dict
+    **kwargs_for_contour: dict (Default: {'levels': 100})
+
+    **kwargs_for_colorbar: dict (Default: {})
+
 
     """
 
@@ -191,17 +239,28 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
     plt.legend()
     plt.tight_layout()
 
+    if savefig:
+
+        if isinstance(ext, str):
+
+            ext = [ext]
+
+        # Loop through the ext list to save figure into each image type
+        for e in ext:
+
+            if filename is None:
+
+                _filename = title + '_' + y_name + '_' + x_name + '.' + e
+
+            else:
+
+                _filename = filename + '.' + e
+
+            plt.savefig(_filename)
+
     if display:
 
         plt.show()
-
-    if savefig:
-
-        if filename is None:
-
-            filename = title + '_' + y_name + '_' + x_name + '.png'
-
-        plt.savefig(filename)
 
     return fig
 
@@ -217,6 +276,7 @@ def plot_cooling_model(model='montreal_co_da_20',
                        display=True,
                        savefig=False,
                        filename=None,
+                       ext=['png'],
                        fig=None,
                        kwargs_for_plot={'marker': '+'}):
     '''
@@ -256,6 +316,33 @@ def plot_cooling_model(model='montreal_co_da_20',
         terms trailing after the year, currently they are either the
         progenitor metallicity or the (lack of) phase separation in the
         evolution model.
+    x: str (Default: 'age')
+        Model parameter(s) of the abscissa.
+    y: str (Default: 'lum')
+        Model parameter of the ordinate.
+    log_x: bool (Default: True)
+        Set to True to log the abscissa.
+    log_y: bool (Default: True)
+        Set to True to log the ordinate.
+    mass_range: str (Default: 'all')
+        The mass range in which the cooling model should return.
+        The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+    figsize: array of size 2 (Default: (8, 8))
+        Set the dimension of the figure.
+    title: str (Default: None)
+        Set the title of the figure.
+    display: bool (Default: True)
+        Set to display the figure.
+    savefig: bool (Default: False)
+        Set to save the figure.
+    filename: str (Default: None)
+        The filename (relative path) of the figure.
+    ext: str (Default: ['png'])
+        Image type to be saved, multiple extensions can be provided. The
+        supported types are those available in `matplotlib.pyplot.savefig`.
+    fig: matplotlib.figure.Figure (Default: None)
+        Overplotting on an existing Figure.
+    kwargs_for_plot={'marker': '+'}):
 
     '''
 
@@ -317,16 +404,27 @@ def plot_cooling_model(model='montreal_co_da_20',
     plt.legend()
     plt.tight_layout()
 
+    if savefig:
+
+        if isinstance(ext, str):
+
+            ext = [ext]
+
+        # Loop through the ext list to save figure into each image type
+        for e in ext:
+
+            if filename is None:
+
+                _filename = title + '_' + y_name + '_' + x_name + '.' + e
+
+            else:
+
+                _filename = filename + '.' + e
+
+            plt.savefig(_filename)
+
     if display:
 
         plt.show()
-
-    if savefig:
-
-        if filename is None:
-
-            filename = title + '_' + y_name + '_' + x_name + '.png'
-
-        plt.savefig(filename)
 
     return fig

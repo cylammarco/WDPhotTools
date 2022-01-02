@@ -17,19 +17,18 @@ class atm_reader:
         # Prepare the array column dtype
         self.column_key = np.array(
             ('Teff', 'logg', 'mass', 'Mbol', 'BC', 'U', 'B', 'V', 'R', 'I',
-             'J', 'H', 'Ks', 'Y_mko', 'J_mko', 'H_mko', 'K_mko',
-             'W1', 'W2', 'W3', 'W4', 'S36', 'S45', 'S58', 'S80', 'u_sdss',
-             'g_sdss', 'r_sdss', 'i_sdss', 'z_sdss', 'g_ps1', 'r_ps1', 'i_ps1',
-             'z_ps1', 'y_ps1', 'G2', 'G2_BP', 'G2_RP', 'G3', 'G3_BP', 'G3_RP',
-             'FUV', 'NUV', 'age'))
+             'J', 'H', 'Ks', 'Y_mko', 'J_mko', 'H_mko', 'K_mko', 'W1', 'W2',
+             'W3', 'W4', 'S36', 'S45', 'S58', 'S80', 'u_sdss', 'g_sdss',
+             'r_sdss', 'i_sdss', 'z_sdss', 'g_ps1', 'r_ps1', 'i_ps1', 'z_ps1',
+             'y_ps1', 'G2', 'G2_BP', 'G2_RP', 'G3', 'G3_BP', 'G3_RP', 'FUV',
+             'NUV', 'age'))
         self.column_key_formatted = np.array(
             (r'T$_{\mathrm{eff}}$', 'log(g)', 'Mass', r'M$_{\mathrm{bol}}$',
              'BC', r'$U$', r'$B$', r'$V$', r'$R$', r'$I$', r'$J$', r'$H$',
-             r'$K_{\mathrm{s}}$', r'$Y_{\mathrm{MKO}}$',
-             r'$J_{\mathrm{MKO}}$', r'$H_{\mathrm{MKO}}$',
-             r'$K_{\mathrm{MKO}}$', r'$W_1$', r'$W_2$', r'$W_{3}$',
-             r'$W_{4}$', r'$S_{36}$', r'$S_{45}$', r'$S_{58}$', r'$S_{80}$',
-             r'u$_{\mathrm{SDSS}}$', r'$g_{\mathrm{SDSS}}$',
+             r'$K_{\mathrm{s}}$', r'$Y_{\mathrm{MKO}}$', r'$J_{\mathrm{MKO}}$',
+             r'$H_{\mathrm{MKO}}$', r'$K_{\mathrm{MKO}}$', r'$W_1$', r'$W_2$',
+             r'$W_{3}$', r'$W_{4}$', r'$S_{36}$', r'$S_{45}$', r'$S_{58}$',
+             r'$S_{80}$', r'u$_{\mathrm{SDSS}}$', r'$g_{\mathrm{SDSS}}$',
              r'$r_{\mathrm{SDSS}}$', r'$i_{\mathrm{SDSS}}$',
              r'$z_{\mathrm{SDSS}}$', r'$g_{\mathrm{PS1}}$',
              r'$r_{\mathrm{PS1}}$', r'$i_{\mathrm{PS1}}$',
@@ -45,19 +44,19 @@ class atm_reader:
              'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag',
              'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag', 'mag',
              'log(yr)'))
-        self.column_key_wavelength = np.array((
-            0., 0., 0., 0., 0., 3585., 4371., 5478., 6504., 8020.,
-            12350., 16460., 21600., 10310., 12500., 16360., 22060.,
-            33682., 46179., 120717., 221944., 35378., 44780., 56962., 77978., 3557.,
-            4702., 6175., 7491., 8946., 4849., 6201., 7535., 8674., 9628.,
-            6229., 5037., 7752., 6218., 5110., 7769., 1535., 2301., 0.
-        ))
+        self.column_key_wavelength = np.array(
+            (0., 0., 0., 0., 0., 3585., 4371., 5478., 6504., 8020., 12350.,
+             16460., 21600., 10310., 12500., 16360., 22060., 33682., 46179.,
+             120717., 221944., 35378., 44780., 56962., 77978., 3557., 4702.,
+             6175., 7491., 8946., 4849., 6201., 7535., 8674., 9628., 6229.,
+             5037., 7752., 6218., 5110., 7769., 1535., 2301., 0.))
 
         self.column_names = {}
         self.column_units = {}
         self.column_wavelengths = {}
         for i, j, k, l in zip(self.column_key, self.column_key_formatted,
-                           self.column_key_unit, self.column_key_wavelength):
+                              self.column_key_unit,
+                              self.column_key_wavelength):
             self.column_names[i] = j
             self.column_units[i] = k
             self.column_wavelengths[i] = l
@@ -74,6 +73,11 @@ class atm_reader:
         self.model_db['age'] = np.log10(self.model_db['age'])
 
     def list_atmosphere_parameters(self):
+        '''
+        Print the formatted list of parameters available from the atmophere
+        models.
+
+        '''
 
         for i, j in zip(self.column_names.items(), self.column_units.items()):
 
@@ -85,8 +89,11 @@ class atm_reader:
                    atmosphere='H',
                    independent=['logg', 'Mbol'],
                    logg=8.0,
-                   kwargs_for_interpolator={'fill_value': -np.inf, 'tol': 1e-10,
-                   'maxiter': 100000}):
+                   kwargs_for_interpolator={
+                       'fill_value': -np.inf,
+                       'tol': 1e-10,
+                       'maxiter': 100000
+                   }):
         """
         This function interpolates the grid of synthetic photometry and a few
         other physical properties as a function of 2 independent variables,
@@ -108,14 +115,10 @@ class atm_reader:
             The parameters to be interpolated over for dependent.
         logg: float (Default: 8.0)
             Only used if independent is of length 1.
-        tol: float (Default: 1e-10)
-            The tolerance in the CloughTocher2DInterpolator.
-        maxiter: int (Default: 100000)
-            The maxiter in the CloughTocher2DInterpolator.
-        rescale: boolean (Default: True)
-            The rescale in the CloughTocher2DInterpolator.
-        kind: str or int (Default: 'cubic')
-            Only use in 1D interpolation with interp1d.
+        kwargs_for_interpolator: dict (Default: {'fill_value': -np.inf,
+            'tol': 1e-10, 'maxiter': 100000})
+            Keyword argument for the interpolator. See
+            `scipy.interpolate.CloughTocher2DInterpolator`.
 
         Returns
         -------
@@ -140,6 +143,7 @@ class atm_reader:
 
         independent = np.asarray(independent).reshape(-1)
 
+        # If only performing a 1D interpolation, the logg has to be assumed.
         if len(independent) == 1:
 
             if independent[0] in ['Teff', 'mass', 'Mbol', 'age']:
@@ -152,22 +156,23 @@ class atm_reader:
                     'When ony interpolating in 1-dimension, the independent '
                     'variable has to be one of: Teff, mass, Mbol, or age.')
 
+            # Interpolate with the scipy CloughTocher2DInterpolator
             _atmosphere_interpolator = CloughTocher2DInterpolator(
                 (model[independent[0]], model[independent[1]]),
-                model[dependent],
-                **kwargs_for_interpolator)
+                model[dependent], **kwargs_for_interpolator)
 
             # Interpolate with the scipy interp1d
-            atmosphere_interpolator = lambda x: _atmosphere_interpolator(
-                logg, x)
+            def atmosphere_interpolator(x):
+                return _atmosphere_interpolator(logg, x)
 
+        # If a 2D grid is to be interpolated, normally is the logg and another
+        # parameter
         elif len(independent) == 2:
 
             # Interpolate with the scipy CloughTocher2DInterpolator
             atmosphere_interpolator = CloughTocher2DInterpolator(
                 (model[independent[0]], model[independent[1]]),
-                model[dependent],
-                **kwargs_for_interpolator)
+                model[dependent], **kwargs_for_interpolator)
 
         else:
 

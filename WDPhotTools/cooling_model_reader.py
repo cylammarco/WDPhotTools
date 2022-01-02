@@ -31,13 +31,27 @@ model_list = {
 
 
 def list_cooling_model():
+    '''
+    Print the formatted list of available cooling models.
+
+    '''
 
     for i in model_list.items():
 
         print('Model: {}, Reference: {}'.format(i[0], i[1]))
 
 
-def list_model_parameters(model):
+def list_cooling_parameters(model):
+    '''
+    Print the formatted list of parameters available for the specified cooling
+    models.
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+
+    '''
 
     mass, _, column_names, column_units = get_cooling_model(model)
 
@@ -50,6 +64,18 @@ def list_model_parameters(model):
 
 
 def get_cooling_model(model, mass_range='all'):
+    '''
+    Choose the specified cooling model for the chosen mass range.
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+    mass_range: str (Default: 'all')
+        The mass range in which the cooling model should return.
+        The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+
+    '''
 
     if model in ['montreal_co_da_20', 'montreal_co_db_20']:
 
@@ -172,6 +198,12 @@ def _althaus09_formatter(mass_range='all'):
     '''
     A formatter to load the Althaus et al. 2009 WD cooling model
 
+    Parameters
+    ----------
+    mass_range: str (Default: 'all')
+        The mass range in which the cooling model should return.
+        The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+
     '''
 
     filelist = glob.glob(
@@ -230,6 +262,11 @@ def _althaus09_formatter(mass_range='all'):
 def _althaus15_formatter(model):
     '''
     A formatter to load the Althaus et al. 2015 WD cooling model
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
 
     '''
 
@@ -307,6 +344,14 @@ def _althaus15_formatter(model):
 def _althaus17_formatter(model, mass_range='all'):
     '''
     A formatter to load the Althaus et al. 2017 WD cooling model
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+    mass_range: str (Default: 'all')
+        The mass range in which the cooling model should return.
+        The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
 
     '''
 
@@ -393,6 +438,14 @@ def _bedard20_formatter(model, mass_range='all'):
     http://www.astro.umontreal.ca/~bergeron/CoolingModels/
 
     The thick and thin models are for DA and DB WD, respectively.
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+    mass_range: str (Default: 'all')
+        The mass range in which the cooling model should return.
+        The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
 
     '''
 
@@ -546,6 +599,11 @@ def _camisassa19_formatter(model):
 
     Some columns populated with 'I' are replaced with the nearest values.
 
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+
     '''
 
     # DA model
@@ -609,6 +667,11 @@ def _lauffer18_formatter(model):
     '''
     A formatter to load the Lauffer et al. 2018 WD cooling model
 
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+
     '''
 
     # H models
@@ -664,6 +727,11 @@ def _lauffer18_formatter(model):
 def _panei07_formatter(model):
     '''
     A formatter to load the Panei et al. 2007 WD cooling model
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
 
     '''
 
@@ -722,6 +790,11 @@ def _renedo10_formatter(model):
     http://evolgroup.fcaglp.unlp.edu.ar/TRACKS/tracks_cocore.html
 
     Two metallicity for DA are available: Z=0.01 and Z=0.001
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
 
     '''
 
@@ -782,6 +855,14 @@ def _renedo10_formatter(model):
 def _salaris10_formatter(model, mass_range='all'):
     '''
     A formatter to load the Salaris et al. 2010 WD cooling model from
+
+    Parameters
+    ----------
+    model: str
+        Name of the cooling model as in the `model_list`.
+    mass_range: str (Default: 'all')
+        The mass range in which the cooling model should return.
+        The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
 
     '''
 

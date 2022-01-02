@@ -17,7 +17,7 @@ for i in logg:
     logg_i = np.ones_like(Mbol) * i
     plt.plot(BP(logg_i, Mbol) - RP(logg_i, Mbol),
              G(logg_i, Mbol),
-             label="$\log(g) = {}$".format(i))
+             label=r"$\log(g) = {}$".format(i))
 
 plt.ylim(20., 6.)
 plt.grid()

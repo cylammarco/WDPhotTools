@@ -12,7 +12,6 @@ fig1 = plt.figure(2, figsize=(12, 8))
 ax1 = plt.gca()
 
 for i, age in enumerate(age_list):
-
     # Constant SFR
     wdlf.set_sfr_model(age=age)
     _, constant_density = wdlf.compute_density(Mag=Mag, save_csv=True)
