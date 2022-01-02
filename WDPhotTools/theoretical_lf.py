@@ -997,7 +997,6 @@ class WDLF:
         plt.xlabel(r'Age / Gyr')
         plt.xlim(6, 10.5)
 
-
         plt.grid()
 
         if title is None:
@@ -1285,7 +1284,7 @@ class WDLF:
         return fig
 
     def plot_wdlf(self,
-                  log=True, 
+                  log=True,
                   figsize=(12, 8),
                   title=None,
                   display=True,
