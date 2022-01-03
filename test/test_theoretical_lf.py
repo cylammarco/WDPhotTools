@@ -17,27 +17,27 @@ wdlf.compute_density(Mag=Mag)
 def test_plotting():
     wdlf.plot_cooling_model(display=False,
                             savefig=True,
-                            folder='test' + os.sep + 'test_output',
+                            folder='test_output',
                             filename='test_plot_cooling_model',
                             ext='png')
     wdlf.plot_sfh(display=False,
                   savefig=True,
-                  folder='test' + os.sep + 'test_output',
+                  folder='test_output',
                   filename='test_plot_sfh',
                   ext='png')
     wdlf.plot_imf(display=False,
                   savefig=True,
-                  folder='test' + os.sep + 'test_output',
+                  folder='test_output',
                   filename='test_plot_imf',
                   ext='png')
     wdlf.plot_ifmr(display=False,
                    savefig=True,
-                   folder='test' + os.sep + 'test_output',
+                   folder='test_output',
                    filename='test_plot_ifmr',
                    ext='png')
     wdlf.plot_wdlf(display=False,
                    savefig=True,
-                   folder='test' + os.sep + 'test_output',
+                   folder='test_output',
                    filename='test_plot_wdlf',
                    ext='png')
 
@@ -54,27 +54,27 @@ def test_plotting_to_an_external_Figure_object():
                             fig=fig1,
                             display=False,
                             savefig=True,
-                            folder='test' + os.sep + 'test_output',
+                            folder='test_output',
                             ext=['png', 'pdf'])
     wdlf.plot_sfh(fig=fig2,
                   display=False,
                   savefig=True,
-                  folder='test' + os.sep + 'test_output',
+                  folder='test_output',
                   ext=['png', 'pdf'])
     wdlf.plot_imf(fig=fig3,
                   display=False,
                   savefig=True,
-                  folder='test' + os.sep + 'test_output',
+                  folder='test_output',
                   ext=['png', 'pdf'])
     wdlf.plot_ifmr(fig=fig4,
                    display=False,
                    savefig=True,
-                   folder='test' + os.sep + 'test_output',
+                   folder='test_output',
                    ext=['png', 'pdf'])
     wdlf.plot_wdlf(fig=fig5,
                    display=False,
                    savefig=True,
-                   folder='test' + os.sep + 'test_output',
+                   folder='test_output',
                    ext=['png', 'pdf'])
 
 
@@ -82,12 +82,12 @@ def test_changing_sfr_model():
     wdlf.set_sfr_model(mode='constant', age=age[0])
     wdlf.compute_density(Mag=Mag,
                          save_csv=True,
-                         folder='test' + os.sep + 'test_output')
+                         folder='test_output')
     wdlf.set_sfr_model(mode='decay', age=age[0])
     wdlf.compute_density(Mag=Mag,
                          save_csv=True,
                          normed=False,
-                         folder='test' + os.sep + 'test_output',
+                         folder='test_output',
                          filename='test_saving_wdlf_csv')
 
 

@@ -14,7 +14,7 @@ def test_list_everything():
 def test_plot_atmosphere_model_with_ext_as_str():
     plotter.plot_atmosphere_model(display=False,
                                   savefig=True,
-                                  folder='test' + os.sep + 'test_output',
+                                  folder='test_output',
                                   filename='test_plot_atmosphere_model',
                                   ext='png')
 
@@ -22,7 +22,7 @@ def test_plot_atmosphere_model_with_ext_as_str():
 def test_plot_atmosphere_model():
     plotter.plot_atmosphere_model(display=False,
                                   savefig=True,
-                                  folder='test' + os.sep + 'test_output',
+                                  folder='test_output',
                                   filename='test_plot_atmosphere_model',
                                   ext=['png', 'pdf'])
 
@@ -62,7 +62,7 @@ def test_plot_2_atmosphere_models():
 def test_plot_cooling_model():
     plotter.plot_cooling_model(display=False,
                                savefig=True,
-                               folder='test' + os.sep + 'test_output',
+                               folder='test_output',
                                filename='cooling_model',
                                ext='png')
 
@@ -75,6 +75,6 @@ def test_plot_cooling_model():
                                invert_yaxis=True,
                                display=False,
                                savefig=True,
-                               folder='test' + os.sep + 'test_output',
+                               folder='test_output',
                                filename='cooling_model_r_logg',
                                ext=['png', 'pdf'])

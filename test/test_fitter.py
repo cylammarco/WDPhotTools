@@ -22,7 +22,7 @@ def test_fitting_Mbol():
             initial_guess=[10.0])
     ftr.show_best_fit(display=False,
                       savefig=True,
-                      folder='test' + os.sep + 'test_output',
+                      folder='test_output',
                       ext=['png', 'pdf'],
                       return_fig=True)
     assert np.isclose(ftr.results['H'].x,
@@ -41,7 +41,7 @@ def test_fitting_logg_and_mbol():
             distance_err=0.1,
             initial_guess=[10.0, 7.0])
     ftr.show_best_fit(display=False,
-                      folder='test' + os.sep + 'test_output',
+                      folder='test_output',
                       filename='test_fitting_logg_and_mbol',
                       ext='png')
     assert np.isclose(ftr.results['H'].x,
