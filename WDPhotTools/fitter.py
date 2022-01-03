@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 from scipy import optimize
 import time
 
@@ -364,7 +365,8 @@ class WDfitter:
                       title=None,
                       display=True,
                       savefig=False,
-                      figname=None,
+                      folder=None,
+                      filename=None,
                       ext=['png'],
                       return_fig=True):
         '''
@@ -384,8 +386,12 @@ class WDfitter:
             Set to display the figure.
         savefig: bool (Default: False)
             Set to save the figure.
-        figname: str (Default: None)
-            The filename (relative path) of the figure.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
+        filename: str (Default: None)
+            The filename of the figure. The default filename will be used
+            if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
             supported types are those available in `matplotlib.pyplot.savefig`.
@@ -460,19 +466,27 @@ class WDfitter:
 
                 ext = [ext]
 
+            if folder is None:
+
+                _folder = os.getcwd()
+
+            else:
+
+                _folder = os.path.abspath(folder)
+
             # Loop through the ext list to save figure into each image type
             for e in ext:
 
-                if figname is None:
+                if filename is None:
 
-                    figname = 'best_fit_wd_solution_{}.{}'.format(
+                    _filename = 'best_fit_wd_solution_{}.{}'.format(
                         time.time(), e)
 
                 else:
 
-                    figname = figname + '.' + e
+                    _filename = filename + '.' + e
 
-                plt.savefig(figname)
+                plt.savefig(os.path.join(_folder, _filename))
 
         if display:
 

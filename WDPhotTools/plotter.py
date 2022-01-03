@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import os
 
 from .atmosphere_model_reader import atm_reader
 from .cooling_model_reader import list_cooling_model as lcm
@@ -76,6 +77,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
                           title=None,
                           display=True,
                           savefig=False,
+                          folder=None,
                           filename=None,
                           ext=['png'],
                           fig=None,
@@ -115,8 +117,12 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
         Set to display the figure.
     savefig: bool (Default: False)
         Set to save the figure.
+    folder: str (Default: None)
+        The relative or absolute path to destination, the current working
+        directory will be used if None.
     filename: str (Default: None)
-        The filename (relative path) of the figure.
+        The filename of the figure. The default filename will be used
+        if None.
     ext: str (Default: ['png'])
         Image type to be saved, multiple extensions can be provided. The
         supported types are those available in `matplotlib.pyplot.savefig`.
@@ -256,6 +262,14 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
             ext = [ext]
 
+        if folder is None:
+
+            _folder = os.getcwd()
+
+        else:
+
+            _folder = os.path.abspath(folder)
+
         # Loop through the ext list to save figure into each image type
         for e in ext:
 
@@ -267,7 +281,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
                 _filename = filename + '.' + e
 
-            plt.savefig(_filename)
+            plt.savefig(os.path.join(_folder, _filename))
 
     if display:
 
@@ -288,6 +302,7 @@ def plot_cooling_model(model='montreal_co_da_20',
                        title=None,
                        display=True,
                        savefig=False,
+                       folder=None,
                        filename=None,
                        ext=['png'],
                        fig=None,
@@ -352,8 +367,12 @@ def plot_cooling_model(model='montreal_co_da_20',
         Set to display the figure.
     savefig: bool (Default: False)
         Set to save the figure.
+    folder: str (Default: None)
+        The relative or absolute path to destination, the current working
+        directory will be used if None.
     filename: str (Default: None)
-        The filename (relative path) of the figure.
+        The filename of the figure. The default filename will be used
+        if None.
     ext: str (Default: ['png'])
         Image type to be saved, multiple extensions can be provided. The
         supported types are those available in `matplotlib.pyplot.savefig`.
@@ -435,6 +454,14 @@ def plot_cooling_model(model='montreal_co_da_20',
 
             ext = [ext]
 
+        if folder is None:
+
+            _folder = os.getcwd()
+
+        else:
+
+            _folder = os.path.abspath(folder)
+
         # Loop through the ext list to save figure into each image type
         for e in ext:
 
@@ -446,7 +473,7 @@ def plot_cooling_model(model='montreal_co_da_20',
 
                 _filename = filename + '.' + e
 
-            plt.savefig(_filename)
+            plt.savefig(os.path.join(_folder, _filename))
 
     if display:
 

@@ -4,6 +4,7 @@ from scipy import optimize, integrate
 from scipy.interpolate import interp1d
 from scipy.interpolate import CloughTocher2DInterpolator
 from matplotlib import pyplot as plt
+import os
 import pkg_resources
 import warnings
 
@@ -827,7 +828,9 @@ class WDLF:
                         epsabs=1e-6,
                         epsrel=1e-6,
                         normed=True,
-                        save_csv=False):
+                        save_csv=False,
+                        folder=None,
+                        filename=None):
         '''
         Compute the density based on the pre-selected models: (1) MS lifetime
         model, (2) initial mass function, (3) initial-final mass relation, and
@@ -866,6 +869,12 @@ class WDLF:
             to the integrator.
         save_csv: boolean (Default: False)
             Set to True to save the WDLF as CSV files. One CSV per T0.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
+        filename: str (Default: None)
+            The filename of the csv. The default filename will be used
+            if None.
 
         '''
 
@@ -918,13 +927,28 @@ class WDLF:
 
         if save_csv:
 
-            filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                self.sfr_mode + '_' + self.ms_model + '_' +\
-                self.ifmr_model + '_' +\
-                self.low_mass_cooling_model + '_' +\
-                self.intermediate_mass_cooling_model + '_' +\
-                self.high_mass_cooling_model + '.csv'
-            np.savetxt(filename,
+            if folder is None:
+
+                _folder = os.getcwd()
+
+            else:
+
+                _folder = os.path.abspath(folder)
+
+            if filename is None:
+
+                _filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
+                    self.sfr_mode + '_' + self.ms_model + '_' +\
+                    self.ifmr_model + '_' +\
+                    self.low_mass_cooling_model + '_' +\
+                    self.intermediate_mass_cooling_model + '_' +\
+                    self.high_mass_cooling_model + '.csv'
+
+            else:
+
+                _filename = filename
+
+            np.savetxt(os.path.join(_folder, _filename),
                        np.column_stack((Mag, number_density)),
                        delimiter=',')
 
@@ -939,6 +963,7 @@ class WDLF:
                            title=None,
                            display=True,
                            savefig=False,
+                           folder=None,
                            filename=None,
                            ext=['png'],
                            fig=None,
@@ -958,8 +983,12 @@ class WDLF:
             Set to display the figure.
         savefig: bool (Default: False)
             Set to save the figure.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
         filename: str (Default: None)
-            The filename (relative path) of the figure.
+            The filename of the figure. The default filename will be used
+            if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
             supported types are those available in `matplotlib.pyplot.savefig`.
@@ -1016,6 +1045,14 @@ class WDLF:
 
                 ext = [ext]
 
+            if folder is None:
+
+                _folder = os.getcwd()
+
+            else:
+
+                _folder = os.path.abspath(folder)
+
             # Loop through the ext list to save figure into each image type
             for e in ext:
 
@@ -1029,7 +1066,7 @@ class WDLF:
 
                     _filename = filename + '.' + e
 
-            plt.savefig(_filename)
+            plt.savefig(os.path.join(_folder, _filename))
 
         if display:
 
@@ -1043,6 +1080,7 @@ class WDLF:
                  title=None,
                  display=True,
                  savefig=False,
+                 folder=None,
                  filename=None,
                  ext=['png'],
                  fig=None):
@@ -1061,8 +1099,12 @@ class WDLF:
             Set to display the figure.
         savefig: bool (Default: False)
             Set to save the figure.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
         filename: str (Default: None)
-            The filename (relative path) of the figure.
+            The filename of the figure. The default filename will be used
+            if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
             supported types are those available in `matplotlib.pyplot.savefig`.
@@ -1105,20 +1147,28 @@ class WDLF:
 
                 ext = [ext]
 
+            if folder is None:
+
+                _folder = os.getcwd()
+
+            else:
+
+                _folder = os.path.abspath(folder)
+
             # Loop through the ext list to save figure into each image type
             for e in ext:
 
                 if filename is None:
 
                     _filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                        'sfh_' + self.sfr_mode + '_' + t[0] + '_' +\
-                        t[-1] + '.' + e
+                        'sfh_' + self.sfr_mode + '_' + str(t[0]) + '_' +\
+                        str(t[-1]) + '.' + e
 
                 else:
 
                     _filename = filename + '.' + e
 
-                plt.savefig(_filename)
+                plt.savefig(os.path.join(_folder, _filename))
 
         if display:
 
@@ -1132,6 +1182,7 @@ class WDLF:
                  title=None,
                  display=True,
                  savefig=False,
+                 folder=None,
                  filename=None,
                  ext=['png'],
                  fig=None):
@@ -1150,8 +1201,12 @@ class WDLF:
             Set to display the figure.
         savefig: bool (Default: False)
             Set to save the figure.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
         filename: str (Default: None)
-            The filename (relative path) of the figure.
+            The filename of the figure. The default filename will be used
+            if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
             supported types are those available in `matplotlib.pyplot.savefig`.
@@ -1193,6 +1248,14 @@ class WDLF:
 
                 ext = [ext]
 
+            if folder is None:
+
+                _folder = os.getcwd()
+
+            else:
+
+                _folder = os.path.abspath(folder)
+
             # Loop through the ext list to save figure into each image type
             for e in ext:
 
@@ -1202,9 +1265,9 @@ class WDLF:
 
                 else:
 
-                    _filename = _filename + '.' + e
+                    _filename = filename + '.' + e
 
-                plt.savefig(_filename)
+                plt.savefig(os.path.join(_folder, _filename))
 
         if display:
 
@@ -1217,6 +1280,7 @@ class WDLF:
                   title=None,
                   display=True,
                   savefig=False,
+                  folder=None,
                   filename=None,
                   ext=['png'],
                   fig=None):
@@ -1233,8 +1297,12 @@ class WDLF:
             Set to display the figure.
         savefig: bool (Default: False)
             Set to save the figure.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
         filename: str (Default: None)
-            The filename (relative path) of the figure.
+            The filename of the figure. The default filename will be used
+            if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
             supported types are those available in `matplotlib.pyplot.savefig`.
@@ -1268,6 +1336,14 @@ class WDLF:
 
                 ext = [ext]
 
+            if folder is None:
+
+                _folder = os.getcwd()
+
+            else:
+
+                _folder = os.path.abspath(folder)
+
             # Loop through the ext list to save figure into each image type
             for e in ext:
 
@@ -1279,7 +1355,7 @@ class WDLF:
 
                     _filename = filename + '.' + e
 
-                plt.savefig(_filename)
+                plt.savefig(os.path.join(_folder, _filename))
 
         if display:
 
@@ -1293,6 +1369,7 @@ class WDLF:
                   title=None,
                   display=True,
                   savefig=False,
+                  folder=None,
                   filename=None,
                   ext=['png'],
                   fig=None):
@@ -1311,8 +1388,12 @@ class WDLF:
             Set to display the figure.
         savefig: bool (Default: False)
             Set to save the figure.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
         filename: str (Default: None)
-            The filename (relative path) of the figure.
+            The filename of the figure. The default filename will be used
+            if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
             supported types are those available in `matplotlib.pyplot.savefig`.
@@ -1359,6 +1440,14 @@ class WDLF:
 
                 ext = [ext]
 
+            if folder is None:
+
+                _folder = os.getcwd()
+
+            else:
+
+                _folder = os.path.abspath(folder)
+
             # Loop through the ext list to save figure into each image type
             for e in ext:
 
@@ -1374,7 +1463,7 @@ class WDLF:
 
                     _filename = filename + '.' + e
 
-                plt.savefig(_filename)
+                plt.savefig(os.path.join(_folder, _filename))
 
         if display:
 

@@ -1,5 +1,6 @@
 from WDPhotTools.fitter import WDfitter
 import numpy as np
+import os
 
 ftr = WDfitter()
 
@@ -19,7 +20,11 @@ def test_fitting_Mbol():
             distance=10.,
             distance_err=0.1,
             initial_guess=[10.0])
-    ftr.show_best_fit(display=False)
+    ftr.show_best_fit(display=False,
+                      savefig=True,
+                      folder='test' + os.sep + 'test_output',
+                      ext=['png', 'pdf'],
+                      return_fig=True)
     assert np.isclose(ftr.results['H'].x,
                       np.array([10.421]),
                       rtol=1e-03,
@@ -35,7 +40,10 @@ def test_fitting_logg_and_mbol():
             distance=10.,
             distance_err=0.1,
             initial_guess=[10.0, 7.0])
-    ftr.show_best_fit(display=False)
+    ftr.show_best_fit(display=False,
+                      folder='test' + os.sep + 'test_output',
+                      filename='test_fitting_logg_and_mbol',
+                      ext='png')
     assert np.isclose(ftr.results['H'].x,
                       np.array([10.421, 7.0]),
                       rtol=1e-03,
