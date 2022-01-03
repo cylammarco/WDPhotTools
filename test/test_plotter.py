@@ -14,7 +14,7 @@ def test_plot_atmosphere_model():
     plotter.plot_atmosphere_model(display=False)
 
 
-def test_plot_atmosphere_model():
+def test_plot_atmosphere_model_different_filters():
     plotter.plot_atmosphere_model(x='U', y='B-V', display=False)
 
 
@@ -39,4 +39,4 @@ def test_plot_2_atmosphere_models():
 
 
 def test_plot_cooling_model():
-    plotter.plot_cooling_model(display=True)
+    plotter.plot_cooling_model(display=False)
