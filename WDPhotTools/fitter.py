@@ -474,6 +474,10 @@ class WDfitter:
 
                 _folder = os.path.abspath(folder)
 
+                if not os.path.exists(_folder):
+
+                    os.mkdir(_folder)
+
             # Loop through the ext list to save figure into each image type
             for e in ext:
 

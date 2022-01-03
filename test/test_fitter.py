@@ -1,6 +1,5 @@
 from WDPhotTools.fitter import WDfitter
 import numpy as np
-import os
 
 ftr = WDfitter()
 

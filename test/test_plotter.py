@@ -1,7 +1,6 @@
 import numpy as np
 from WDPhotTools import plotter
 from WDPhotTools.cooling_model_reader import model_list
-import os
 
 
 def test_list_everything():
@@ -67,7 +66,7 @@ def test_plot_cooling_model():
                                ext='png')
 
 
-def test_plot_cooling_model():
+def test_plot_cooling_model_invert_axis():
     plotter.plot_cooling_model(x='r',
                                y='logg',
                                mass=np.arange(0.5, 1.0, 0.1),
