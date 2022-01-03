@@ -268,7 +268,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         else:
 
-            _folder = os.path.relpath(folder)
+            _folder = os.path.abspath(folder)
 
         # Loop through the ext list to save figure into each image type
         for e in ext:
@@ -460,7 +460,7 @@ def plot_cooling_model(model='montreal_co_da_20',
 
         else:
 
-            _folder = os.path.relpath(folder)
+            _folder = os.path.abspath(folder)
 
         # Loop through the ext list to save figure into each image type
         for e in ext:
