@@ -185,7 +185,7 @@ def test_fitting_logg_and_mbol_red():
 
 # Fitting for logg, Mbol and distance with 5 filters for both DA and DB with
 # added extinction
-def test_fitting_logg_Mbol_distance():
+def test_fitting_logg_Mbol_distance_red():
     mags = np.array([10.744, 10.775, 10.681, 13.940, 11.738])
     mags = mags + extinction
     ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],

@@ -218,11 +218,11 @@ class WDfitter:
         distance_err: float (Default: None)
             The uncertainty of the distance.
         kind: str (Default: 'cubic')
- 
+            The kind of interpolation of the extinction curve.
         Rv: float (Default: None)
-
+            The choice of Rv, only used if a numerical value is provided.
         ebv: float (Default: None)
-
+            The magnitude of the E(B-V).
         independent: list of str (Default: ['Mbol', 'logg']
             Independent variables to be interpolated in the atmosphere model,
             these are parameters to be fitted for.
@@ -329,7 +329,8 @@ class WDfitter:
             mag_errors = np.asarray(mag_errors)
             filters = np.asarray(filters)
 
-        wavelength = np.asarray([self.atm.column_wavelengths[i] for i in filters])
+        wavelength = np.asarray(
+            [self.atm.column_wavelengths[i] for i in filters])
 
         # Store the fitting params
         self.fitting_params = {
@@ -365,7 +366,7 @@ class WDfitter:
                             self._chi2_minimization_distance,
                             initial_guess,
                             args=(np.asarray(mags), np.asarray(mag_errors),
-                                [self.interpolator[j][i] for i in filters]),
+                                  [self.interpolator[j][i] for i in filters]),
                             **kwargs_for_minimization)
 
                     else:
@@ -374,8 +375,8 @@ class WDfitter:
                             self._chi2_minimization_distance_red,
                             initial_guess,
                             args=(np.asarray(mags), np.asarray(mag_errors),
-                                [self.interpolator[j][i] for i in filters],
-                                wavelength, Rv, ebv),
+                                  [self.interpolator[j][i]
+                                   for i in filters], wavelength, Rv, ebv),
                             **kwargs_for_minimization)
 
                 # If distance is provided, fit here.
@@ -387,8 +388,8 @@ class WDfitter:
                             self._chi2_minimization,
                             initial_guess,
                             args=(np.asarray(mags), np.asarray(mag_errors),
-                                distance, distance_err,
-                                [self.interpolator[j][i] for i in filters]),
+                                  distance, distance_err,
+                                  [self.interpolator[j][i] for i in filters]),
                             **kwargs_for_minimization)
 
                     else:
@@ -397,11 +398,10 @@ class WDfitter:
                             self._chi2_minimization_red,
                             initial_guess,
                             args=(np.asarray(mags), np.asarray(mag_errors),
-                                distance, distance_err,
-                                [self.interpolator[j][i] for i in filters],
-                                wavelength, Rv, ebv),
+                                  distance, distance_err,
+                                  [self.interpolator[j][i]
+                                   for i in filters], wavelength, Rv, ebv),
                             **kwargs_for_minimization)
-
 
                 # Store the chi2
                 self.best_fit_params[j]['chi2'] = self.results[j].fun
