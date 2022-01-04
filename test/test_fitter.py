@@ -195,7 +195,8 @@ def test_fitting_logg_Mbol_distance_red():
             initial_guess=[10.0, 7.0],
             Rv=rv,
             ebv=ebv)
-    ftr.show_best_fit(display=False)
+    ftr.show_best_fit(display=False,
+                      title='fitted (logg, Mbol, distance) and dereddend')
     assert np.isclose(ftr.results['H'].x,
                       np.array([10.421, 7.0, 10.]),
                       rtol=1e-03,

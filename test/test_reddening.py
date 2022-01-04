@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 from WDPhotTools.reddening import reddening_vector
 
 wave_grizyJHK = np.array(
@@ -14,6 +15,9 @@ Rv_grizyJHK_51 = np.array(
     (2.835, 2.292, 1.765, 1.369, 1.097, 0.669, 0.411, 0.280))
 
 Rv = reddening_vector(kind='cubic')
+Rv_linear = reddening_vector(kind='linear')
+Rv_quintic = reddening_vector(kind='quintic')
+
 
 
 # Test the Av values when Rv = 2.1, 3.1, 4.1 and 5.1
@@ -43,3 +47,65 @@ def test_Rv51():
                        Rv_grizyJHK_51,
                        rtol=1e-3,
                        atol=1e-3)
+
+# repeat of linear interpolation
+# Test the Av values when Rv = 2.1, 3.1, 4.1 and 5.1
+def test_Rv21_linear():
+    # Note this one achieves lower accuracy than the rest
+    assert np.allclose(Rv_linear(wave_grizyJHK, 2.1),
+                       Rv_grizyJHK_21,
+                       rtol=1e-2,
+                       atol=1e-2)
+
+def test_Rv31_linear():
+    assert np.allclose(Rv_linear(wave_grizyJHK, 3.1),
+                       Rv_grizyJHK_31,
+                       rtol=1e-3,
+                       atol=1e-3)
+
+
+def test_Rv41_linear():
+    assert np.allclose(Rv_linear(wave_grizyJHK, 4.1),
+                       Rv_grizyJHK_41,
+                       rtol=1e-3,
+                       atol=1e-3)
+
+
+def test_Rv51_linear():
+    assert np.allclose(Rv_linear(wave_grizyJHK, 5.1),
+                       Rv_grizyJHK_51,
+                       rtol=1e-3,
+                       atol=1e-3)
+
+# repeat of quintic interpolation which don't reach 1% accuracy.
+# Test the Av values when Rv = 2.1, 3.1, 4.1 and 5.1
+@pytest.mark.xfail
+def test_Rv21_quintic():
+    assert np.allclose(Rv_quintic(wave_grizyJHK, 2.1),
+                       Rv_grizyJHK_21,
+                       rtol=1e-2,
+                       atol=1e-2)
+
+
+@pytest.mark.xfail
+def test_Rv31_quintic():
+    assert np.allclose(Rv_quintic(wave_grizyJHK, 3.1),
+                       Rv_grizyJHK_31,
+                       rtol=1e-2,
+                       atol=1e-2)
+
+
+@pytest.mark.xfail
+def test_Rv41_quintic():
+    assert np.allclose(Rv_quintic(wave_grizyJHK, 4.1),
+                       Rv_grizyJHK_41,
+                       rtol=1e-2,
+                       atol=1e-2)
+
+
+@pytest.mark.xfail
+def test_Rv51_quintic():
+    assert np.allclose(Rv_quintic(wave_grizyJHK, 5.1),
+                       Rv_grizyJHK_51,
+                       rtol=1e-2,
+                       atol=1e-2)

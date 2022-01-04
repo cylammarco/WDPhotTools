@@ -566,6 +566,10 @@ class WDfitter:
                 ax.set_title('Best-fit {} atmosphere with {}'.format(
                     'H & He', self.fitting_params['method']))
 
+        else:
+
+            ax.set_title(title)
+
         plt.tight_layout()
 
         if savefig:
