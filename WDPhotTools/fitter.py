@@ -46,7 +46,7 @@ class WDfitter:
 
         self.rv = reddening_vector(kind=kind)
 
-    def _chi2_minimization(self, x, values, errors, distance, distance_err,
+    def _chi2_minimization(self, x, obs, errors, distance, distance_err,
                            interpolator):
         '''
         Internal method for computing the ch2-squared value.
@@ -62,14 +62,27 @@ class WDfitter:
             mag.append(interp(x))
 
         mag = np.asarray(mag).reshape(-1) + dist_mod
+
         errors_squared = np.sqrt(errors**2. + (distance_err / distance /
                                                2.302585092994046)**2.)
 
-        chi2 = (mag - values)**2. / errors_squared
+        chi2 = (mag - obs)**2. / errors_squared
+
+        return chi2
+
+    def _chi2_minimization_summed(self, x, obs, errors, distance, distance_err,
+                                  interpolator):
+        '''
+        Internal method for computing the ch2-squared value.
+
+        '''
+
+        chi2 = self._chi2_minimization(x, obs, errors, distance, distance_err,
+                                       interpolator)
 
         return np.sum(chi2)
 
-    def _chi2_minimization_red(self, x, values, errors, distance, distance_err,
+    def _chi2_minimization_red(self, x, obs, errors, distance, distance_err,
                                interpolator, wavelength, Rv, ebv):
         '''
         Internal method for computing the ch2-squared value.
@@ -90,11 +103,25 @@ class WDfitter:
         errors_squared = np.sqrt(errors**2. + (distance_err / distance /
                                                2.302585092994046)**2.)
 
-        chi2 = (mag - values + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / errors_squared
+
+        return chi2
+
+    def _chi2_minimization_red_summed(self, x, obs, errors, distance,
+                                      distance_err, interpolator, wavelength,
+                                      Rv, ebv):
+        '''
+        Internal method for computing the ch2-squared value.
+
+        '''
+
+        chi2 = self._chi2_minimization_red(x, obs, errors, distance,
+                                           distance_err, interpolator,
+                                           wavelength, Rv, ebv)
 
         return np.sum(chi2)
 
-    def _chi2_minimization_distance(self, x, values, errors, interpolator):
+    def _chi2_minimization_distance(self, x, obs, errors, interpolator):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided.
@@ -103,7 +130,7 @@ class WDfitter:
 
         if (x[-1] <= 0.):
 
-            return np.inf
+            return np.ones_like(obs) * np.inf
 
         dist_mod = 5. * (np.log10(x[-1]) - 1.)
 
@@ -116,11 +143,22 @@ class WDfitter:
         mag = np.asarray(mag).reshape(-1) + dist_mod
         errors_squared = errors**2.
 
-        chi2 = (mag - values)**2. / errors_squared
+        chi2 = (mag - obs)**2. / errors_squared
+
+        return chi2
+
+    def _chi2_minimization_distance_summed(self, x, obs, errors, interpolator):
+        '''
+        Internal method for computing the ch2-squared value in cases when
+        the distance is not provided.
+
+        '''
+
+        chi2 = self._chi2_minimization_distance(x, obs, errors, interpolator)
 
         return np.sum(chi2)
 
-    def _chi2_minimization_distance_red(self, x, values, errors, interpolator,
+    def _chi2_minimization_distance_red(self, x, obs, errors, interpolator,
                                         wavelength, Rv, ebv):
         '''
         Internal method for computing the ch2-squared value in cases when
@@ -130,7 +168,7 @@ class WDfitter:
 
         if (x[-1] <= 0.):
 
-            return np.inf
+            return np.ones_like(obs) * np.inf
 
         dist_mod = 5. * (np.log10(x[-1]) - 1.)
 
@@ -145,7 +183,22 @@ class WDfitter:
         mag = np.asarray(mag).reshape(-1) + dist_mod
         errors_squared = errors**2.
 
-        chi2 = (mag - values + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / errors_squared
+
+        return chi2
+
+    def _chi2_minimization_distance_red_summed(self, x, obs, errors,
+                                               interpolator, wavelength, Rv,
+                                               ebv):
+        '''
+        Internal method for computing the ch2-squared value in cases when
+        the distance is not provided.
+
+        '''
+
+        chi2 = self._chi2_minimization_distance_red(x, obs, errors,
+                                                    interpolator, wavelength,
+                                                    Rv, ebv)
 
         return np.sum(chi2)
 
@@ -173,15 +226,18 @@ class WDfitter:
             initial_guess=[10.0, 8.0],
             logg=8.0,
             reuse_interpolator=False,
-            method='lsq',
+            method='minimize',
             refine_sigma=0.0,
             refine_clip=3.0,
             kwargs_for_interpolator={},
-            kwargs_for_minimization={
+            kwargs_for_minimize={
                 'method': 'Powell',
                 'options': {
                     'xtol': 0.001
                 }
+            },
+            kwargs_for_least_square={
+                'method': 'lm',
             },
             kwargs_for_emcee={}):
         '''
@@ -236,9 +292,10 @@ class WDfitter:
             Set to use the existing interpolated grid, it should be set to
             True if the same collection of data is fitted in the same set of
             filters with occasional non-detection.
-        method: str (Default: 'lsq')
-            Choose from 'lsq' and 'emcee' for using the
-            `scipy.optimize.minimize` or the `emcee` respectively.
+        method: str (Default: 'minimize')
+            Choose from 'minimize', 'least_square' and 'emcee' for using the
+            `scipy.optimize.minimize`, `scipy.optimize.least_square` or the
+            `emcee` respectively.
         refine_sigma: str (Default: 0.0)
             A non-zero value will use a `scipy.optimize.minimize` method after
             using `emcee` bounded by the refine_sigma * sigma from the median.
@@ -318,18 +375,18 @@ class WDfitter:
         if allow_none:
 
             # element-wise comparison with None, so using !=
-            mask = (np.asarray(mags) != None)
-            mags = np.asarray(mags)[mask]
-            mag_errors = np.asarray(mag_errors)[mask]
-            filters = np.asarray(filters)[mask]
+            mask = (np.array(mags) != None)
+            mags = np.array(mags, dtype=float)[mask]
+            mag_errors = np.array(mag_errors, dtype=float)[mask]
+            filters = np.array(filters)[mask]
 
         else:
 
-            mags = np.asarray(mags)
-            mag_errors = np.asarray(mag_errors)
-            filters = np.asarray(filters)
+            mags = np.array(mags, dtype=float)
+            mag_errors = np.array(mag_errors, dtype=float)
+            filters = np.array(filters)
 
-        wavelength = np.asarray(
+        wavelength = np.array(
             [self.atm.column_wavelengths[i] for i in filters])
 
         # Store the fitting params
@@ -346,12 +403,13 @@ class WDfitter:
             'reuse_interpolator': reuse_interpolator,
             'method': method,
             'kwargs_for_interpolator': kwargs_for_interpolator,
-            'kwargs_for_minimization': kwargs_for_minimization,
+            'kwargs_for_minimize': kwargs_for_minimize,
+            'kwargs_for_least_square': kwargs_for_least_square,
             'kwargs_for_emcee': kwargs_for_emcee
         }
 
         # If using the scipy.optimize.minimize()
-        if method == 'lsq':
+        if method == 'minimize':
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
@@ -363,21 +421,21 @@ class WDfitter:
                     if Rv is None:
 
                         self.results[j] = optimize.minimize(
-                            self._chi2_minimization_distance,
+                            self._chi2_minimization_distance_summed,
                             initial_guess,
-                            args=(np.asarray(mags), np.asarray(mag_errors),
+                            args=(mags, mag_errors,
                                   [self.interpolator[j][i] for i in filters]),
-                            **kwargs_for_minimization)
+                            **kwargs_for_minimize)
 
                     else:
 
                         self.results[j] = optimize.minimize(
-                            self._chi2_minimization_distance_red,
+                            self._chi2_minimization_distance_red_summed,
                             initial_guess,
-                            args=(np.asarray(mags), np.asarray(mag_errors),
+                            args=(mags, mag_errors,
                                   [self.interpolator[j][i]
                                    for i in filters], wavelength, Rv, ebv),
-                            **kwargs_for_minimization)
+                            **kwargs_for_minimize)
 
                 # If distance is provided, fit here.
                 else:
@@ -385,23 +443,108 @@ class WDfitter:
                     if Rv is None:
 
                         self.results[j] = optimize.minimize(
-                            self._chi2_minimization,
+                            self._chi2_minimization_summed,
                             initial_guess,
-                            args=(np.asarray(mags), np.asarray(mag_errors),
-                                  distance, distance_err,
+                            args=(mags, mag_errors, distance, distance_err,
                                   [self.interpolator[j][i] for i in filters]),
-                            **kwargs_for_minimization)
+                            **kwargs_for_minimize)
 
                     else:
 
                         self.results[j] = optimize.minimize(
-                            self._chi2_minimization_red,
+                            self._chi2_minimization_red_summed,
                             initial_guess,
-                            args=(np.asarray(mags), np.asarray(mag_errors),
-                                  distance, distance_err,
+                            args=(mags, mag_errors, distance, distance_err,
                                   [self.interpolator[j][i]
                                    for i in filters], wavelength, Rv, ebv),
-                            **kwargs_for_minimization)
+                            **kwargs_for_minimize)
+
+                # Store the chi2
+                self.best_fit_params[j]['chi2'] = self.results[j].fun
+
+                # Save the best fit results
+                if len(independent) == 1:
+
+                    self.best_fit_params[j][independent[0]] = self.results[j].x
+                    self.best_fit_params[j]['logg'] = logg
+
+                else:
+
+                    for k in range(len(independent)):
+
+                        self.best_fit_params[j][
+                            independent[k]] = self.results[j].x[k]
+
+                # Get the fitted parameters, the content of results vary
+                # depending on the choise of minimizer.
+                for i in filters:
+
+                    # the [:2] is to separate the distance from the filters
+                    self.best_fit_params[j][i] = float(self.interpolator[j][i](
+                        self.results[j].x[:2]))
+
+                    if distance is None:
+
+                        self.best_fit_params[j]['distance'] =\
+                            self.results[j].x[-1]
+
+                    else:
+
+                        self.best_fit_params[j]['distance'] = distance
+
+                    self.best_fit_params[j]['dist_mod'] = 5. * (
+                        np.log10(self.best_fit_params[j]['distance']) - 1)
+
+        # If using scipy.optimize.least_square
+        elif method == 'least_square':
+
+            # Iterative through the list of atmospheres
+            for j in atmosphere:
+
+                # If distance is not provided, fit for the photometric
+                # distance simultaneously using an assumed logg as provided
+                if distance is None:
+
+                    if Rv is None:
+
+                        self.results[j] = optimize.least_squares(
+                            self._chi2_minimization_distance,
+                            initial_guess,
+                            args=(mags, mag_errors,
+                                  [self.interpolator[j][i] for i in filters]),
+                            **kwargs_for_least_square)
+
+                    else:
+
+                        self.results[j] = optimize.least_squares(
+                            self._chi2_minimization_distance_red,
+                            initial_guess,
+                            args=(mags, mag_errors,
+                                  [self.interpolator[j][i]
+                                   for i in filters], wavelength, Rv, ebv),
+                            **kwargs_for_least_square)
+
+                # If distance is provided, fit here.
+                else:
+
+                    if Rv is None:
+
+                        self.results[j] = optimize.least_squares(
+                            self._chi2_minimization,
+                            initial_guess,
+                            args=(mags, mag_errors, distance, distance_err,
+                                  [self.interpolator[j][i] for i in filters]),
+                            **kwargs_for_least_square)
+
+                    else:
+
+                        self.results[j] = optimize.least_squares(
+                            self._chi2_minimization_red,
+                            initial_guess,
+                            args=(mags, mag_errors, distance, distance_err,
+                                  [self.interpolator[j][i]
+                                   for i in filters], wavelength, Rv, ebv),
+                            **kwargs_for_least_square)
 
                 # Store the chi2
                 self.best_fit_params[j]['chi2'] = self.results[j].fun

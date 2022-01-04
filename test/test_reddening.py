@@ -19,7 +19,6 @@ Rv_linear = reddening_vector(kind='linear')
 Rv_quintic = reddening_vector(kind='quintic')
 
 
-
 # Test the Av values when Rv = 2.1, 3.1, 4.1 and 5.1
 def test_Rv21():
     assert np.allclose(Rv(wave_grizyJHK, 2.1),
@@ -48,6 +47,7 @@ def test_Rv51():
                        rtol=1e-3,
                        atol=1e-3)
 
+
 # repeat of linear interpolation
 # Test the Av values when Rv = 2.1, 3.1, 4.1 and 5.1
 def test_Rv21_linear():
@@ -56,6 +56,7 @@ def test_Rv21_linear():
                        Rv_grizyJHK_21,
                        rtol=1e-2,
                        atol=1e-2)
+
 
 def test_Rv31_linear():
     assert np.allclose(Rv_linear(wave_grizyJHK, 3.1),
@@ -76,6 +77,7 @@ def test_Rv51_linear():
                        Rv_grizyJHK_51,
                        rtol=1e-3,
                        atol=1e-3)
+
 
 # repeat of quintic interpolation which don't reach 1% accuracy.
 # Test the Av values when Rv = 2.1, 3.1, 4.1 and 5.1
