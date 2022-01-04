@@ -5,6 +5,7 @@ from scipy import optimize
 import time
 
 from .atmosphere_model_reader import atm_reader
+from .reddening import reddening_vector
 
 plt.rc('font', size=18)
 plt.rc('legend', fontsize=12)
@@ -24,6 +25,7 @@ class WDfitter:
         self.results = {'H': {}, 'He': {}}
         self.best_fit_params = {'H': {}, 'He': {}}
         self.best_fit_mag = {'H': [], 'He': []}
+        self.rv = None
 
     def _interp_atm(self, dependent, atmosphere, independent, logg, **kwargs):
         '''
@@ -39,6 +41,10 @@ class WDfitter:
                                             **kwargs)
 
         return _interpolator
+
+    def interp_reddening(self, kind='cubic'):
+
+        self.rv = reddening_vector(kind=kind)
 
     def _chi2_minimization(self, x, values, errors, distance, distance_err,
                            interpolator):
@@ -60,6 +66,31 @@ class WDfitter:
                                                2.302585092994046)**2.)
 
         chi2 = (mag - values)**2. / errors_squared
+
+        return np.sum(chi2)
+
+    def _chi2_minimization_red(self, x, values, errors, distance, distance_err,
+                               interpolator, wavelength, Rv, ebv):
+        '''
+        Internal method for computing the ch2-squared value.
+
+        '''
+
+        dist_mod = 5. * (np.log10(distance) - 1.)
+
+        Av = self.rv(wavelength, Rv) * ebv
+
+        mag = []
+
+        for interp in interpolator:
+
+            mag.append(interp(x))
+
+        mag = np.asarray(mag).reshape(-1) + dist_mod
+        errors_squared = np.sqrt(errors**2. + (distance_err / distance /
+                                               2.302585092994046)**2.)
+
+        chi2 = (mag - values + Av)**2. / errors_squared
 
         return np.sum(chi2)
 
@@ -89,6 +120,35 @@ class WDfitter:
 
         return np.sum(chi2)
 
+    def _chi2_minimization_distance_red(self, x, values, errors, interpolator,
+                                        wavelength, Rv, ebv):
+        '''
+        Internal method for computing the ch2-squared value in cases when
+        the distance is not provided.
+
+        '''
+
+        if (x[-1] <= 0.):
+
+            return np.inf
+
+        dist_mod = 5. * (np.log10(x[-1]) - 1.)
+
+        Av = self.rv(wavelength, Rv) * ebv
+
+        mag = []
+
+        for interp in interpolator:
+
+            mag.append(interp(x[:2]))
+
+        mag = np.asarray(mag).reshape(-1) + dist_mod
+        errors_squared = errors**2.
+
+        chi2 = (mag - values + Av)**2. / errors_squared
+
+        return np.sum(chi2)
+
     def list_atmosphere_parameters(self):
         '''
         List all the parameters from the atmosphere models using the
@@ -106,6 +166,9 @@ class WDfitter:
             allow_none=False,
             distance=None,
             distance_err=None,
+            kind='cubic',
+            Rv=None,
+            ebv=None,
             independent=['Mbol', 'logg'],
             initial_guess=[10.0, 8.0],
             logg=8.0,
@@ -137,13 +200,13 @@ class WDfitter:
         atmosphere: list of str (Default: ['H', 'He'])
             Choose to fit with pure hydrogen atmosphere model and/or pure
             helium atmosphere model.
-        filters: list of str (Default: ['G3', 'G3_BP', 'G3_RP'])
+        filters: list/array of str (Default: ['G3', 'G3_BP', 'G3_RP'])
             Choose the filters to be fitted with.
-        mags: list of float (Default: [None, None, None])
+        mags: list/array of float (Default: [None, None, None])
             The magnitudes in the chosen filters, in their respective
             magnitude system. None can be provided as non-detection, it does
             not contribute to the fitting.
-        mag_errors: list of float (Default: [1., 1., 1.])
+        mag_errors: list/array of float (Default: [1., 1., 1.])
             The uncertainties in the magnitudes provided.
         allow_none: bool (Default: False)
             Set to True to detect None in the `mags` list to create a mask.
@@ -154,6 +217,12 @@ class WDfitter:
             10.0 pc.
         distance_err: float (Default: None)
             The uncertainty of the distance.
+        kind: str (Default: 'cubic')
+ 
+        Rv: float (Default: None)
+
+        ebv: float (Default: None)
+
         independent: list of str (Default: ['Mbol', 'logg']
             Independent variables to be interpolated in the atmosphere model,
             these are parameters to be fitted for.
@@ -214,27 +283,13 @@ class WDfitter:
 
             initial_guess = list(initial_guess)
 
+        if (Rv is not None) and (self.rv is None):
+
+            self.interp_reddening(kind=kind)
+
         if distance is None:
 
             initial_guess = initial_guess + [10.]
-
-        # Store the fitting params
-        self.fitting_params = {
-            'atmosphere': atmosphere,
-            'filters': filters,
-            'mags': mags,
-            'mag_errors': mag_errors,
-            'distance': distance,
-            'distance_err': distance_err,
-            'independent': independent,
-            'initial_guess': initial_guess,
-            'logg': logg,
-            'reuse_interpolator': reuse_interpolator,
-            'method': method,
-            'kwargs_for_interpolator': kwargs_for_interpolator,
-            'kwargs_for_minimization': kwargs_for_minimization,
-            'kwargs_for_emcee': kwargs_for_emcee
-        }
 
         # Reuse the interpolator if instructed or possible
         # The +4 is to account for ['Teff', 'mass', 'Mbol', 'age']
@@ -262,10 +317,37 @@ class WDfitter:
         # Mask the data and interpolator if set to detect None
         if allow_none:
 
-            mask = np.isfinite(mags)
-            mags = mags[mask]
-            mag_errors = mag_errors[mask]
-            filters = filters[mask]
+            # element-wise comparison with None, so using !=
+            mask = (np.asarray(mags) != None)
+            mags = np.asarray(mags)[mask]
+            mag_errors = np.asarray(mag_errors)[mask]
+            filters = np.asarray(filters)[mask]
+
+        else:
+
+            mags = np.asarray(mags)
+            mag_errors = np.asarray(mag_errors)
+            filters = np.asarray(filters)
+
+        wavelength = np.asarray([self.atm.column_wavelengths[i] for i in filters])
+
+        # Store the fitting params
+        self.fitting_params = {
+            'atmosphere': atmosphere,
+            'filters': filters,
+            'mags': mags,
+            'mag_errors': mag_errors,
+            'distance': distance,
+            'distance_err': distance_err,
+            'independent': independent,
+            'initial_guess': initial_guess,
+            'logg': logg,
+            'reuse_interpolator': reuse_interpolator,
+            'method': method,
+            'kwargs_for_interpolator': kwargs_for_interpolator,
+            'kwargs_for_minimization': kwargs_for_minimization,
+            'kwargs_for_emcee': kwargs_for_emcee
+        }
 
         # If using the scipy.optimize.minimize()
         if method == 'lsq':
@@ -277,23 +359,49 @@ class WDfitter:
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
 
-                    self.results[j] = optimize.minimize(
-                        self._chi2_minimization_distance,
-                        initial_guess,
-                        args=(np.asarray(mags), np.asarray(mag_errors),
-                              [self.interpolator[j][i] for i in filters]),
-                        **kwargs_for_minimization)
+                    if Rv is None:
+
+                        self.results[j] = optimize.minimize(
+                            self._chi2_minimization_distance,
+                            initial_guess,
+                            args=(np.asarray(mags), np.asarray(mag_errors),
+                                [self.interpolator[j][i] for i in filters]),
+                            **kwargs_for_minimization)
+
+                    else:
+
+                        self.results[j] = optimize.minimize(
+                            self._chi2_minimization_distance_red,
+                            initial_guess,
+                            args=(np.asarray(mags), np.asarray(mag_errors),
+                                [self.interpolator[j][i] for i in filters],
+                                wavelength, Rv, ebv),
+                            **kwargs_for_minimization)
 
                 # If distance is provided, fit here.
                 else:
 
-                    self.results[j] = optimize.minimize(
-                        self._chi2_minimization,
-                        initial_guess,
-                        args=(np.asarray(mags), np.asarray(mag_errors),
-                              distance, distance_err,
-                              [self.interpolator[j][i] for i in filters]),
-                        **kwargs_for_minimization)
+                    if Rv is None:
+
+                        self.results[j] = optimize.minimize(
+                            self._chi2_minimization,
+                            initial_guess,
+                            args=(np.asarray(mags), np.asarray(mag_errors),
+                                distance, distance_err,
+                                [self.interpolator[j][i] for i in filters]),
+                            **kwargs_for_minimization)
+
+                    else:
+
+                        self.results[j] = optimize.minimize(
+                            self._chi2_minimization_red,
+                            initial_guess,
+                            args=(np.asarray(mags), np.asarray(mag_errors),
+                                distance, distance_err,
+                                [self.interpolator[j][i] for i in filters],
+                                wavelength, Rv, ebv),
+                            **kwargs_for_minimization)
+
 
                 # Store the chi2
                 self.best_fit_params[j]['chi2'] = self.results[j].fun
