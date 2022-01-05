@@ -1,3 +1,5 @@
+import corner
+import emcee
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -25,6 +27,8 @@ class WDfitter:
         self.results = {'H': {}, 'He': {}}
         self.best_fit_params = {'H': {}, 'He': {}}
         self.best_fit_mag = {'H': [], 'He': []}
+        self.sampler = {'H': [], 'He': []}
+        self.samples = {'H': [], 'He': []}
         self.rv = None
 
     def _interp_atm(self, dependent, atmosphere, independent, logg, **kwargs):
@@ -49,7 +53,8 @@ class WDfitter:
     def _chi2_minimization(self, x, obs, errors, distance, distance_err,
                            interpolator):
         '''
-        Internal method for computing the ch2-squared value.
+        Internal method for computing the ch2-squared value
+        (for scipy.optimize.least_square).
 
         '''
 
@@ -73,7 +78,8 @@ class WDfitter:
     def _chi2_minimization_summed(self, x, obs, errors, distance, distance_err,
                                   interpolator):
         '''
-        Internal method for computing the ch2-squared value.
+        Internal method for computing the ch2-squared value
+        (for scipy.optimize.minimize).
 
         '''
 
@@ -82,10 +88,21 @@ class WDfitter:
 
         return np.sum(chi2)
 
+    def _log_likelihood(self, x, obs, errors, distance, distance_err,
+                        interpolator):
+        '''
+        Internal method for computing the ch2-squared value (for emcee).
+
+        '''
+
+        return -0.5 * self._chi2_minimization_summed(
+            x, obs, errors, distance, distance_err, interpolator)
+
     def _chi2_minimization_red(self, x, obs, errors, distance, distance_err,
                                interpolator, wavelength, Rv, ebv):
         '''
-        Internal method for computing the ch2-squared value.
+        Internal method for computing the ch2-squared value
+        (for scipy.optimize.least_square).
 
         '''
 
@@ -111,7 +128,8 @@ class WDfitter:
                                       distance_err, interpolator, wavelength,
                                       Rv, ebv):
         '''
-        Internal method for computing the ch2-squared value.
+        Internal method for computing the ch2-squared value
+        (for scipy.optimize.minimize).
 
         '''
 
@@ -121,10 +139,21 @@ class WDfitter:
 
         return np.sum(chi2)
 
+    def _log_likelihood_red(self, x, obs, errors, distance, distance_err,
+                            interpolator, wavelength, Rv, ebv):
+        '''
+        Internal method for computing the log-likelihood value (for emcee).
+
+        '''
+
+        return -0.5 * self._chi2_minimization_red_summed(
+            x, obs, errors, distance, distance_err, interpolator, wavelength,
+            Rv, ebv)
+
     def _chi2_minimization_distance(self, x, obs, errors, interpolator):
         '''
         Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
+        the distance is not provided (for scipy.optimize.least_square).
 
         '''
 
@@ -150,7 +179,7 @@ class WDfitter:
     def _chi2_minimization_distance_summed(self, x, obs, errors, interpolator):
         '''
         Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
+        the distance is not provided (for scipy.optimize.minimize).
 
         '''
 
@@ -158,11 +187,21 @@ class WDfitter:
 
         return np.sum(chi2)
 
+    def _log_likelihood_distance(self, x, obs, errors, interpolator):
+        '''
+        Internal method for computing the log-likelihood value in cases when
+        the distance is not provided (for emcee).
+
+        '''
+
+        return -0.5 * self._chi2_minimization_distance_summed(
+            x, obs, errors, interpolator)
+
     def _chi2_minimization_distance_red(self, x, obs, errors, interpolator,
                                         wavelength, Rv, ebv):
         '''
         Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
+        the distance is not provided (for scipy.optimize.least_square).
 
         '''
 
@@ -192,15 +231,26 @@ class WDfitter:
                                                ebv):
         '''
         Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
+        the distance is not provided (for scipy.optimize.minimize).
 
         '''
 
         chi2 = self._chi2_minimization_distance_red(x, obs, errors,
                                                     interpolator, wavelength,
                                                     Rv, ebv)
+        '''
+        Internal method for computing the log-likelihood value in cases when
+        the distance is not provided (for emcee).
+
+        '''
 
         return np.sum(chi2)
+
+    def _log_likelihood_distance_red(self, x, obs, errors, interpolator,
+                                     wavelength, Rv, ebv):
+
+        return -0.5 * self._chi2_minimization_distance_red_summed(
+            x, obs, errors, interpolator, wavelength, Rv, ebv)
 
     def list_atmosphere_parameters(self):
         '''
@@ -227,8 +277,12 @@ class WDfitter:
             logg=8.0,
             reuse_interpolator=False,
             method='minimize',
-            refine_sigma=0.0,
-            refine_clip=3.0,
+            nwalkers=20,
+            nsteps=500,
+            nburns=50,
+            progress=True,
+            refine=True,
+            refine_bounds=[5., 95.],
             kwargs_for_interpolator={},
             kwargs_for_minimize={
                 'method': 'Powell',
@@ -296,28 +350,32 @@ class WDfitter:
             Choose from 'minimize', 'least_square' and 'emcee' for using the
             `scipy.optimize.minimize`, `scipy.optimize.least_square` or the
             `emcee` respectively.
-        refine_sigma: str (Default: 0.0)
-            A non-zero value will use a `scipy.optimize.minimize` method after
-            using `emcee` bounded by the refine_sigma * sigma from the median.
-        refine_clip: str (Default: 3)
-            The size of sigma-clipping before getting the median for refining
-            the solution.
+        nwalkers: int (Default: 50)
+            Number of walkers (emcee method only).
+        nsteps: int (Default: 500)
+            Number of steps each walker walk (emcee method only).
+        nburns: int (Default: 50)
+            Number of steps is discarded as burn-in (emcee method only).
+        progress: bool (Default: True)
+            Show the progress of the emcee sampling (emcee method only).
+        refine: bool (Default: True)
+            Set to refine the minimum with `scipy.optimize.minimize`.
+        refine_bounds: str (Default: [5, 95])
+            The bounds of the minimizer are definited by the percentiles of
+            the samples.
         kwargs_for_interpolator: dict (Default: {})
             Keyword argument for the interpolator. See
             `scipy.interpolate.CloughTocher2DInterpolator`.
-        kwargs_for_minimization: dict (Default:
+        kwargs_for_minimize: dict (Default:
             {'method': 'Powell', 'options': {'xtol': 0.001}})
             Keyword argument for the minimizer, see `scipy.optimize.minimize`.
+        kwargs_for_least_square: dict (Default: {})
+            keywprd argument for the minimizer,
+            see `scipy.optimize.least_square`.
         kwargs_for_emcee: dict (Default: {})
             Keyword argument for the emcee walker.
 
         '''
-
-        # Reset fitted results in case of mixing up fitted results when
-        # reusing the fitter
-        self.results = {'H': {}, 'He': {}}
-        self.best_fit_params = {'H': {}, 'He': {}}
-        self.best_fit_mag = {'H': [], 'He': []}
 
         # Put things into list if necessary
         if isinstance(atmosphere, str):
@@ -348,10 +406,14 @@ class WDfitter:
 
             initial_guess = initial_guess + [10.]
 
+        if distance is np.inf:
+
+            distance = None
+
         # Reuse the interpolator if instructed or possible
         # The +4 is to account for ['Teff', 'mass', 'Mbol', 'age']
-        if reuse_interpolator & (self.interpolator != []) & (len(
-                self.interpolator) == (len(filters) + 4)):
+        if reuse_interpolator & (self.interpolator[atmosphere[0]] != []) & (
+                len(self.interpolator[atmosphere[0]]) == (len(filters) + 4)):
 
             pass
 
@@ -359,7 +421,7 @@ class WDfitter:
 
             for j in atmosphere:
 
-                for i in filters + ['Teff', 'mass', 'Mbol', 'age']:
+                for i in list(filters) + ['Teff', 'mass', 'Mbol', 'age']:
 
                     # Organise the interpolators by atmosphere type
                     # and filter, note that the logg is not used
@@ -585,29 +647,318 @@ class WDfitter:
         # If using emcee
         elif method == 'emcee':
 
-            raise NotImplementedError('Not implemented yet.')
+            _initial_guess = np.array(initial_guess)
+            ndim = len(_initial_guess)
+            nwalkers = int(nwalkers)
+            pos = np.random.random(
+                (nwalkers, ndim)) * np.sqrt(_initial_guess) + _initial_guess
+
+            # Iterative through the list of atmospheres
+            for j in atmosphere:
+
+                # If distance is not provided, fit for the photometric
+                # distance simultaneously using an assumed logg as provided
+                if distance is None:
+
+                    if Rv is None:
+
+                        self.sampler[j] = emcee.EnsembleSampler(
+                            nwalkers,
+                            ndim,
+                            self._log_likelihood_distance,
+                            args=(mags, mag_errors,
+                                  [self.interpolator[j][i] for i in filters]),
+                            **kwargs_for_emcee)
+
+                    else:
+
+                        self.sampler[j] = emcee.EnsembleSampler(
+                            nwalkers,
+                            ndim,
+                            self._log_likelihood_distance_red,
+                            args=(mags, mag_errors,
+                                  [self.interpolator[j][i]
+                                   for i in filters], wavelength, Rv, ebv),
+                            **kwargs_for_emcee)
+
+                # If distance is provided, fit here.
+                else:
+
+                    if Rv is None:
+
+                        self.sampler[j] = emcee.EnsembleSampler(
+                            nwalkers,
+                            ndim,
+                            self._log_likelihood,
+                            args=(mags, mag_errors, distance, distance_err,
+                                  [self.interpolator[j][i] for i in filters]),
+                            **kwargs_for_emcee)
+
+                    else:
+
+                        self.sampler[j] = emcee.EnsembleSampler(
+                            nwalkers,
+                            ndim,
+                            self._log_likelihood_red,
+                            args=(mags, mag_errors, distance, distance_err,
+                                  [self.interpolator[j][i]
+                                   for i in filters], wavelength, Rv, ebv),
+                            **kwargs_for_emcee)
+
+                self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
+                self.samples[j] = self.sampler[j].get_chain(discard=nburns,
+                                                            flat=True)
+
+                # Save the best fit results
+                if len(independent) == 1:
+
+                    self.best_fit_params[j][independent[0]] = np.percentile(
+                        self.samples[j][:, 0], [50])
+                    self.best_fit_params[j]['logg'] = logg
+
+                else:
+
+                    for k in range(len(independent)):
+
+                        self.best_fit_params[j][
+                            independent[k]] = np.percentile(
+                                self.samples[j][:, k], [50])
+
+                if refine:
+
+                    if distance is None:
+
+                        # setting distance to infinity so that it will be
+                        # turned back to None after the line appending to the
+                        # intial_guess when distance has to be found
+                        self.fit(filters=filters,
+                                 mags=mags,
+                                 mag_errors=mag_errors,
+                                 allow_none=allow_none,
+                                 atmosphere=atmosphere,
+                                 logg=logg,
+                                 independent=independent,
+                                 reuse_interpolator=True,
+                                 method='minimize',
+                                 distance=np.inf,
+                                 distance_err=None,
+                                 initial_guess=np.percentile(self.samples[j],
+                                                             [50],
+                                                             axis=0),
+                                 Rv=Rv,
+                                 ebv=ebv,
+                                 kwargs_for_minimize={
+                                     'bounds':
+                                     np.percentile(self.samples[j],
+                                                   refine_bounds,
+                                                   axis=0).T
+                                 })
+
+                    else:
+
+                        self.fit(filters=filters,
+                                 mags=mags,
+                                 mag_errors=mag_errors,
+                                 allow_none=allow_none,
+                                 atmosphere=atmosphere,
+                                 logg=logg,
+                                 independent=independent,
+                                 reuse_interpolator=True,
+                                 method='minimize',
+                                 distance=distance,
+                                 distance_err=distance_err,
+                                 initial_guess=np.percentile(self.samples[j],
+                                                             [50],
+                                                             axis=0),
+                                 Rv=Rv,
+                                 ebv=ebv,
+                                 kwargs_for_minimize={
+                                     'bounds':
+                                     np.percentile(self.samples[j],
+                                                   refine_bounds,
+                                                   axis=0).T
+                                 })
+
+                # Get the fitted parameters, the content of results vary
+                # depending on the choise of minimizer.
+                for i in filters:
+
+                    if len(independent) == 1:
+
+                        self.best_fit_params[j][i] = float(
+                            self.interpolator[j][i](
+                                self.best_fit_params[j][independent[0]]))
+
+                    else:
+
+                        self.best_fit_params[j][i] = float(
+                            self.interpolator[j][i](
+                                self.best_fit_params[j][independent[0]],
+                                self.best_fit_params[j][independent[1]]))
+
+                    if distance is None:
+
+                        self.best_fit_params[j]['distance'] =\
+                            np.percentile(self.samples[j][:, -1], [50])
+
+                    else:
+
+                        self.best_fit_params[j]['distance'] = distance
+
+                    self.best_fit_params[j]['dist_mod'] = 5. * (
+                        np.log10(self.best_fit_params[j]['distance']) - 1)
 
         else:
 
-            ValueError('Unknown method. Please choose from lsq and emcee.')
+            ValueError('Unknown method. Please choose from minimize, '
+                       'least_square and emcee.')
 
         # Save the pivot wavelength and magnitude for each filter
         self.pivot_wavelengths = []
-
         for i in self.fitting_params['filters']:
 
             self.pivot_wavelengths.append(self.atm.column_wavelengths[i])
 
-            for j in atmosphere:
+        for j in atmosphere:
+
+            self.best_fit_mag[j] = []
+
+            for i in self.fitting_params['filters']:
 
                 self.best_fit_mag[j].append(self.best_fit_params[j][i])
 
-        for j in atmosphere:
-
             for name in ['Teff', 'mass', 'Mbol', 'age']:
 
-                self.best_fit_params[j][name] = float(
-                    self.interpolator[j][name](self.results[j].x[:2]))
+                if len(independent) == 1:
+
+                    self.best_fit_params[j][name] = float(
+                        self.interpolator[j][name](
+                            self.best_fit_params[j][independent[0]]))
+
+                else:
+
+                    self.best_fit_params[j][name] = float(
+                        self.interpolator[j][name](
+                            self.best_fit_params[j][independent[0]],
+                            self.best_fit_params[j][independent[1]]))
+
+    def show_corner_plot(self,
+                         figsize=(8, 8),
+                         display=True,
+                         savefig=False,
+                         folder=None,
+                         filename=None,
+                         ext=['png'],
+                         return_fig=True,
+                         kwarg={
+                             'quantiles': [0.158655, 0.5, 0.841345],
+                             'show_titles': True
+                         }):
+        '''
+        Generate the corner plot(s) of this fit.
+
+        Parameters
+        ----------
+        figsize: array of size 2 (Default: (8, 6))
+            Set the dimension of the figure.
+        display: bool (Default: True)
+            Set to display the figure.
+        savefig: bool (Default: False)
+            Set to save the figure.
+        folder: str (Default: None)
+            The relative or absolute path to destination, the current working
+            directory will be used if None.
+        filename: str (Default: None)
+            The filename of the figure. The default filename will be used
+            if None.
+        ext: str (Default: ['png'])
+            Image type to be saved, multiple extensions can be provided. The
+            supported types are those available in `matplotlib.pyplot.savefig`.
+        return_fig: bool (Default: True)
+            Set to return the Figure object.
+        **kwarg: dict (Default: {
+            'quantiles': [0.158655, 0.5, 0.841345],
+            'show_titles': True})
+            Keyword argument for the corner.corner().
+
+        Return
+        ------
+        fig: list of matplotlib.figure.Figure object
+            Return if return_fig is set the True.
+
+        '''
+
+        if 'labels' in kwarg:
+
+            labels = kwarg['labels']
+
+        else:
+
+            labels = self.fitting_params['independent']
+
+            if self.fitting_params['distance'] is None:
+
+                labels = labels + ['distance']
+
+        fig = []
+        for i, j in enumerate(self.fitting_params['atmosphere']):
+
+            fig.append(
+                corner.corner(self.samples[j],
+                              fig=plt.figure(figsize=figsize),
+                              labels=labels,
+                              titles=labels,
+                              **kwarg))
+            plt.tight_layout()
+
+            if savefig:
+
+                if isinstance(ext, str):
+
+                    ext = [ext]
+
+                if folder is None:
+
+                    _folder = os.getcwd()
+
+                else:
+
+                    _folder = os.path.abspath(folder)
+
+                    if not os.path.exists(_folder):
+
+                        os.mkdir(_folder)
+
+                # Loop through the ext list to save figure into each image type
+                for e in ext:
+
+                    if filename is None:
+
+                        _filename = 'corner_plot_{}_atmosphere_{}.{}'.format(
+                            j, time.time(), e)
+
+                    elif isinstance(filename, (list, np.ndarray)):
+
+                        _filename = filename[i] + '.' + e
+
+                    elif isinstance(filename, str):
+
+                        _filename = filename + '.' + e
+
+                    else:
+
+                        raise TypeError('Please provide the filename as a '
+                                        'string or a list/array of string.')
+
+                    plt.savefig(os.path.join(_folder, _filename))
+
+        if display:
+
+            plt.show()
+
+        if return_fig:
+
+            return fig
 
     def show_best_fit(self,
                       figsize=(8, 6),
