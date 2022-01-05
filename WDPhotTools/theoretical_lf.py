@@ -444,18 +444,18 @@ class WDLF:
         lookback time (i.e. today is 0, age of the university is ~13.8E9).
 
         For burst and constant SFH, tophat functions are used:
-            t1 is the beginning of the star burst
-            t2 is the end
-            t0 and t3 are tiny deviations from t1 and t2 required for
-                interpolation
 
-        SFR
-         ^                x-------x
-         |                |       |
-         |                |       |
-         |    x-----------x       x-----------------x
-            -30E9   0   t3/t2    t1/t0   13.8E9   30E9
-                     Lookback Time
+            - t1 is the beginning of the star burst
+            - t2 is the end
+            - t0 and t3 are tiny deviations from t1 and t2 required for interpolation
+
+        >>>    SFR
+        >>>    ^                x-------x
+        >>>    |                |       |
+        >>>    |                |       |
+        >>>    |    x-----------x       x-----------------x
+        >>>        -30E9   0   t3/t2    t1/t0   13.8E9   30E9
+        >>>                Lookback Time
 
         Parameters
         ----------
@@ -536,14 +536,16 @@ class WDLF:
         '''
         Set the initial mass function.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         model: str (Default: 'C03')
             Choice of IFMR model:
+
                 1. K01 - Kroupa 2001
                 2. C03 - Charbrier 2003
                 3. C03b - Charbrier 2003 (including binary)
                 4. manual
+
         imf_function: callable function (Default: None)
             A callable imf function, only used if model is 'manual'.
 
@@ -556,13 +558,15 @@ class WDLF:
         '''
         Set the main sequence total lifetime model.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         model: str (Default: 'C16')
             Choice of IFMR model:
+
                 1. C16 - Choi et al. 2016
                 2. Bressan - BASTI
                 3. manual
+
         ms_function: callable function (Default: None)
             A callable ifmr function, only used if model is 'manual'.
 
@@ -575,10 +579,11 @@ class WDLF:
         '''
         Set the initial-final mass relation (IFMR).
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         model: str (Default: 'EB18')
             Choice of IFMR model:
+
                 1. C08 - Catalan et al. 2008
                 2. C08b - Catalan et al. 2008 (two-part)
                 3. S09 - Salaris et al. 2009
@@ -589,6 +594,7 @@ class WDLF:
                 8. C18 - Cummings et al. 2018
                 9. EB18 - El-Badry et al. 2018
                 10. manual
+
         ifmr_function: callable function (Default: None)
             A callable ifmr function, only used if model is 'manual'.
 
@@ -601,10 +607,11 @@ class WDLF:
         '''
         Set the WD cooling model.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         model: str (Default: 'montreal_co_da_20')
             Choice of WD cooling model:
+
             1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
             2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
             3. 'lpcode_he_da_07' - Panei et al. 2007 He DA
@@ -629,10 +636,11 @@ class WDLF:
         '''
         Set the WD cooling model.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         model: str (Default: 'montreal_co_da_20')
             Choice of WD cooling model:
+
             1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
             2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
             3. 'lpcode_co_da_10_z001' - Renedo et al. 2010 CO DA Z=0.01
@@ -644,10 +652,8 @@ class WDLF:
             9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
             10. 'basti_co_da_10' - Salari et al. 2010 CO DA
             11. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            12. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA,
-                                       no phase separation
-            13. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB,
-                                       no phase separation
+            12. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
+            13. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
 
             The naming convention follows this format:
             [model]_[core composition]_[atmosphere]_[publication year]
@@ -667,10 +673,11 @@ class WDLF:
         '''
         Set the WD cooling model.
 
-        Parameter
-        ---------
+        Parameters
+        ----------
         model: str (Default: 'montreal_co_da_20')
             Choice of WD cooling model:
+
             1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
             2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
             3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
@@ -678,10 +685,8 @@ class WDLF:
             5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
             6. 'basti_co_da_10' - Salari et al. 2010 CO DA
             7. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            8. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA,
-                                      no phase separation
-            9. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB,
-                                      no phase separation
+            8. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
+            9. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
             10. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
             11. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 

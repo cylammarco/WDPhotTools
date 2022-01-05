@@ -68,7 +68,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
                           independent=['logg', 'Teff'],
                           independent_values=[
                               np.linspace(7.0, 9.0, 5),
-                              10.**np.linspace(3.17610, 5.17609, 101)
+                              10.**np.linspace(3.185, 5.165, 100)
                           ],
                           contour=True,
                           figsize=(8, 8),
@@ -85,8 +85,8 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
                           kwargs_for_contour={'levels': 100},
                           kwargs_for_colorbar={}):
     """
-    Paramters
-    ---------
+    Parameters
+    ----------
     x: str (Default: 'G3_BP-G3_RP')
         Model parameter(s) of the abscissa. Two formats are supported:
         (1) single parameter (2) two parameters delimited with a '-' for the
@@ -100,16 +100,15 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
         returned and overplot on it.
     independent: list of str (Default: ['logg', 'Teff'])
         Independent variables to be interpolated in the atmosphere model.
-    independent_values: list of list or list of arrays
-        (Default: [np.linspace(7.0, 9.0, 11),
-         10.**np.linspace(3.17610, 5.17609, 101)])
+    independent_values: list of list or list of arrays (Default: [np.linspace(7.0, 9.0, 5), 10.**np.linspace(3.185, 5.165, 100)])
+        The coordinates to be interpolated and plotted.
     contour: bool (Default: True)
         Set to True to plot the contour levels.
     figsize: array of size 2 (Default: (8, 8))
         Set the dimension of the figure.
-    invert_xaxis: bool (default: False)
+    invert_xaxis: bool (Default: False)
         Set to invert the abscissa.
-    invert_yaxis: bool (default: False)
+    invert_yaxis: bool (Default: False)
         Set to invert the ordinate.
     title: str (Default: None)
         Set the title of the figure.
@@ -121,19 +120,19 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
         The relative or absolute path to destination, the current working
         directory will be used if None.
     filename: str (Default: None)
-        The filename of the figure. The default filename will be used
+        The filename of the figure. The Default filename will be used
         if None.
     ext: str (Default: ['png'])
         Image type to be saved, multiple extensions can be provided. The
         supported types are those available in `matplotlib.pyplot.savefig`.
     fig: matplotlib.figure.Figure (Default: None)
         Overplotting on an existing Figure.
-    **kwargs_for_plot: dict (Default: {'marker': '+'})
-
-    **kwargs_for_contour: dict (Default: {'levels': 100})
-
-    **kwargs_for_colorbar: dict (Default: {})
-
+    kwargs_for_plot: dict (Default: {'marker': '+'})
+        Keywords for matplotlib.pyplot.plot().
+    kwargs_for_contour: dict (Default: {'levels': 100})
+        Keywords for matplotlib.pyplot.tricontourf().
+    kwargs_for_colorbar: dict (Default: {})
+        Keywords for matplotlib.pyplot.colorbar().
 
     """
 
@@ -314,10 +313,11 @@ def plot_cooling_model(model='montreal_co_da_20',
     '''
     Set the WD cooling model.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     model: str (Default: 'montreal_co_da_20')
         Choice of WD cooling model:
+
         1. 'montreal_co_da_20' - Bedard et al. 2020 CO DA
         2. 'montreal_co_db_20' - Bedard et al. 2020 CO DB
         3. 'lpcode_he_da_07' - Panei et al. 2007 He DA
@@ -332,10 +332,8 @@ def plot_cooling_model(model='montreal_co_da_20',
         12. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
         13. 'basti_co_da_10' - Salari et al. 2010 CO DA
         14. 'basti_co_db_10' - Salari et al. 2010 CO DB
-        15. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA,
-                                    no phase separation
-        16. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB,
-                                    no phase separation
+        15. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
+        16. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
         17. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
         18. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
         19. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
@@ -361,9 +359,9 @@ def plot_cooling_model(model='montreal_co_da_20',
         The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
     figsize: array of size 2 (Default: (8, 8))
         Set the dimension of the figure.
-    invert_xaxis: bool (default: False)
+    invert_xaxis: bool (Default: False)
         Set to invert the abscissa.
-    invert_yaxis: bool (default: False)
+    invert_yaxis: bool (Default: False)
         Set to invert the ordinate.
     title: str (Default: None)
         Set the title of the figure.
@@ -375,7 +373,7 @@ def plot_cooling_model(model='montreal_co_da_20',
         The relative or absolute path to destination, the current working
         directory will be used if None.
     filename: str (Default: None)
-        The filename of the figure. The default filename will be used
+        The filename of the figure. The Default filename will be used
         if None.
     ext: str (Default: ['png'])
         Image type to be saved, multiple extensions can be provided. The
@@ -383,6 +381,7 @@ def plot_cooling_model(model='montreal_co_da_20',
     fig: matplotlib.figure.Figure (Default: None)
         Overplotting on an existing Figure.
     kwargs_for_plot={'marker': '+'}):
+        Keywords for matplotlib.pyplot.plot().
 
     '''
 

@@ -16,6 +16,60 @@ issue tracker <https://github.com/cylammarco/WDPhotTools/issues>`_.
 User Guide
 ==========
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Installation
+
+   installation/pip
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Behind the Scene
+
+   background/atmosphere
+   background/cooling
+   background/photometric_fit
+   background/wdlf
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
+
+   tutorials/quickstart
+   tutorials/plotting
+   tutorials/fitting
+   tutorials/generate_wdlf
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Atmosphere Model Reader API
+
+   modules/atmosphere_model_reader_api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Cooling Model Reader API
+
+   modules/cooling_model_reader_api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Model Plotter API
+
+   modules/plot_api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Photometric Fitting API
+
+   modules/photometric_fit_api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Theoretical WDLF API
+
+   modules/theoretical_wdlf_api
+
 
 License and Attribution
 =======================

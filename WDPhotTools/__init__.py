@@ -3,6 +3,8 @@ from . import cooling_model_reader
 from . import atmosphere_model_reader
 from . import plotter
 from . import fitter
+from . import reddening
+from . import util
 
 __all__ = [
     'theoretical_lf',
@@ -10,6 +12,8 @@ __all__ = [
     'atmosphere_model_reader',
     'plotter',
     'fitter',
+    'reddening',
+    'util'
 ]
 
 __author__ = "Marco C Lam"

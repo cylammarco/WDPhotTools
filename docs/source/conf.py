@@ -12,13 +12,14 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'WDPhotTools'
-copyright = '2020-2022, Marco Lam'
-author = 'Marco Lam'
+copyright = '2020-2022, Marco C Lam'
+author = 'Marco C Lam'
 __version__ = '0.1.0'
 
 # The full version, including alpha/beta/rc tags
@@ -56,13 +57,12 @@ apidoc_args = [
     '--output-dir=.',  # Directory to place all output
 ]
 
-autodoc_mock_imports = [
-    'numpy', 'scipy', 'matplotlib', 'emcee', 'corner'
-]
+autodoc_mock_imports = ['scipy', 'matplotlib', 'emcee', 'corner']
 
 autoclass_content = 'both'
 
-mathjax_path = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?' +\
+    'config=TeX-AMS-MML_HTMLorMML'
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -1,12 +1,12 @@
 import itertools
 import numpy as np
-import pkg_resources
+import os
 
-from .GlobalSpline2D import GlobalSpline2D
+from .util import GlobalSpline2D
 
 # Load the reddening vectors from file
-data = np.loadtxt(pkg_resources.resource_filename('WDPhotTools',
-                                                  'extinction/schlafly12.csv'),
+data = np.loadtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               'extinction/schlafly12.csv'),
                   delimiter=',')
 
 _xy = np.array(

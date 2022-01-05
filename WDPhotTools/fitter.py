@@ -298,7 +298,7 @@ class WDfitter:
         The method to execute a photometric fit. Pure hydrogen and helium
         atmospheres fitting are supported. See `atmosphere_model_reader` for
         more information. Set allow_none to True so that `mags` can be
-        provided in None to default non-detection, it is not used in the fit
+        provided in None to Default non-detection, it is not used in the fit
         but it allows the fitter to be reused over a large dataset where
         non-detections occur occasionally. In practice, one can add the full
         list of filters and set None for all the non-detections, however this
@@ -437,7 +437,7 @@ class WDfitter:
         if allow_none:
 
             # element-wise comparison with None, so using !=
-            mask = (np.array(mags) != None)
+            mask = (np.array(mags) != np.array([None]))
             mags = np.array(mags, dtype=float)[mask]
             mag_errors = np.array(mag_errors, dtype=float)[mask]
             filters = np.array(filters)[mask]
@@ -869,7 +869,7 @@ class WDfitter:
             The relative or absolute path to destination, the current working
             directory will be used if None.
         filename: str (Default: None)
-            The filename of the figure. The default filename will be used
+            The filename of the figure. The Default filename will be used
             if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
@@ -992,7 +992,7 @@ class WDfitter:
             The relative or absolute path to destination, the current working
             directory will be used if None.
         filename: str (Default: None)
-            The filename of the figure. The default filename will be used
+            The filename of the figure. The Default filename will be used
             if None.
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The

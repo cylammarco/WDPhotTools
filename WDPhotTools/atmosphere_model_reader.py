@@ -1,5 +1,5 @@
 import numpy as np
-import pkg_resources
+import os
 from scipy.interpolate import CloughTocher2DInterpolator
 
 
@@ -7,12 +7,12 @@ class atm_reader:
     def __init__(self):
 
         # DA atmosphere
-        filepath_da = pkg_resources.resource_filename(
-            'WDPhotTools', 'wd_photometry/Table_DA.txt')
+        filepath_da = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   'wd_photometry/Table_DA.txt')
 
         # DB atmosphere
-        filepath_db = pkg_resources.resource_filename(
-            'WDPhotTools', 'wd_photometry/Table_DB.txt')
+        filepath_db = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   'wd_photometry/Table_DB.txt')
 
         # Prepare the array column dtype
         self.column_key = np.array(
@@ -90,14 +90,14 @@ class atm_reader:
                    independent=['logg', 'Mbol'],
                    logg=8.0,
                    kwargs_for_interpolator={
-                       'fill_value': -np.inf,
+                       'fill_value': float('-inf'),
                        'tol': 1e-10,
                        'maxiter': 100000
                    }):
         """
         This function interpolates the grid of synthetic photometry and a few
         other physical properties as a function of 2 independent variables,
-        the default choices are 'logg' and 'Mbol'.
+        the Default choices are 'logg' and 'Mbol'.
 
         Parameters
         ----------
