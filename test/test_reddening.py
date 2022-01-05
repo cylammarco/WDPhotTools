@@ -84,30 +84,22 @@ def test_Rv51_linear():
 @pytest.mark.xfail
 def test_Rv21_quintic():
     assert np.allclose(Rv_quintic(wave_grizyJHK, 2.1),
-                       Rv_grizyJHK_21,
-                       rtol=1e-2,
-                       atol=1e-2)
+                       Rv_grizyJHK_21)
 
 
 @pytest.mark.xfail
 def test_Rv31_quintic():
     assert np.allclose(Rv_quintic(wave_grizyJHK, 3.1),
-                       Rv_grizyJHK_31,
-                       rtol=1e-2,
-                       atol=1e-2)
+                       Rv_grizyJHK_31)
 
 
 @pytest.mark.xfail
 def test_Rv41_quintic():
     assert np.allclose(Rv_quintic(wave_grizyJHK, 4.1),
-                       Rv_grizyJHK_41,
-                       rtol=1e-2,
-                       atol=1e-2)
+                       Rv_grizyJHK_41)
 
 
 @pytest.mark.xfail
 def test_Rv51_quintic():
     assert np.allclose(Rv_quintic(wave_grizyJHK, 5.1),
-                       Rv_grizyJHK_51,
-                       rtol=1e-2,
-                       atol=1e-2)
+                       Rv_grizyJHK_51)
