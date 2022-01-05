@@ -427,10 +427,13 @@ def test_fitting_Mbol_emcee():
             distance_err=0.1,
             refine_bounds=[0.1, 99.9],
             initial_guess=[10.0])
-    ftr.show_corner_plot(display=False)
+    ftr.show_corner_plot(display=False,
+                         folder='test_output',
+                         filename='test_fitting_and_mbol',
+                         ext='png')
     ftr.show_best_fit(display=False,
                       folder='test_output',
-                      filename='test_fitting_logg_and_mbol',
+                      filename='test_fitting_and_mbol',
                       ext='png')
     assert np.isclose(ftr.results['H'].x,
                       np.array([9.962]),
@@ -452,6 +455,9 @@ def test_fitting_Mbol_with_None_emcee():
             distance_err=0.1,
             refine_bounds=[0.1, 99.9],
             initial_guess=[10.0])
+    ftr.show_corner_plot(display=False,
+                         folder='test_output',
+                         ext=['png', 'pdf'])
     assert np.isclose(ftr.results['H'].x,
                       np.array([9.962]),
                       rtol=1e-03,
@@ -509,6 +515,7 @@ def test_fitting_logg_and_Mbol_emcee():
                       np.array([9.962, 7.5]),
                       rtol=1e-03,
                       atol=1e-03).all()
+
 
 # Fitting for Mbol with 5 filters for both DA and DB with added extinction
 def test_fitting_Mbol_red_emcee():
