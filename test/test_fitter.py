@@ -510,26 +510,6 @@ def test_fitting_logg_and_Mbol_emcee():
                       rtol=1e-03,
                       atol=1e-03).all()
 
-
-# Fitting for logg, Mbol and distance with 5 filters for both DA and DB
-def test_fitting_logg_Mbol_distance_emcee():
-    ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
-            mags=[10.882, 10.853, 10.946, 11.301, 11.183],
-            mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-            independent=['Mbol', 'logg'],
-            nwalkers=200,
-            nsteps=2000,
-            nburns=200,
-            method='emcee',
-            refine_bounds=[5., 95.],
-            initial_guess=[10.0, 7.5])
-    ftr.show_best_fit(display=False)
-    assert np.isclose(ftr.results['H'].x,
-                      np.array([9.962, 7.5, 10.]),
-                      rtol=1e-03,
-                      atol=1e-03).all()
-
-
 # Fitting for Mbol with 5 filters for both DA and DB with added extinction
 def test_fitting_Mbol_red_emcee():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
