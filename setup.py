@@ -4,7 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 install_requires = [
-    'numpy>=1.16', 'scipy>=1.5', 'matplotlib>3.0', 'emcee>=3.0', 'corner'
+    'numpy>=1.16', 'scipy>=1.5', 'matplotlib>3.0', 'emcee>=3.0', 'corner',
+    'extinction'
 ]
 
 __packagename__ = "WDLFBuilder"
