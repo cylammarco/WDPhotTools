@@ -5,12 +5,13 @@ from scipy.interpolate import RegularGridInterpolator
 
 from .util import GlobalSpline2D
 
+folder_path = os.path.dirname(os.path.abspath(__file__))
 
 # Interpolating with the custom-build (extra-)interpolator
 def reddening_vector_interpolated(kind='cubic'):
 
     # Load the reddening vectors from file
-    data = np.loadtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    data = np.loadtxt(os.path.join(folder_path,
                                    'extinction/schlafly12.csv'),
                       delimiter=',')
 
@@ -27,7 +28,7 @@ def reddening_vector_interpolated(kind='cubic'):
 def reddening_vector_filter(filter):
 
     # Load the reddening vectors from file
-    data = np.loadtxt(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+    data = np.loadtxt(os.path.join(folder_path,
                                    'extinction/{}.csv'.format(filter)),
                       delimiter=',')
 
