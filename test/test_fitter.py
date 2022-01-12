@@ -1,16 +1,25 @@
 from WDPhotTools.fitter import WDfitter
 import numpy as np
-from WDPhotTools.reddening import reddening_vector
+from WDPhotTools.reddening import reddening_vector_filter, reddening_vector_interpolated
 
+# testing with logg=7.5 and Teff=13000.
 wave_GBRFN = np.array((6218., 5110., 7769., 1535., 2301.))
 
 rv = 3.1
 ebv = 1.23
 
-reddening = reddening_vector(kind='cubic')
-extinction = reddening(wave_GBRFN, rv) * ebv
+reddening = reddening_vector_interpolated(kind='cubic')
+extinction_interpolated = reddening(wave_GBRFN, rv) * ebv
 
 ftr = WDfitter()
+
+A_G3 = reddening_vector_filter('G3')([7.5, 13000., rv]) * ebv
+A_G3_BP = reddening_vector_filter('G3_BP')([7.5, 13000., rv]) * ebv
+A_G3_RP = reddening_vector_filter('G3_RP')([7.5, 13000., rv]) * ebv
+A_FUV = reddening_vector_filter('FUV')([7.5, 13000., rv]) * ebv
+A_NUV = reddening_vector_filter('NUV')([7.5, 13000., rv]) * ebv
+
+extinction = np.array([A_G3, A_G3_BP, A_G3_RP, A_FUV, A_NUV]).reshape(-1)
 
 
 # List all atmosphere parameters

@@ -1,5 +1,6 @@
 import corner
 import emcee
+from functools import partial
 from matplotlib import pyplot as plt
 import numpy as np
 import os
@@ -7,7 +8,7 @@ from scipy import optimize
 import time
 
 from .atmosphere_model_reader import atm_reader
-from .reddening import reddening_vector
+from .reddening import reddening_vector_filter, reddening_vector_interpolated
 
 plt.rc('font', size=18)
 plt.rc('legend', fontsize=12)
@@ -29,6 +30,7 @@ class WDfitter:
         self.best_fit_mag = {'H': [], 'He': []}
         self.sampler = {'H': [], 'He': []}
         self.samples = {'H': [], 'He': []}
+        self.interpolated = None
         self.rv = None
 
     def _interp_atm(self, dependent, atmosphere, independent, logg, **kwargs):
@@ -46,12 +48,23 @@ class WDfitter:
 
         return _interpolator
 
-    def interp_reddening(self, kind='cubic'):
+    def interp_reddening(self, filters, interpolated=False, kind='cubic'):
 
-        self.rv = reddening_vector(kind=kind)
+        if interpolated:
+
+            self.interpolated = True
+            rv_itp = reddening_vector_interpolated(kind=kind)
+            wavelength = np.array(
+                [self.atm.column_wavelengths[i] for i in filters])
+            self.rv = [partial(rv_itp, w) for w in wavelength]
+
+        else:
+
+            self.interpolated = False
+            self.rv = [reddening_vector_filter(i) for i in filters]
 
     def _chi2_minimization(self, x, obs, errors, distance, distance_err,
-                           interpolator):
+                           interpolator_filter):
         '''
         Internal method for computing the ch2-squared value
         (for scipy.optimize.least_square).
@@ -62,7 +75,7 @@ class WDfitter:
 
         mag = []
 
-        for interp in interpolator:
+        for interp in interpolator_filter:
 
             mag.append(interp(x))
 
@@ -73,10 +86,16 @@ class WDfitter:
 
         chi2 = (mag - obs)**2. / errors_squared
 
-        return chi2
+        if np.isfinite(chi2).all():
+
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
 
     def _chi2_minimization_summed(self, x, obs, errors, distance, distance_err,
-                                  interpolator):
+                                  interpolator_filter):
         '''
         Internal method for computing the ch2-squared value
         (for scipy.optimize.minimize).
@@ -84,49 +103,161 @@ class WDfitter:
         '''
 
         chi2 = self._chi2_minimization(x, obs, errors, distance, distance_err,
-                                       interpolator)
+                                       interpolator_filter)
 
         return np.sum(chi2)
 
     def _log_likelihood(self, x, obs, errors, distance, distance_err,
-                        interpolator):
+                        interpolator_filter):
         '''
         Internal method for computing the ch2-squared value (for emcee).
 
         '''
 
         return -0.5 * self._chi2_minimization_summed(
-            x, obs, errors, distance, distance_err, interpolator)
+            x, obs, errors, distance, distance_err, interpolator_filter)
 
-    def _chi2_minimization_red(self, x, obs, errors, distance, distance_err,
-                               interpolator, wavelength, Rv, ebv):
+    def _chi2_minimization_red_interpolated(self, x, obs, errors, distance,
+                                            distance_err, interpolator_filter,
+                                            Rv, ebv):
         '''
-        Internal method for computing the ch2-squared value
-        (for scipy.optimize.least_square).
+        Internal method for computing the ch2-squared value.
 
         '''
 
         dist_mod = 5. * (np.log10(distance) - 1.)
 
-        Av = self.rv(wavelength, Rv) * ebv
-
         mag = []
 
-        for interp in interpolator:
+        for interp in interpolator_filter:
 
             mag.append(interp(x))
 
+        Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
         errors_squared = np.sqrt(errors**2. + (distance_err / distance /
                                                2.302585092994046)**2.)
 
         chi2 = (mag - obs + Av)**2. / errors_squared
 
+        if np.isfinite(chi2).all():
+
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
+
+    def _chi2_minimization_red_filter(self, x, obs, errors, distance,
+                                      distance_err, interpolator_filter,
+                                      interpolator_teff, logg_pos, Rv, ebv):
+        '''
+        Internal method for computing the ch2-squared value.
+
+        '''
+
+        dist_mod = 5. * (np.log10(distance) - 1.)
+
+        mag = []
+
+        for interp in interpolator_filter:
+
+            mag.append(interp(x))
+
+        teff = float(interpolator_teff(x))
+
+        if not np.isfinite(teff):
+
+            return np.ones_like(obs) * np.inf
+
+        logg = x[logg_pos]
+        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        mag = np.asarray(mag).reshape(-1) + dist_mod
+        errors_squared = np.sqrt(errors**2. + (distance_err / distance /
+                                               2.302585092994046)**2.)
+
+        chi2 = (mag - obs + Av)**2. / errors_squared
+
+        if np.isfinite(chi2).all():
+
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
+
+    def _chi2_minimization_red_filter_fixed_logg(self, x, obs, errors,
+                                                 distance, distance_err,
+                                                 interpolator_filter,
+                                                 interpolator_teff, logg, Rv,
+                                                 ebv):
+        '''
+        Internal method for computing the ch2-squared value.
+
+        '''
+
+        dist_mod = 5. * (np.log10(distance) - 1.)
+
+        mag = []
+
+        for interp in interpolator_filter:
+
+            mag.append(interp(x))
+
+        teff = float(interpolator_teff(x))
+        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        mag = np.asarray(mag).reshape(-1) + dist_mod
+        errors_squared = np.sqrt(errors**2. + (distance_err / distance /
+                                               2.302585092994046)**2.)
+
+        chi2 = (mag - obs + Av)**2. / errors_squared
+
+        if np.isfinite(chi2).all():
+
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
+
+    def _chi2_minimization_red(self, x, obs, errors, distance, distance_err,
+                               interpolator_filter, interpolator_teff, logg,
+                               Rv, ebv):
+        '''
+        Internal method for computing the ch2-squared value
+        (for scipy.optimize.least_square).
+
+        '''
+
+        if self.interpolated:
+
+            chi2 = self._chi2_minimization_red_interpolated(
+                x, obs, errors, distance, distance_err, interpolator_filter,
+                Rv, ebv)
+
+        else:
+
+            if logg is None:
+
+                logg_pos = int(
+                    np.argwhere(
+                        np.array(self.fitting_params['independent']) ==
+                        'logg'))
+                chi2 = self._chi2_minimization_red_filter(
+                    x, obs, errors, distance, distance_err,
+                    interpolator_filter, interpolator_teff, logg_pos, Rv, ebv)
+
+            else:
+
+                chi2 = self._chi2_minimization_red_filter_fixed_logg(
+                    x, obs, errors, distance, distance_err,
+                    interpolator_filter, interpolator_teff, logg, Rv, ebv)
+
         return chi2
 
     def _chi2_minimization_red_summed(self, x, obs, errors, distance,
-                                      distance_err, interpolator, wavelength,
-                                      Rv, ebv):
+                                      distance_err, interpolator_filter,
+                                      interpolator_teff, logg, Rv, ebv):
         '''
         Internal method for computing the ch2-squared value
         (for scipy.optimize.minimize).
@@ -134,23 +265,24 @@ class WDfitter:
         '''
 
         chi2 = self._chi2_minimization_red(x, obs, errors, distance,
-                                           distance_err, interpolator,
-                                           wavelength, Rv, ebv)
+                                           distance_err, interpolator_filter,
+                                           interpolator_teff, logg, Rv, ebv)
 
         return np.sum(chi2)
 
     def _log_likelihood_red(self, x, obs, errors, distance, distance_err,
-                            interpolator, wavelength, Rv, ebv):
+                            interpolator_filter, interpolator_teff, logg, Rv,
+                            ebv):
         '''
         Internal method for computing the log-likelihood value (for emcee).
 
         '''
 
         return -0.5 * self._chi2_minimization_red_summed(
-            x, obs, errors, distance, distance_err, interpolator, wavelength,
-            Rv, ebv)
+            x, obs, errors, distance, distance_err, interpolator_filter,
+            interpolator_teff, logg, Rv, ebv)
 
-    def _chi2_minimization_distance(self, x, obs, errors, interpolator):
+    def _chi2_minimization_distance(self, x, obs, errors, interpolator_filter):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided (for scipy.optimize.least_square).
@@ -165,7 +297,7 @@ class WDfitter:
 
         mag = []
 
-        for interp in interpolator:
+        for interp in interpolator_filter:
 
             mag.append(interp(x[:2]))
 
@@ -174,20 +306,28 @@ class WDfitter:
 
         chi2 = (mag - obs)**2. / errors_squared
 
-        return chi2
+        if np.isfinite(chi2).all():
 
-    def _chi2_minimization_distance_summed(self, x, obs, errors, interpolator):
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
+
+    def _chi2_minimization_distance_summed(self, x, obs, errors,
+                                           interpolator_filter):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided (for scipy.optimize.minimize).
 
         '''
 
-        chi2 = self._chi2_minimization_distance(x, obs, errors, interpolator)
+        chi2 = self._chi2_minimization_distance(x, obs, errors,
+                                                interpolator_filter)
 
         return np.sum(chi2)
 
-    def _log_likelihood_distance(self, x, obs, errors, interpolator):
+    def _log_likelihood_distance(self, x, obs, errors, interpolator_filter):
         '''
         Internal method for computing the log-likelihood value in cases when
         the distance is not provided (for emcee).
@@ -195,13 +335,14 @@ class WDfitter:
         '''
 
         return -0.5 * self._chi2_minimization_distance_summed(
-            x, obs, errors, interpolator)
+            x, obs, errors, interpolator_filter)
 
-    def _chi2_minimization_distance_red(self, x, obs, errors, interpolator,
-                                        wavelength, Rv, ebv):
+    def _chi2_minimization_distance_red_interpolated(self, x, obs, errors,
+                                                     interpolator_filter, Rv,
+                                                     ebv):
         '''
         Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.least_square).
+        the distance is not provided.
 
         '''
 
@@ -211,23 +352,137 @@ class WDfitter:
 
         dist_mod = 5. * (np.log10(x[-1]) - 1.)
 
-        Av = self.rv(wavelength, Rv) * ebv
-
         mag = []
 
-        for interp in interpolator:
+        for interp in interpolator_filter:
 
             mag.append(interp(x[:2]))
 
+        Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
         errors_squared = errors**2.
 
         chi2 = (mag - obs + Av)**2. / errors_squared
 
+        if np.isfinite(chi2).all():
+
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
+
+    def _chi2_minimization_distance_red_filter(self, x, obs, errors,
+                                               interpolator_filter,
+                                               interpolator_teff, logg_pos, Rv,
+                                               ebv):
+        '''
+        Internal method for computing the ch2-squared value in cases when
+        the distance is not provided.
+
+        '''
+
+        if (x[-1] <= 0.):
+
+            return np.ones_like(obs) * np.inf
+
+        dist_mod = 5. * (np.log10(x[-1]) - 1.)
+
+        mag = []
+
+        for interp in interpolator_filter:
+
+            mag.append(interp(x[:2]))
+
+        teff = float(interpolator_teff(x[:2]))
+        logg = x[logg_pos]
+        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        mag = np.asarray(mag).reshape(-1) + dist_mod
+        errors_squared = errors**2.
+
+        chi2 = (mag - obs + Av)**2. / errors_squared
+
+        if np.isfinite(chi2).all():
+
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
+
+    def _chi2_minimization_distance_red_filter_fixed_logg(
+            self, x, obs, errors, interpolator_filter, interpolator_teff, logg,
+            Rv, ebv):
+        '''
+        Internal method for computing the ch2-squared value in cases when
+        the distance is not provided.
+
+        '''
+
+        if (x[-1] <= 0.):
+
+            return np.ones_like(obs) * np.inf
+
+        dist_mod = 5. * (np.log10(x[-1]) - 1.)
+
+        mag = []
+
+        for interp in interpolator_filter:
+
+            mag.append(interp(x[:2]))
+
+        teff = float(interpolator_teff(x))
+        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        mag = np.asarray(mag).reshape(-1) + dist_mod
+        errors_squared = errors**2.
+
+        chi2 = (mag - obs + Av)**2. / errors_squared
+
+        if np.isfinite(chi2).all():
+
+            return chi2
+
+        else:
+
+            return np.ones_like(obs) * np.inf
+
+    def _chi2_minimization_distance_red(self, x, obs, errors,
+                                        interpolator_filter, interpolator_teff,
+                                        logg, Rv, ebv):
+        '''
+        Internal method for computing the ch2-squared value in cases when
+        the distance is not provided (for scipy.optimize.least_square).
+
+        '''
+
+        if self.interpolated:
+
+            chi2 = self._chi2_minimization_distance_red_interpolated(
+                x, obs, errors, interpolator_filter, Rv, ebv)
+
+        else:
+
+            if logg is None:
+
+                logg_pos = int(
+                    np.argwhere(
+                        np.array(self.fitting_params['independent']) ==
+                        'logg'))
+                chi2 = self._chi2_minimization_distance_red_filter(
+                    x, obs, errors, interpolator_filter, interpolator_teff,
+                    logg_pos, Rv, ebv)
+
+            else:
+
+                chi2 = self._chi2_minimization_distance_red_filter_fixed_logg(
+                    x, obs, errors, interpolator_filter, interpolator_teff,
+                    logg, Rv, ebv)
+
         return chi2
 
     def _chi2_minimization_distance_red_summed(self, x, obs, errors,
-                                               interpolator, wavelength, Rv,
+                                               interpolator_filter,
+                                               interpolator_teff, logg, Rv,
                                                ebv):
         '''
         Internal method for computing the ch2-squared value in cases when
@@ -236,21 +491,23 @@ class WDfitter:
         '''
 
         chi2 = self._chi2_minimization_distance_red(x, obs, errors,
-                                                    interpolator, wavelength,
+                                                    interpolator_filter,
+                                                    interpolator_teff, logg,
                                                     Rv, ebv)
+
+        return np.sum(chi2)
+
+    def _log_likelihood_distance_red(self, x, obs, errors, interpolator_filter,
+                                     interpolator_teff, logg, Rv, ebv):
         '''
         Internal method for computing the log-likelihood value in cases when
         the distance is not provided (for emcee).
 
         '''
 
-        return np.sum(chi2)
-
-    def _log_likelihood_distance_red(self, x, obs, errors, interpolator,
-                                     wavelength, Rv, ebv):
-
         return -0.5 * self._chi2_minimization_distance_red_summed(
-            x, obs, errors, interpolator, wavelength, Rv, ebv)
+            x, obs, errors, interpolator_filter, interpolator_teff, logg, Rv,
+            ebv)
 
     def list_atmosphere_parameters(self):
         '''
@@ -269,6 +526,7 @@ class WDfitter:
             allow_none=False,
             distance=None,
             distance_err=None,
+            interpolated=False,
             kind='cubic',
             Rv=None,
             ebv=None,
@@ -327,6 +585,13 @@ class WDfitter:
             10.0 pc.
         distance_err: float (Default: None)
             The uncertainty of the distance.
+        interpolated: bool (Default: False)
+            When True, the A_b/E(B-V) values for filter b from Table 6 of
+            Schlafly et al. 2011 are interpolated over the broadband filters.
+            When False, the the A_b/E(B-V) values are from integrating
+            the convolution of the response function of the filters with
+            the DA spectra from Koester et al. 2010 using the equation
+            provided in Schlafly et al. 2011.
         kind: str (Default: 'cubic')
             The kind of interpolation of the extinction curve.
         Rv: float (Default: None)
@@ -398,9 +663,12 @@ class WDfitter:
 
             initial_guess = list(initial_guess)
 
-        if (Rv is not None) and (self.rv is None):
+        if (Rv is not None) and (self.rv is None) and (self.interpolated !=
+                                                       interpolated):
 
-            self.interp_reddening(kind=kind)
+            self.interp_reddening(filters=filters,
+                                  interpolated=interpolated,
+                                  kind=kind)
 
         if distance is None:
 
@@ -448,9 +716,6 @@ class WDfitter:
             mag_errors = np.array(mag_errors, dtype=float)
             filters = np.array(filters)
 
-        wavelength = np.array(
-            [self.atm.column_wavelengths[i] for i in filters])
-
         # Store the fitting params
         self.fitting_params = {
             'atmosphere': atmosphere,
@@ -462,19 +727,35 @@ class WDfitter:
             'independent': independent,
             'initial_guess': initial_guess,
             'logg': logg,
+            'interpolated': interpolated,
+            'kind': kind,
+            'Rv': Rv,
+            'ebv': ebv,
             'reuse_interpolator': reuse_interpolator,
             'method': method,
+            'nwalkers': nwalkers,
+            'nsteps': nsteps,
+            'nburns': nburns,
+            'progress': progress,
+            'refine': refine,
+            'refine_bounds': refine_bounds,
             'kwargs_for_interpolator': kwargs_for_interpolator,
             'kwargs_for_minimize': kwargs_for_minimize,
             'kwargs_for_least_square': kwargs_for_least_square,
             'kwargs_for_emcee': kwargs_for_emcee
         }
 
+        interpolator_teff = None
+
         # If using the scipy.optimize.minimize()
         if method == 'minimize':
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
+
+                if not interpolated:
+
+                    interpolator_teff = self.interpolator[j]['Teff']
 
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
@@ -491,13 +772,25 @@ class WDfitter:
 
                     else:
 
-                        self.results[j] = optimize.minimize(
-                            self._chi2_minimization_distance_red_summed,
-                            initial_guess,
-                            args=(mags, mag_errors,
-                                  [self.interpolator[j][i]
-                                   for i in filters], wavelength, Rv, ebv),
-                            **kwargs_for_minimize)
+                        if 'logg' in independent:
+
+                            self.results[j] = optimize.minimize(
+                                self._chi2_minimization_distance_red_summed,
+                                initial_guess,
+                                args=(mags, mag_errors, [
+                                    self.interpolator[j][i] for i in filters
+                                ], interpolator_teff, None, Rv, ebv),
+                                **kwargs_for_minimize)
+
+                        else:
+
+                            self.results[j] = optimize.minimize(
+                                self._chi2_minimization_distance_red_summed,
+                                initial_guess,
+                                args=(mags, mag_errors, [
+                                    self.interpolator[j][i] for i in filters
+                                ], interpolator_teff, logg, Rv, ebv),
+                                **kwargs_for_minimize)
 
                 # If distance is provided, fit here.
                 else:
@@ -513,13 +806,29 @@ class WDfitter:
 
                     else:
 
-                        self.results[j] = optimize.minimize(
-                            self._chi2_minimization_red_summed,
-                            initial_guess,
-                            args=(mags, mag_errors, distance, distance_err,
-                                  [self.interpolator[j][i]
-                                   for i in filters], wavelength, Rv, ebv),
-                            **kwargs_for_minimize)
+                        if 'logg' in independent:
+
+                            self.results[j] = optimize.minimize(
+                                self._chi2_minimization_red_summed,
+                                initial_guess,
+                                args=(mags, mag_errors, distance, distance_err,
+                                      [
+                                          self.interpolator[j][i]
+                                          for i in filters
+                                      ], interpolator_teff, None, Rv, ebv),
+                                **kwargs_for_minimize)
+
+                        else:
+
+                            self.results[j] = optimize.minimize(
+                                self._chi2_minimization_red_summed,
+                                initial_guess,
+                                args=(mags, mag_errors, distance, distance_err,
+                                      [
+                                          self.interpolator[j][i]
+                                          for i in filters
+                                      ], interpolator_teff, logg, Rv, ebv),
+                                **kwargs_for_minimize)
 
                 # Store the chi2
                 self.best_fit_params[j]['chi2'] = self.results[j].fun
@@ -563,6 +872,10 @@ class WDfitter:
             # Iterative through the list of atmospheres
             for j in atmosphere:
 
+                if not interpolated:
+
+                    interpolator_teff = self.interpolator[j]['Teff']
+
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
@@ -578,13 +891,25 @@ class WDfitter:
 
                     else:
 
-                        self.results[j] = optimize.least_squares(
-                            self._chi2_minimization_distance_red,
-                            initial_guess,
-                            args=(mags, mag_errors,
-                                  [self.interpolator[j][i]
-                                   for i in filters], wavelength, Rv, ebv),
-                            **kwargs_for_least_square)
+                        if 'logg' in independent:
+
+                            self.results[j] = optimize.least_squares(
+                                self._chi2_minimization_distance_red,
+                                initial_guess,
+                                args=(mags, mag_errors, [
+                                    self.interpolator[j][i] for i in filters
+                                ], interpolator_teff, None, Rv, ebv),
+                                **kwargs_for_least_square)
+
+                        else:
+
+                            self.results[j] = optimize.least_squares(
+                                self._chi2_minimization_distance_red,
+                                initial_guess,
+                                args=(mags, mag_errors, [
+                                    self.interpolator[j][i] for i in filters
+                                ], interpolator_teff, logg, Rv, ebv),
+                                **kwargs_for_least_square)
 
                 # If distance is provided, fit here.
                 else:
@@ -600,13 +925,29 @@ class WDfitter:
 
                     else:
 
-                        self.results[j] = optimize.least_squares(
-                            self._chi2_minimization_red,
-                            initial_guess,
-                            args=(mags, mag_errors, distance, distance_err,
-                                  [self.interpolator[j][i]
-                                   for i in filters], wavelength, Rv, ebv),
-                            **kwargs_for_least_square)
+                        if 'logg' in independent:
+
+                            self.results[j] = optimize.least_squares(
+                                self._chi2_minimization_red,
+                                initial_guess,
+                                args=(mags, mag_errors, distance, distance_err,
+                                      [
+                                          self.interpolator[j][i]
+                                          for i in filters
+                                      ], interpolator_teff, None, Rv, ebv),
+                                **kwargs_for_least_square)
+
+                        else:
+
+                            self.results[j] = optimize.least_squares(
+                                self._chi2_minimization_red,
+                                initial_guess,
+                                args=(mags, mag_errors, distance, distance_err,
+                                      [
+                                          self.interpolator[j][i]
+                                          for i in filters
+                                      ], interpolator_teff, logg, Rv, ebv),
+                                **kwargs_for_least_square)
 
                 # Store the chi2
                 self.best_fit_params[j]['chi2'] = self.results[j].fun
@@ -656,6 +997,10 @@ class WDfitter:
             # Iterative through the list of atmospheres
             for j in atmosphere:
 
+                if not interpolated:
+
+                    interpolator_teff = self.interpolator[j]['Teff']
+
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
@@ -672,14 +1017,27 @@ class WDfitter:
 
                     else:
 
-                        self.sampler[j] = emcee.EnsembleSampler(
-                            nwalkers,
-                            ndim,
-                            self._log_likelihood_distance_red,
-                            args=(mags, mag_errors,
-                                  [self.interpolator[j][i]
-                                   for i in filters], wavelength, Rv, ebv),
-                            **kwargs_for_emcee)
+                        if 'logg' in independent:
+
+                            self.sampler[j] = emcee.EnsembleSampler(
+                                nwalkers,
+                                ndim,
+                                self._log_likelihood_distance_red,
+                                args=(mags, mag_errors, [
+                                    self.interpolator[j][i] for i in filters
+                                ], interpolator_teff, None, Rv, ebv),
+                                **kwargs_for_emcee)
+
+                        else:
+
+                            self.sampler[j] = emcee.EnsembleSampler(
+                                nwalkers,
+                                ndim,
+                                self._log_likelihood_distance_red,
+                                args=(mags, mag_errors, [
+                                    self.interpolator[j][i] for i in filters
+                                ], interpolator_teff, logg, Rv, ebv),
+                                **kwargs_for_emcee)
 
                 # If distance is provided, fit here.
                 else:
@@ -701,8 +1059,8 @@ class WDfitter:
                             ndim,
                             self._log_likelihood_red,
                             args=(mags, mag_errors, distance, distance_err,
-                                  [self.interpolator[j][i]
-                                   for i in filters], wavelength, Rv, ebv),
+                                  [self.interpolator[j][i] for i in filters
+                                   ], interpolator_teff, logg, Rv, ebv),
                             **kwargs_for_emcee)
 
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
