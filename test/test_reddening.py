@@ -109,7 +109,7 @@ red_z = reddening_vector_filter('z_ps1')
 red_y = reddening_vector_filter('y_ps1')
 red_J = reddening_vector_filter('J_mko')
 red_H = reddening_vector_filter('H_mko')
-red_K = reddening_vector_filter('K_MKO')
+red_K = reddening_vector_filter('K_mko')
 
 
 def test_Rv21_filter():
