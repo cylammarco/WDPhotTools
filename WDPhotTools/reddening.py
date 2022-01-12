@@ -1,3 +1,4 @@
+import glob
 import itertools
 import numpy as np
 import os
@@ -7,13 +8,14 @@ from .util import GlobalSpline2D
 
 folder_path = os.path.dirname(os.path.abspath(__file__))
 
+
 # Interpolating with the custom-build (extra-)interpolator
 def reddening_vector_interpolated(kind='cubic'):
 
+    filepath = glob.glob(
+        os.path.join(folder_path, 'extinction' + os.sep + 'schlafly12.csv'))
     # Load the reddening vectors from file
-    data = np.loadtxt(os.path.join(folder_path,
-                                   'extinction/schlafly12.csv'),
-                      delimiter=',')
+    data = np.loadtxt(filepath, delimiter=',')
 
     _xy = np.array([
         i
@@ -27,10 +29,11 @@ def reddening_vector_interpolated(kind='cubic'):
 
 def reddening_vector_filter(filter):
 
+    filepath = os.path.join(folder_path,
+                            'extinction' + os.sep + '{}.csv'.format(filter))
+
     # Load the reddening vectors from file
-    data = np.loadtxt(os.path.join(folder_path,
-                                   'extinction/{}.csv'.format(filter)),
-                      delimiter=',')
+    data = np.loadtxt(filepath, delimiter=',')
 
     Teff = np.array([
         5000., 5250., 5500., 5750., 6000., 6250., 6500., 6750., 7000., 7250.,
