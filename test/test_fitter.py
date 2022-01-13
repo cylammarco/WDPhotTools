@@ -578,7 +578,14 @@ def test_fitting_logg_and_Mbol_red_emcee():
                       rtol=1e-03,
                       atol=1e-03).all()
 
-# 1st test yuen ka wai
+# Testing the interp_reddening() by YKW on 12Jan2022
 def test_interp_reddening():
     ftr.interp_reddening(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
                          interpolated=True)
+
+# Testing the _chi2_minimization_red_interpolated() by YKW on 13Jan2022
+def test_chi2_minimization_red_interpolated():
+    ftr._chi2_minimization_red_interpolated(distance=10.,
+                                            distance_err=0.1,
+                                            Rv=rv,
+                                            ebv=ebv)
