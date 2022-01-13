@@ -577,3 +577,7 @@ def test_fitting_logg_and_Mbol_red_emcee():
                       np.array([9.962, 7.5]),
                       rtol=1e-03,
                       atol=1e-03).all()
+
+def test_interp_reddening():
+    ftr.interp_reddening(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
+                         interpolated=True)
