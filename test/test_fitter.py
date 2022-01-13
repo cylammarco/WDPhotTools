@@ -578,6 +578,7 @@ def test_fitting_logg_and_Mbol_red_emcee():
                       rtol=1e-03,
                       atol=1e-03).all()
 
+# 1st test yuen ka wai
 def test_interp_reddening():
     ftr.interp_reddening(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
                          interpolated=True)
