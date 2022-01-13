@@ -594,6 +594,8 @@ def test_chi2_minimization_red_interpolated():
             method='least_square',
             distance=10.,
             distance_err=0.1,
-            interpolated=True
+            initial_guess=[10.0, 7.5],
+            refine_bounds=[0.1, 99.9],
+            interpolated=True,
             Rv=rv,
             ebv=ebv)
