@@ -586,7 +586,7 @@ def test_interp_reddening():
 # Testing the _chi2_minimization_red_interpolated() by YKW on 13Jan2022
 def test_chi2_minimization_red_interpolated():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
-    mags = mags + extinction
+    mags = mags + extinction_interpolated
     ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
             mags=mags,
             mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
@@ -599,3 +599,11 @@ def test_chi2_minimization_red_interpolated():
             interpolated=True,
             Rv=rv,
             ebv=ebv)
+    ftr.show_best_fit(display=False,
+                      folder='test_output',
+                      filename='test_chi2_minimization_red_interpolated',
+                      ext='png')
+    assert np.isclose(ftr.results['H'].x,
+                      np.array([9.962, 7.5]),
+                      rtol=1e-03,
+                      atol=1e-03).all()
