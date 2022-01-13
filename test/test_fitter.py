@@ -555,7 +555,7 @@ def test_fitting_Mbol_red_emcee():
 
 # Fitting for logg and Mbol with 5 filters for both DA and DB with added
 # extinction
-def test_fitting_logg_and_Mbol_red_emcee():
+def test_fitting_logg_and_Mbol_red_emcee(): 
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     mags = mags + extinction
     ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
@@ -585,7 +585,4 @@ def test_interp_reddening():
 
 # Testing the _chi2_minimization_red_interpolated() by YKW on 13Jan2022
 def test_chi2_minimization_red_interpolated():
-    ftr._chi2_minimization_red_interpolated(distance=10.,
-                                            distance_err=0.1,
-                                            Rv=rv,
-                                            ebv=ebv)
+    ftr._chi2_minimization_red_interpolated()
