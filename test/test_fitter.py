@@ -629,12 +629,6 @@ def test_chi2_minimization_distance_red_interpolated():
                       folder='test_output',
                       filename='test_chi2_minimization_distance_red_interpolated',
                       ext='png')
-'''
-    assert np.isclose(ftr.results['H'].x,
-                      np.array([9.962, 7.5]),
-                      rtol=1e-03,
-                      atol=1e-03).all()
-'''
 
 #Testing the _chi2_minimization_distance_red_filter_fixed_logg() by YKW on 15Jan2022
 def test_chi2_minimization_distance_red_filter_fixed_logg():
@@ -643,7 +637,7 @@ def test_chi2_minimization_distance_red_filter_fixed_logg():
     ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
             mags=mags,
             mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-            independent=['Mbol', 'logg'],
+            independent=['Mbol'],
             method='emcee',
             distance_err=0.1,
             initial_guess=[10.0, 7.5],
@@ -654,9 +648,3 @@ def test_chi2_minimization_distance_red_filter_fixed_logg():
                       folder='test_output',
                       filename='test_chi2_minimization_distance_red_filter_fixed_logg',
                       ext='png')
-'''
-    assert np.isclose(ftr.results['H'].x,
-                      np.array([9.962, 7.5]),
-                      rtol=1e-03,
-                      atol=1e-03).all()
-'''
