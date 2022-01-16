@@ -618,6 +618,7 @@ def test_chi2_minimization_distance_red_interpolated():
             independent=['Mbol', 'logg'],
             method='emcee',
             initial_guess=[10.0, 7.5],
+            logg=7.5,
             refine_bounds=[0.1, 99.9],
             interpolated=True,
             Rv=rv,
@@ -637,6 +638,7 @@ def test_chi2_minimization_distance_red_filter_fixed_logg():
             independent=['Mbol', 'logg'],
             method='emcee',
             initial_guess=[10.0, 7.5],
+            logg=7.5,
             refine_bounds=[0.1, 99.9],
             Rv=rv,
             ebv=ebv)
