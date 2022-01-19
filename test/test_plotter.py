@@ -121,5 +121,3 @@ def test_plot_atmosphere_models_lenx_not_2():
                                   display=False,
                                   savefig=False,
                                   )
-
-# YKW 19JAN2022 6
