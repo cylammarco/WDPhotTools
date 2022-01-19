@@ -644,3 +644,4 @@ def test_chi2_minimization_distance_red_filter_fixed_logg():
                       folder='test_output',
                       filename='test_chi2_minimization_distance_red_filter_fixed_logg',
                       ext='png')
+                      
