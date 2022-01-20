@@ -121,3 +121,19 @@ def test_plot_atmosphere_models_lenx_not_2():
                                   display=False,
                                   savefig=False,
                                   )
+
+# YKW 20JAN2022 1
+def test_plot_cooling_model_folder_not_exist():
+    fig = plotter.plot_cooling_model(display=False, title=' ')
+    plotter.plot_cooling_model(display=False,
+                               savefig=True,
+                               ext='png',
+                               fig=fig)
+
+# YKW 20JAN2022 2
+def test_plot_atmosphere_model_folder_not_exist():
+    fig = plotter.plot_atmoshpere_model(display=False, title=' ')
+    plotter.plot_atmosphere_model(display=False,
+                               savefig=True,
+                               ext='png',
+                               fig=fig)
