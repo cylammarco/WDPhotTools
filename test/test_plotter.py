@@ -119,8 +119,7 @@ def test_plot_cooling_model_folder_none():
 def test_plot_atmosphere_models_lenx_not_2():
     plotter.plot_atmosphere_model(x='G3_BP',
                                   display=False,
-                                  savefig=False,
-                                  )
+                                  savefig=False)
 
 # YKW 20JAN2022 1
 def test_plot_cooling_models_filename_none():
@@ -130,5 +129,5 @@ def test_plot_cooling_models_filename_none():
                                invert_xaxis=True,
                                invert_yaxis=True,
                                display=False,
-                               filename=None,
-                               ext=['png', 'pdf'])
+                               folder='test_output',
+                               filename=None)
