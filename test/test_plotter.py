@@ -101,7 +101,7 @@ def test_plot_cooling_model_fig_none():
     fig = plotter.plot_cooling_model(display=False, title=' ')
     plotter.plot_cooling_model(display=False,
                                savefig=True,
-                               folder='test_output_ykw_1',
+                               folder='test_output',
                                filename='cooling_model_ykw_1',
                                ext='png',
                                fig=fig)
