@@ -135,5 +135,5 @@ def test_plot_cooling_models_filename_none():
 # YKW 20JAN2022 2
 def test_plot_atmosphere_models_display():
     plotter.plot_atmosphere_model(x='G3_BP',
-                                  display=True,
+                                  display=False,
                                   savefig=False)
