@@ -669,3 +669,45 @@ def test_chi2_minimization_distance_red_filter_fixed_logg_emcee():
             Rv=rv,
             ebv=ebv,
             logg=None)
+
+#YKW Test 3 23Jan2022
+# Testing the _chi2_minimization_distance_red_filter_fixed_logg()
+def test_chi2_minimization_distance_red_filter_fixed_logg_minimize():
+    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
+    mags = mags + extinction
+    ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
+            mags=mags,
+            mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+            independent=['Mbol','logg'],
+            method='minimize',
+            initial_guess=[10.0, 7.5],
+            refine_bounds=[0.1, 99.9],
+            interpolated=False,
+            Rv=rv,
+            ebv=ebv,
+            logg=None)
+
+#YKW Test 4 23Jan2022
+# Testing the _chi2_minimization_distance_red_filter_fixed_logg()
+def test_chi2_minimization_distance_red_filter_fixed_logg_least_square():
+    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
+    mags = mags + extinction
+    ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
+            mags=mags,
+            mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+            independent=['Mbol','logg'],
+            method='least_square',
+            initial_guess=[10.0, 7.5],
+            refine_bounds=[0.1, 99.9],
+            interpolated=False,
+            Rv=rv,
+            ebv=ebv,
+            logg=None)
+
+#YKW Test 5 23Jan2022
+def test_shower_corner_plot_savefig_true_folder_not_None():
+        ftr.show_corner_plot(display=False,
+                             savefig=True,
+                             folder='test_output_folder',
+                             filename=None,
+                             ext='png')
