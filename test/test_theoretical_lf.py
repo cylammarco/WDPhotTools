@@ -125,6 +125,7 @@ def test_changing_ifmr_model():
     wdlf.compute_density(Mag=Mag)
 
 #YKW Test 1 23Jan2022
-def test_changing_imf_K01_small_mass():
+def test_changing_imf_K01_small_mass_log():
     wdlf.set_imf_model('K01')
-    wdlf.plot_imf(log=True)
+    wdlf.plot_imf(display=False,
+                  log=True)
