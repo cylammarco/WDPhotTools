@@ -1,3 +1,5 @@
+from importlib.util import module_for_loader
+from re import X
 from matplotlib import pyplot as plt
 import numpy as np
 from WDPhotTools import theoretical_lf
@@ -175,3 +177,14 @@ def test_plotting_cooling_model_not_use_mag_folder_none():
                                 savefig=True,
                                 folder=None,
                                 ext=['png', 'pdf'])
+
+#manual function for 'manual' tests
+def manual_fn(x):
+    manual_x = 1.0
+    return manual_x
+
+#YKW Test 1 test 'manual' imf 23Jan2022
+def test_manual_imf_model():
+    wdlf.set_imf_model(model='manual',
+                       imf_function=manual_fn)
+    wdlf.compute_density(Mag=Mag)

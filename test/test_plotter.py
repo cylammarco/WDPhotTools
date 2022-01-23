@@ -120,20 +120,3 @@ def test_plot_atmosphere_models_lenx_not_2():
     plotter.plot_atmosphere_model(x='G3_BP',
                                   display=False,
                                   savefig=False)
-
-# YKW 20JAN2022 1
-def test_plot_cooling_models_filename_none():
-    plotter.plot_cooling_model(x='r',
-                               y='logg',
-                               mass=np.arange(0.5, 1.0, 0.1),
-                               invert_xaxis=True,
-                               invert_yaxis=True,
-                               display=False,
-                               folder='test_output',
-                               filename=None)
-
-# YKW 20JAN2022 2
-def test_plot_atmosphere_models_display():
-    plotter.plot_atmosphere_model(x='G3_BP',
-                                  display=False,
-                                  savefig=False)
