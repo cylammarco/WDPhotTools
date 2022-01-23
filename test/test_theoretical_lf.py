@@ -188,3 +188,21 @@ def test_manual_imf_model():
     wdlf.set_imf_model(model='manual',
                        imf_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
+
+#YKW Test 2 test 'manual' ms model 23Jan2022
+def test_manual_ms_model():
+    wdlf.set_ms_model(model='manual',
+                      ms_function=manual_fn)
+    wdlf.compute_density(Mag=Mag)
+
+#YKW Test 3 test 'manual' sfr mode 23Jan2022
+def test_manual_sfr_model():
+    wdlf.set_sfr_model(mode='manual',
+                       sfr_model=manual_fn)
+    wdlf.compute_density(Mag=Mag)
+
+#YKW Test 4 test 'manual' ifmr model 23Jan2022
+def test_manual_ifmr_model():
+    wdlf.set_ifmr_model(model='manual',
+                        ifmr_function=manual_fn)
+    wdlf.compute_density(Mag=Mag)
