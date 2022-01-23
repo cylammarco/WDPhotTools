@@ -123,9 +123,55 @@ def test_changing_ifmr_model():
     wdlf.compute_density(Mag=Mag)
     wdlf.set_ifmr_model('C18')
     wdlf.compute_density(Mag=Mag)
+    #added by YKW 23jan2022
+    wdlf.set_ifmr_model('EB18')
+    wdlf.compute_density(Mag=Mag)
 
 #YKW Test 1 23Jan2022
 def test_changing_imf_K01_small_mass_log():
     wdlf.set_imf_model('K01')
     wdlf.plot_imf(display=False,
                   log=True)
+
+#YKW Test 2 23Jan2022
+def test_plotting_wdlf_log_false_folder_none():
+        wdlf.plot_wdlf(log=False,
+                       display=False,
+                       savefig=True,
+                       folder=None,
+                       filename='test_plot_wdlf',
+                       ext='png')
+
+#YKW Test 3 23Jan2022
+def test_plotting_ifmr_folder_none():
+        wdlf.plot_ifmr(fig=fig4,
+                       display=False,
+                       savefig=True,
+                       folder=None,
+                       ext=['png', 'pdf'])
+
+#YKW Test 4 23Jan2022
+def test_plotting_imf_folder_none():
+        wdlf.plot_imf(fig=fig3,
+                      display=False,
+                      savefig=True,
+                      folder=None,
+                      ext=['png', 'pdf'])
+
+#YKW Test 5 23Jan2022
+def test_plotting_sfh_log_true_folder_none():
+        wdlf.plot_sfh(log=True,
+                      fig=fig2,
+                      display=False,
+                      savefig=True,
+                      folder=None,
+                      ext=['png', 'pdf'])
+
+#YKW Test 6 23Jan2022
+def test_plotting_cooling_model_not_use_mag_folder_none():
+        wdlf.plot_cooling_model(use_mag=False,
+                                fig=fig1,
+                                display=False,
+                                savefig=True,
+                                folder=None,
+                                ext=['png', 'pdf'])
