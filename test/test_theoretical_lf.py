@@ -206,3 +206,11 @@ def test_manual_ifmr_model():
     wdlf.set_ifmr_model(model='manual',
                         ifmr_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
+
+#YKW Test 5 test compute density savefig folder none 23Jan2022
+def test_compute_density_savefig_folder_none():
+    wdlf.set_ifmr_model(model='manual',
+                        ifmr_function=manual_fn)
+    wdlf.compute_density(save_csv=True,
+                         folder=None,
+                         Mag=Mag)

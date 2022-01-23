@@ -120,3 +120,23 @@ def test_plot_atmosphere_models_lenx_not_2():
     plotter.plot_atmosphere_model(x='G3_BP',
                                   display=False,
                                   savefig=False)
+
+# YKW 23JAN2022 1
+def test_plot_cooling_model_filename_none():
+    fig = plotter.plot_cooling_model(display=False, title=' ')
+    plotter.plot_cooling_model(display=False,
+                               savefig=True,
+                               filename=None,
+                               ext='png',
+                               fig=fig)
+
+# YKW 23JAN2022 2
+def test_plot_atmosphere_models_filename_none():
+    fig = plotter.plot_atmosphere_model(display=False, title=' ')
+    plotter.plot_atmosphere_model(atmosphere='He',
+                                  invert_yaxis=True,
+                                  contour=False,
+                                  display=False,
+                                  title=None,
+                                  filename=None,
+                                  fig=fig)
