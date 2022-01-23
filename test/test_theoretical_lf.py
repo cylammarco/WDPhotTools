@@ -214,3 +214,21 @@ def test_compute_density_savefig_folder_none():
     wdlf.compute_density(save_csv=True,
                          folder=None,
                          Mag=Mag)
+
+#YKW Test 6 wdlf savefig path not exist 23Jan2022
+def test_plotting_wdlf_savefig_path_not_exist():
+        wdlf.plot_wdlf(log=False,
+                       display=False,
+                       savefig=True,
+                       folder='test_plot_wdlf_ykw_23jan',
+                       filename=None,
+                       ext='png')
+
+#YKW Test 7 cooling savefig path not exist 23Jan2022
+def test_plotting_cooling_savefig_path_not_exist():
+        wdlf.plot_cooling_model(use_mag=False,
+                                fig=fig1,
+                                display=False,
+                                savefig=True,
+                                folder='test_plot_cooling_ykw_23jan',
+                                ext=['png', 'pdf'])
