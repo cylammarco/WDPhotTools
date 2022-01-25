@@ -27,7 +27,7 @@ def find_meta(meta, meta_file=read(META_PATH)):
 
 
 install_requires = [
-    'numpy>=1.21', 'scipy>=1.7', 'matplotlib>=3.5', 'emcee>=3.0', 'corner'
+    'numpy>=1.19', 'scipy>=1.6', 'matplotlib>=3.5', 'emcee>=3.0', 'corner'
 ]
 
 setup(name=__packagename__,
@@ -45,4 +45,4 @@ setup(name=__packagename__,
       zip_safe=False,
       include_package_data=True,
       install_requires=install_requires,
-      python_requires='>=3.6')
+      python_requires='>=3.7')
