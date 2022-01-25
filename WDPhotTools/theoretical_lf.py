@@ -1060,7 +1060,7 @@ class WDLF:
 
                 if not os.path.exists(_folder):
 
-                    os.mkdir(_folder)
+                    os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for e in ext:
@@ -1166,7 +1166,7 @@ class WDLF:
 
                 if not os.path.exists(_folder):
 
-                    os.mkdir(_folder)
+                    os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for e in ext:
@@ -1271,7 +1271,7 @@ class WDLF:
 
                 if not os.path.exists(_folder):
 
-                    os.mkdir(_folder)
+                    os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for e in ext:
@@ -1363,7 +1363,7 @@ class WDLF:
 
                 if not os.path.exists(_folder):
 
-                    os.mkdir(_folder)
+                    os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for e in ext:
@@ -1471,7 +1471,7 @@ class WDLF:
 
                 if not os.path.exists(_folder):
 
-                    os.mkdir(_folder)
+                    os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for e in ext:

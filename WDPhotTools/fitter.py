@@ -81,8 +81,8 @@ class WDfitter:
 
         mag = np.asarray(mag).reshape(-1) + dist_mod
 
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance /
-                                               2.302585092994046)**2.)
+        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
+                                               2.17147241)**2.)
 
         chi2 = (mag - obs)**2. / errors_squared
 
@@ -135,8 +135,8 @@ class WDfitter:
 
         Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance /
-                                               2.302585092994046)**2.)
+        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
+                                               2.17147241)**2.)
 
         chi2 = (mag - obs + Av)**2. / errors_squared
 
@@ -173,8 +173,8 @@ class WDfitter:
         logg = x[logg_pos]
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance /
-                                               2.302585092994046)**2.)
+        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
+                                               2.17147241)**2.)
 
         chi2 = (mag - obs + Av)**2. / errors_squared
 
@@ -207,8 +207,8 @@ class WDfitter:
         teff = float(interpolator_teff(x))
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance /
-                                               2.302585092994046)**2.)
+        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
+                                               2.17147241)**2.)
 
         chi2 = (mag - obs + Av)**2. / errors_squared
 
@@ -1285,7 +1285,7 @@ class WDfitter:
 
                     if not os.path.exists(_folder):
 
-                        os.mkdir(_folder)
+                        os.makedirs(_folder)
 
                 # Loop through the ext list to save figure into each image type
                 for e in ext:
@@ -1440,7 +1440,7 @@ class WDfitter:
 
                 if not os.path.exists(_folder):
 
-                    os.mkdir(_folder)
+                    os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for e in ext:
