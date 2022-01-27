@@ -24,7 +24,8 @@ for i, age in enumerate(age_list):
     wdlf.set_sfr_model(mode='burst', age=age, duration=1e9)
     _, burst_density = wdlf.compute_density(Mag=Mag,
                                             passband='G3',
-                                            save_csv=True)
+                                            save_csv=True,
+                                            folder='example_output')
     ax1.plot(Mag,
              np.log10(burst_density),
              label="{0:.2f} Gyr".format(age / 1e9))
@@ -35,7 +36,8 @@ for i, age in enumerate(age_list):
 
     _, decay_density = wdlf.compute_density(Mag=Mag,
                                             passband='G3',
-                                            save_csv=True)
+                                            save_csv=True,
+                                            folder='example_output')
     ax2.plot(Mag,
              np.log10(decay_density),
              label="{0:.2f} Gyr".format(age / 1e9))
@@ -47,8 +49,8 @@ ax1.set_ylabel('log(arbitrary number density)')
 ax1.set_xlim(7.5, 20)
 ax1.set_ylim(-5, 0)
 ax1.set_title('Star Formation History: 1 Gyr Burst')
-fig1.savefig(
-    'burst_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png')
+fig1.savefig('example_output/burst_C16_C08_montreal_co_da_20_'
+             'montreal_co_da_20_montreal_co_da_20.png')
 
 ax2.legend()
 ax2.grid()
@@ -57,5 +59,5 @@ ax2.set_ylabel('log(arbitrary number density)')
 ax2.set_xlim(7.5, 20)
 ax2.set_ylim(-5, 0)
 ax2.set_title('Star Formation History: Exponential Decay')
-fig2.savefig(
-    'decay_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png')
+fig2.savefig('example_output/decay_C16_C08_montreal_co_da_20_'
+             'montreal_co_da_20_montreal_co_da_20.png')

@@ -1,4 +1,3 @@
-from matplotlib.pyplot import savefig
 from WDPhotTools.fitter import WDfitter
 
 ftr = WDfitter()
@@ -52,7 +51,9 @@ ftr.fit(filters=[
         ],
         independent=['Mbol', 'logg'],
         initial_guess=[15.0, 7.5],
-        kwargs_for_minimization={'method': 'Nelder-Mead'})
+        kwargs_for_minimize={'method': 'Nelder-Mead'})
 ftr.results['H']
 ftr.results['He']
-ftr.show_best_fit(savefig=True, figname='PSOJ1801p6254')
+ftr.show_best_fit(savefig=True,
+                  folder='example_output',
+                  filename='PSOJ1801p6254')

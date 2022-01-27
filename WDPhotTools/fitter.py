@@ -1,3 +1,4 @@
+import copy
 import corner
 import emcee
 from functools import partial
@@ -63,8 +64,8 @@ class WDfitter:
             self.interpolated = False
             self.rv = [reddening_vector_filter(i) for i in filters]
 
-    def _chi2_minimization(self, x, obs, errors, distance, distance_err,
-                           interpolator_filter):
+    def _diff2(self, x, obs, errors, distance, distance_err,
+               interpolator_filter, return_err):
         '''
         Internal method for computing the ch2-squared value
         (for scipy.optimize.least_square).
@@ -81,31 +82,42 @@ class WDfitter:
 
         mag = np.asarray(mag).reshape(-1) + dist_mod
 
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
-                                               2.17147241)**2.)
+        err2 = errors**2. + (distance_err / distance * 2.17147241)**2.
 
-        chi2 = (mag - obs)**2. / errors_squared
+        diff2 = (mag - obs)**2. / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
-            return chi2
+            if return_err:
+
+                return diff2, err2
+
+            else:
+
+                return diff2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_summed(self, x, obs, errors, distance, distance_err,
-                                  interpolator_filter):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
+
+    def _diff2_summed(self, x, obs, errors, distance, distance_err,
+                      interpolator_filter):
         '''
         Internal method for computing the ch2-squared value
         (for scipy.optimize.minimize).
 
         '''
 
-        chi2 = self._chi2_minimization(x, obs, errors, distance, distance_err,
-                                       interpolator_filter)
+        diff2 = self._diff2(x, obs, errors, distance, distance_err,
+                            interpolator_filter, False)
 
-        return np.sum(chi2)
+        return np.sum(diff2)
 
     def _log_likelihood(self, x, obs, errors, distance, distance_err,
                         interpolator_filter):
@@ -114,12 +126,13 @@ class WDfitter:
 
         '''
 
-        return -0.5 * self._chi2_minimization_summed(
-            x, obs, errors, distance, distance_err, interpolator_filter)
+        diff2, err2 = self._diff2(x, obs, errors, distance, distance_err,
+                                  interpolator_filter, True)
 
-    def _chi2_minimization_red_interpolated(self, x, obs, errors, distance,
-                                            distance_err, interpolator_filter,
-                                            Rv, ebv):
+        return -0.5 * np.sum(diff2 + np.log(2 * np.pi * err2))
+
+    def _diff2_red_interpolated(self, x, obs, errors, distance, distance_err,
+                                interpolator_filter, Rv, ebv, return_err):
         '''
         Internal method for computing the ch2-squared value.
 
@@ -135,22 +148,33 @@ class WDfitter:
 
         Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
-                                               2.17147241)**2.)
+        err2 = errors**2. + (distance_err / distance * 2.17147241)**2.
 
-        chi2 = (mag - obs + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / err2
 
         if np.isfinite(chi2).all():
 
-            return chi2
+            if return_err:
+
+                return chi2, err2
+
+            else:
+
+                return chi2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_red_filter(self, x, obs, errors, distance,
-                                      distance_err, interpolator_filter,
-                                      interpolator_teff, logg_pos, Rv, ebv):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
+
+    def _diff2_red_filter(self, x, obs, errors, distance, distance_err,
+                          interpolator_filter, interpolator_teff, logg_pos, Rv,
+                          ebv, return_err):
         '''
         Internal method for computing the ch2-squared value.
 
@@ -168,29 +192,39 @@ class WDfitter:
 
         if not np.isfinite(teff):
 
-            return np.ones_like(obs) * np.inf
+            return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
         logg = x[logg_pos]
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
-                                               2.17147241)**2.)
+        err2 = errors**2. + (distance_err / distance * 2.17147241)**2.
 
-        chi2 = (mag - obs + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / err2
 
         if np.isfinite(chi2).all():
 
-            return chi2
+            if return_err:
+
+                return chi2, err2
+
+            else:
+
+                return chi2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_red_filter_fixed_logg(self, x, obs, errors,
-                                                 distance, distance_err,
-                                                 interpolator_filter,
-                                                 interpolator_teff, logg, Rv,
-                                                 ebv):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
+
+    def _diff2_red_filter_fixed_logg(self, x, obs, errors, distance,
+                                     distance_err, interpolator_filter,
+                                     interpolator_teff, logg, Rv, ebv,
+                                     return_err):
         '''
         Internal method for computing the ch2-squared value.
 
@@ -207,22 +241,33 @@ class WDfitter:
         teff = float(interpolator_teff(x))
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = np.sqrt(errors**2. + (distance_err / distance *
-                                               2.17147241)**2.)
+        err2 = errors**2. + (distance_err / distance * 2.17147241)**2.
 
-        chi2 = (mag - obs + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / err2
 
         if np.isfinite(chi2).all():
 
-            return chi2
+            if return_err:
+
+                return chi2, err2
+
+            else:
+
+                return chi2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_red(self, x, obs, errors, distance, distance_err,
-                               interpolator_filter, interpolator_teff, logg,
-                               Rv, ebv):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs)
+
+    def _diff2_red(self, x, obs, errors, distance, distance_err,
+                   interpolator_filter, interpolator_teff, logg, Rv, ebv,
+                   return_err):
         '''
         Internal method for computing the ch2-squared value
         (for scipy.optimize.least_square).
@@ -231,9 +276,10 @@ class WDfitter:
 
         if self.interpolated:
 
-            chi2 = self._chi2_minimization_red_interpolated(
-                x, obs, errors, distance, distance_err, interpolator_filter,
-                Rv, ebv)
+            chi2, err2 = self._diff2_red_interpolated(x, obs, errors, distance,
+                                                      distance_err,
+                                                      interpolator_filter, Rv,
+                                                      ebv, True)
 
         else:
 
@@ -243,30 +289,39 @@ class WDfitter:
                     np.argwhere(
                         np.array(self.fitting_params['independent']) ==
                         'logg'))
-                chi2 = self._chi2_minimization_red_filter(
-                    x, obs, errors, distance, distance_err,
-                    interpolator_filter, interpolator_teff, logg_pos, Rv, ebv)
+                chi2, err2 = self._diff2_red_filter(x, obs, errors, distance,
+                                                    distance_err,
+                                                    interpolator_filter,
+                                                    interpolator_teff,
+                                                    logg_pos, Rv, ebv, True)
 
             else:
 
-                chi2 = self._chi2_minimization_red_filter_fixed_logg(
+                chi2, err2 = self._diff2_red_filter_fixed_logg(
                     x, obs, errors, distance, distance_err,
-                    interpolator_filter, interpolator_teff, logg, Rv, ebv)
+                    interpolator_filter, interpolator_teff, logg, Rv, ebv,
+                    True)
 
-        return chi2
+        if return_err:
 
-    def _chi2_minimization_red_summed(self, x, obs, errors, distance,
-                                      distance_err, interpolator_filter,
-                                      interpolator_teff, logg, Rv, ebv):
+            return chi2, err2
+
+        else:
+
+            return chi2
+
+    def _diff2_red_summed(self, x, obs, errors, distance, distance_err,
+                          interpolator_filter, interpolator_teff, logg, Rv,
+                          ebv):
         '''
         Internal method for computing the ch2-squared value
         (for scipy.optimize.minimize).
 
         '''
 
-        chi2 = self._chi2_minimization_red(x, obs, errors, distance,
-                                           distance_err, interpolator_filter,
-                                           interpolator_teff, logg, Rv, ebv)
+        chi2 = self._diff2_red(x, obs, errors, distance, distance_err,
+                               interpolator_filter, interpolator_teff, logg,
+                               Rv, ebv, False)
 
         return np.sum(chi2)
 
@@ -278,11 +333,13 @@ class WDfitter:
 
         '''
 
-        return -0.5 * self._chi2_minimization_red_summed(
-            x, obs, errors, distance, distance_err, interpolator_filter,
-            interpolator_teff, logg, Rv, ebv)
+        chi2, err2 = self._diff2_red(x, obs, errors, distance, distance_err,
+                                     interpolator_filter, interpolator_teff,
+                                     logg, Rv, ebv, True)
 
-    def _chi2_minimization_distance(self, x, obs, errors, interpolator_filter):
+        return -0.5 * np.sum(chi2 + np.log(2. * np.pi * err2))
+
+    def _diff2_distance(self, x, obs, errors, interpolator_filter, return_err):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided (for scipy.optimize.least_square).
@@ -302,28 +359,38 @@ class WDfitter:
             mag.append(interp(x[:2]))
 
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = errors**2.
+        err2 = errors**2.
 
-        chi2 = (mag - obs)**2. / errors_squared
+        chi2 = (mag - obs)**2. / err2
 
         if np.isfinite(chi2).all():
 
-            return chi2
+            if return_err:
+
+                return chi2, err2
+
+            else:
+
+                return chi2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_distance_summed(self, x, obs, errors,
-                                           interpolator_filter):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
+
+    def _diff2_distance_summed(self, x, obs, errors, interpolator_filter):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided (for scipy.optimize.minimize).
 
         '''
 
-        chi2 = self._chi2_minimization_distance(x, obs, errors,
-                                                interpolator_filter)
+        chi2 = self._diff2_distance(x, obs, errors, interpolator_filter, False)
 
         return np.sum(chi2)
 
@@ -334,12 +401,14 @@ class WDfitter:
 
         '''
 
-        return -0.5 * self._chi2_minimization_distance_summed(
-            x, obs, errors, interpolator_filter)
+        chi2, err2 = -0.5 * self._diff2_distance_summed(
+            x, obs, errors, interpolator_filter, True)
 
-    def _chi2_minimization_distance_red_interpolated(self, x, obs, errors,
-                                                     interpolator_filter, Rv,
-                                                     ebv):
+        return -0.5 * np.sum(chi2 + np.log(2. * np.pi * err2))
+
+    def _diff2_distance_red_interpolated(self, x, obs, errors,
+                                         interpolator_filter, Rv, ebv,
+                                         return_err):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided.
@@ -360,22 +429,33 @@ class WDfitter:
 
         Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = errors**2.
+        err2 = errors**2.
 
-        chi2 = (mag - obs + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / err2
 
         if np.isfinite(chi2).all():
 
-            return chi2
+            if return_err:
+
+                return chi2, err2
+
+            else:
+
+                return chi2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_distance_red_filter(self, x, obs, errors,
-                                               interpolator_filter,
-                                               interpolator_teff, logg_pos, Rv,
-                                               ebv):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
+
+    def _diff2_distance_red_filter(self, x, obs, errors, interpolator_filter,
+                                   interpolator_teff, logg_pos, Rv, ebv,
+                                   return_err):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided.
@@ -398,21 +478,34 @@ class WDfitter:
         logg = x[logg_pos]
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = errors**2.
+        err2 = errors**2.
 
-        chi2 = (mag - obs + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / err2
 
         if np.isfinite(chi2).all():
 
-            return chi2
+            if return_err:
+
+                return chi2, err2
+
+            else:
+
+                return chi2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_distance_red_filter_fixed_logg(
-            self, x, obs, errors, interpolator_filter, interpolator_teff, logg,
-            Rv, ebv):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
+
+    def _diff2_distance_red_filter_fixed_logg(self, x, obs, errors,
+                                              interpolator_filter,
+                                              interpolator_teff, logg, Rv, ebv,
+                                              return_err):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided.
@@ -434,21 +527,32 @@ class WDfitter:
         teff = float(interpolator_teff(x))
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1) + dist_mod
-        errors_squared = errors**2.
+        err2 = errors**2.
 
-        chi2 = (mag - obs + Av)**2. / errors_squared
+        chi2 = (mag - obs + Av)**2. / err2
 
         if np.isfinite(chi2).all():
 
-            return chi2
+            if return_err:
+
+                return chi2, err2
+
+            else:
+
+                return chi2
 
         else:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
 
-    def _chi2_minimization_distance_red(self, x, obs, errors,
-                                        interpolator_filter, interpolator_teff,
-                                        logg, Rv, ebv):
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
+
+    def _diff2_distance_red(self, x, obs, errors, interpolator_filter,
+                            interpolator_teff, logg, Rv, ebv, return_err):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided (for scipy.optimize.least_square).
@@ -457,8 +561,8 @@ class WDfitter:
 
         if self.interpolated:
 
-            chi2 = self._chi2_minimization_distance_red_interpolated(
-                x, obs, errors, interpolator_filter, Rv, ebv)
+            chi2, err2 = self._diff2_distance_red_interpolated(
+                x, obs, errors, interpolator_filter, Rv, ebv, True)
 
         else:
 
@@ -468,32 +572,35 @@ class WDfitter:
                     np.argwhere(
                         np.array(self.fitting_params['independent']) ==
                         'logg'))
-                chi2 = self._chi2_minimization_distance_red_filter(
+                chi2, err2 = self._diff2_distance_red_filter(
                     x, obs, errors, interpolator_filter, interpolator_teff,
-                    logg_pos, Rv, ebv)
+                    logg_pos, Rv, ebv, True)
 
             else:
 
-                chi2 = self._chi2_minimization_distance_red_filter_fixed_logg(
+                chi2, err2 = self._diff2_distance_red_filter_fixed_logg(
                     x, obs, errors, interpolator_filter, interpolator_teff,
-                    logg, Rv, ebv)
+                    logg, Rv, ebv, True)
 
-        return chi2
+        if return_err:
 
-    def _chi2_minimization_distance_red_summed(self, x, obs, errors,
-                                               interpolator_filter,
-                                               interpolator_teff, logg, Rv,
-                                               ebv):
+            return chi2, err2
+
+        else:
+
+            return chi2
+
+    def _diff2_distance_red_summed(self, x, obs, errors, interpolator_filter,
+                                   interpolator_teff, logg, Rv, ebv):
         '''
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided (for scipy.optimize.minimize).
 
         '''
 
-        chi2 = self._chi2_minimization_distance_red(x, obs, errors,
-                                                    interpolator_filter,
-                                                    interpolator_teff, logg,
-                                                    Rv, ebv)
+        chi2 = self._diff2_distance_red(x, obs, errors, interpolator_filter,
+                                        interpolator_teff, logg, Rv, ebv,
+                                        False)
 
         return np.sum(chi2)
 
@@ -505,9 +612,12 @@ class WDfitter:
 
         '''
 
-        return -0.5 * self._chi2_minimization_distance_red_summed(
-            x, obs, errors, interpolator_filter, interpolator_teff, logg, Rv,
-            ebv)
+        chi2, err2 = self._diff2_distance_red_summed(x, obs, errors,
+                                                     interpolator_filter,
+                                                     interpolator_teff, logg,
+                                                     Rv, ebv)
+
+        return -0.5 * np.sum(chi2 + np.log(2. * np.pi * err2))
 
     def list_atmosphere_parameters(self):
         '''
@@ -535,7 +645,7 @@ class WDfitter:
             logg=8.0,
             reuse_interpolator=False,
             method='minimize',
-            nwalkers=20,
+            nwalkers=50,
             nsteps=500,
             nburns=50,
             progress=True,
@@ -623,8 +733,8 @@ class WDfitter:
             Number of steps is discarded as burn-in (emcee method only).
         progress: bool (Default: True)
             Show the progress of the emcee sampling (emcee method only).
-        refine: bool (Default: True)
-            Set to refine the minimum with `scipy.optimize.minimize`.
+        refine: cool (Default: True)
+            Set to True to refine the minimum with `scipy.optimize.minimize`.
         refine_bounds: str (Default: [5, 95])
             The bounds of the minimizer are definited by the percentiles of
             the samples.
@@ -764,7 +874,7 @@ class WDfitter:
                     if Rv is None:
 
                         self.results[j] = optimize.minimize(
-                            self._chi2_minimization_distance_summed,
+                            self._diff2_distance_summed,
                             initial_guess,
                             args=(mags, mag_errors,
                                   [self.interpolator[j][i] for i in filters]),
@@ -775,7 +885,7 @@ class WDfitter:
                         if 'logg' in independent:
 
                             self.results[j] = optimize.minimize(
-                                self._chi2_minimization_distance_red_summed,
+                                self._diff2_distance_red_summed,
                                 initial_guess,
                                 args=(mags, mag_errors, [
                                     self.interpolator[j][i] for i in filters
@@ -785,7 +895,7 @@ class WDfitter:
                         else:
 
                             self.results[j] = optimize.minimize(
-                                self._chi2_minimization_distance_red_summed,
+                                self._diff2_distance_red_summed,
                                 initial_guess,
                                 args=(mags, mag_errors, [
                                     self.interpolator[j][i] for i in filters
@@ -798,7 +908,7 @@ class WDfitter:
                     if Rv is None:
 
                         self.results[j] = optimize.minimize(
-                            self._chi2_minimization_summed,
+                            self._diff2_summed,
                             initial_guess,
                             args=(mags, mag_errors, distance, distance_err,
                                   [self.interpolator[j][i] for i in filters]),
@@ -809,7 +919,7 @@ class WDfitter:
                         if 'logg' in independent:
 
                             self.results[j] = optimize.minimize(
-                                self._chi2_minimization_red_summed,
+                                self._diff2_red_summed,
                                 initial_guess,
                                 args=(mags, mag_errors, distance, distance_err,
                                       [
@@ -821,7 +931,7 @@ class WDfitter:
                         else:
 
                             self.results[j] = optimize.minimize(
-                                self._chi2_minimization_red_summed,
+                                self._diff2_red_summed,
                                 initial_guess,
                                 args=(mags, mag_errors, distance, distance_err,
                                       [
@@ -883,10 +993,11 @@ class WDfitter:
                     if Rv is None:
 
                         self.results[j] = optimize.least_squares(
-                            self._chi2_minimization_distance,
+                            self._diff2_distance,
                             initial_guess,
                             args=(mags, mag_errors,
-                                  [self.interpolator[j][i] for i in filters]),
+                                  [self.interpolator[j][i]
+                                   for i in filters], False),
                             **kwargs_for_least_square)
 
                     else:
@@ -894,21 +1005,21 @@ class WDfitter:
                         if 'logg' in independent:
 
                             self.results[j] = optimize.least_squares(
-                                self._chi2_minimization_distance_red,
+                                self._diff2_distance_red,
                                 initial_guess,
                                 args=(mags, mag_errors, [
                                     self.interpolator[j][i] for i in filters
-                                ], interpolator_teff, None, Rv, ebv),
+                                ], interpolator_teff, None, Rv, ebv, False),
                                 **kwargs_for_least_square)
 
                         else:
 
                             self.results[j] = optimize.least_squares(
-                                self._chi2_minimization_distance_red,
+                                self._diff2_distance_red,
                                 initial_guess,
                                 args=(mags, mag_errors, [
                                     self.interpolator[j][i] for i in filters
-                                ], interpolator_teff, logg, Rv, ebv),
+                                ], interpolator_teff, logg, Rv, ebv, False),
                                 **kwargs_for_least_square)
 
                 # If distance is provided, fit here.
@@ -917,10 +1028,11 @@ class WDfitter:
                     if Rv is None:
 
                         self.results[j] = optimize.least_squares(
-                            self._chi2_minimization,
+                            self._diff2,
                             initial_guess,
                             args=(mags, mag_errors, distance, distance_err,
-                                  [self.interpolator[j][i] for i in filters]),
+                                  [self.interpolator[j][i]
+                                   for i in filters], False),
                             **kwargs_for_least_square)
 
                     else:
@@ -928,25 +1040,27 @@ class WDfitter:
                         if 'logg' in independent:
 
                             self.results[j] = optimize.least_squares(
-                                self._chi2_minimization_red,
+                                self._diff2_red,
                                 initial_guess,
                                 args=(mags, mag_errors, distance, distance_err,
                                       [
                                           self.interpolator[j][i]
                                           for i in filters
-                                      ], interpolator_teff, None, Rv, ebv),
+                                      ], interpolator_teff, None, Rv, ebv,
+                                      False),
                                 **kwargs_for_least_square)
 
                         else:
 
                             self.results[j] = optimize.least_squares(
-                                self._chi2_minimization_red,
+                                self._diff2_red,
                                 initial_guess,
                                 args=(mags, mag_errors, distance, distance_err,
                                       [
                                           self.interpolator[j][i]
                                           for i in filters
-                                      ], interpolator_teff, logg, Rv, ebv),
+                                      ], interpolator_teff, logg, Rv, ebv,
+                                      False),
                                 **kwargs_for_least_square)
 
                 # Store the chi2
@@ -1054,14 +1168,31 @@ class WDfitter:
 
                     else:
 
-                        self.sampler[j] = emcee.EnsembleSampler(
-                            nwalkers,
-                            ndim,
-                            self._log_likelihood_red,
-                            args=(mags, mag_errors, distance, distance_err,
-                                  [self.interpolator[j][i] for i in filters
-                                   ], interpolator_teff, logg, Rv, ebv),
-                            **kwargs_for_emcee)
+                        if 'logg' in independent:
+
+                            self.sampler[j] = emcee.EnsembleSampler(
+                                nwalkers,
+                                ndim,
+                                self._log_likelihood_red,
+                                args=(mags, mag_errors, distance, distance_err,
+                                      [
+                                          self.interpolator[j][i]
+                                          for i in filters
+                                      ], interpolator_teff, None, Rv, ebv),
+                                **kwargs_for_emcee)
+
+                        else:
+
+                            self.sampler[j] = emcee.EnsembleSampler(
+                                nwalkers,
+                                ndim,
+                                self._log_likelihood_red,
+                                args=(mags, mag_errors, distance, distance_err,
+                                      [
+                                          self.interpolator[j][i]
+                                          for i in filters
+                                      ], interpolator_teff, logg, Rv, ebv),
+                                **kwargs_for_emcee)
 
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
                 self.samples[j] = self.sampler[j].get_chain(discard=nburns,
@@ -1084,6 +1215,13 @@ class WDfitter:
 
                 if refine:
 
+                    kwargs = copy.deepcopy(kwargs_for_minimize)
+                    kwargs['bounds'] = np.percentile(self.samples[j],
+                                                     refine_bounds,
+                                                     axis=0).T
+
+                    print('Refining')
+
                     if distance is None:
 
                         # setting distance to infinity so that it will be
@@ -1105,12 +1243,7 @@ class WDfitter:
                                                              axis=0),
                                  Rv=Rv,
                                  ebv=ebv,
-                                 kwargs_for_minimize={
-                                     'bounds':
-                                     np.percentile(self.samples[j],
-                                                   refine_bounds,
-                                                   axis=0).T
-                                 })
+                                 kwargs_for_minimize=kwargs)
 
                     else:
 
@@ -1130,12 +1263,7 @@ class WDfitter:
                                                              axis=0),
                                  Rv=Rv,
                                  ebv=ebv,
-                                 kwargs_for_minimize={
-                                     'bounds':
-                                     np.percentile(self.samples[j],
-                                                   refine_bounds,
-                                                   axis=0).T
-                                 })
+                                 kwargs_for_minimize=kwargs)
 
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.

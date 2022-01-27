@@ -1,6 +1,9 @@
 from WDPhotTools.fitter import WDfitter
 import numpy as np
-from WDPhotTools.reddening import reddening_vector_filter, reddening_vector_interpolated
+from unittest.mock import patch
+
+from WDPhotTools.reddening import reddening_vector_filter
+from WDPhotTools.reddening import reddening_vector_interpolated
 
 # testing with logg=7.5 and Teff=13000.
 wave_GBRFN = np.array((6218., 5110., 7769., 1535., 2301.))
@@ -28,7 +31,8 @@ def test_list_everything():
 
 
 # Fitting for Mbol with 5 filters for both DA and DB
-def test_fitting_Mbol():
+@patch("matplotlib.pyplot.show")
+def test_fitting_Mbol(mock_show):
     ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
             mags=[10.882, 10.853, 10.946, 11.301, 11.183],
             mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
@@ -37,7 +41,7 @@ def test_fitting_Mbol():
             distance=10.,
             distance_err=0.1,
             initial_guess=[10.0])
-    ftr.show_best_fit(display=False,
+    ftr.show_best_fit(display=True,
                       savefig=True,
                       folder='test_output',
                       ext=['png', 'pdf'],
@@ -422,8 +426,7 @@ def test_fitting_logg_Mbol_distance_red_lsq():
 #
 #
 #
-
-
+'''
 # Fitting for logg and Mbol with 5 filters for both DA and DB
 def test_fitting_Mbol_emcee():
     ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
@@ -434,13 +437,14 @@ def test_fitting_Mbol_emcee():
             method='emcee',
             distance=10.,
             distance_err=0.1,
-            refine_bounds=[0.1, 99.9],
             initial_guess=[10.0])
     ftr.show_corner_plot(display=False,
+                         savefig=True,
                          folder='test_output',
-                         filename='test_fitting_and_mbol',
+                         filename='test_fitting_and_mbol_corner',
                          ext='png')
     ftr.show_best_fit(display=False,
+                      savefig=True,
                       folder='test_output',
                       filename='test_fitting_and_mbol',
                       ext='png')
@@ -448,6 +452,7 @@ def test_fitting_Mbol_emcee():
                       np.array([9.962]),
                       rtol=1e-03,
                       atol=1e-03).all()
+'''
 
 
 # Fitting for Mbol with 5 filters for both DA and DB with alternating None
@@ -505,6 +510,7 @@ def test_fitting_Mbol_with_None_emcee():
                       atol=1e-03).all()
 
 
+'''
 # Fitting for logg and Mbol with 5 filters for both DA and DB
 def test_fitting_logg_and_Mbol_emcee():
     ftr.fit(filters=['G3', 'G3_BP', 'G3_RP', 'FUV', 'NUV'],
@@ -719,6 +725,7 @@ def test_chi2_minimization_distance_red_filter_fixed_logg_least_square():
 def test_shower_corner_plot_savefig_true_folder_not_None():
     ftr.show_corner_plot(display=False,
                          savefig=True,
-                         folder='test_output_folder',
+                         folder='test_output',
                          filename=None,
                          ext='png')
+'''

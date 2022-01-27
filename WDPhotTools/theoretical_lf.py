@@ -89,6 +89,7 @@ class WDLF:
         self.set_sfr_model()
 
         self.atm_reader = amr.atm_reader()
+        self.cm_reader = cmr.cm_reader()
 
     def _imf(self, M):
         '''
@@ -518,7 +519,7 @@ class WDLF:
                         'The sfr_model provided is not callable, '
                         'None is applied, i.e. constant star fomration.')
                     mode = 'constant'
-            
+
             else:
 
                 pass
@@ -767,17 +768,17 @@ class WDLF:
         '''
 
         # Set the low mass cooling model, i.e. M < 0.5 M_sun
-        mass_low, cooling_model_low, _, _ = cmr.get_cooling_model(
+        mass_low, cooling_model_low, _, _ = self.cm_reader.get_cooling_model(
             self.wdlf_params['low_mass_cooling_model'], mass_range='low')
 
         # Set the intermediate mass cooling model, i.e. 0.5 < M < 1.0 M_sun
         mass_intermediate, cooling_model_intermediate, _, _ =\
-            cmr.get_cooling_model(
+            self.cm_reader.get_cooling_model(
                 self.wdlf_params['intermediate_mass_cooling_model'],
                 mass_range='intermediate')
 
         # Set the high mass cooling model, i.e. 1.0 < M M_sun
-        mass_high, cooling_model_high, _, _ = cmr.get_cooling_model(
+        mass_high, cooling_model_high, _, _ = self.cm_reader.get_cooling_model(
             self.wdlf_params['high_mass_cooling_model'], mass_range='high')
 
         # Gather all the models in different mass ranges
@@ -785,24 +786,22 @@ class WDLF:
         # Reshaping the WD mass array to match the shape of the other two.
         mass_low = np.concatenate(
             np.array([[mass_low[i]] * len(model['age'])
-                        for i, model in enumerate(cooling_model_low)],
-                        dtype=object)).T.ravel().astype(np.float64)
+                      for i, model in enumerate(cooling_model_low)],
+                     dtype=object)).T.ravel().astype(np.float64)
 
         # The luminosity of the WD at the corresponding mass and age
-        luminosity_low = np.concatenate([
-            i['lum'] for i in cooling_model_low
-        ]).reshape(-1).astype(np.float64)
+        luminosity_low = np.concatenate([i['lum'] for i in cooling_model_low
+                                         ]).reshape(-1).astype(np.float64)
 
         # The luminosity of the WD at the corresponding mass and luminosity
         age_low = np.concatenate([i['age'] for i in cooling_model_low
-                                    ]).reshape(-1).astype(np.float64)
+                                  ]).reshape(-1).astype(np.float64)
 
         # Reshaping the WD mass array to match the shape of the other two.
         mass_intermediate = np.concatenate(
-            np.array(
-                [[mass_intermediate[i]] * len(model['age'])
-                    for i, model in enumerate(cooling_model_intermediate)],
-                dtype=object)).T.ravel().astype(np.float64)
+            np.array([[mass_intermediate[i]] * len(model['age'])
+                      for i, model in enumerate(cooling_model_intermediate)],
+                     dtype=object)).T.ravel().astype(np.float64)
 
         # The luminosity of the WD at the corresponding mass and age
         luminosity_intermediate = np.concatenate([
@@ -817,8 +816,8 @@ class WDLF:
         # Reshaping the WD mass array to match the shape of the other two.
         mass_high = np.concatenate(
             np.array([[mass_high[i]] * len(model['age'])
-                        for i, model in enumerate(cooling_model_high)],
-                        dtype=object)).T.ravel().astype(np.float64)
+                      for i, model in enumerate(cooling_model_high)],
+                     dtype=object)).T.ravel().astype(np.float64)
 
         # The luminosity of the WD at the corresponding mass and age
         luminosity_high = np.concatenate([
@@ -827,7 +826,7 @@ class WDLF:
 
         # The luminosity of the WD at the corresponding mass and luminosity
         age_high = np.concatenate([i['age'] for i in cooling_model_high
-                                    ]).reshape(-1).astype(np.float64)
+                                   ]).reshape(-1).astype(np.float64)
 
         self.cooling_model_grid = np.concatenate(
             (cooling_model_low, cooling_model_intermediate,

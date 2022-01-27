@@ -3,17 +3,20 @@ from matplotlib import pyplot as plt
 import os
 
 from .atmosphere_model_reader import atm_reader
-from .cooling_model_reader import list_cooling_model as lcm
-from .cooling_model_reader import list_cooling_parameters as lcp
-from .cooling_model_reader import get_cooling_model
+from .cooling_model_reader import cm_reader
 
 
-class Dummy:
+class Dummy_atm:
     pass
 
+class Dummy_cm:
+    pass
 
-__dummy = Dummy()
-__dummy.ar = None
+__dummy_atm = Dummy_atm()
+__dummy_atm.ar = None
+
+__dummy_cm = Dummy_cm()
+__dummy_cm.cmr = None
 
 plt.rc('font', size=18)
 plt.rc('legend', fontsize=12)
@@ -32,7 +35,11 @@ def list_cooling_model():
     Print the formatted list of available cooling models.
 
     '''
-    return lcm()
+    if __dummy_cm.cmr is None:
+
+        __dummy_cm.cmr = cm_reader()
+
+    return __dummy_cm.cmr.list_cooling_model()
 
 
 def list_cooling_parameters(model):
@@ -46,7 +53,11 @@ def list_cooling_parameters(model):
         Name of the cooling model as in the `model_list`.
 
     '''
-    return lcp(model)
+    if __dummy_cm.cmr is None:
+
+        __dummy_cm.cmr = cm_reader()
+
+    return __dummy_cm.cmr.list_cooling_parameters(model)
 
 
 def list_atmosphere_parameters():
@@ -55,11 +66,11 @@ def list_atmosphere_parameters():
     models.
 
     '''
-    if __dummy.ar is None:
+    if __dummy_atm.ar is None:
 
-        __dummy.ar = atm_reader()
+        __dummy_atm.ar = atm_reader()
 
-    return __dummy.ar.list_atmosphere_parameters()
+    return __dummy_atm.ar.list_atmosphere_parameters()
 
 
 def plot_atmosphere_model(x='G3_BP-G3_RP',
@@ -136,34 +147,34 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
     """
 
-    if __dummy.ar is None:
+    if __dummy_atm.ar is None:
 
-        __dummy.ar = atm_reader()
+        __dummy_atm.ar = atm_reader()
 
     x = x.split('-')
     y = y.split('-')
 
     if len(x) == 2:
 
-        x_name = __dummy.ar.column_names[
-            x[0]] + r' $-$ ' + __dummy.ar.column_names[
-                x[1]] + ' / ' + __dummy.ar.column_units[x[0]]
+        x_name = __dummy_atm.ar.column_names[
+            x[0]] + r' $-$ ' + __dummy_atm.ar.column_names[
+                x[1]] + ' / ' + __dummy_atm.ar.column_units[x[0]]
 
     else:
 
-        x_name = __dummy.ar.column_names[
-            x[0]] + ' / ' + __dummy.ar.column_units[x[0]]
+        x_name = __dummy_atm.ar.column_names[
+            x[0]] + ' / ' + __dummy_atm.ar.column_units[x[0]]
 
     if len(y) == 2:
 
-        y_name = __dummy.ar.column_names[
-            y[0]] + r' $-$ ' + __dummy.ar.column_names[
-                y[1]] + ' / ' + __dummy.ar.column_units[y[0]]
+        y_name = __dummy_atm.ar.column_names[
+            y[0]] + r' $-$ ' + __dummy_atm.ar.column_names[
+                y[1]] + ' / ' + __dummy_atm.ar.column_units[y[0]]
 
     else:
 
-        y_name = __dummy.ar.column_names[
-            y[0]] + ' / ' + __dummy.ar.column_units[y[0]]
+        y_name = __dummy_atm.ar.column_names[
+            y[0]] + ' / ' + __dummy_atm.ar.column_units[y[0]]
 
     if title is None:
 
@@ -182,10 +193,10 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         if len(x) == 2:
 
-            x0_itp = __dummy.ar.interp_atm(dependent=x[0],
+            x0_itp = __dummy_atm.ar.interp_atm(dependent=x[0],
                                            atmosphere=atmosphere,
                                            independent=independent)
-            x1_itp = __dummy.ar.interp_atm(dependent=x[1],
+            x1_itp = __dummy_atm.ar.interp_atm(dependent=x[1],
                                            atmosphere=atmosphere,
                                            independent=independent)
             x_out.append(
@@ -194,17 +205,17 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         else:
 
-            x_itp = __dummy.ar.interp_atm(dependent=x[0],
+            x_itp = __dummy_atm.ar.interp_atm(dependent=x[0],
                                           atmosphere=atmosphere,
                                           independent=independent)
             x_out.append(x_itp(i_v, independent_values[1]))
 
         if len(y) == 2:
 
-            y0_itp = __dummy.ar.interp_atm(dependent=y[0],
+            y0_itp = __dummy_atm.ar.interp_atm(dependent=y[0],
                                            atmosphere=atmosphere,
                                            independent=independent)
-            y1_itp = __dummy.ar.interp_atm(dependent=y[1],
+            y1_itp = __dummy_atm.ar.interp_atm(dependent=y[1],
                                            atmosphere=atmosphere,
                                            independent=independent)
             y_out.append(
@@ -213,7 +224,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         else:
 
-            y_itp = __dummy.ar.interp_atm(dependent=y[0],
+            y_itp = __dummy_atm.ar.interp_atm(dependent=y[0],
                                           atmosphere=atmosphere,
                                           independent=independent)
             y_out.append(y_itp(i_v, independent_values[1]))
@@ -228,7 +239,7 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
     for i in range(len(x_out)):
 
-        label = __dummy.ar.column_names[independent[0]] + ' = {:.2f}'.format(
+        label = __dummy_atm.ar.column_names[independent[0]] + ' = {:.2f}'.format(
             independent_values[0][i])
         ax.plot(x_out[i], y_out[i], label=label, **kwargs_for_plot)
 
@@ -385,8 +396,8 @@ def plot_cooling_model(model='montreal_co_da_20',
 
     '''
 
-    _mass_list, cooling_model, column_names, column_units = get_cooling_model(
-        model)
+    _mass_list, cooling_model, column_names, column_units =\
+        __dummy_cm.cmr.get_cooling_model(model)
 
     x_name = column_names[x]
 

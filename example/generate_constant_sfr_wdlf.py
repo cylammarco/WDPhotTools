@@ -14,7 +14,9 @@ ax1 = plt.gca()
 for i, age in enumerate(age_list):
     # Constant SFR
     wdlf.set_sfr_model(age=age)
-    _, constant_density = wdlf.compute_density(Mag=Mag, save_csv=True)
+    _, constant_density = wdlf.compute_density(Mag=Mag,
+                                               save_csv=True,
+                                               folder='example_output')
     ax1.plot(Mag,
              np.log10(constant_density),
              label="{0:.2f} Gyr".format(age / 1e9))
@@ -26,6 +28,5 @@ ax1.set_ylabel('log(arbitrary number density)')
 ax1.set_xlim(5, 20)
 ax1.set_ylim(-5, 0)
 ax1.set_title('Star Formation History: Constant')
-fig1.savefig(
-    'constant_C16_C08_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.png'
-)
+fig1.savefig('example_output/constant_C16_C08_montreal_co_da_20_'
+             'montreal_co_da_20_montreal_co_da_20.png')
