@@ -346,7 +346,17 @@ def test_plotting_cooling_savefig_path_not_exist():
     )
     # assert the files exist at where you intend to
 
-#YKW test 7feb2022
+#YKW test1 7feb2022
 def test_cooling_model_low_mass_lpcode_he_da_09_7feb2022():
     wdlf.set_low_mass_cooling_model(model='lpcode_he_da_09')
+    wdlf.compute_cooling_age_interpolator()
+
+#YKW test2 7feb2022
+def test_cooling_model_intermediate_mass_basti_co_da_10_7feb2022():
+    wdlf.set_intermediate_mass_cooling_model(model='basti_co_da_10')
+    wdlf.compute_cooling_age_interpolator()
+
+#YKW test3 7feb2022
+def test_cooling_model_high_mass_basti_co_da_10_7feb2022():
+    wdlf.set_high_mass_cooling_model(model='basti_co_da_10')
     wdlf.compute_cooling_age_interpolator()
