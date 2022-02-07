@@ -9,8 +9,10 @@ from .cooling_model_reader import cm_reader
 class Dummy_atm:
     pass
 
+
 class Dummy_cm:
     pass
+
 
 __dummy_atm = Dummy_atm()
 __dummy_atm.ar = None
@@ -18,8 +20,8 @@ __dummy_atm.ar = None
 __dummy_cm = Dummy_cm()
 __dummy_cm.cmr = None
 
-plt.rc('font', size=18)
-plt.rc('legend', fontsize=12)
+plt.rc("font", size=18)
+plt.rc("legend", fontsize=12)
 
 
 def _preset_figure(xlabel, ylabel, title, figsize):
@@ -31,10 +33,10 @@ def _preset_figure(xlabel, ylabel, title, figsize):
 
 
 def list_cooling_model():
-    '''
+    """
     Print the formatted list of available cooling models.
 
-    '''
+    """
     if __dummy_cm.cmr is None:
 
         __dummy_cm.cmr = cm_reader()
@@ -43,7 +45,7 @@ def list_cooling_model():
 
 
 def list_cooling_parameters(model):
-    '''
+    """
     Print the formatted list of parameters available for the specified cooling
     models.
 
@@ -52,7 +54,7 @@ def list_cooling_parameters(model):
     model: str
         Name of the cooling model as in the `model_list`.
 
-    '''
+    """
     if __dummy_cm.cmr is None:
 
         __dummy_cm.cmr = cm_reader()
@@ -61,11 +63,11 @@ def list_cooling_parameters(model):
 
 
 def list_atmosphere_parameters():
-    '''
+    """
     Print the formatted list of parameters available from the atmophere
     models.
 
-    '''
+    """
     if __dummy_atm.ar is None:
 
         __dummy_atm.ar = atm_reader()
@@ -73,28 +75,30 @@ def list_atmosphere_parameters():
     return __dummy_atm.ar.list_atmosphere_parameters()
 
 
-def plot_atmosphere_model(x='G3_BP-G3_RP',
-                          y='G3',
-                          atmosphere='H',
-                          independent=['logg', 'Teff'],
-                          independent_values=[
-                              np.linspace(7.0, 9.0, 5),
-                              10.**np.linspace(3.185, 5.165, 100)
-                          ],
-                          contour=True,
-                          figsize=(8, 8),
-                          invert_xaxis=False,
-                          invert_yaxis=False,
-                          title=None,
-                          display=True,
-                          savefig=False,
-                          folder=None,
-                          filename=None,
-                          ext=['png'],
-                          fig=None,
-                          kwargs_for_plot={'marker': '+'},
-                          kwargs_for_contour={'levels': 100},
-                          kwargs_for_colorbar={}):
+def plot_atmosphere_model(
+    x="G3_BP-G3_RP",
+    y="G3",
+    atmosphere="H",
+    independent=["logg", "Teff"],
+    independent_values=[
+        np.linspace(7.0, 9.0, 5),
+        10.0 ** np.linspace(3.185, 5.165, 100),
+    ],
+    contour=True,
+    figsize=(8, 8),
+    invert_xaxis=False,
+    invert_yaxis=False,
+    title=None,
+    display=True,
+    savefig=False,
+    folder=None,
+    filename=None,
+    ext=["png"],
+    fig=None,
+    kwargs_for_plot={"marker": "+"},
+    kwargs_for_contour={"levels": 100},
+    kwargs_for_colorbar={},
+):
     """
     Parameters
     ----------
@@ -151,40 +155,54 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         __dummy_atm.ar = atm_reader()
 
-    x = x.split('-')
-    y = y.split('-')
+    x = x.split("-")
+    y = y.split("-")
 
     if len(x) == 2:
 
-        x_name = __dummy_atm.ar.column_names[
-            x[0]] + r' $-$ ' + __dummy_atm.ar.column_names[
-                x[1]] + ' / ' + __dummy_atm.ar.column_units[x[0]]
+        x_name = (
+            __dummy_atm.ar.column_names[x[0]]
+            + r" $-$ "
+            + __dummy_atm.ar.column_names[x[1]]
+            + " / "
+            + __dummy_atm.ar.column_units[x[0]]
+        )
 
     else:
 
-        x_name = __dummy_atm.ar.column_names[
-            x[0]] + ' / ' + __dummy_atm.ar.column_units[x[0]]
+        x_name = (
+            __dummy_atm.ar.column_names[x[0]]
+            + " / "
+            + __dummy_atm.ar.column_units[x[0]]
+        )
 
     if len(y) == 2:
 
-        y_name = __dummy_atm.ar.column_names[
-            y[0]] + r' $-$ ' + __dummy_atm.ar.column_names[
-                y[1]] + ' / ' + __dummy_atm.ar.column_units[y[0]]
+        y_name = (
+            __dummy_atm.ar.column_names[y[0]]
+            + r" $-$ "
+            + __dummy_atm.ar.column_names[y[1]]
+            + " / "
+            + __dummy_atm.ar.column_units[y[0]]
+        )
 
     else:
 
-        y_name = __dummy_atm.ar.column_names[
-            y[0]] + ' / ' + __dummy_atm.ar.column_units[y[0]]
+        y_name = (
+            __dummy_atm.ar.column_names[y[0]]
+            + " / "
+            + __dummy_atm.ar.column_units[y[0]]
+        )
 
     if title is None:
 
-        if atmosphere in ['H', 'h', 'hydrogen', 'Hydrogen', 'da', 'DA']:
+        if atmosphere in ["H", "h", "hydrogen", "Hydrogen", "da", "DA"]:
 
-            title = 'DA (Montreal)'
+            title = "DA (Montreal)"
 
-        if atmosphere in ['He', 'he', 'helium', 'Helium', 'db', 'DB']:
+        if atmosphere in ["He", "he", "helium", "Helium", "db", "DB"]:
 
-            title = 'DB (Montreal)'
+            title = "DB (Montreal)"
 
     x_out = []
     y_out = []
@@ -193,40 +211,42 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
         if len(x) == 2:
 
-            x0_itp = __dummy_atm.ar.interp_atm(dependent=x[0],
-                                           atmosphere=atmosphere,
-                                           independent=independent)
-            x1_itp = __dummy_atm.ar.interp_atm(dependent=x[1],
-                                           atmosphere=atmosphere,
-                                           independent=independent)
+            x0_itp = __dummy_atm.ar.interp_atm(
+                dependent=x[0], atmosphere=atmosphere, independent=independent
+            )
+            x1_itp = __dummy_atm.ar.interp_atm(
+                dependent=x[1], atmosphere=atmosphere, independent=independent
+            )
             x_out.append(
-                x0_itp(i_v, independent_values[1]) -
-                x1_itp(i_v, independent_values[1]))
+                x0_itp(i_v, independent_values[1])
+                - x1_itp(i_v, independent_values[1])
+            )
 
         else:
 
-            x_itp = __dummy_atm.ar.interp_atm(dependent=x[0],
-                                          atmosphere=atmosphere,
-                                          independent=independent)
+            x_itp = __dummy_atm.ar.interp_atm(
+                dependent=x[0], atmosphere=atmosphere, independent=independent
+            )
             x_out.append(x_itp(i_v, independent_values[1]))
 
         if len(y) == 2:
 
-            y0_itp = __dummy_atm.ar.interp_atm(dependent=y[0],
-                                           atmosphere=atmosphere,
-                                           independent=independent)
-            y1_itp = __dummy_atm.ar.interp_atm(dependent=y[1],
-                                           atmosphere=atmosphere,
-                                           independent=independent)
+            y0_itp = __dummy_atm.ar.interp_atm(
+                dependent=y[0], atmosphere=atmosphere, independent=independent
+            )
+            y1_itp = __dummy_atm.ar.interp_atm(
+                dependent=y[1], atmosphere=atmosphere, independent=independent
+            )
             y_out.append(
-                y0_itp(i_v, independent_values[1]) -
-                y1_itp(i_v, independent_values[1]))
+                y0_itp(i_v, independent_values[1])
+                - y1_itp(i_v, independent_values[1])
+            )
 
         else:
 
-            y_itp = __dummy_atm.ar.interp_atm(dependent=y[0],
-                                          atmosphere=atmosphere,
-                                          independent=independent)
+            y_itp = __dummy_atm.ar.interp_atm(
+                dependent=y[0], atmosphere=atmosphere, independent=independent
+            )
             y_out.append(y_itp(i_v, independent_values[1]))
 
     if fig is not None:
@@ -239,8 +259,9 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
     for i in range(len(x_out)):
 
-        label = __dummy_atm.ar.column_names[independent[0]] + ' = {:.2f}'.format(
-            independent_values[0][i])
+        label = __dummy_atm.ar.column_names[
+            independent[0]
+        ] + " = {:.2f}".format(independent_values[0][i])
         ax.plot(x_out[i], y_out[i], label=label, **kwargs_for_plot)
 
     if contour:
@@ -248,9 +269,11 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
         contourf_ = ax.tricontourf(
             np.array(x_out).flatten(),
             np.array(y_out).flatten(),
-            np.array([independent_values[1]] *
-                     len(independent_values[0])).flatten(),
-            **kwargs_for_contour)
+            np.array(
+                [independent_values[1]] * len(independent_values[0])
+            ).flatten(),
+            **kwargs_for_contour
+        )
         fig.colorbar(contourf_, **kwargs_for_colorbar)
 
     plt.grid()
@@ -289,11 +312,11 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
 
             if filename is None:
 
-                _filename = title + '_' + y_name + '_' + x_name + '.' + e
+                _filename = title + "_" + y_name + "_" + x_name + "." + e
 
             else:
 
-                _filename = filename + '.' + e
+                _filename = filename + "." + e
 
             plt.savefig(os.path.join(_folder, _filename))
 
@@ -304,24 +327,26 @@ def plot_atmosphere_model(x='G3_BP-G3_RP',
     return fig
 
 
-def plot_cooling_model(model='montreal_co_da_20',
-                       x='age',
-                       y='lum',
-                       log_x=True,
-                       log_y=True,
-                       mass='all',
-                       figsize=(8, 8),
-                       invert_xaxis=False,
-                       invert_yaxis=False,
-                       title=None,
-                       display=True,
-                       savefig=False,
-                       folder=None,
-                       filename=None,
-                       ext=['png'],
-                       fig=None,
-                       kwargs_for_plot={'marker': '+'}):
-    '''
+def plot_cooling_model(
+    model="montreal_co_da_20",
+    x="age",
+    y="lum",
+    log_x=True,
+    log_y=True,
+    mass="all",
+    figsize=(8, 8),
+    invert_xaxis=False,
+    invert_yaxis=False,
+    title=None,
+    display=True,
+    savefig=False,
+    folder=None,
+    filename=None,
+    ext=["png"],
+    fig=None,
+    kwargs_for_plot={"marker": "+"},
+):
+    """
     Set the WD cooling model.
 
     Parameters
@@ -394,26 +419,30 @@ def plot_cooling_model(model='montreal_co_da_20',
     kwargs_for_plot={'marker': '+'}):
         Keywords for matplotlib.pyplot.plot().
 
-    '''
+    """
 
-    _mass_list, cooling_model, column_names, column_units =\
-        __dummy_cm.cmr.get_cooling_model(model)
+    (
+        _mass_list,
+        cooling_model,
+        column_names,
+        column_units,
+    ) = __dummy_cm.cmr.get_cooling_model(model)
 
     x_name = column_names[x]
 
-    if column_units[x] != '':
+    if column_units[x] != "":
 
-        x_name = x_name + ' / ' + column_units[x]
+        x_name = x_name + " / " + column_units[x]
 
     y_name = column_names[y]
 
-    if column_units[y] != '':
+    if column_units[y] != "":
 
-        y_name = y_name + ' / ' + column_units[y]
+        y_name = y_name + " / " + column_units[y]
 
     if title is None:
 
-        title = 'Cooling Model - {}'.format(model)
+        title = "Cooling Model - {}".format(model)
 
     if fig is not None:
 
@@ -423,7 +452,7 @@ def plot_cooling_model(model='montreal_co_da_20',
 
         fig, ax = _preset_figure(x_name, y_name, title, figsize)
 
-    if mass == 'all':
+    if mass == "all":
 
         mass_list = _mass_list
 
@@ -439,16 +468,16 @@ def plot_cooling_model(model='montreal_co_da_20',
         x_out.append(cooling_model[i][x])
         y_out.append(cooling_model[i][y])
 
-        label = 'Mass = {:.2f}'.format(m)
+        label = "Mass = {:.2f}".format(m)
         ax.plot(x_out[i], y_out[i], label=label, **kwargs_for_plot)
 
     if log_x:
 
-        ax.set_xscale('log')
+        ax.set_xscale("log")
 
     if log_y:
 
-        ax.set_yscale('log')
+        ax.set_yscale("log")
 
     if invert_xaxis:
 
@@ -485,11 +514,11 @@ def plot_cooling_model(model='montreal_co_da_20',
 
             if filename is None:
 
-                _filename = title + '_' + y_name + '_' + x_name + '.' + e
+                _filename = title + "_" + y_name + "_" + x_name + "." + e
 
             else:
 
-                _filename = filename + '.' + e
+                _filename = filename + "." + e
 
             plt.savefig(os.path.join(_folder, _filename))
 

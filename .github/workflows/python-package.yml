@@ -45,4 +45,3 @@ jobs:
       with:
         flag-name: Test with pytest
         github-token: ${{ secrets.COVERALL_TOKEN }}
-        

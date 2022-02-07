@@ -13,7 +13,7 @@ from . import atmosphere_model_reader as amr
 
 
 class WDLF:
-    '''
+    """
     Computing the theoretical WDLFs based on the input IFMR, WD cooling and
     MS lifetime models.
 
@@ -26,55 +26,87 @@ class WDLF:
 
     For conversion, we use (1) M_sun = 1.98847E30 and (2) L_sun = 3.826E33.
 
-    '''
-    def __init__(self,
-                 imf_model='C03',
-                 ifmr_model='C08',
-                 low_mass_cooling_model='montreal_co_da_20',
-                 intermediate_mass_cooling_model='montreal_co_da_20',
-                 high_mass_cooling_model='montreal_co_da_20',
-                 ms_model='C16'):
+    """
+
+    def __init__(
+        self,
+        imf_model="C03",
+        ifmr_model="C08",
+        low_mass_cooling_model="montreal_co_da_20",
+        intermediate_mass_cooling_model="montreal_co_da_20",
+        high_mass_cooling_model="montreal_co_da_20",
+        ms_model="C16",
+    ):
 
         self.cooling_interpolator = None
         self.wdlf_params = {
-            'imf_model': None,
-            'ifmr_model': None,
-            'sfr_mode': None,
-            'ms_model': None,
-            'low_mass_cooling_model': None,
-            'intermediate_mass_cooling_model': None,
-            'high_mass_cooling_model': None
+            "imf_model": None,
+            "ifmr_model": None,
+            "sfr_mode": None,
+            "ms_model": None,
+            "low_mass_cooling_model": None,
+            "intermediate_mass_cooling_model": None,
+            "high_mass_cooling_model": None,
         }
 
-        self.imf_model_list = ['K01', 'C03', 'C03b', 'manual']
+        self.imf_model_list = ["K01", "C03", "C03b", "manual"]
 
         self.ifmr_model_list = [
-            'C08', 'C08b', 'S09', 'S09b', 'W09', 'K09', 'K09b', 'C18', 'EB18',
-            'manual'
+            "C08",
+            "C08b",
+            "S09",
+            "S09b",
+            "W09",
+            "K09",
+            "K09b",
+            "C18",
+            "EB18",
+            "manual",
         ]
 
-        self.sfr_mode_list = ['constant', 'burst', 'decay', 'manual']
+        self.sfr_mode_list = ["constant", "burst", "decay", "manual"]
 
-        self.ms_model_list = ['Bressan', 'C16', 'manual']
+        self.ms_model_list = ["Bressan", "C16", "manual"]
 
         self.low_mass_cooling_model_list = [
-            'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_he_da_07',
-            'lpcode_co_da_07', 'lpcode_he_da_09', None
+            "montreal_co_da_20",
+            "montreal_co_db_20",
+            "lpcode_he_da_07",
+            "lpcode_co_da_07",
+            "lpcode_he_da_09",
+            None,
         ]
 
         self.intermediate_mass_cooling_model_list = [
-            'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_co_da_10_z001',
-            'lpcode_co_da_10_z0001', 'lpcode_co_da_15_z00003',
-            'lpcode_co_da_15_z0001', 'lpcode_co_da_15_z0005',
-            'lpcode_co_da_17_y04', 'lpcode_co_db_17', 'basti_co_da_10',
-            'basti_co_db_10', 'basti_co_da_10_nps', 'basti_co_db_10_nps', None
+            "montreal_co_da_20",
+            "montreal_co_db_20",
+            "lpcode_co_da_10_z001",
+            "lpcode_co_da_10_z0001",
+            "lpcode_co_da_15_z00003",
+            "lpcode_co_da_15_z0001",
+            "lpcode_co_da_15_z0005",
+            "lpcode_co_da_17_y04",
+            "lpcode_co_db_17",
+            "basti_co_da_10",
+            "basti_co_db_10",
+            "basti_co_da_10_nps",
+            "basti_co_db_10_nps",
+            None,
         ]
 
         self.high_mass_cooling_model_list = [
-            'montreal_co_da_20', 'montreal_co_db_20', 'lpcode_one_da_07',
-            'lpcode_one_da_19', 'lpcode_one_db_19', 'basti_co_da_10',
-            'basti_co_db_10', 'basti_co_da_10_nps', 'basti_co_db_10_nps',
-            'mesa_one_da_18', 'mesa_one_db_18', None
+            "montreal_co_da_20",
+            "montreal_co_db_20",
+            "lpcode_one_da_07",
+            "lpcode_one_da_19",
+            "lpcode_one_db_19",
+            "basti_co_da_10",
+            "basti_co_db_10",
+            "basti_co_da_10_nps",
+            "basti_co_db_10_nps",
+            "mesa_one_da_18",
+            "mesa_one_db_18",
+            None,
         ]
 
         # The IFMR, WD cooling and MS lifetime models are required to
@@ -83,7 +115,8 @@ class WDLF:
         self.set_ifmr_model(ifmr_model)
         self.set_low_mass_cooling_model(low_mass_cooling_model)
         self.set_intermediate_mass_cooling_model(
-            intermediate_mass_cooling_model)
+            intermediate_mass_cooling_model
+        )
         self.set_high_mass_cooling_model(high_mass_cooling_model)
         self.set_ms_model(ms_model)
         self.set_sfr_model()
@@ -92,7 +125,7 @@ class WDLF:
         self.cm_reader = cmr.cm_reader()
 
     def _imf(self, M):
-        '''
+        """
         Compute the initial mass function based on the pre-selected IMF model
         and the given mass (M).
 
@@ -108,11 +141,11 @@ class WDLF:
         MF: array
             Array of MF, normalised to 1 at 1M_sun.
 
-        '''
+        """
 
         M = np.asarray(M).reshape(-1)
 
-        if self.wdlf_params['imf_model'] == 'K01':
+        if self.wdlf_params["imf_model"] == "K01":
 
             MF = M**-2.3
 
@@ -120,34 +153,44 @@ class WDLF:
             if (M < 0.5).any():
 
                 M_mask = M < 0.5
-                MF[M_mask] = M[M_mask]**1.3
+                MF[M_mask] = M[M_mask] ** 1.3
 
-        elif self.wdlf_params['imf_model'] == 'C03':
+        elif self.wdlf_params["imf_model"] == "C03":
 
             MF = M**-2.3
             if (M < 1).any():
-                M_mask = np.array(M < 1.)
+                M_mask = np.array(M < 1.0)
                 # 0.158 / (ln(10) * M) = 0.06861852814 / M
                 # log(0.079) = -1.1023729087095586
                 # 2 * 0.69**2. = 0.9522
                 # Normalisation factor (at M=1) is 0.01915058
-                MF[M_mask] = (0.06861852814 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 1.1023729087095586)**2. /
-                    0.9522) / 0.01915058
+                MF[M_mask] = (
+                    (0.06861852814 / M[M_mask])
+                    * np.exp(
+                        -((np.log10(M[M_mask]) + 1.1023729087095586) ** 2.0)
+                        / 0.9522
+                    )
+                    / 0.01915058
+                )
 
-        elif self.wdlf_params['imf_model'] == 'C03b':
+        elif self.wdlf_params["imf_model"] == "C03b":
 
             MF = M**-2.3
 
             if (M <= 1).any():
-                M_mask = np.array(M <= 1.)
+                M_mask = np.array(M <= 1.0)
                 # 0.086 * 1. / (ln(10) * M) = 0.03734932544 / M
                 # log(0.22) = -0.65757731917
                 # 2 * 0.57**2. = 0.6498
                 # Normalisation factor (at M=1) is 0.01919917
-                MF[M_mask] = (0.03734932544 / M[M_mask]) * np.exp(
-                    -(np.log10(M[M_mask]) + 0.65757731917)**2. /
-                    0.6498) / 0.01919917
+                MF[M_mask] = (
+                    (0.03734932544 / M[M_mask])
+                    * np.exp(
+                        -((np.log10(M[M_mask]) + 0.65757731917) ** 2.0)
+                        / 0.6498
+                    )
+                    / 0.01919917
+                )
 
         else:
 
@@ -156,7 +199,7 @@ class WDLF:
         return MF
 
     def _ms_age(self, M):
-        '''
+        """
         Compute the main sequence lifetime based on the pre-selected MS model
         and the given mass (M).
 
@@ -172,28 +215,40 @@ class WDLF:
         age: array
             Array of total MS lifetime, same size as M.
 
-        '''
+        """
 
         M = np.asarray(M).reshape(-1)
 
-        if self.wdlf_params['ms_model'] == 'Bressan':
+        if self.wdlf_params["ms_model"] == "Bressan":
 
-            datatable = np.loadtxt(glob.glob(
-                pkg_resources.resource_filename(
-                    'WDPhotTools', 'ms_lifetime/bressan00170279.csv'))[0],
-                                   delimiter=',')
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/bressan00170279.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        elif self.wdlf_params['ms_model'] == 'C16':
+        elif self.wdlf_params["ms_model"] == "C16":
 
-            age = 10.**(13.37807 - 6.292517 * M + 4.451837 * M**2 -
-                        1.773315 * M**3 + 0.2944963 * M**4)
+            age = 10.0 ** (
+                13.37807
+                - 6.292517 * M
+                + 4.451837 * M**2
+                - 1.773315 * M**3
+                + 0.2944963 * M**4
+            )
             if (M > 2.11).any():
-                age[M > 2.11] = 10.**(10.75941 - 1.043523 * M[M > 2.11] +
-                                      0.1366088 * M[M > 2.11]**2 -
-                                      7.110290e-3 * M[M > 2.11]**3)
+                age[M > 2.11] = 10.0 ** (
+                    10.75941
+                    - 1.043523 * M[M > 2.11]
+                    + 0.1366088 * M[M > 2.11] ** 2
+                    - 7.110290e-3 * M[M > 2.11] ** 3
+                )
 
         else:
 
@@ -202,7 +257,7 @@ class WDLF:
         return age
 
     def _ifmr(self, M, fill_value=0):
-        '''
+        """
         Compute the final mass (i.e. WD mass) based on the pre-selected IFMR
         model and the zero-age MS mass (M).
 
@@ -222,17 +277,17 @@ class WDLF:
         m: array
             Array of WD mass, same size as M.
 
-        '''
+        """
 
         M = np.asarray(M).reshape(-1)
 
-        if self.wdlf_params['ifmr_model'] == 'C08':
+        if self.wdlf_params["ifmr_model"] == "C08":
 
             m = 0.117 * M + 0.384
             if (m < 0.4349).any():
                 m[m < 0.4349] = 0.4349
 
-        elif self.wdlf_params['ifmr_model'] == 'C08b':
+        elif self.wdlf_params["ifmr_model"] == "C08b":
 
             m = 0.096 * M + 0.429
             if (M >= 2.7).any():
@@ -240,13 +295,13 @@ class WDLF:
             if (m < 0.4746).any():
                 m[m < 0.4746] = 0.4746
 
-        elif self.wdlf_params['ifmr_model'] == 'S09':
+        elif self.wdlf_params["ifmr_model"] == "S09":
 
             m = 0.084 * M + 0.466
             if (m < 0.5088).any():
                 m[m < 0.5088] = 0.5088
 
-        elif self.wdlf_params['ifmr_model'] == 'S09b':
+        elif self.wdlf_params["ifmr_model"] == "S09b":
 
             m = 0.134 * M[M < 4.0] + 0.331
             if (M >= 4.0).any():
@@ -255,37 +310,41 @@ class WDLF:
             if (m < 0.3823).any():
                 m[m < 0.3823] = 0.3823
 
-        elif self.wdlf_params['ifmr_model'] == 'W09':
+        elif self.wdlf_params["ifmr_model"] == "W09":
 
             m = 0.129 * M + 0.339
             if (m < 0.3893).any():
                 m[m < 0.3893] = 0.3893
 
-        elif self.wdlf_params['ifmr_model'] == 'K09':
+        elif self.wdlf_params["ifmr_model"] == "K09":
 
             m = 0.109 * M + 0.428
             if (m < 0.4804).any():
                 m[m < 0.4804] = 0.4804
 
-        elif self.wdlf_params['ifmr_model'] == 'K09b':
+        elif self.wdlf_params["ifmr_model"] == "K09b":
 
             m = 0.101 * M + 0.463
             if (m < 0.4804).any():
                 m[m < 0.4804] = 0.4804
 
-        elif self.wdlf_params['ifmr_model'] == 'C18':
+        elif self.wdlf_params["ifmr_model"] == "C18":
 
-            m = interp1d((0.23, 0.5, 0.95, 2.8, 3.65, 8.2, 10),
-                         (0.19, 0.4, 0.50, 0.72, 0.87, 1.25, 1.4),
-                         fill_value='extrapolate',
-                         bounds_error=False)(M)
+            m = interp1d(
+                (0.23, 0.5, 0.95, 2.8, 3.65, 8.2, 10),
+                (0.19, 0.4, 0.50, 0.72, 0.87, 1.25, 1.4),
+                fill_value="extrapolate",
+                bounds_error=False,
+            )(M)
 
-        elif self.wdlf_params['ifmr_model'] == 'EB18':
+        elif self.wdlf_params["ifmr_model"] == "EB18":
 
-            m = interp1d((0.95, 2.75, 3.54, 5.21, 8.),
-                         (0.5, 0.67, 0.81, 0.91, 1.37),
-                         fill_value='extrapolate',
-                         bounds_error=False)(M)
+            m = interp1d(
+                (0.95, 2.75, 3.54, 5.21, 8.0),
+                (0.5, 0.67, 0.81, 0.91, 1.37),
+                fill_value="extrapolate",
+                bounds_error=False,
+            )(M)
 
         else:
 
@@ -294,7 +353,7 @@ class WDLF:
         return m
 
     def _itp2D_gradient(self, f, val1, val2, frac=1e-6):
-        '''
+        """
         A function to find the gradient in the direction in the first dimension
         of a 2D function at a given coordinate.
 
@@ -314,24 +373,25 @@ class WDLF:
         ------
         Gradient in the direction of val1.
 
-        '''
+        """
 
         if not callable(f):
-            raise TypeError('f has to be a callable function.')
+            raise TypeError("f has to be a callable function.")
 
-        increment = val1 * frac / 2.
+        increment = val1 * frac / 2.0
         grad = np.asarray(
-            (f(val1 + increment, val2) - f(val1 - increment, val2)) /
-            (increment * 2.)).reshape(-1)
+            (f(val1 + increment, val2) - f(val1 - increment, val2))
+            / (increment * 2.0)
+        ).reshape(-1)
 
         # cooling((L+1), m) - cooling(L, m) is always negative
-        grad[grad > 0.] = 0.
-        grad[np.isnan(grad)] = 0.
+        grad[grad > 0.0] = 0.0
+        grad[np.isnan(grad)] = 0.0
 
         return grad
 
     def _find_M_min(self, M, Mag):
-        '''
+        """
         A function to be minimised to find the minimum mass limit that a MS
         star could have turned into a WD in the given age of the
         population (which is given by the SFR).
@@ -348,7 +408,7 @@ class WDLF:
         The difference between the total time and the sum of the cooling time
         and main sequence lifetime.
 
-        '''
+        """
 
         # Get the WD mass
         m = self._ifmr(M)
@@ -362,27 +422,27 @@ class WDLF:
 
         # Get the cooling age from the WD mass and the luminosity
         t_cool = self.cooling_interpolator(logL, m)
-        if t_cool <= 0.:
+        if t_cool <= 0.0:
             return np.inf
 
         # Get the MS life time
         t_ms = self._ms_age(M)
-        if t_ms <= 0.:
+        if t_ms <= 0.0:
             return np.inf
 
         # Time since star formation
         time = self.T0 - t_cool - t_ms
 
-        if time < 0.:
+        if time < 0.0:
 
             return np.inf
 
         else:
 
-            return M**2.
+            return M**2.0
 
     def _integrand(self, M, Mag):
-        '''
+        """
         The integrand of the number density computation based on the
         pre-selected (1) MS lifetime model, (2) initial mass function,
         (3) initial-final mass relation, and (4) WD cooling model.
@@ -402,20 +462,20 @@ class WDLF:
         ------
         The product for integrating to the number density.
 
-        '''
+        """
         # Get the WD mass
         m = self._ifmr(M)
 
         # Get the mass function
         MF = self._imf(M)
 
-        if MF < 0.:
+        if MF < 0.0:
 
-            return 0.
+            return 0.0
 
         Mbol = self.Mag_to_Mbol_itp(m, Mag)
         if not np.isfinite(Mbol):
-            return 0.
+            return 0.0
 
         logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
 
@@ -428,16 +488,16 @@ class WDLF:
         # Get the time since star formation
         time = t_cool + t_ms
 
-        if time < 0.:
+        if time < 0.0:
 
-            return 0.
+            return 0.0
 
         # Get the SFR
         sfr = self.sfr(time)
 
-        if sfr <= 0.:
+        if sfr <= 0.0:
 
-            return 0.
+            return 0.0
 
         # Get the cooling rate
         dLdt = self.cooling_rate_interpolator(logL, m)
@@ -448,15 +508,17 @@ class WDLF:
 
         else:
 
-            return 0.
+            return 0.0
 
-    def set_sfr_model(self,
-                      mode='constant',
-                      age=10E9,
-                      duration=1E9,
-                      mean_lifetime=3e9,
-                      sfr_model=None):
-        '''
+    def set_sfr_model(
+        self,
+        mode="constant",
+        age=10e9,
+        duration=1e9,
+        mean_lifetime=3e9,
+        sfr_model=None,
+    ):
+        """
         Set the SFR scenario, we only provide a few basic forms, free format
         can be supplied as a callable function through sfr_model.
 
@@ -481,7 +543,7 @@ class WDLF:
         ----------
         mode: str (Default: 'constant')
             Choice of SFR mode:
-            
+
                 1. constant
                 2. burst
                 3. decay
@@ -499,15 +561,15 @@ class WDLF:
             callable, it reverts to using a constant star formation rate.
             It is necessary to fill in the age argument.
 
-        '''
+        """
 
         if mode not in self.sfr_mode_list:
 
-            raise ValueError('Please provide a valid SFR mode.')
+            raise ValueError("Please provide a valid SFR mode.")
 
         else:
 
-            if mode == 'manual':
+            if mode == "manual":
 
                 if callable(sfr_model):
 
@@ -516,49 +578,54 @@ class WDLF:
                 else:
 
                     warnings.warn(
-                        'The sfr_model provided is not callable, '
-                        'None is applied, i.e. constant star fomration.')
-                    mode = 'constant'
+                        "The sfr_model provided is not callable, "
+                        "None is applied, i.e. constant star fomration."
+                    )
+                    mode = "constant"
 
             else:
 
                 pass
 
-            if mode == 'constant':
+            if mode == "constant":
 
                 t1 = age
-                t0 = t1 + 1.
+                t0 = t1 + 1.0
                 # current time = 0.
-                t2 = 0.
-                t3 = t2 - 1.
+                t2 = 0.0
+                t3 = t2 - 1.0
 
-                self.sfr = interp1d(np.array((30E9, t0, t1, t2, t3, -30E9)),
-                                    np.array((0., 0., 1., 1., 0., 0.)),
-                                    fill_value='extrapolate')
+                self.sfr = interp1d(
+                    np.array((30e9, t0, t1, t2, t3, -30e9)),
+                    np.array((0.0, 0.0, 1.0, 1.0, 0.0, 0.0)),
+                    fill_value="extrapolate",
+                )
 
-            elif mode == 'burst':
+            elif mode == "burst":
 
                 t1 = age
-                t0 = t1 + 1.
+                t0 = t1 + 1.0
                 t2 = t1 - duration
-                t3 = t2 - 1.
+                t3 = t2 - 1.0
 
-                self.sfr = interp1d(np.array((30E9, t0, t1, t2, t3, -30E9)),
-                                    np.array((0., 0., 1., 1., 0., 0.)),
-                                    fill_value='extrapolate')
+                self.sfr = interp1d(
+                    np.array((30e9, t0, t1, t2, t3, -30e9)),
+                    np.array((0.0, 0.0, 1.0, 1.0, 0.0, 0.0)),
+                    fill_value="extrapolate",
+                )
 
             else:
 
-                t = 10.**np.linspace(0, np.log10(age), 10000)
+                t = 10.0 ** np.linspace(0, np.log10(age), 10000)
                 sfr = np.exp((t - age) / mean_lifetime)
 
-                self.sfr = interp1d(t, sfr, bounds_error=False, fill_value=0.)
+                self.sfr = interp1d(t, sfr, bounds_error=False, fill_value=0.0)
 
         self.T0 = age
-        self.wdlf_params['sfr_mode'] = mode
+        self.wdlf_params["sfr_mode"] = mode
 
     def set_imf_model(self, model, imf_function=None):
-        '''
+        """
         Set the initial mass function.
 
         Parameters
@@ -574,20 +641,20 @@ class WDLF:
         imf_function: callable function (Default: None)
             A callable imf function, only used if model is 'manual'.
 
-        '''
+        """
 
         if model in self.imf_model_list:
 
-            self.wdlf_params['imf_model'] = model
+            self.wdlf_params["imf_model"] = model
 
         else:
 
-            raise ValueError('Please provide a valid IMF model.')
+            raise ValueError("Please provide a valid IMF model.")
 
         self.imf_function = imf_function
 
     def set_ms_model(self, model, ms_function=None):
-        '''
+        """
         Set the main sequence total lifetime model.
 
         Parameters
@@ -602,20 +669,20 @@ class WDLF:
         ms_function: callable function (Default: None)
             A callable ifmr function, only used if model is 'manual'.
 
-        '''
+        """
 
         if model in self.ms_model_list:
 
-            self.wdlf_params['ms_model'] = model
+            self.wdlf_params["ms_model"] = model
 
         else:
 
-            raise ValueError('Please provide a valid MS model.')
+            raise ValueError("Please provide a valid MS model.")
 
         self.ms_function = ms_function
 
     def set_ifmr_model(self, model, ifmr_function=None):
-        '''
+        """
         Set the initial-final mass relation (IFMR).
 
         Parameters
@@ -637,20 +704,20 @@ class WDLF:
         ifmr_function: callable function (Default: None)
             A callable ifmr function, only used if model is 'manual'.
 
-        '''
+        """
 
         if model in self.ifmr_model_list:
 
-            self.wdlf_params['ifmr_model'] = model
+            self.wdlf_params["ifmr_model"] = model
 
         else:
 
-            raise ValueError('Please provide a valid IFMR mode.')
+            raise ValueError("Please provide a valid IFMR mode.")
 
         self.ifmr_function = ifmr_function
 
     def set_low_mass_cooling_model(self, model):
-        '''
+        """
         Set the WD cooling model.
 
         Parameters
@@ -671,18 +738,18 @@ class WDLF:
             progenitor metallicity or the (lack of) phase separation in the
             evolution model.
 
-        '''
+        """
 
         if model in self.low_mass_cooling_model_list:
 
-            self.wdlf_params['low_mass_cooling_model'] = model
+            self.wdlf_params["low_mass_cooling_model"] = model
 
         else:
 
-            raise ValueError('Please provide a valid model.')
+            raise ValueError("Please provide a valid model.")
 
     def set_intermediate_mass_cooling_model(self, model):
-        '''
+        """
         Set the WD cooling model.
 
         Parameters
@@ -711,18 +778,18 @@ class WDLF:
             progenitor metallicity or the (lack of) phase separation in the
             evolution model.
 
-        '''
+        """
 
         if model in self.intermediate_mass_cooling_model_list:
 
-            self.wdlf_params['intermediate_mass_cooling_model'] = model
+            self.wdlf_params["intermediate_mass_cooling_model"] = model
 
         else:
 
-            raise ValueError('Please provide a valid model.')
+            raise ValueError("Please provide a valid model.")
 
     def set_high_mass_cooling_model(self, model):
-        '''
+        """
         Set the WD cooling model.
 
         Parameters
@@ -749,92 +816,142 @@ class WDLF:
             progenitor metallicity or the (lack of) phase separation in the
             evolution model.
 
-        '''
+        """
 
         if model in self.high_mass_cooling_model_list:
 
-            self.wdlf_params['high_mass_cooling_model'] = model
+            self.wdlf_params["high_mass_cooling_model"] = model
 
         else:
 
-            raise ValueError('Please provide a valid model.')
+            raise ValueError("Please provide a valid model.")
 
     def compute_cooling_age_interpolator(self):
-        '''
+        """
         Compute the callable CloughTocher2DInterpolator of the cooling time
         of WDs. It needs to use float64 or it runs into float-point error
         at very faint lumnosity.
 
-        '''
+        """
 
         # Set the low mass cooling model, i.e. M < 0.5 M_sun
         mass_low, cooling_model_low, _, _ = self.cm_reader.get_cooling_model(
-            self.wdlf_params['low_mass_cooling_model'], mass_range='low')
+            self.wdlf_params["low_mass_cooling_model"], mass_range="low"
+        )
 
         # Set the intermediate mass cooling model, i.e. 0.5 < M < 1.0 M_sun
-        mass_intermediate, cooling_model_intermediate, _, _ =\
-            self.cm_reader.get_cooling_model(
-                self.wdlf_params['intermediate_mass_cooling_model'],
-                mass_range='intermediate')
+        (
+            mass_intermediate,
+            cooling_model_intermediate,
+            _,
+            _,
+        ) = self.cm_reader.get_cooling_model(
+            self.wdlf_params["intermediate_mass_cooling_model"],
+            mass_range="intermediate",
+        )
 
         # Set the high mass cooling model, i.e. 1.0 < M M_sun
         mass_high, cooling_model_high, _, _ = self.cm_reader.get_cooling_model(
-            self.wdlf_params['high_mass_cooling_model'], mass_range='high')
+            self.wdlf_params["high_mass_cooling_model"], mass_range="high"
+        )
 
         # Gather all the models in different mass ranges
 
         # Reshaping the WD mass array to match the shape of the other two.
-        mass_low = np.concatenate(
-            np.array([[mass_low[i]] * len(model['age'])
-                      for i, model in enumerate(cooling_model_low)],
-                     dtype=object)).T.ravel().astype(np.float64)
+        mass_low = (
+            np.concatenate(
+                np.array(
+                    [
+                        [mass_low[i]] * len(model["age"])
+                        for i, model in enumerate(cooling_model_low)
+                    ],
+                    dtype=object,
+                )
+            )
+            .T.ravel()
+            .astype(np.float64)
+        )
 
         # The luminosity of the WD at the corresponding mass and age
-        luminosity_low = np.concatenate([i['lum'] for i in cooling_model_low
-                                         ]).reshape(-1).astype(np.float64)
+        luminosity_low = (
+            np.concatenate([i["lum"] for i in cooling_model_low])
+            .reshape(-1)
+            .astype(np.float64)
+        )
 
         # The luminosity of the WD at the corresponding mass and luminosity
-        age_low = np.concatenate([i['age'] for i in cooling_model_low
-                                  ]).reshape(-1).astype(np.float64)
+        age_low = (
+            np.concatenate([i["age"] for i in cooling_model_low])
+            .reshape(-1)
+            .astype(np.float64)
+        )
 
         # Reshaping the WD mass array to match the shape of the other two.
-        mass_intermediate = np.concatenate(
-            np.array([[mass_intermediate[i]] * len(model['age'])
-                      for i, model in enumerate(cooling_model_intermediate)],
-                     dtype=object)).T.ravel().astype(np.float64)
+        mass_intermediate = (
+            np.concatenate(
+                np.array(
+                    [
+                        [mass_intermediate[i]] * len(model["age"])
+                        for i, model in enumerate(cooling_model_intermediate)
+                    ],
+                    dtype=object,
+                )
+            )
+            .T.ravel()
+            .astype(np.float64)
+        )
 
         # The luminosity of the WD at the corresponding mass and age
-        luminosity_intermediate = np.concatenate([
-            i['lum'] for i in cooling_model_intermediate
-        ]).reshape(-1).astype(np.float64)
+        luminosity_intermediate = (
+            np.concatenate([i["lum"] for i in cooling_model_intermediate])
+            .reshape(-1)
+            .astype(np.float64)
+        )
 
         # The luminosity of the WD at the corresponding mass and luminosity
-        age_intermediate = np.concatenate([
-            i['age'] for i in cooling_model_intermediate
-        ]).reshape(-1).astype(np.float64)
+        age_intermediate = (
+            np.concatenate([i["age"] for i in cooling_model_intermediate])
+            .reshape(-1)
+            .astype(np.float64)
+        )
 
         # Reshaping the WD mass array to match the shape of the other two.
-        mass_high = np.concatenate(
-            np.array([[mass_high[i]] * len(model['age'])
-                      for i, model in enumerate(cooling_model_high)],
-                     dtype=object)).T.ravel().astype(np.float64)
+        mass_high = (
+            np.concatenate(
+                np.array(
+                    [
+                        [mass_high[i]] * len(model["age"])
+                        for i, model in enumerate(cooling_model_high)
+                    ],
+                    dtype=object,
+                )
+            )
+            .T.ravel()
+            .astype(np.float64)
+        )
 
         # The luminosity of the WD at the corresponding mass and age
-        luminosity_high = np.concatenate([
-            i['lum'] for i in cooling_model_high
-        ]).reshape(-1).astype(np.float64)
+        luminosity_high = (
+            np.concatenate([i["lum"] for i in cooling_model_high])
+            .reshape(-1)
+            .astype(np.float64)
+        )
 
         # The luminosity of the WD at the corresponding mass and luminosity
-        age_high = np.concatenate([i['age'] for i in cooling_model_high
-                                   ]).reshape(-1).astype(np.float64)
+        age_high = (
+            np.concatenate([i["age"] for i in cooling_model_high])
+            .reshape(-1)
+            .astype(np.float64)
+        )
 
         self.cooling_model_grid = np.concatenate(
-            (cooling_model_low, cooling_model_intermediate,
-             cooling_model_high))
+            (cooling_model_low, cooling_model_intermediate, cooling_model_high)
+        )
 
         self.mass = np.concatenate((mass_low, mass_intermediate, mass_high))
         self.luminosity = np.concatenate(
-            (luminosity_low, luminosity_intermediate, luminosity_high))
+            (luminosity_low, luminosity_intermediate, luminosity_high)
+        )
         self.age = np.concatenate((age_low, age_intermediate, age_high))
 
         self.cooling_interpolator = CloughTocher2DInterpolator(
@@ -843,35 +960,40 @@ class WDLF:
             fill_value=-np.inf,
             tol=1e-10,
             maxiter=1000000,
-            rescale=True)
+            rescale=True,
+        )
 
-        self.dLdt = -self._itp2D_gradient(self.cooling_interpolator,
-                                          np.log10(self.luminosity), self.mass)
+        self.dLdt = -self._itp2D_gradient(
+            self.cooling_interpolator, np.log10(self.luminosity), self.mass
+        )
 
         finite_mask = np.isfinite(self.dLdt)
 
         self.cooling_rate_interpolator = CloughTocher2DInterpolator(
             (np.log10(self.luminosity)[finite_mask], self.mass[finite_mask]),
             self.dLdt[finite_mask],
-            fill_value=0.,
+            fill_value=0.0,
             tol=1e-10,
             maxiter=1000000,
-            rescale=True)
+            rescale=True,
+        )
 
-    def compute_density(self,
-                        Mag,
-                        passband='Mbol',
-                        atmosphere='H',
-                        M_max=8.0,
-                        limit=10000,
-                        n_points=100,
-                        epsabs=1e-6,
-                        epsrel=1e-6,
-                        normed=True,
-                        save_csv=False,
-                        folder=None,
-                        filename=None):
-        '''
+    def compute_density(
+        self,
+        Mag,
+        passband="Mbol",
+        atmosphere="H",
+        M_max=8.0,
+        limit=10000,
+        n_points=100,
+        epsabs=1e-6,
+        epsrel=1e-6,
+        normed=True,
+        save_csv=False,
+        folder=None,
+        filename=None,
+    ):
+        """
         Compute the density based on the pre-selected models: (1) MS lifetime
         model, (2) initial mass function, (3) initial-final mass relation, and
         (4) WD cooling model. It integrates over the function _integrand().
@@ -916,7 +1038,7 @@ class WDLF:
             The filename of the csv. The default filename will be used
             if None.
 
-        '''
+        """
 
         if self.cooling_interpolator is None:
 
@@ -927,9 +1049,10 @@ class WDLF:
         number_density = np.zeros_like(Mag)
 
         self.Mag_to_Mbol_itp = self.atm_reader.interp_atm(
-            dependent='Mbol',
+            dependent="Mbol",
             atmosphere=atmosphere,
-            independent=['mass', passband])
+            independent=["mass", passband],
+        )
 
         print("The input age is {0:.2f} Gyr.".format(self.T0 / 1e9))
 
@@ -937,26 +1060,31 @@ class WDLF:
 
         for i, Mag_i in enumerate(Mag):
 
-            M_min = optimize.fminbound(self._find_M_min,
-                                       0.5,
-                                       M_upper_bound,
-                                       args=[Mag_i],
-                                       xtol=1e-5,
-                                       maxfun=10000)
+            M_min = optimize.fminbound(
+                self._find_M_min,
+                0.5,
+                M_upper_bound,
+                args=[Mag_i],
+                xtol=1e-5,
+                maxfun=10000,
+            )
 
-            points = 10.**np.linspace(np.log10(M_min), np.log10(M_max),
-                                      n_points)
+            points = 10.0 ** np.linspace(
+                np.log10(M_min), np.log10(M_max), n_points
+            )
 
             # Note that the points are needed because it can fail to
             # integrate if the star burst is too short
-            number_density[i] = integrate.quad(self._integrand,
-                                               M_min,
-                                               M_max,
-                                               args=[Mag_i],
-                                               limit=limit,
-                                               points=points,
-                                               epsabs=epsabs,
-                                               epsrel=epsrel)[0]
+            number_density[i] = integrate.quad(
+                self._integrand,
+                M_min,
+                M_max,
+                args=[Mag_i],
+                limit=limit,
+                points=points,
+                epsabs=epsabs,
+                epsrel=epsrel,
+            )[0]
 
             M_upper_bound = M_min
 
@@ -977,39 +1105,51 @@ class WDLF:
 
             if filename is None:
 
-                _filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                    self.wdlf_params['sfr_mode'] + '_' +\
-                    self.wdlf_params['ms_model'] + '_' +\
-                    self.wdlf_params['ifmr_model'] + '_' +\
-                    self.wdlf_params['low_mass_cooling_model'] + '_' +\
-                    self.wdlf_params['intermediate_mass_cooling_model'] + '_' +\
-                    self.wdlf_params['high_mass_cooling_model'] + '.csv'
+                _filename = (
+                    "{0:.2f}Gyr_".format(self.T0 / 1e9)
+                    + self.wdlf_params["sfr_mode"]
+                    + "_"
+                    + self.wdlf_params["ms_model"]
+                    + "_"
+                    + self.wdlf_params["ifmr_model"]
+                    + "_"
+                    + self.wdlf_params["low_mass_cooling_model"]
+                    + "_"
+                    + self.wdlf_params["intermediate_mass_cooling_model"]
+                    + "_"
+                    + self.wdlf_params["high_mass_cooling_model"]
+                    + ".csv"
+                )
 
             else:
 
                 _filename = filename
 
-            np.savetxt(os.path.join(_folder, _filename),
-                       np.column_stack((Mag, number_density)),
-                       delimiter=',')
+            np.savetxt(
+                os.path.join(_folder, _filename),
+                np.column_stack((Mag, number_density)),
+                delimiter=",",
+            )
 
         self.Mag = Mag
         self.number_density = number_density
 
         return Mag, number_density
 
-    def plot_cooling_model(self,
-                           use_mag=True,
-                           figsize=(12, 8),
-                           title=None,
-                           display=True,
-                           savefig=False,
-                           folder=None,
-                           filename=None,
-                           ext=['png'],
-                           fig=None,
-                           kwargs_for_colorbar={}):
-        '''
+    def plot_cooling_model(
+        self,
+        use_mag=True,
+        figsize=(12, 8),
+        title=None,
+        display=True,
+        savefig=False,
+        folder=None,
+        filename=None,
+        ext=["png"],
+        fig=None,
+        kwargs_for_colorbar={},
+    ):
+        """
         Plot the input cooling model.
 
         Parameters
@@ -1038,7 +1178,7 @@ class WDLF:
         kwargs_for_colorbar: dict (Default: {})
             Keyword arguments for the colorbar()
 
-        '''
+        """
 
         if use_mag:
 
@@ -1058,24 +1198,25 @@ class WDLF:
 
         # colorbar
         cbar = plt.colorbar(mappable=sc, ax=ax, **kwargs_for_colorbar)
-        cbar.ax.set_ylabel('Solar Mass', rotation=270)
+        cbar.ax.set_ylabel("Solar Mass", rotation=270)
 
         # y axis
-        ax.set_ylabel(r'M$_{\mathrm{bol}}$ / mag')
-        ax.set_ylim(brightness[np.argmin(self.age)],
-                    brightness[np.argmax(self.age)])
+        ax.set_ylabel(r"M$_{\mathrm{bol}}$ / mag")
+        ax.set_ylim(
+            brightness[np.argmin(self.age)], brightness[np.argmax(self.age)]
+        )
         if not use_mag:
-            ax.set_yscale('log')
+            ax.set_yscale("log")
 
         # x axis
-        plt.xlabel(r'Age / Gyr')
+        plt.xlabel(r"Age / Gyr")
         plt.xlim(6, 10.5)
 
         plt.grid()
 
         if title is None:
 
-            title = 'Cooling Model'
+            title = "Cooling Model"
 
         plt.title(title)
         plt.tight_layout()
@@ -1103,13 +1244,19 @@ class WDLF:
 
                 if filename is None:
 
-                    _filename = self.wdlf_params['low_mass_cooling_model'] + '_' +\
-                        self.wdlf_params['intermediate_mass_cooling_model'] + '_' +\
-                        self.wdlf_params['high_mass_cooling_model'] + '.' + e
+                    _filename = (
+                        self.wdlf_params["low_mass_cooling_model"]
+                        + "_"
+                        + self.wdlf_params["intermediate_mass_cooling_model"]
+                        + "_"
+                        + self.wdlf_params["high_mass_cooling_model"]
+                        + "."
+                        + e
+                    )
 
                 else:
 
-                    _filename = filename + '.' + e
+                    _filename = filename + "." + e
 
             plt.savefig(os.path.join(_folder, _filename))
 
@@ -1119,17 +1266,19 @@ class WDLF:
 
         return fig
 
-    def plot_sfh(self,
-                 log=False,
-                 figsize=(12, 8),
-                 title=None,
-                 display=True,
-                 savefig=False,
-                 folder=None,
-                 filename=None,
-                 ext=['png'],
-                 fig=None):
-        '''
+    def plot_sfh(
+        self,
+        log=False,
+        figsize=(12, 8),
+        title=None,
+        display=True,
+        savefig=False,
+        folder=None,
+        filename=None,
+        ext=["png"],
+        fig=None,
+    ):
+        """
         Plot the input Star Formation History.
 
         Parameters
@@ -1156,7 +1305,7 @@ class WDLF:
         fig: matplotlib.figure.Figure (Default: None)
             Overplotting on an existing Figure.
 
-        '''
+        """
 
         t = np.linspace(0, self.T0, 1000)
 
@@ -1169,19 +1318,19 @@ class WDLF:
         plt.plot(t, self.sfr(t))
         if log:
 
-            ax.set_yscale('log')
-            plt.ylabel('log(Relative Star Formation Rate)')
+            ax.set_yscale("log")
+            plt.ylabel("log(Relative Star Formation Rate)")
 
         else:
 
-            plt.ylabel('Relative Star Formation Rate')
+            plt.ylabel("Relative Star Formation Rate")
 
-        plt.xlabel('Look-back Time / Gyr')
+        plt.xlabel("Look-back Time / Gyr")
         plt.grid()
 
         if title is None:
 
-            title = 'Star Formation History'
+            title = "Star Formation History"
 
         plt.title(title)
         plt.tight_layout()
@@ -1209,13 +1358,21 @@ class WDLF:
 
                 if filename is None:
 
-                    _filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                        'sfh_' + self.wdlf_params['sfr_mode'] + '_' + str(t[0]) + '_' +\
-                        str(t[-1]) + '.' + e
+                    _filename = (
+                        "{0:.2f}Gyr_".format(self.T0 / 1e9)
+                        + "sfh_"
+                        + self.wdlf_params["sfr_mode"]
+                        + "_"
+                        + str(t[0])
+                        + "_"
+                        + str(t[-1])
+                        + "."
+                        + e
+                    )
 
                 else:
 
-                    _filename = filename + '.' + e
+                    _filename = filename + "." + e
 
                 plt.savefig(os.path.join(_folder, _filename))
 
@@ -1225,17 +1382,19 @@ class WDLF:
 
         return fig
 
-    def plot_imf(self,
-                 log=False,
-                 figsize=(12, 8),
-                 title=None,
-                 display=True,
-                 savefig=False,
-                 folder=None,
-                 filename=None,
-                 ext=['png'],
-                 fig=None):
-        '''
+    def plot_imf(
+        self,
+        log=False,
+        figsize=(12, 8),
+        title=None,
+        display=True,
+        savefig=False,
+        folder=None,
+        filename=None,
+        ext=["png"],
+        fig=None,
+    ):
+        """
         Plot the input Initial Mass Function.
 
         Parameters
@@ -1262,7 +1421,7 @@ class WDLF:
         fig: matplotlib.figure.Figure (Default: None)
             Overplotting on an existing Figure.
 
-        '''
+        """
 
         m = np.linspace(0.25, 8.25, 1000)
 
@@ -1273,20 +1432,20 @@ class WDLF:
         if log:
 
             plt.plot(m, np.log10(self._imf(m)))
-            plt.ylabel('log(Initial Mass Function))')
+            plt.ylabel("log(Initial Mass Function))")
 
         else:
 
             plt.plot(m, self._imf(m))
-            plt.ylabel('Initial Mass Function')
+            plt.ylabel("Initial Mass Function")
 
-        plt.xlabel(r'Mass / M$_\odot$')
+        plt.xlabel(r"Mass / M$_\odot$")
         plt.xlim(0.25, 8.25)
         plt.grid()
 
         if title is None:
 
-            title = 'Initial Mass Function'
+            title = "Initial Mass Function"
 
         plt.title(title)
         plt.tight_layout()
@@ -1314,11 +1473,13 @@ class WDLF:
 
                 if filename is None:
 
-                    _filename = 'imf_' + self.wdlf_params['imf_model'] + '.' + e
+                    _filename = (
+                        "imf_" + self.wdlf_params["imf_model"] + "." + e
+                    )
 
                 else:
 
-                    _filename = filename + '.' + e
+                    _filename = filename + "." + e
 
                 plt.savefig(os.path.join(_folder, _filename))
 
@@ -1328,16 +1489,18 @@ class WDLF:
 
         return fig
 
-    def plot_ifmr(self,
-                  figsize=(12, 8),
-                  title=None,
-                  display=True,
-                  savefig=False,
-                  folder=None,
-                  filename=None,
-                  ext=['png'],
-                  fig=None):
-        '''
+    def plot_ifmr(
+        self,
+        figsize=(12, 8),
+        title=None,
+        display=True,
+        savefig=False,
+        folder=None,
+        filename=None,
+        ext=["png"],
+        fig=None,
+    ):
+        """
         Plot the input Initial-Final Mass Relation.
 
         Parameters
@@ -1362,7 +1525,7 @@ class WDLF:
         fig: matplotlib.figure.Figure (Default: None)
             Overplotting on an existing Figure.
 
-        '''
+        """
 
         m = np.linspace(0.25, 8.25, 1000)
 
@@ -1371,14 +1534,14 @@ class WDLF:
             fig = plt.figure(figsize=figsize)
 
         plt.plot(m, self._ifmr(m))
-        plt.ylabel(r'Final Mass / M$_\odot$')
-        plt.xlabel(r'Initial Mass / M$_\odot$')
+        plt.ylabel(r"Final Mass / M$_\odot$")
+        plt.xlabel(r"Initial Mass / M$_\odot$")
         plt.xlim(0.25, 8.25)
         plt.grid()
 
         if title is None:
 
-            title = 'Initial-Final Mass Relation'
+            title = "Initial-Final Mass Relation"
 
         plt.title(title)
         plt.tight_layout()
@@ -1406,12 +1569,13 @@ class WDLF:
 
                 if filename is None:
 
-                    _filename = 'ifmr_' + self.wdlf_params[
-                        'ifmr_model'] + '.' + e
+                    _filename = (
+                        "ifmr_" + self.wdlf_params["ifmr_model"] + "." + e
+                    )
 
                 else:
 
-                    _filename = filename + '.' + e
+                    _filename = filename + "." + e
 
                 plt.savefig(os.path.join(_folder, _filename))
 
@@ -1421,17 +1585,19 @@ class WDLF:
 
         return fig
 
-    def plot_wdlf(self,
-                  log=True,
-                  figsize=(12, 8),
-                  title=None,
-                  display=True,
-                  savefig=False,
-                  folder=None,
-                  filename=None,
-                  ext=['png'],
-                  fig=None):
-        '''
+    def plot_wdlf(
+        self,
+        log=True,
+        figsize=(12, 8),
+        title=None,
+        display=True,
+        savefig=False,
+        folder=None,
+        filename=None,
+        ext=["png"],
+        fig=None,
+    ):
+        """
         Plot the input Initial-Final Mass Relation.
 
         Parameters
@@ -1458,7 +1624,7 @@ class WDLF:
         fig: matplotlib.figure.Figure (Default: None)
             Overplotting on an existing Figure.
 
-        '''
+        """
 
         if fig is None:
 
@@ -1472,22 +1638,24 @@ class WDLF:
 
             _density = self.number_density
 
-        plt.plot(self.Mag,
-                 _density,
-                 label="{0:.2f}".format(self.T0 / 1e9) + ' Gyr')
+        plt.plot(
+            self.Mag, _density, label="{0:.2f}".format(self.T0 / 1e9) + " Gyr"
+        )
         plt.xlim(0, 20)
-        plt.xlabel(r'M$_{\mathrm{bol}}$ / mag')
+        plt.xlabel(r"M$_{\mathrm{bol}}$ / mag")
 
-        plt.ylim(np.floor(np.min(_density[np.isfinite(_density)])),
-                 np.ceil(np.max(_density[np.isfinite(_density)])))
-        plt.ylabel(r'$\log{(N)}$')
+        plt.ylim(
+            np.floor(np.min(_density[np.isfinite(_density)])),
+            np.ceil(np.max(_density[np.isfinite(_density)])),
+        )
+        plt.ylabel(r"$\log{(N)}$")
 
         plt.grid()
         plt.legend()
 
         if title is None:
 
-            title = 'WDLF: ' + "{0:.2f} Gyr ".format(self.T0 / 1e9)
+            title = "WDLF: " + "{0:.2f} Gyr ".format(self.T0 / 1e9)
 
         plt.title(title)
         plt.tight_layout()
@@ -1515,15 +1683,26 @@ class WDLF:
 
                 if filename is None:
 
-                    _filename = "{0:.2f}Gyr_".format(self.T0/1e9) +\
-                        self.wdlf_params['sfr_mode'] + '_' + self.wdlf_params['ms_model'] + '_' +\
-                        self.wdlf_params['ifmr_model'] + '_' + self.wdlf_params['low_mass_cooling_model'] +\
-                        '_' + self.wdlf_params['intermediate_mass_cooling_model'] + '_' +\
-                        self.wdlf_params['high_mass_cooling_model'] + '.' + e
+                    _filename = (
+                        "{0:.2f}Gyr_".format(self.T0 / 1e9)
+                        + self.wdlf_params["sfr_mode"]
+                        + "_"
+                        + self.wdlf_params["ms_model"]
+                        + "_"
+                        + self.wdlf_params["ifmr_model"]
+                        + "_"
+                        + self.wdlf_params["low_mass_cooling_model"]
+                        + "_"
+                        + self.wdlf_params["intermediate_mass_cooling_model"]
+                        + "_"
+                        + self.wdlf_params["high_mass_cooling_model"]
+                        + "."
+                        + e
+                    )
 
                 else:
 
-                    _filename = filename + '.' + e
+                    _filename = filename + "." + e
 
                 plt.savefig(os.path.join(_folder, _filename))
 

@@ -5,21 +5,21 @@ from scipy import interpolate
 # Taken from
 # https://github.com/pig2015/mathpy/blob/master/polation/globalspline.py
 class GlobalSpline2D(interpolate.interp2d):
-    def __init__(self, x, y, z, kind='linear'):
+    def __init__(self, x, y, z, kind="linear"):
 
-        if kind == 'linear':
+        if kind == "linear":
 
             if len(x) < 2 or len(y) < 2:
 
                 raise self.get_size_error(2, kind)
 
-        elif kind == 'cubic':
+        elif kind == "cubic":
 
             if len(x) < 4 or len(y) < 4:
 
                 raise self.get_size_error(4, kind)
 
-        elif kind == 'quintic':
+        elif kind == "quintic":
 
             if len(x) < 6 or len(y) < 6:
 
@@ -27,7 +27,7 @@ class GlobalSpline2D(interpolate.interp2d):
 
         else:
 
-            raise ValueError('unidentifiable kind of spline')
+            raise ValueError("unidentifiable kind of spline")
 
         super().__init__(x, y, z, kind=kind)
 
@@ -39,10 +39,12 @@ class GlobalSpline2D(interpolate.interp2d):
     @staticmethod
     def get_size_error(size, spline_kind):
 
-        return ValueError('length of x and y must be larger or at least equal '
-                          'to {} when applying {} spline, assign arrays with '
-                          'length no less than '
-                          '{}'.format(size, spline_kind, size))
+        return ValueError(
+            "length of x and y must be larger or at least equal "
+            "to {} when applying {} spline, assign arrays with "
+            "length no less than "
+            "{}".format(size, spline_kind, size)
+        )
 
     @staticmethod
     def _extrap1d(xs, ys, tar_x):
@@ -77,17 +79,27 @@ class GlobalSpline2D(interpolate.interp2d):
 
     def _get_extrap_based_points(self, axis, extrap_p):
 
-        if axis == 'x':
+        if axis == "x":
 
-            return (self.extrap_fd_based_xs if extrap_p > self.x_max else
-                    self.extrap_bd_based_xs if extrap_p < self.x_min else [])
+            return (
+                self.extrap_fd_based_xs
+                if extrap_p > self.x_max
+                else self.extrap_bd_based_xs
+                if extrap_p < self.x_min
+                else []
+            )
 
-        elif axis == 'y':
+        elif axis == "y":
 
-            return (self.extrap_fd_based_ys if extrap_p > self.y_max else
-                    self.extrap_bd_based_ys if extrap_p < self.y_min else [])
+            return (
+                self.extrap_fd_based_ys
+                if extrap_p > self.y_max
+                else self.extrap_bd_based_ys
+                if extrap_p < self.y_min
+                else []
+            )
 
-        assert False, 'axis unknown'
+        assert False, "axis unknown"
 
     def __call__(self, x_, y_, **kwargs):
 
@@ -102,13 +114,13 @@ class GlobalSpline2D(interpolate.interp2d):
 
         for y in ys:
 
-            extrap_based_ys = self._get_extrap_based_points('y', y)
+            extrap_based_ys = self._get_extrap_based_points("y", y)
 
             pz_xqueue = []
 
             for x in xs:
 
-                extrap_based_xs = self._get_extrap_based_points('x', x)
+                extrap_based_xs = self._get_extrap_based_points("x", x)
 
                 if not extrap_based_xs and not extrap_based_ys:
 
@@ -119,8 +131,9 @@ class GlobalSpline2D(interpolate.interp2d):
 
                     # both x, y atr outbounds
                     # allocate based_z from x, based_ys
-                    extrap_based_zs = self.__call__(x, extrap_based_ys,
-                                                    **kwargs)
+                    extrap_based_zs = self.__call__(
+                        x, extrap_based_ys, **kwargs
+                    )
 
                     # allocate z of x, y from based_ys, based_zs
                     pz = self._extrap1d(extrap_based_ys, extrap_based_zs, y)
@@ -128,15 +141,17 @@ class GlobalSpline2D(interpolate.interp2d):
                 elif extrap_based_xs:
 
                     # only x outbounds
-                    extrap_based_zs = super().__call__(extrap_based_xs, y,
-                                                       **kwargs)
+                    extrap_based_zs = super().__call__(
+                        extrap_based_xs, y, **kwargs
+                    )
                     pz = self._extrap1d(extrap_based_xs, extrap_based_zs, x)
 
                 else:
 
                     # only y outbounds
-                    extrap_based_zs = super().__call__(x, extrap_based_ys,
-                                                       **kwargs)
+                    extrap_based_zs = super().__call__(
+                        x, extrap_based_ys, **kwargs
+                    )
                     pz = self._extrap1d(extrap_based_ys, extrap_based_zs, y)
 
                 pz_xqueue.append(pz)
