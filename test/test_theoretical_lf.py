@@ -345,3 +345,8 @@ def test_plotting_cooling_savefig_path_not_exist():
         ext=["png", "pdf"],
     )
     # assert the files exist at where you intend to
+
+#YKW test 7feb2022
+def test_cooling_model_low_mass_lpcode_he_da_09_7feb2022():
+    wdlf.set_low_mass_cooling_model(model='lpcode_he_da_09')
+    wdlf.compute_cooling_age_interpolator()
