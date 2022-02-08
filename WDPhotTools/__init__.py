@@ -1,13 +1,15 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = "Marco C Lam"
+from pkg_resources import get_distribution, DistributionNotFound
+
+try:
+    __version__ = get_distribution(__name__).version
+except DistributionNotFound:
+    pass  # package is not installed
+
 __credits__ = ["K W Yuen", "W Li", "M Green"]
-__license__ = "BSD 3-Clause License"
-__maintainer__ = "Marco C Lam"
-__email__ = "lam@tau.ac.il"
 __status__ = "Production"
-__description__ = "The Python White Dwarf Photometric SED fitter."
-__version__ = "0.1.0"
 
 from . import theoretical_lf
 from . import cooling_model_reader
