@@ -169,5 +169,6 @@ def test_plot_cooling_model_folder_none(mock_show):
 
 
 # YKW 19JAN2022 5
-def test_plot_atmosphere_models_lenx_not_2():
+@patch("matplotlib.pyplot.show")
+def test_plot_atmosphere_models_lenx_not_2(mock_show):
     plotter.plot_atmosphere_model(x="G3_BP", display=True, savefig=False)
