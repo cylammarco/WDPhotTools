@@ -85,6 +85,8 @@ class WDLF:
             "lpcode_co_da_15_z00003",
             "lpcode_co_da_15_z0001",
             "lpcode_co_da_15_z0005",
+            "lpcode_co_db_17_z0001",
+            "lpcode_co_db_17_z00005",
             "lpcode_co_da_17_y04",
             "lpcode_co_db_17",
             "basti_co_da_10",

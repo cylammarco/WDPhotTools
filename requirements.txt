@@ -1,5 +1,5 @@
+corner
+emcee
+matplotlib
 numpy
 scipy
-matplotlib
-emcee
-corner
