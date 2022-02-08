@@ -360,3 +360,5 @@ def test_cooling_model_intermediate_mass_basti_co_da_10_7feb2022():
 def test_cooling_model_high_mass_basti_co_da_10_7feb2022():
     wdlf.set_high_mass_cooling_model(model='basti_co_da_10')
     wdlf.compute_cooling_age_interpolator()
+
+# 8feb2022
