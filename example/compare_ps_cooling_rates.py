@@ -6,7 +6,12 @@ from matplotlib import pyplot as plt
 from WDPhotTools import atmosphere_model_reader as amr
 from WDPhotTools import theoretical_lf
 
-HERE = os.path.dirname(os.path.realpath(__file__))
+
+try:
+    HERE = os.path.dirname(os.path.realpath(__file__))
+except:
+    HERE = os.path.dirname(os.path.realpath(__name__))
+
 
 # Salaris' model with phase separation
 wdlf = theoretical_lf.WDLF()

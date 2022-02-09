@@ -2,7 +2,12 @@ import os
 
 from WDPhotTools.fitter import WDfitter
 
-HERE = os.path.dirname(os.path.realpath(__file__))
+
+try:
+    HERE = os.path.dirname(os.path.realpath(__file__))
+except:
+    HERE = os.path.dirname(os.path.realpath(__name__))
+
 
 ftr = WDfitter()
 
