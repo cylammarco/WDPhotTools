@@ -768,10 +768,10 @@ class WDLF:
             7. 'lpcode_co_da_15_z0005' - Althaus et al. 2015 DA Z=0.0005
             8. 'lpcode_co_da_17_y04' - Althaus et al. 2017 DB Y=0.4
             9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
-            10. 'basti_co_da_10' - Salari et al. 2010 CO DA
-            11. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            12. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
-            13. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
+            10. 'basti_co_da_10' - Salaris et al. 2010 CO DA
+            11. 'basti_co_db_10' - Salaris et al. 2010 CO DB
+            12. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+            13. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
 
             The naming convention follows this format:
             [model]_[core composition]_[atmosphere]_[publication year]
@@ -804,10 +804,10 @@ class WDLF:
             3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
             4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
             5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
-            6. 'basti_co_da_10' - Salari et al. 2010 CO DA
-            7. 'basti_co_db_10' - Salari et al. 2010 CO DB
-            8. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
-            9. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
+            6. 'basti_co_da_10' - Salaris et al. 2010 CO DA
+            7. 'basti_co_db_10' - Salaris et al. 2010 CO DB
+            8. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+            9. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
             10. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
             11. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 

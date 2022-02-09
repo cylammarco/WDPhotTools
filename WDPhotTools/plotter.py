@@ -366,10 +366,10 @@ def plot_cooling_model(
         10. 'lpcode_co_da_15_z0005' - Althaus et al. 2015 DA Z=0.0005
         11. 'lpcode_co_da_17_y04' - Althaus et al. 2017 DB Y=0.4
         12. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
-        13. 'basti_co_da_10' - Salari et al. 2010 CO DA
-        14. 'basti_co_db_10' - Salari et al. 2010 CO DB
-        15. 'basti_co_da_10_nps' - Salari et al. 2010 CO DA, no phase separation
-        16. 'basti_co_db_10_nps' - Salari et al. 2010 CO DB, no phase separation
+        13. 'basti_co_da_10' - Salaris et al. 2010 CO DA
+        14. 'basti_co_db_10' - Salaris et al. 2010 CO DB
+        15. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+        16. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
         17. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
         18. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
         19. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB

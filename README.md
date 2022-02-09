@@ -12,6 +12,7 @@ the core parts of this work are three-fold: the first and the backbone of this w
 ## Model Inspection
 
 1. Plotting the WD cooling sequence in Gaia filters
+
 The cooling models only include the modelling of the bolometric lumninosity, the synthetic photometry is not usually provided. We have included the synthetic colours computed by the [Montreal group](http://www.astro.umontreal.ca/~bergeron/CoolingModels/). By default, it maps the (logg, Mbol) to Gaia G band (DR3). The DA cooling tracks can be generated with
 
 ```python
@@ -19,7 +20,8 @@ from WDPhotTools import plotter
 
 plotter.plot_atmosphere_model(invert_yaxis=True)
 ```
-![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/DA_cooling_tracks_with_plotter.png?raw=true)
+
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/DA_cooling_tracks_from_plotter.png?raw=true)
 
 or with finer control by using the interpolators 
 
@@ -60,6 +62,7 @@ plt.tight_layout()
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/DA_cooling_tracks.png?raw=true)
 
 2. Plotting the cooling models
+
 The cooling sequence above is mostly concerned with the synthetic photometry, in this example, it is mostly regarding the physical properties beneath the photosphere. To check what models are embedded, you can use:
 
 ```
@@ -68,7 +71,9 @@ from WDPhotTools.cooling_model_reader import cm_reader
 cr = cm_reader()
 cr.list_cooling_model()
 ```
+
 This should output:
+
 ```
 Model: montreal_co_da_20, Reference: Bedard et al. 2020 CO DA
 Model: montreal_co_db_20, Reference: Bedard et al. 2020 CO DB
@@ -83,10 +88,10 @@ Model: lpcode_co_da_15_z0005, Reference: Althaus et al. 2015 DA Z=0.0005
 Model: lpcode_co_db_17_z00005, Reference: Althaus et al. 2017 DB Y=0.4
 Model: lpcode_co_db_17_z0001, Reference: Althaus et al. 2017 DB Y=0.4
 Model: lpcode_co_db_17, Reference: Camisassa et al. 2017 DB
-Model: basti_co_da_10, Reference: Salari et al. 2010 CO DA
-Model: basti_co_db_10, Reference: Salari et al. 2010 CO DB
-Model: basti_co_da_10_nps, Reference: Salari et al. 2010 CO DA, no phase separation
-Model: basti_co_db_10_nps, Reference: Salari et al. 2010 CO DB, no phase separation
+Model: basti_co_da_10, Reference: Salaris et al. 2010 CO DA
+Model: basti_co_db_10, Reference: Salaris et al. 2010 CO DB
+Model: basti_co_da_10_nps, Reference: Salaris et al. 2010 CO DA, no phase separation
+Model: basti_co_db_10_nps, Reference: Salaris et al. 2010 CO DB, no phase separation
 Model: lpcode_one_da_07, Reference: Althaus et al. 2007 ONe DA
 Model: lpcode_one_da_19, Reference: Camisassa et al. 2019 ONe DA
 Model: lpcode_one_db_19, Reference: Camisassa et al. 2019 ONe DB
@@ -99,7 +104,9 @@ And once you have picked a model, you can inspect what parameters are available 
 ```python
 cr.list_cooling_parameters('basti_co_da_10')
 ```
+
 which will print
+
 ```
 Available WD mass: [0.54 0.55 0.61 0.68 0.77 0.87 1.   1.1  1.2 ]
 Parameter: log(Age), Column Name: age, Unit: (Gyr)
@@ -114,26 +121,32 @@ Parameter: z, Column Name: z, Unit: mag
 ```
 
 Knowing which model and parameter you have access to, you can do basic visualisation using the default plotting funtion with the plotter again:
+
 ```python
 from WDPhotTools import plotter
 
 plotter.plot_cooling_model(mass=[0.2, 0.4, 0.6, 0.8, 1.0])
 ```
+
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/DA_cooling_model_from_plotter.png?raw=true)
 
+With a finer control of the `cooling_model_reader`, it is easy to work with more advanced model usage and visulations, for example, we can compare the effect of phase separation in Salaris et al. 2010, see [this example script](https://github.com/cylammarco/WDPhotTools/blob/main/example/compare_ps_cooling_rates.py).
+
+![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/compare_ps_cooling_rates.png?raw=true)
 
 ## Photometric fitting
 We provide 3 minimisers for fitting with synthetic photometry: `scipy.optimize.minimize`, `scipy.optimize.least_squares` and `emcee` (with the option to refine with a `scipy.optimize.minimize` in a bounded region.)
 
-An example photometric fit of PSO J1801+6254 in 3 Gaia and 5 Pan-STARRS filters without providing a distance:
+3. An example photometric fit of PSO J1801+6254 in 3 Gaia and 5 Pan-STARRS filters without providing a distance:
+
 ```python
 ftr.fit(
     atmosphere="H",
     filters=["g_ps1", "r_ps1", "i_ps1", "z_ps1", "y_ps1", "G3", "G3_BP", "G3_RP"],
     mags=[21.1437, 19.9678, 19.4993, 19.2981, 19.1478, 20.0533, 20.7883, 19.1868],
     mag_errors=[0.0321, 0.0229, 0.0083, 0.0234, 0.0187, 0.006322, 0.118615, 0.070880],
-    independent=["Mbol", "logg"],
-    initial_guess=[15.0, 7.5],
+    independent=["Teff", "logg"],
+    initial_guess=[4000.0, 7.5],
     method='emcee',
     nwalkers=100,
     nsteps=5000,
@@ -151,6 +164,7 @@ ftr.show_corner_plot(
 )
 
 ```
+
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/PSOJ1801p6254_emcee.png?raw=true)
 
 And the associated corner plot where the blue line shows the true value. As we are not providing a distance in this case, as expected from the degeneracy between fitting distance and stellar radius (directly translate to logg in the fit), both truth values are well outside of the probability density maps in the corner plot:
@@ -177,7 +191,7 @@ The options for the various models include:
 to be added:
 
 4. other metallicities
-5. other MESA models
+5. other models
 
 ### Initial-Final Mass Relation
 
@@ -215,7 +229,9 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
     1. Lauffer et al. 2018 -- H [CONe/DA+B/1.012-1.308]
 
 #### Example sets of WDLFs with different star formation scenario
-The following excerpt demonstrate how to generate luminosity functions with constant, burst and exponentially decaying 
+
+4. The following excerpt demonstrate how to generate luminosity functions with constant, burst and exponentially decaying 
+
 ```python
 import os
 
@@ -266,4 +282,5 @@ ax3.set_title(r"Star Formation History: Exponential Decay ($\tau=3$)")
 
 plt.show()
 ```
+
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/wdlf_compare_sfr.png?raw=true)

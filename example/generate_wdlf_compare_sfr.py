@@ -58,7 +58,6 @@ ax3.grid()
 ax3.set_xlabel(r"G$_{DR3}$ / mag")
 ax3.set_title(r"Star Formation History: Exponential Decay ($\tau=3$)")
 
-plt.show()
 plt.savefig(
     os.path.join(
         HERE,
