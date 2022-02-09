@@ -188,6 +188,9 @@ plt.subplots_adjust(
     top=0.95, bottom=0.075, left=0.08, right=0.975, wspace=0.0, hspace=0.1
 )
 
+plt.savefig(
+    os.path.join(HERE, "example_output", "gaia_to_sdss_cc_diagram.png")
+)
 
 # Plot the residual of the catalogue value to converted values
 # Top row is the residual in u from the interpolation of G_BP, G & G_RP
@@ -275,6 +278,10 @@ plt.subplots_adjust(
     top=0.95, bottom=0.07, left=0.08, right=0.975, wspace=0.0, hspace=0.15
 )
 
+plt.savefig(
+    os.path.join(HERE, "example_output", "gaia_to_sdss_ugr_residual.png")
+)
+
 
 # Plot the residual of the catalogue value to derived values from (logg, Teff)
 fig, (ax1, ax2, ax3) = plt.subplots(
@@ -306,4 +313,10 @@ ax1.set_xscale("log")
 
 plt.subplots_adjust(
     top=0.95, bottom=0.075, left=0.075, right=0.975, wspace=0.0, hspace=0.15
+)
+
+plt.savefig(
+    os.path.join(
+        HERE, "example_output", "gaia_to_sdss_ugr_residual_logg_teff.png"
+    )
 )

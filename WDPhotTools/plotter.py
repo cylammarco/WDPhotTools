@@ -390,9 +390,9 @@ def plot_cooling_model(
         Set to True to log the abscissa.
     log_y: bool (Default: True)
         Set to True to log the ordinate.
-    mass_range: str (Default: 'all')
-        The mass range in which the cooling model should return.
-        The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+    mass: str (Default: 'all')
+        A list of mass in which the cooling model should return.
+        Default is 'all', this is the only accept str.
     figsize: array of size 2 (Default: (8, 8))
         Set the dimension of the figure.
     invert_xaxis: bool (Default: False)
@@ -420,6 +420,10 @@ def plot_cooling_model(
         Keywords for matplotlib.pyplot.plot().
 
     """
+
+    if __dummy_cm.cmr is None:
+
+        __dummy_cm.cmr = cm_reader()
 
     (
         _mass_list,

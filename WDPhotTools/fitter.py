@@ -471,7 +471,7 @@ class WDfitter:
 
         if x[-1] <= 0.0:
 
-            return np.ones_like(obs) * np.inf
+            return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
         dist_mod = 5.0 * (np.log10(x[-1]) - 1.0)
 
@@ -506,16 +506,26 @@ class WDfitter:
 
                 return np.ones_like(obs) * np.inf
 
-    def _diff2_distance_summed(self, x, obs, errors, interpolator_filter):
+    def _diff2_distance_summed(
+        self, x, obs, errors, interpolator_filter, return_error
+    ):
         """
         Internal method for computing the ch2-squared value in cases when
         the distance is not provided (for scipy.optimize.minimize).
 
         """
 
-        chi2 = self._diff2_distance(x, obs, errors, interpolator_filter, False)
+        chi2, err2 = self._diff2_distance(
+            x, obs, errors, interpolator_filter, True
+        )
 
-        return np.sum(chi2)
+        if return_error:
+
+            return np.sum(chi2), 1.0 / np.sum(1.0 / err2)
+
+        else:
+
+            return np.sum(chi2)
 
     def _log_likelihood_distance(self, x, obs, errors, interpolator_filter):
         """
@@ -524,11 +534,11 @@ class WDfitter:
 
         """
 
-        chi2, err2 = -0.5 * self._diff2_distance_summed(
+        chi2, err2 = self._diff2_distance_summed(
             x, obs, errors, interpolator_filter, True
         )
 
-        return -0.5 * np.sum(chi2 + np.log(2.0 * np.pi * err2))
+        return -0.5 * np.nansum(chi2 + np.log(2.0 * np.pi * err2))
 
     def _diff2_distance_red_interpolated(
         self, x, obs, errors, interpolator_filter, Rv, ebv, return_err
@@ -1085,6 +1095,7 @@ class WDfitter:
                                 mags,
                                 mag_errors,
                                 [self.interpolator[j][i] for i in filters],
+                                False,
                             ),
                             **kwargs_for_minimize
                         )
