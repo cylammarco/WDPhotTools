@@ -379,14 +379,15 @@ class atm_reader:
                     if isinstance(x, (float, int)):
 
                         length = 1
+                        _logg = logg
 
                     else:
 
                         length = len(x)
-                        logg = [logg] * length
+                        _logg = [logg] * length
 
                     return _atmosphere_interpolator(
-                        np.array([logg, x], dtype=object).reshape(length, 2)
+                        np.array([_logg, x], dtype=object).reshape(length, 2)
                     )
 
             else:
