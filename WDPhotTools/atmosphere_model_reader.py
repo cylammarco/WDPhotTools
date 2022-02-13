@@ -434,7 +434,7 @@ class atm_reader:
 
                         pass
 
-                    if (length0 == 1) & (length1 > 1):
+                    elif (length0 == 1) & (length1 > 1):
 
                         x0 = [x0] * length1
                         length0 = length1
