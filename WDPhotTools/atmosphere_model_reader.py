@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from scipy.interpolate import CloughTocher2DInterpolator
+from scipy.interpolate import RBFInterpolator
 
 
 class atm_reader:
@@ -258,11 +259,9 @@ class atm_reader:
         atmosphere="H",
         independent=["logg", "Mbol"],
         logg=8.0,
-        kwargs_for_interpolator={
-            "fill_value": float("-inf"),
-            "tol": 1e-10,
-            "maxiter": 100000,
-        },
+        interpolator="RBF",
+        kwargs_for_RBF={},
+        kwargs_for_CT={},
     ):
         """
         This function interpolates the grid of synthetic photometry and a few
@@ -285,7 +284,12 @@ class atm_reader:
             The parameters to be interpolated over for dependent.
         logg: float (Default: 8.0)
             Only used if independent is of length 1.
-        kwargs_for_interpolator: dict (Default: {'fill_value': -np.inf,
+        kwargs_for_RBF: dict (Default: {"neighbors": None,
+            "smoothing": 0.0, "kernel": "thin_plate_spline",
+            "epsilon": None, "degree": None,})
+            Keyword argument for the interpolator. See
+            `scipy.interpolate.RBFInterpolator`.
+        kwargs_for_CT: dict (Default: {'fill_value': -np.inf,
             'tol': 1e-10, 'maxiter': 100000})
             Keyword argument for the interpolator. See
             `scipy.interpolate.CloughTocher2DInterpolator`.
@@ -295,6 +299,23 @@ class atm_reader:
             A callable function of CloughTocher2DInterpolator.
 
         """
+
+        _kwargs_for_RBF = {
+            "neighbors": None,
+            "smoothing": 0.0,
+            "kernel": "thin_plate_spline",
+            "epsilon": None,
+            "degree": None,
+        }
+        _kwargs_for_RBF.update(**kwargs_for_RBF)
+
+        _kwargs_for_CT = {
+            "fill_value": float("-inf"),
+            "tol": 1e-10,
+            "maxiter": 100000,
+            "rescale": True,
+        }
+        _kwargs_for_CT.update(**kwargs_for_CT)
 
         # DA atmosphere
         if atmosphere in ["H", "h", "hydrogen", "Hydrogen", "da", "DA"]:
@@ -329,27 +350,113 @@ class atm_reader:
                     "variable has to be one of: Teff, mass, Mbol, or age."
                 )
 
-            # Interpolate with the scipy CloughTocher2DInterpolator
-            _atmosphere_interpolator = CloughTocher2DInterpolator(
-                (model[independent[0]], model[independent[1]]),
-                model[dependent],
-                **kwargs_for_interpolator
-            )
+            if interpolator == "CT":
 
-            # Interpolate with the scipy interp1d
-            def atmosphere_interpolator(x):
-                return _atmosphere_interpolator(logg, x)
+                # Interpolate with the scipy CloughTocher2DInterpolator
+                _atmosphere_interpolator = CloughTocher2DInterpolator(
+                    (model[independent[0]], model[independent[1]]),
+                    model[dependent],
+                    **_kwargs_for_CT,
+                )
+
+                # Interpolate with the scipy interp1d
+                def atmosphere_interpolator(x):
+                    return _atmosphere_interpolator(logg, x)
+
+            elif interpolator == "RBF":
+
+                _atmosphere_interpolator = RBFInterpolator(
+                    np.stack(
+                        (model[independent[0]], model[independent[1]]), -1
+                    ),
+                    model[dependent],
+                    **_kwargs_for_RBF,
+                )
+
+                # Interpolate with the scipy interp1d
+                def atmosphere_interpolator(x):
+
+                    if isinstance(x, (float, int)):
+
+                        length = 1
+
+                    else:
+
+                        length = len(x)
+                        logg = [logg] * length
+
+                    return _atmosphere_interpolator(
+                        np.array([logg, x], dtype=object).reshape(length, 2)
+                    )
+
+            else:
+
+                raise ValueError("This should never happen.")
 
         # If a 2D grid is to be interpolated, normally is the logg and another
         # parameter
         elif len(independent) == 2:
 
-            # Interpolate with the scipy CloughTocher2DInterpolator
-            atmosphere_interpolator = CloughTocher2DInterpolator(
-                (model[independent[0]], model[independent[1]]),
-                model[dependent],
-                **kwargs_for_interpolator
-            )
+            if interpolator == "CT":
+
+                # Interpolate with the scipy CloughTocher2DInterpolator
+                atmosphere_interpolator = CloughTocher2DInterpolator(
+                    (model[independent[0]], model[independent[1]]),
+                    model[dependent],
+                    **_kwargs_for_CT,
+                )
+
+            elif interpolator == "RBF":
+
+                # Interpolate with the scipy RBFInterpolator
+                _atmosphere_interpolator = RBFInterpolator(
+                    np.stack(
+                        (model[independent[0]], model[independent[1]]), -1
+                    ),
+                    model[dependent],
+                    **_kwargs_for_RBF,
+                )
+
+                def atmosphere_interpolator(x0, x1):
+
+                    if isinstance(x0, (float, int)):
+                        length0 = 1
+                    else:
+                        length0 = len(x0)
+
+                    if isinstance(x1, (float, int)):
+                        length1 = 1
+                    else:
+                        length1 = len(x1)
+
+                    if length0 == length1:
+
+                        pass
+
+                    if (length0 == 1) & (length1 > 1):
+
+                        x0 = [x0] * length1
+                        length0 = length1
+
+                    elif (length0 > 1) & (length1 == 1):
+
+                        x1 = [x1] * length0
+                        length1 = length0
+
+                    else:
+
+                        raise ValueError(
+                            "Either one variable is a float, int or of size "
+                            "1, or two variables should have the same size."
+                        )
+
+                    return _atmosphere_interpolator(
+                        np.asarray([x0, x1], dtype=object).reshape(length0, 2)
+                    )
+
+            else:
+
+                raise ValueError("This should never happen.")
 
         else:
 

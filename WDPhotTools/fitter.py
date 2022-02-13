@@ -32,10 +32,19 @@ class WDfitter:
         self.best_fit_mag = {"H": [], "He": []}
         self.sampler = {"H": [], "He": []}
         self.samples = {"H": [], "He": []}
-        self.interpolated = None
+        self.extinction_interpolated = None
         self.rv = None
 
-    def _interp_atm(self, dependent, atmosphere, independent, logg, **kwargs):
+    def _interp_atm(
+        self,
+        dependent,
+        atmosphere,
+        independent,
+        logg,
+        interpolator,
+        kwargs_for_RBF,
+        kwargs_for_CT,
+    ):
         """
         Internal method to interpolate the atmosphere grid models using
         the atmosphere_model_reader.
@@ -47,16 +56,20 @@ class WDfitter:
             atmosphere=atmosphere,
             independent=independent,
             logg=logg,
-            **kwargs
+            interpolator=interpolator,
+            kwargs_for_RBF=kwargs_for_RBF,
+            kwargs_for_CT=kwargs_for_CT,
         )
 
         return _interpolator
 
-    def interp_reddening(self, filters, interpolated=False, kind="cubic"):
+    def interp_reddening(
+        self, filters, extinction_interpolated=False, kind="cubic"
+    ):
 
-        if interpolated:
+        if extinction_interpolated:
 
-            self.interpolated = True
+            self.extinction_interpolated = True
             rv_itp = reddening_vector_interpolated(kind=kind)
             wavelength = np.array(
                 [self.atm.column_wavelengths[i] for i in filters]
@@ -65,7 +78,7 @@ class WDfitter:
 
         else:
 
-            self.interpolated = False
+            self.extinction_interpolated = False
             self.rv = [reddening_vector_filter(i) for i in filters]
 
     def _diff2(
@@ -80,11 +93,9 @@ class WDfitter:
     ):
         """
         Internal method for computing the ch2-squared value
-        (for scipy.optimize.least_square).
+        (for scipy.optimize.least_squares).
 
         """
-
-        dist_mod = 5.0 * (np.log10(distance) - 1.0)
 
         mag = []
 
@@ -92,11 +103,13 @@ class WDfitter:
 
             mag.append(interp(x))
 
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
 
         err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
 
-        diff2 = (mag - obs) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - mag) / 2.5) - distance**2.0 / 100.0
+        ) ** 2.0 / err2
 
         if np.isfinite(diff2).all():
 
@@ -164,8 +177,6 @@ class WDfitter:
 
         """
 
-        dist_mod = 5.0 * (np.log10(distance) - 1.0)
-
         mag = []
 
         for interp in interpolator_filter:
@@ -173,20 +184,22 @@ class WDfitter:
             mag.append(interp(x))
 
         Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
 
-        chi2 = (mag - obs + Av) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - Av - mag) / 2.5) - distance**2.0 / 100.0
+        ) ** 2.0 / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
             if return_err:
 
-                return chi2, err2
+                return diff2, err2
 
             else:
 
-                return chi2
+                return diff2
 
         else:
 
@@ -217,8 +230,6 @@ class WDfitter:
 
         """
 
-        dist_mod = 5.0 * (np.log10(distance) - 1.0)
-
         mag = []
 
         for interp in interpolator_filter:
@@ -233,20 +244,22 @@ class WDfitter:
 
         logg = x[logg_pos]
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
 
-        chi2 = (mag - obs + Av) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - Av - mag) / 2.5) - distance**2.0 / 100.0
+        ) ** 2.0 / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
             if return_err:
 
-                return chi2, err2
+                return diff2, err2
 
             else:
 
-                return chi2
+                return diff2
 
         else:
 
@@ -277,8 +290,6 @@ class WDfitter:
 
         """
 
-        dist_mod = 5.0 * (np.log10(distance) - 1.0)
-
         mag = []
 
         for interp in interpolator_filter:
@@ -287,20 +298,22 @@ class WDfitter:
 
         teff = float(interpolator_teff(x))
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
 
-        chi2 = (mag - obs + Av) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - Av - mag) / 2.5) - distance**2.0 / 100.0
+        ) ** 2.0 / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
             if return_err:
 
-                return chi2, err2
+                return diff2, err2
 
             else:
 
-                return chi2
+                return diff2
 
         else:
 
@@ -328,11 +341,11 @@ class WDfitter:
     ):
         """
         Internal method for computing the ch2-squared value
-        (for scipy.optimize.least_square).
+        (for scipy.optimize.least_squares).
 
         """
 
-        if self.interpolated:
+        if self.extinction_interpolated:
 
             chi2, err2 = self._diff2_red_interpolated(
                 x,
@@ -465,7 +478,7 @@ class WDfitter:
     def _diff2_distance(self, x, obs, errors, interpolator_filter, return_err):
         """
         Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.least_square).
+        the distance is not provided (for scipy.optimize.least_squares).
 
         """
 
@@ -473,28 +486,28 @@ class WDfitter:
 
             return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
-        dist_mod = 5.0 * (np.log10(x[-1]) - 1.0)
-
         mag = []
 
         for interp in interpolator_filter:
 
             mag.append(interp(x[:2]))
 
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
-        chi2 = (mag - obs) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - mag) / 2.5) - 100.0 / x[-1] ** 2.0
+        ) ** 2.0 / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
             if return_err:
 
-                return chi2, err2
+                return diff2, err2
 
             else:
 
-                return chi2
+                return diff2
 
         else:
 
@@ -553,8 +566,6 @@ class WDfitter:
 
             return np.ones_like(obs) * np.inf
 
-        dist_mod = 5.0 * (np.log10(x[-1]) - 1.0)
-
         mag = []
 
         for interp in interpolator_filter:
@@ -562,20 +573,22 @@ class WDfitter:
             mag.append(interp(x[:2]))
 
         Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
-        chi2 = (mag - obs + Av) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - Av - mag) / 2.5) - x[-1] ** 2.0 / 100.0
+        ) ** 2.0 / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
             if return_err:
 
-                return chi2, err2
+                return diff2, err2
 
             else:
 
-                return chi2
+                return diff2
 
         else:
 
@@ -609,8 +622,6 @@ class WDfitter:
 
             return np.ones_like(obs) * np.inf
 
-        dist_mod = 5.0 * (np.log10(x[-1]) - 1.0)
-
         mag = []
 
         for interp in interpolator_filter:
@@ -620,20 +631,22 @@ class WDfitter:
         teff = float(interpolator_teff(x[:2]))
         logg = x[logg_pos]
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
-        chi2 = (mag - obs + Av) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - Av - mag) / 2.5) - x[-1] ** 2.0 / 100.0
+        ) ** 2.0 / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
             if return_err:
 
-                return chi2, err2
+                return diff2, err2
 
             else:
 
-                return chi2
+                return diff2
 
         else:
 
@@ -667,8 +680,6 @@ class WDfitter:
 
             return np.ones_like(obs) * np.inf
 
-        dist_mod = 5.0 * (np.log10(x[-1]) - 1.0)
-
         mag = []
 
         for interp in interpolator_filter:
@@ -677,20 +688,22 @@ class WDfitter:
 
         teff = float(interpolator_teff(x))
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
-        mag = np.asarray(mag).reshape(-1) + dist_mod
+        mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
-        chi2 = (mag - obs + Av) ** 2.0 / err2
+        diff2 = (
+            10.0 ** ((obs - Av - mag) / 2.5) - x[-1] ** 2.0 / 100.0
+        ) ** 2.0 / err2
 
-        if np.isfinite(chi2).all():
+        if np.isfinite(diff2).all():
 
             if return_err:
 
-                return chi2, err2
+                return diff2, err2
 
             else:
 
-                return chi2
+                return diff2
 
         else:
 
@@ -716,11 +729,11 @@ class WDfitter:
     ):
         """
         Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.least_square).
+        the distance is not provided (for scipy.optimize.least_squares).
 
         """
 
-        if self.interpolated:
+        if self.extinction_interpolated:
 
             chi2, err2 = self._diff2_distance_red_interpolated(
                 x, obs, errors, interpolator_filter, Rv, ebv, True
@@ -848,13 +861,14 @@ class WDfitter:
         allow_none=False,
         distance=None,
         distance_err=None,
-        interpolated=False,
+        extinction_interpolated=False,
         kind="cubic",
         Rv=None,
         ebv=None,
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 8.0],
         logg=8.0,
+        atmosphere_interpolator="RBF",
         reuse_interpolator=False,
         method="minimize",
         nwalkers=50,
@@ -863,9 +877,10 @@ class WDfitter:
         progress=True,
         refine=True,
         refine_bounds=[5.0, 95.0],
-        kwargs_for_interpolator={},
+        kwargs_for_RBF={},
+        kwargs_for_CT={},
         kwargs_for_minimize={"method": "Powell", "options": {"xtol": 0.001}},
-        kwargs_for_least_square={
+        kwargs_for_least_squares={
             "method": "lm",
         },
         kwargs_for_emcee={},
@@ -903,7 +918,7 @@ class WDfitter:
             10.0 pc.
         distance_err: float (Default: None)
             The uncertainty of the distance.
-        interpolated: bool (Default: False)
+        extinction_interpolated: bool (Default: False)
             When True, the A_b/E(B-V) values for filter b from Table 6 of
             Schlafly et al. 2011 are interpolated over the broadband filters.
             When False, the the A_b/E(B-V) values are from integrating
@@ -925,13 +940,15 @@ class WDfitter:
             10.0 pc if not provided.
         logg: float (Default: 8.0)
             Only used if 'logg' is not included in the `independent` argument.
+        atmosphere_interpolator: str (Default: 'RBF')
+            Choose between 'RBF' and 'CT'
         reuse_interpolator: bool (Default: False)
             Set to use the existing interpolated grid, it should be set to
             True if the same collection of data is fitted in the same set of
             filters with occasional non-detection.
         method: str (Default: 'minimize')
-            Choose from 'minimize', 'least_square' and 'emcee' for using the
-            `scipy.optimize.minimize`, `scipy.optimize.least_square` or the
+            Choose from 'minimize', 'least_squares' and 'emcee' for using the
+            `scipy.optimize.minimize`, `scipy.optimize.least_squares` or the
             `emcee` respectively.
         nwalkers: int (Default: 50)
             Number of walkers (emcee method only).
@@ -946,15 +963,18 @@ class WDfitter:
         refine_bounds: str (Default: [5, 95])
             The bounds of the minimizer are definited by the percentiles of
             the samples.
-        kwargs_for_interpolator: dict (Default: {})
+        kwargs_for_RBF: dict (Default: {})
+            Keyword argument for the interpolator. See
+            `scipy.interpolate.RBFInterpolator`.
+        kwargs_for_CT: dict (Default: {})
             Keyword argument for the interpolator. See
             `scipy.interpolate.CloughTocher2DInterpolator`.
         kwargs_for_minimize: dict (Default:
             {'method': 'Powell', 'options': {'xtol': 0.001}})
             Keyword argument for the minimizer, see `scipy.optimize.minimize`.
-        kwargs_for_least_square: dict (Default: {})
+        kwargs_for_least_squares: dict (Default: {})
             keywprd argument for the minimizer,
-            see `scipy.optimize.least_square`.
+            see `scipy.optimize.least_squares`.
         kwargs_for_emcee: dict (Default: {})
             Keyword argument for the emcee walker.
 
@@ -984,11 +1004,13 @@ class WDfitter:
         if (
             (Rv is not None)
             and (self.rv is None)
-            and (self.interpolated != interpolated)
+            and (self.extinction_interpolated != extinction_interpolated)
         ):
 
             self.interp_reddening(
-                filters=filters, interpolated=interpolated, kind=kind
+                filters=filters,
+                extinction_interpolated=extinction_interpolated,
+                kind=kind,
             )
 
         if distance is None:
@@ -1023,7 +1045,9 @@ class WDfitter:
                         atmosphere=j,
                         independent=independent,
                         logg=logg,
-                        **kwargs_for_interpolator
+                        interpolator=atmosphere_interpolator,
+                        kwargs_for_RBF=kwargs_for_RBF,
+                        kwargs_for_CT=kwargs_for_CT,
                     )
 
         # Mask the data and interpolator if set to detect None
@@ -1052,7 +1076,7 @@ class WDfitter:
             "independent": independent,
             "initial_guess": initial_guess,
             "logg": logg,
-            "interpolated": interpolated,
+            "extinction_interpolated": extinction_interpolated,
             "kind": kind,
             "Rv": Rv,
             "ebv": ebv,
@@ -1064,9 +1088,10 @@ class WDfitter:
             "progress": progress,
             "refine": refine,
             "refine_bounds": refine_bounds,
-            "kwargs_for_interpolator": kwargs_for_interpolator,
+            "kwargs_for_RBF": kwargs_for_RBF,
+            "kwargs_for_CT": kwargs_for_CT,
             "kwargs_for_minimize": kwargs_for_minimize,
-            "kwargs_for_least_square": kwargs_for_least_square,
+            "kwargs_for_least_squares": kwargs_for_least_squares,
             "kwargs_for_emcee": kwargs_for_emcee,
         }
 
@@ -1078,7 +1103,7 @@ class WDfitter:
             # Iterative through the list of atmospheres
             for j in atmosphere:
 
-                if not interpolated:
+                if not extinction_interpolated:
 
                     interpolator_teff = self.interpolator[j]["Teff"]
 
@@ -1234,13 +1259,13 @@ class WDfitter:
                         np.log10(self.best_fit_params[j]["distance"]) - 1
                     )
 
-        # If using scipy.optimize.least_square
-        elif method == "least_square":
+        # If using scipy.optimize.least_squares
+        elif method == "least_squares":
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
 
-                if not interpolated:
+                if not extinction_interpolated:
 
                     interpolator_teff = self.interpolator[j]["Teff"]
 
@@ -1259,7 +1284,7 @@ class WDfitter:
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
-                            **kwargs_for_least_square
+                            **kwargs_for_least_squares
                         )
 
                     else:
@@ -1279,7 +1304,7 @@ class WDfitter:
                                     ebv,
                                     False,
                                 ),
-                                **kwargs_for_least_square
+                                **kwargs_for_least_squares
                             )
 
                         else:
@@ -1297,7 +1322,7 @@ class WDfitter:
                                     ebv,
                                     False,
                                 ),
-                                **kwargs_for_least_square
+                                **kwargs_for_least_squares
                             )
 
                 # If distance is provided, fit here.
@@ -1316,7 +1341,7 @@ class WDfitter:
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
-                            **kwargs_for_least_square
+                            **kwargs_for_least_squares
                         )
 
                     else:
@@ -1338,7 +1363,7 @@ class WDfitter:
                                     ebv,
                                     False,
                                 ),
-                                **kwargs_for_least_square
+                                **kwargs_for_least_squares
                             )
 
                         else:
@@ -1358,7 +1383,7 @@ class WDfitter:
                                     ebv,
                                     False,
                                 ),
-                                **kwargs_for_least_square
+                                **kwargs_for_least_squares
                             )
 
                 # Store the chi2
@@ -1415,7 +1440,7 @@ class WDfitter:
             # Iterative through the list of atmospheres
             for j in atmosphere:
 
-                if not interpolated:
+                if not extinction_interpolated:
 
                     interpolator_teff = self.interpolator[j]["Teff"]
 
@@ -1652,7 +1677,7 @@ class WDfitter:
 
             ValueError(
                 "Unknown method. Please choose from minimize, "
-                "least_square and emcee."
+                "least_squares and emcee."
             )
 
         # Save the pivot wavelength and magnitude for each filter
@@ -1683,8 +1708,12 @@ class WDfitter:
 
                     self.best_fit_params[j][name] = float(
                         self.interpolator[j][name](
-                            self.best_fit_params[j][independent[0]],
-                            self.best_fit_params[j][independent[1]],
+                            np.asarray(
+                                [
+                                    self.best_fit_params[j][independent[0]],
+                                    self.best_fit_params[j][independent[1]],
+                                ]
+                            ).reshape(1, 2),
                         )
                     )
 

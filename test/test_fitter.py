@@ -264,7 +264,7 @@ def test_fitting_Mbol_lsq():
         independent=["Mbol"],
         distance=10.0,
         distance_err=0.1,
-        method="least_square",
+        method="least_squares",
         initial_guess=[10.0],
     )
     ftr.show_best_fit(
@@ -291,7 +291,7 @@ def test_fitting_Mbol_with_None_lsq():
         independent=["Mbol"],
         distance=10.0,
         distance_err=0.1,
-        method="least_square",
+        method="least_squares",
         initial_guess=[10.0],
     )
     assert np.isclose(
@@ -307,7 +307,7 @@ def test_fitting_Mbol_with_None_lsq():
         independent=["Mbol"],
         distance=10.0,
         distance_err=0.1,
-        method="least_square",
+        method="least_squares",
         initial_guess=[10.0],
     )
     assert np.isclose(
@@ -323,7 +323,7 @@ def test_fitting_Mbol_with_None_lsq():
         independent=["Mbol"],
         distance=10.0,
         distance_err=0.1,
-        method="least_square",
+        method="least_squares",
         initial_guess=[10.0],
     )
     assert np.isclose(
@@ -340,7 +340,7 @@ def test_fitting_logg_and_Mbol_lsq():
         independent=["Mbol", "logg"],
         distance=10.0,
         distance_err=0.1,
-        method="least_square",
+        method="least_squares",
         initial_guess=[10.0, 7.5],
     )
     ftr.show_best_fit(
@@ -361,7 +361,7 @@ def test_fitting_logg_Mbol_distance_lsq():
         mags=[10.882, 10.853, 10.946, 11.301, 11.183],
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         independent=["Mbol", "logg"],
-        method="least_square",
+        method="least_squares",
         initial_guess=[10.0, 7.5],
     )
     ftr.show_best_fit(display=False)
@@ -382,7 +382,7 @@ def test_fitting_logg_Mbol_distance_nelder_mead_lsq():
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 7.5],
-        method="least_square",
+        method="least_squares",
     )
     ftr.show_best_fit(display=False)
     assert np.isclose(
@@ -405,7 +405,7 @@ def test_fitting_Mbol_red_lsq():
         independent=["Mbol"],
         distance=10.0,
         distance_err=0.1,
-        method="least_square",
+        method="least_squares",
         initial_guess=[10.0],
         Rv=rv,
         ebv=ebv,
@@ -435,7 +435,7 @@ def test_fitting_logg_and_Mbol_red_lsq():
         distance=10.0,
         distance_err=0.1,
         initial_guess=[10.0, 7.5],
-        method="least_square",
+        method="least_squares",
         Rv=rv,
         ebv=ebv,
     )
@@ -461,7 +461,7 @@ def test_fitting_logg_Mbol_distance_red_lsq():
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 7.5],
-        method="least_square",
+        method="least_squares",
         Rv=rv,
         ebv=ebv,
     )

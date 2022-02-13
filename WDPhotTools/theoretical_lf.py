@@ -416,7 +416,7 @@ class WDLF:
         m = self._ifmr(M)
 
         # Get the bolometric magnitude
-        Mbol = self.Mag_to_Mbol_itp(m, Mag)
+        Mbol = self.Mag_to_Mbol_itp(np.asarray([m, Mag]).reshape(1, 2))
         if Mbol == -np.inf:
             return np.inf
 
@@ -475,7 +475,7 @@ class WDLF:
 
             return 0.0
 
-        Mbol = self.Mag_to_Mbol_itp(m, Mag)
+        Mbol = self.Mag_to_Mbol_itp(np.asarray([m, Mag]).reshape(1, 2))
         if not np.isfinite(Mbol):
             return 0.0
 
