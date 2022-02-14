@@ -284,6 +284,8 @@ class atm_reader:
             The parameters to be interpolated over for dependent.
         logg: float (Default: 8.0)
             Only used if independent is of length 1.
+        interpolator: str (Default: 'RBF')
+            Choose between 'RBF' and 'CT'.
         kwargs_for_RBF: dict (Default: {"neighbors": None,
             "smoothing": 0.0, "kernel": "thin_plate_spline",
             "epsilon": None, "degree": None,})
@@ -386,8 +388,11 @@ class atm_reader:
                         length = len(x)
                         _logg = [logg] * length
 
+                    _logg = np.asarray(_logg)
+                    _x = np.asarray(x)
+
                     return _atmosphere_interpolator(
-                        np.array([_logg, x], dtype=object).reshape(length, 2)
+                        np.array([_logg, _x], dtype=object).reshape(length, 2)
                     )
 
             else:
@@ -418,14 +423,16 @@ class atm_reader:
                     **_kwargs_for_RBF,
                 )
 
-                def atmosphere_interpolator(x0, x1):
+                def atmosphere_interpolator(*x):
 
-                    if isinstance(x0, (float, int)):
+                    x0, x1 = np.asarray(x, dtype="object").reshape(-1)
+
+                    if isinstance(x0, (float, int, np.int32)):
                         length0 = 1
                     else:
                         length0 = len(x0)
 
-                    if isinstance(x1, (float, int)):
+                    if isinstance(x1, (float, int, np.int32)):
                         length1 = 1
                     else:
                         length1 = len(x1)
@@ -451,8 +458,13 @@ class atm_reader:
                             "1, or two variables should have the same size."
                         )
 
+                    _x0 = np.asarray(x0)
+                    _x1 = np.asarray(x1)
+
                     return _atmosphere_interpolator(
-                        np.asarray([x0, x1], dtype=object).reshape(length0, 2)
+                        np.asarray([_x0, _x1], dtype="object").reshape(
+                            length0, 2
+                        )
                     )
 
             else:

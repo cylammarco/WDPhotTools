@@ -1,5 +1,3 @@
-from importlib.util import module_for_loader
-from re import X
 from matplotlib import pyplot as plt
 import numpy as np
 import pytest
@@ -209,6 +207,16 @@ def test_changing_ifmr_model():
     # added by YKW 23jan2022
     wdlf.set_ifmr_model("EB18")
     wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+def test_rbf_interpolator():
+    wdlf.compute_density(Mag=Mag, interpolator="RBF")
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+def test_ct_interpolator():
+    wdlf.compute_density(Mag=Mag, interpolator="CT")
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 

@@ -115,7 +115,8 @@ def plot_atmosphere_model(
         returned and overplot on it.
     independent: list of str (Default: ['logg', 'Teff'])
         Independent variables to be interpolated in the atmosphere model.
-    independent_values: list of list or list of arrays (Default: [np.linspace(7.0, 9.0, 5), 10.**np.linspace(3.185, 5.165, 100)])
+    independent_values: list of list or list of arrays (Default:
+        [np.linspace(7.0, 9.0, 5), 10.**np.linspace(3.185, 5.165, 100)])
         The coordinates to be interpolated and plotted.
     contour: bool (Default: True)
         Set to True to plot the contour levels.
@@ -368,8 +369,10 @@ def plot_cooling_model(
         12. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
         13. 'basti_co_da_10' - Salaris et al. 2010 CO DA
         14. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-        15. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
-        16. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
+        15. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
+            no phase separation
+        16. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
+            no phase separation
         17. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
         18. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
         19. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB

@@ -674,7 +674,8 @@ def test_fitting_Mbol_with_None_emcee():
 #                       atol=1e-03).all()
 
 
-# # Testing the _chi2_minimization_distance_red_interpolated() by YKW on 17Jan2022
+# # Testing the _chi2_minimization_distance_red_interpolated() by YKW
+# # on 17Jan2022
 # def test_chi2_minimization_distance_red_interpolated():
 #     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
 #     mags = mags + extinction_interpolated
@@ -695,7 +696,8 @@ def test_fitting_Mbol_with_None_emcee():
 #         ext='png')
 
 
-# # Testing the _chi2_minimization_distance_red_filter_fixed_logg() by YKW on 17Jan2022
+# # Testing the _chi2_minimization_distance_red_filter_fixed_logg() by YKW
+# # on 17Jan2022
 # def test_chi2_minimization_distance_red_filter_fixed_logg():
 #     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
 #     mags = mags + extinction

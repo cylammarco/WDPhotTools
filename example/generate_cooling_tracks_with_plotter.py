@@ -4,8 +4,12 @@ from WDPhotTools import plotter
 
 
 try:
+
     HERE = os.path.dirname(os.path.realpath(__file__))
-except:
+
+except Exception as e:
+
+    print(e)
     HERE = os.path.dirname(os.path.realpath(__name__))
 
 plotter.plot_atmosphere_model(

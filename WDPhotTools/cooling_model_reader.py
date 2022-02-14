@@ -46,8 +46,8 @@ class cm_reader:
 
     def list_cooling_parameters(self, model):
         """
-        Print the formatted list of parameters available for the specified cooling
-        models.
+        Print the formatted list of parameters available for the specified
+        cooling models.
 
         Parameters
         ----------
@@ -1036,7 +1036,8 @@ class cm_reader:
 
     def _camisassa19_formatter(self, model):
         """
-        A formatter to load the Camisassa et al. 2019 ultramassive WD cooling model
+        A formatter to load the Camisassa et al. 2019 ultramassive WD cooling
+        model.
 
         Some columns populated with 'I' are replaced with the nearest values.
 

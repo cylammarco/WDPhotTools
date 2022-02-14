@@ -941,7 +941,7 @@ class WDfitter:
         logg: float (Default: 8.0)
             Only used if 'logg' is not included in the `independent` argument.
         atmosphere_interpolator: str (Default: 'RBF')
-            Choose between 'RBF' and 'CT'
+            Choose between 'RBF' and 'CT'.
         reuse_interpolator: bool (Default: False)
             Set to use the existing interpolated grid, it should be set to
             True if the same collection of data is fitted in the same set of
@@ -1708,12 +1708,8 @@ class WDfitter:
 
                     self.best_fit_params[j][name] = float(
                         self.interpolator[j][name](
-                            np.asarray(
-                                [
-                                    self.best_fit_params[j][independent[0]],
-                                    self.best_fit_params[j][independent[1]],
-                                ]
-                            ).reshape(1, 2),
+                            self.best_fit_params[j][independent[0]],
+                            self.best_fit_params[j][independent[1]],
                         )
                     )
 

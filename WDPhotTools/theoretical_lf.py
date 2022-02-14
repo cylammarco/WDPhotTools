@@ -531,7 +531,8 @@ class WDLF:
 
             - t1 is the beginning of the star burst
             - t2 is the end
-            - t0 and t3 are tiny deviations from t1 and t2 required for interpolation
+            - t0 and t3 are tiny deviations from t1 and t2 required for
+              interpolation
 
         >>>    SFR
         >>>    ^                x-------x
@@ -770,8 +771,10 @@ class WDLF:
             9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
             10. 'basti_co_da_10' - Salaris et al. 2010 CO DA
             11. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            12. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
-            13. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
+            12. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
+                no phase separation
+            13. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
+                no phase separation
 
             The naming convention follows this format:
             [model]_[core composition]_[atmosphere]_[publication year]
@@ -806,8 +809,10 @@ class WDLF:
             5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
             6. 'basti_co_da_10' - Salaris et al. 2010 CO DA
             7. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            8. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
-            9. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
+            8. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
+                no phase separation
+            9. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
+                no phase separation
             10. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
             11. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 
@@ -985,6 +990,7 @@ class WDLF:
         Mag,
         passband="Mbol",
         atmosphere="H",
+        interpolator="RBF",
         M_max=8.0,
         limit=10000,
         n_points=100,
@@ -1008,6 +1014,8 @@ class WDLF:
             The passband to be integrated in.
         atmosphere: str (Default: H)
             The atmosphere type.
+        interpolator: str (Default: CT)
+            Choose between 'CT' and 'RBF.'
         M_max: float (Deafult: 8.0)
             The upper limit of the main sequence stellar mass. This may not
             be used if it exceeds the upper bound of the IFMR model.
@@ -1054,6 +1062,7 @@ class WDLF:
             dependent="Mbol",
             atmosphere=atmosphere,
             independent=["mass", passband],
+            interpolator=interpolator,
         )
 
         print("The input age is {0:.2f} Gyr.".format(self.T0 / 1e9))
