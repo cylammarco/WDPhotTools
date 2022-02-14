@@ -240,7 +240,13 @@ class WDfitter:
 
         if not np.isfinite(teff):
 
-            return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+            if return_err:
+
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
 
         logg = x[logg_pos]
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
@@ -418,6 +424,7 @@ class WDfitter:
         logg,
         Rv,
         ebv,
+        return_err,
     ):
         """
         Internal method for computing the ch2-squared value
@@ -425,7 +432,7 @@ class WDfitter:
 
         """
 
-        chi2 = self._diff2_red(
+        chi2, err2 = self._diff2_red(
             x,
             obs,
             errors,
@@ -436,10 +443,16 @@ class WDfitter:
             logg,
             Rv,
             ebv,
-            False,
+            True,
         )
 
-        return np.sum(chi2)
+        if return_err:
+
+            return np.sum(chi2), 1.0 / np.sum(1.0 / err2)
+
+        else:
+
+            return np.sum(chi2)
 
     def _log_likelihood_red(
         self,
@@ -484,7 +497,13 @@ class WDfitter:
 
         if x[-1] <= 0.0:
 
-            return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+            if return_err:
+
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
 
         mag = []
 
@@ -564,7 +583,13 @@ class WDfitter:
 
         if x[-1] <= 0.0:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
+
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
 
         mag = []
 
@@ -620,7 +645,13 @@ class WDfitter:
 
         if x[-1] <= 0.0:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
+
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
 
         mag = []
 
@@ -678,7 +709,13 @@ class WDfitter:
 
         if x[-1] <= 0.0:
 
-            return np.ones_like(obs) * np.inf
+            if return_err:
+
+                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
+
+            else:
+
+                return np.ones_like(obs) * np.inf
 
         mag = []
 
@@ -792,6 +829,7 @@ class WDfitter:
         logg,
         Rv,
         ebv,
+        return_err,
     ):
         """
         Internal method for computing the ch2-squared value in cases when
@@ -799,7 +837,7 @@ class WDfitter:
 
         """
 
-        chi2 = self._diff2_distance_red(
+        chi2, err2 = self._diff2_distance_red(
             x,
             obs,
             errors,
@@ -808,10 +846,16 @@ class WDfitter:
             logg,
             Rv,
             ebv,
-            False,
+            True,
         )
 
-        return np.sum(chi2)
+        if return_err:
+
+            return np.sum(chi2), 1.0 / np.sum(1.0 / err2)
+
+        else:
+
+            return np.sum(chi2)
 
     def _log_likelihood_distance_red(
         self,
@@ -839,6 +883,7 @@ class WDfitter:
             logg,
             Rv,
             ebv,
+            True,
         )
 
         return -0.5 * np.sum(chi2 + np.log(2.0 * np.pi * err2))
@@ -1033,6 +1078,8 @@ class WDfitter:
 
         else:
 
+            self.interpolator = {"H": {}, "He": {}}
+
             for j in atmosphere:
 
                 for i in list(filters) + ["Teff", "mass", "Mbol", "age"]:
@@ -1140,6 +1187,7 @@ class WDfitter:
                                     None,
                                     Rv,
                                     ebv,
+                                    False,
                                 ),
                                 **kwargs_for_minimize
                             )
@@ -1157,6 +1205,7 @@ class WDfitter:
                                     logg,
                                     Rv,
                                     ebv,
+                                    False,
                                 ),
                                 **kwargs_for_minimize
                             )
@@ -1175,6 +1224,7 @@ class WDfitter:
                                 distance,
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
+                                False,
                             ),
                             **kwargs_for_minimize
                         )
@@ -1196,6 +1246,7 @@ class WDfitter:
                                     None,
                                     Rv,
                                     ebv,
+                                    False,
                                 ),
                                 **kwargs_for_minimize
                             )
@@ -1215,6 +1266,7 @@ class WDfitter:
                                     logg,
                                     Rv,
                                     ebv,
+                                    False,
                                 ),
                                 **kwargs_for_minimize
                             )
