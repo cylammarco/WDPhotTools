@@ -1224,7 +1224,6 @@ class WDfitter:
                                 distance,
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
-                                False,
                             ),
                             **kwargs_for_minimize
                         )
