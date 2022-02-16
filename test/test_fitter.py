@@ -819,4 +819,53 @@ def test_shower_corner_plot_savefig_true_folder_not_None():
         ext="png",
     )
 
-#YKW 15Feb after rebase
+#YKW 16Feb after rebase on 15Feb
+def test_16Feb_1():
+    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
+    mags = mags + extinction
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags,
+        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        independent=["Teff","Mbol"],
+        method="minimize",
+        initial_guess=[10.0, 7.5],
+        refine_bounds=[0.1, 99.9],
+        extinction_interpolated=False,
+        Rv=rv,
+        ebv=ebv,
+        logg=None,
+        reuse_interpolator=False,
+        atmosphere_interpolator="CT"
+    )
+
+def test_16Feb_2():
+    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
+    mags = mags + extinction
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags,
+        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        independent=["Mbol", "logg"],
+        method="least_square",
+        initial_guess=[10.0, 7.5],
+        refine_bounds=[0.1, 99.9],
+        extinction_interpolated=True,
+        Rv=rv,
+        ebv=ebv,
+        logg=None,
+    )
+
+def test_16Feb_3():
+    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
+    mags = mags + extinction
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags,
+        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        independent=["Mbol", "logg"],
+        method="emcee",
+        initial_guess=[10.0, 7.5],
+        refine_bounds=[0.1, 99.9],
+        logg=None
+    )
