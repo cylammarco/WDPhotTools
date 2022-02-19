@@ -1,6 +1,8 @@
 from WDPhotTools.fitter import WDfitter
 import numpy as np
 from unittest.mock import patch
+import os #For testing file existence with assert
+import time #For testing file existence with assert
 
 from WDPhotTools.reddening import reddening_vector_filter
 from WDPhotTools.reddening import reddening_vector_interpolated
@@ -656,7 +658,7 @@ def test_fitting_logg_and_Mbol_red_emcee():
     ).all()
 
 
-# Testing the interp_reddening() by YKW on 12Jan2022
+# Testing interp_reddening()
 def test_interp_reddening():
     ftr.interp_reddening(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -664,7 +666,7 @@ def test_interp_reddening():
     )
 
 
-# Testing the _chi2_minimization_red_interpolated() by YKW on 13Jan2022
+# Testing _chi2_minimization_red_interpolated()
 def test_chi2_minimization_red_interpolated():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     mags = mags + extinction_interpolated
@@ -693,8 +695,7 @@ def test_chi2_minimization_red_interpolated():
     ).all()
 
 
-# Testing the _chi2_minimization_distance_red_interpolated() by YKW
-# on 17Jan2022
+# Testing _chi2_minimization_distance_red_interpolated()
 def test_chi2_minimization_distance_red_interpolated():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     mags = mags + extinction_interpolated
@@ -716,10 +717,14 @@ def test_chi2_minimization_distance_red_interpolated():
         filename="test_chi2_minimization_distance_red_interpolated",
         ext="png",
     )
+'''
+    assert np.isclose(
+        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+    ).all()
+'''
 
 
-# Testing the _chi2_minimization_distance_red_filter_fixed_logg() by YKW
-# on 17Jan2022
+# Testing _chi2_minimization_distance_red_filter_fixed_logg()
 def test_chi2_minimization_distance_red_filter_fixed_logg():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     mags = mags + extinction
@@ -740,17 +745,22 @@ def test_chi2_minimization_distance_red_filter_fixed_logg():
         filename="test_chi2_minimization_distance_red_filter_fixed_logg",
         ext="png",
     )
+'''
+    assert np.isclose(
+        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+    ).all()
+'''
 
 
-# YKW Test 1 23Jan2022
+# Testing shower_corner_plot with savefig = True
 def test_shower_corner_plot_savefig_true():
     ftr.show_corner_plot(
         display=False, savefig=True, folder=None, filename=None, ext="png"
     )
 
 
-# YKW Test 2 23Jan2022
-# Testing the _chi2_minimization_distance_red_filter_fixed_logg()
+
+# Testing _chi2_minimization_distance_red_filter_fixed_logg()
 def test_chi2_minimization_distance_red_filter_fixed_logg_emcee():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     mags = mags + extinction
@@ -767,10 +777,14 @@ def test_chi2_minimization_distance_red_filter_fixed_logg_emcee():
         ebv=ebv,
         logg=None,
     )
+'''
+    assert np.isclose(
+        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+    ).all()
+'''
 
 
-# YKW Test 3 23Jan2022
-# Testing the _chi2_minimization_distance_red_filter_fixed_logg()
+# Testing _chi2_minimization_distance_red_filter_fixed_logg()
 def test_chi2_minimization_distance_red_filter_fixed_logg_minimize():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     mags = mags + extinction
@@ -787,10 +801,14 @@ def test_chi2_minimization_distance_red_filter_fixed_logg_minimize():
         ebv=ebv,
         logg=None,
     )
+'''
+    assert np.isclose(
+        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+    ).all()
+'''
 
 
-# YKW Test 4 23Jan2022
-# Testing the _chi2_minimization_distance_red_filter_fixed_logg()
+# Testing _chi2_minimization_distance_red_filter_fixed_logg()
 def test_chi2_minimization_distance_red_filter_fixed_logg_least_square():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     mags = mags + extinction
@@ -807,9 +825,13 @@ def test_chi2_minimization_distance_red_filter_fixed_logg_least_square():
         ebv=ebv,
         logg=None,
     )
+'''
+    assert np.isclose(
+        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+    ).all()
+'''
 
-
-# YKW Test 5 23Jan2022
+# Testing shower_corner_plot savefig with folder != None
 def test_shower_corner_plot_savefig_true_folder_not_None():
     ftr.show_corner_plot(
         display=False,
@@ -817,55 +839,4 @@ def test_shower_corner_plot_savefig_true_folder_not_None():
         folder="test_output",
         filename=None,
         ext="png",
-    )
-
-#YKW 16Feb after rebase on 15Feb
-def test_16Feb_1():
-    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
-    mags = mags + extinction
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Teff","Mbol"],
-        method="minimize",
-        initial_guess=[10.0, 7.5],
-        refine_bounds=[0.1, 99.9],
-        extinction_interpolated=False,
-        Rv=rv,
-        ebv=ebv,
-        logg=None,
-        reuse_interpolator=False,
-        atmosphere_interpolator="CT"
-    )
-
-def test_16Feb_2():
-    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
-    mags = mags + extinction
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
-        method="least_square",
-        initial_guess=[10.0, 7.5],
-        refine_bounds=[0.1, 99.9],
-        extinction_interpolated=True,
-        Rv=rv,
-        ebv=ebv,
-        logg=None,
-    )
-
-def test_16Feb_3():
-    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
-    mags = mags + extinction
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
-        method="emcee",
-        initial_guess=[10.0, 7.5],
-        refine_bounds=[0.1, 99.9],
-        logg=None
     )
