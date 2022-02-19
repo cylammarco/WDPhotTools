@@ -1,10 +1,11 @@
 import numpy as np
 from unittest.mock import patch
+import os  # For testing file existence with assert
 
 from WDPhotTools import plotter
-from WDPhotTools import cooling_model_reader as cmr
+from WDPhotTools.cooling_model_reader import CoolingModelReader
 
-cr = cmr.cm_reader()
+cr = CoolingModelReader()
 
 
 def test_list_everything():
@@ -23,6 +24,11 @@ def test_plot_atmosphere_model_with_ext_as_str():
         filename="test_plot_atmosphere_model",
         ext="png",
     )
+    # Test savefig with assert
+    _folder = "test_output"
+    for e in ["png"]:
+        _filename = "test_plot_atmosphere_model" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
 @patch("matplotlib.pyplot.show")
@@ -45,6 +51,11 @@ def test_plot_atmosphere_model(mock_show):
         filename="test_plot_atmosphere_model",
         ext=["png", "pdf"],
     )
+    # Test savefig with assert
+    _folder = "test_output"
+    for e in ["png", "pdf"]:
+        _filename = "test_plot_atmosphere_model" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
 @patch("matplotlib.pyplot.show")
@@ -95,6 +106,11 @@ def test_plot_cooling_model(mock_show):
         filename="cooling_model",
         ext="png",
     )
+    # Test savefig with assert
+    _folder = "test_output"
+    for e in ["png"]:
+        _filename = "cooling_model" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
 @patch("matplotlib.pyplot.show")
@@ -108,12 +124,17 @@ def test_plot_cooling_model_invert_axis(mock_show):
         display=True,
         savefig=True,
         folder="test_output",
-        filename="cooling_model_r_logg",
+        filename="test_plot_cooling_model_invert_axis",
         ext=["png", "pdf"],
     )
+    # Test savefig with assert
+    _folder = "test_output"
+    for e in ["png", "pdf"]:
+        _filename = "test_plot_cooling_model_invert_axis" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
-# YKW 19JAN2022 1
+# Testing plot_atmosphere_model savefig with atmosphere = "He" and title = None
 @patch("matplotlib.pyplot.show")
 def test_plot_atmosphere_models_he_title_none(mock_show):
     fig = plotter.plot_atmosphere_model(display=True, title=" ")
@@ -126,21 +147,27 @@ def test_plot_atmosphere_models_he_title_none(mock_show):
         folder="test_output",
         fig=fig,
     )
+    # Test savefig with assert
 
 
-# YKW 19JAN2022 2
+# Testing plot_atmosphere_model savefig with folder = None
 @patch("matplotlib.pyplot.show")
 def test_plot_atmosphere_models_none_folder_savefig(mock_show):
     plotter.plot_atmosphere_model(
         display=True,
         savefig=True,
         folder=None,
-        filename="test_plot_atmosphere_model",
+        filename="test_plot_atmosphere_models_none_folder_savefig",
         ext="png",
     )
+    # Test savefig with assert
+    _folder = os.getcwd()
+    for e in ["png"]:
+        _filename = "test_plot_atmosphere_models_none_folder_savefig" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
-# YKW 19JAN2022 3
+# Testing plot_cooling_model savefig
 @patch("matplotlib.pyplot.show")
 def test_plot_cooling_model_fig_none(mock_show):
     fig = plotter.plot_cooling_model(display=True, title=" ")
@@ -148,13 +175,18 @@ def test_plot_cooling_model_fig_none(mock_show):
         display=True,
         savefig=True,
         folder="test_output",
-        filename="cooling_model_ykw_1",
+        filename="test_plot_cooling_model_fig_none",
         ext="png",
         fig=fig,
     )
+    # Test savefig with assert
+    _folder = "test_output"
+    for e in ["png"]:
+        _filename = "test_plot_cooling_model_fig_none" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
-# YKW 19JAN2022 4
+# Testing plot_cooling_model savefig with folder = None
 @patch("matplotlib.pyplot.show")
 def test_plot_cooling_model_folder_none(mock_show):
     fig = plotter.plot_cooling_model(display=True, title=" ")
@@ -162,13 +194,18 @@ def test_plot_cooling_model_folder_none(mock_show):
         display=True,
         savefig=True,
         folder="test_output",
-        filename="cooling_model_ykw_1",
+        filename="test_plot_cooling_model_folder_none",
         ext="png",
         fig=fig,
     )
+    # Test savefig with assert
+    _folder = "test_output"
+    for e in ["png"]:
+        _filename = "test_plot_cooling_model_folder_none" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
-# YKW 19JAN2022 5
+# Testing plot_atmosphere_model with len(x) != 2
 @patch("matplotlib.pyplot.show")
 def test_plot_atmosphere_models_lenx_not_2(mock_show):
     plotter.plot_atmosphere_model(x="G3_BP", display=True, savefig=False)

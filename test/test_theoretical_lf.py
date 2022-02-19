@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pytest
 from unittest.mock import patch
+import os  # For testing file existence with assert
 
 from WDPhotTools import theoretical_lf
 
@@ -154,7 +155,7 @@ def test_changing_ifmr_model():
     wdlf.set_ifmr_model("C18")
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
-    # added by YKW 23jan2022
+    # Testing set_ifmr_model with model = "EB18"
     wdlf.set_ifmr_model("EB18")
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
@@ -170,13 +171,13 @@ def test_ct_interpolator():
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# YKW Test 1 23Jan2022
+# Testing set_imf_model with model = "K01" and plot the imf in logarithmic space
 def test_changing_imf_K01_small_mass_log():
     wdlf.set_imf_model("K01")
     wdlf.plot_input_models(display=False, imf_log=True)
 
 
-# YKW Test 2 23Jan2022
+# Testing plot_wdlf with log=False and savefig with folder = None
 def test_plotting_wdlf_log_false_folder_none():
     wdlf.plot_wdlf(
         log=False,
@@ -187,6 +188,10 @@ def test_plotting_wdlf_log_false_folder_none():
         ext="png",
     )
     # assert the file exists at where you intend to
+    _folder = os.getcwd()
+    for e in ["png"]:
+        _filename = "test_plot_wdlf" + "." + e
+        assert os.path.isfile(os.path.join(_folder, _filename))
 
 
 # manual function for 'manual' tests
@@ -194,49 +199,103 @@ def manual_fn(x):
     return 1.0
 
 
-# YKW Test 1 test 'manual' imf 23Jan2022
+# Testing set_imf_model with model = 'manual'
 def test_manual_imf_model():
     wdlf.set_imf_model(model="manual", imf_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# YKW Test 2 test 'manual' ms model 23Jan2022
+# Testing set_ms_model with model = 'manual'
 def test_manual_ms_model():
     wdlf.set_ms_model(model="manual", ms_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# YKW Test 3 test 'manual' sfr mode 23Jan2022
+# Testing set_sfr_model with model = 'manual'
 def test_manual_sfr_model():
     wdlf.set_sfr_model(mode="manual", sfr_model=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# YKW Test 4 test 'manual' ifmr model 23Jan2022
+# Testing set_ifmr_model with model = 'manual'
 def test_manual_ifmr_model():
     wdlf.set_ifmr_model(model="manual", ifmr_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# YKW Test 5 test compute density savefig folder none 23Jan2022
+# Testing set_imf_model with model = 'manual' and save_csv with folder = None
 def test_compute_density_savefig_folder_none():
     wdlf.set_ifmr_model(model="manual", ifmr_function=manual_fn)
     wdlf.compute_density(save_csv=True, folder=None, Mag=Mag)
     # assert the file exists at where you intend to
+    _folder = os.getcwd()
+    _filename = (
+        "{0:.2f}Gyr_".format(wdlf.T0 / 1e9)
+        + wdlf.wdlf_params["sfr_mode"]
+        + "_"
+        + wdlf.wdlf_params["ms_model"]
+        + "_"
+        + wdlf.wdlf_params["ifmr_model"]
+        + "_"
+        + wdlf.wdlf_params["low_mass_cooling_model"]
+        + "_"
+        + wdlf.wdlf_params["intermediate_mass_cooling_model"]
+        + "_"
+        + wdlf.wdlf_params["high_mass_cooling_model"]
+        + ".csv"
+    )
+    assert os.path.isfile(os.path.join(_folder, _filename))
 
 
-# YKW Test 6 wdlf savefig path not exist 23Jan2022
+# Testing plot_wdlf with filename = None
 def test_plotting_wdlf_savefig_path_not_exist():
     wdlf.plot_wdlf(
         log=False,
         display=False,
         savefig=True,
-        folder="test_plot_wdlf_ykw_23jan",
+        folder="test_plotting_wdlf_savefig_path_not_exist",
         filename=None,
         ext="png",
     )
     # assert the file exists at where you intend to
+    _folder = "test_plotting_wdlf_savefig_path_not_exist"
+    for e in ["png"]:
+        _filename = (
+            "{0:.2f}Gyr_".format(wdlf.T0 / 1e9)
+            + wdlf.wdlf_params["sfr_mode"]
+            + "_"
+            + wdlf.wdlf_params["ms_model"]
+            + "_"
+            + wdlf.wdlf_params["ifmr_model"]
+            + "_"
+            + wdlf.wdlf_params["low_mass_cooling_model"]
+            + "_"
+            + wdlf.wdlf_params["intermediate_mass_cooling_model"]
+            + "_"
+            + wdlf.wdlf_params["high_mass_cooling_model"]
+            + "."
+            + e
+        )
+        assert os.path.isfile(os.path.join(_folder, _filename))
+
+
+# Testing set_low_mass_cooling_model with model = "lpcode_he_da_09"
+def test_cooling_model_low_mass_lpcode_he_da_09():
+    wdlf.set_low_mass_cooling_model(model="lpcode_he_da_09")
+    wdlf.compute_cooling_age_interpolator()
+
+
+# Testing set_intermediate_mass_cooling_model with model = "basti_co_da_10"
+def test_cooling_model_intermediate_mass_basti_co_da_10():
+    wdlf.set_intermediate_mass_cooling_model(model="basti_co_da_10")
+    wdlf.compute_cooling_age_interpolator()
+
+
+# Testing set_high_mass_cooling_model with model = "basti_co_da_10"
+def test_cooling_model_high_mass_basti_co_da_10():
+    wdlf.set_high_mass_cooling_model(model="basti_co_da_10")
+    wdlf.compute_cooling_age_interpolator()
