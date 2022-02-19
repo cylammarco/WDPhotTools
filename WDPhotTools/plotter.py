@@ -2,8 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os
 
-from .atmosphere_model_reader import atm_reader
-from .cooling_model_reader import cm_reader
+from .atmosphere_model_reader import AtmosphereModelReader
+from .cooling_model_reader import CoolingModelReader
 
 
 class Dummy_atm:
@@ -39,7 +39,7 @@ def list_cooling_model():
     """
     if __dummy_cm.cmr is None:
 
-        __dummy_cm.cmr = cm_reader()
+        __dummy_cm.cmr = CoolingModelReader()
 
     return __dummy_cm.cmr.list_cooling_model()
 
@@ -57,7 +57,7 @@ def list_cooling_parameters(model):
     """
     if __dummy_cm.cmr is None:
 
-        __dummy_cm.cmr = cm_reader()
+        __dummy_cm.cmr = CoolingModelReader()
 
     return __dummy_cm.cmr.list_cooling_parameters(model)
 
@@ -70,7 +70,7 @@ def list_atmosphere_parameters():
     """
     if __dummy_atm.ar is None:
 
-        __dummy_atm.ar = atm_reader()
+        __dummy_atm.ar = AtmosphereModelReader()
 
     return __dummy_atm.ar.list_atmosphere_parameters()
 
@@ -154,7 +154,7 @@ def plot_atmosphere_model(
 
     if __dummy_atm.ar is None:
 
-        __dummy_atm.ar = atm_reader()
+        __dummy_atm.ar = AtmosphereModelReader()
 
     x = x.split("-")
     y = y.split("-")
@@ -426,7 +426,7 @@ def plot_cooling_model(
 
     if __dummy_cm.cmr is None:
 
-        __dummy_cm.cmr = cm_reader()
+        __dummy_cm.cmr = CoolingModelReader()
 
     (
         _mass_list,

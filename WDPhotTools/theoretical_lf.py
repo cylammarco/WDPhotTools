@@ -8,11 +8,11 @@ import os
 import pkg_resources
 import warnings
 
-from . import cooling_model_reader as cmr
-from . import atmosphere_model_reader as amr
+from .atmosphere_model_reader import AtmosphereModelReader
+from .cooling_model_reader import CoolingModelReader
 
 
-class WDLF:
+class WDLF(AtmosphereModelReader, CoolingModelReader):
     """
     Computing the theoretical WDLFs based on the input IFMR, WD cooling and
     MS lifetime models.
@@ -37,6 +37,8 @@ class WDLF:
         high_mass_cooling_model="montreal_co_da_20",
         ms_model="C16",
     ):
+
+        super(WDLF, self).__init__()
 
         self.cooling_interpolator = None
         self.wdlf_params = {
@@ -122,9 +124,6 @@ class WDLF:
         self.set_high_mass_cooling_model(high_mass_cooling_model)
         self.set_ms_model(ms_model)
         self.set_sfr_model()
-
-        self.atm_reader = amr.atm_reader()
-        self.cm_reader = cmr.cm_reader()
 
     def _imf(self, M):
         """
@@ -842,7 +841,7 @@ class WDLF:
         """
 
         # Set the low mass cooling model, i.e. M < 0.5 M_sun
-        mass_low, cooling_model_low, _, _ = self.cm_reader.get_cooling_model(
+        mass_low, cooling_model_low, _, _ = self.get_cooling_model(
             self.wdlf_params["low_mass_cooling_model"], mass_range="low"
         )
 
@@ -852,13 +851,13 @@ class WDLF:
             cooling_model_intermediate,
             _,
             _,
-        ) = self.cm_reader.get_cooling_model(
+        ) = self.get_cooling_model(
             self.wdlf_params["intermediate_mass_cooling_model"],
             mass_range="intermediate",
         )
 
         # Set the high mass cooling model, i.e. 1.0 < M M_sun
-        mass_high, cooling_model_high, _, _ = self.cm_reader.get_cooling_model(
+        mass_high, cooling_model_high, _, _ = self.get_cooling_model(
             self.wdlf_params["high_mass_cooling_model"], mass_range="high"
         )
 
@@ -970,7 +969,7 @@ class WDLF:
             rescale=True,
         )
 
-        self.dLdt = -self._itp2D_gradient(
+        self.dLdt = self._itp2D_gradient(
             self.cooling_interpolator, np.log10(self.luminosity), self.mass
         )
 
@@ -1058,7 +1057,7 @@ class WDLF:
 
         number_density = np.zeros_like(Mag)
 
-        self.Mag_to_Mbol_itp = self.atm_reader.interp_atm(
+        self.Mag_to_Mbol_itp = self.interp_atm(
             dependent="Mbol",
             atmosphere=atmosphere,
             independent=["mass", passband],
@@ -1147,19 +1146,22 @@ class WDLF:
 
         return Mag, number_density
 
-    def plot_cooling_model(
+    def plot_input_models(
         self,
-        use_mag=True,
-        figsize=(12, 8),
+        figsize=(15, 15),
         title=None,
         display=True,
         savefig=False,
         folder=None,
         filename=None,
         ext=["png"],
-        fig=None,
-        kwargs_for_colorbar={},
+        sfh_log=False,
+        imf_log=True,
+        ms_time_log=True,
+        cooling_model_use_mag=True,
+        kwargs_for_cooling_model_colorbar={},
     ):
+
         """
         Plot the input cooling model.
 
@@ -1184,6 +1186,14 @@ class WDLF:
         ext: str (Default: ['png'])
             Image type to be saved, multiple extensions can be provided. The
             supported types are those available in `matplotlib.pyplot.savefig`.
+        sfh_log: bool (Default: False)
+            Set to plot the SFH in logarithmic space
+        imf_log: bool (Default: False)
+            Set to plot the IMF in logarithmic space
+        ms_time_log: bool (Default: True)
+            Set to plot the MS lifetime in logarithmic space
+        cooling_model_use_mag: bool (Default: True)
+            Set to plot the Cooling model in logarithmic space
         fig: matplotlib.figure.Figure (Default: None)
             Overplotting on an existing Figure.
         kwargs_for_colorbar: dict (Default: {})
@@ -1191,371 +1201,179 @@ class WDLF:
 
         """
 
-        if use_mag:
+        fig, axs = plt.subplots(nrows=3, ncols=2, figsize=figsize)
+        # top row
+        ax1 = axs[0, 0]  # Initial Mass Function
+        ax2 = axs[0, 1]  # Star Formation History
+        # middle row
+        ax3 = axs[1, 0]  # MS lifetime
+        ax4 = axs[1, 1]  # Initial-Final Mass Relation
+        # bottom row
+        ax5 = axs[2, 0]  # Cooling Model: Mobl(t) or L(t)
+        ax6 = axs[2, 1]  # Cooling Model: d(Mobl)/d(t) or d(L)/d(t)
+
+        #
+        # Initial Mass Function
+        #
+        m = np.linspace(0.25, 8.25, 1000)
+
+        if imf_log:
+
+            ax1.plot(m, np.log10(self._imf(m)))
+            ax1.set_ylabel("log(IMF)")
+
+        else:
+
+            ax1.plot(m, self._imf(m))
+            ax1.set_ylabel("IMF")
+
+        ax1.set_xlabel(r"Mass / M$_\odot$")
+        ax1.set_xlim(0.25, 8.25)
+        ax1.grid()
+
+        ax1.set_title("Initial Mass Function")
+
+        #
+        # Star formation History
+        #
+        t = np.linspace(0, self.T0, 1000)
+        ax2.plot(t / 1e9, self.sfr(t))
+
+        if sfh_log:
+
+            ax2.set_yscale("log")
+            ax2.set_ylabel("log(Relative SFR)")
+
+        else:
+
+            ax2.set_ylabel("Relative SFR")
+
+        ax2.set_xlabel("Look-back Time / Gyr")
+        ax2.set_title("Star Formation History")
+        ax2.grid()
+
+        #
+        # Main Sequence Lifetime
+        #
+        ax3.plot(m, self._ms_age(m))
+
+        if ms_time_log:
+
+            ax3.set_yscale("log")
+            ax3.set_ylabel("log(MS Lifetime / yr)")
+
+        else:
+
+            ax3.set_ylabel("MS Lifetime / yr")
+
+        ax3.set_xlabel(r"ZAMS Mass / M$_\odot$")
+        ax3.set_title("MS Lifetime")
+        ax3.grid()
+
+        #
+        # Initial-Final Mass Relation
+        #
+        ax4.plot(m, self._ifmr(m))
+        ax4.set_ylabel(r"Final Mass / M$_\odot$")
+        ax4.set_xlabel(r"Initial Mass / M$_\odot$")
+        ax4.set_xlim(0.25, 8.25)
+        ax4.grid()
+
+        ax4.set_title("Initial-Final Mass Relation")
+
+        #
+        # Cooling Model : Mobl(t) or L(t)
+        #
+        if cooling_model_use_mag:
 
             # Get absolute magnitude from the bolometric luminosity
-            brightness = 4.75 - (self.luminosity - 33.582744965691276) * 2.5
+            brightness = (
+                4.75 - (np.log10(self.luminosity) - 33.582744965691276) * 2.5
+            )
 
         else:
 
             brightness = self.luminosity
 
-        if fig is None:
-
-            fig = plt.figure(figsize=figsize)
-
-        ax = fig.gca()
-        sc = ax.scatter(np.log10(self.age), brightness, c=self.mass, s=5)
+        sc5 = ax5.scatter(self.age / 1e9, brightness, c=self.mass, s=5)
 
         # colorbar
-        cbar = plt.colorbar(mappable=sc, ax=ax, **kwargs_for_colorbar)
-        cbar.ax.set_ylabel("Solar Mass", rotation=270)
+        cbar5 = plt.colorbar(
+            mappable=sc5, ax=ax5, **kwargs_for_cooling_model_colorbar
+        )
+        cbar5.ax.set_ylabel("Solar Mass", rotation=270, labelpad=15)
 
         # y axis
-        ax.set_ylabel(r"M$_{\mathrm{bol}}$ / mag")
-        ax.set_ylim(
-            brightness[np.argmin(self.age)], brightness[np.argmax(self.age)]
-        )
-        if not use_mag:
-            ax.set_yscale("log")
+        if cooling_model_use_mag:
+
+            ax5.set_ylabel(r"M$_{\mathrm{bol}}$ / mag")
+
+        else:
+
+            ax5.set_ylabel(r"L$_{\mathrm{bol}}$")
+            ax5.set_yscale("log")
+
+        ax5.set_ylim(np.nanmin(brightness), np.nanmax(brightness))
 
         # x axis
-        plt.xlabel(r"Age / Gyr")
-        plt.xlim(6, 10.5)
+        ax5.set_xlabel(r"Age / Gyr")
+        ax5.set_xlim(0.0, 16.0)
 
-        plt.grid()
+        ax5.grid()
+        ax5.set_title("Cooling Model")
 
-        if title is None:
+        #
+        # Cooling Model: d(Mbol)/d(t) or d(L)/d(t)
+        #
+        if cooling_model_use_mag:
 
-            title = "Cooling Model"
-
-        plt.title(title)
-        plt.tight_layout()
-
-        if savefig:
-
-            if isinstance(ext, str):
-
-                ext = [ext]
-
-            if folder is None:
-
-                _folder = os.getcwd()
-
-            else:
-
-                _folder = os.path.abspath(folder)
-
-                if not os.path.exists(_folder):
-
-                    os.makedirs(_folder)
-
-            # Loop through the ext list to save figure into each image type
-            for e in ext:
-
-                if filename is None:
-
-                    _filename = (
-                        self.wdlf_params["low_mass_cooling_model"]
-                        + "_"
-                        + self.wdlf_params["intermediate_mass_cooling_model"]
-                        + "_"
-                        + self.wdlf_params["high_mass_cooling_model"]
-                        + "."
-                        + e
-                    )
-
-                else:
-
-                    _filename = filename + "." + e
-
-            plt.savefig(os.path.join(_folder, _filename))
-
-        if display:
-
-            plt.show()
-
-        return fig
-
-    def plot_sfh(
-        self,
-        log=False,
-        figsize=(12, 8),
-        title=None,
-        display=True,
-        savefig=False,
-        folder=None,
-        filename=None,
-        ext=["png"],
-        fig=None,
-    ):
-        """
-        Plot the input Star Formation History.
-
-        Parameters
-        ----------
-        log: bool (Default: False)
-            Set to plot the SFH in logarithmic space
-        figsize: array of size 2 (Default: (12, 8))
-            Set the dimension of the figure.
-        title: str (Default: None)
-            Set the title of the figure.
-        display: bool (Default: True)
-            Set to display the figure.
-        savefig: bool (Default: False)
-            Set to save the figure.
-        folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
-        filename: str (Default: None)
-            The filename of the figure. The default filename will be used
-            if None.
-        ext: str (Default: ['png'])
-            Image type to be saved, multiple extensions can be provided. The
-            supported types are those available in `matplotlib.pyplot.savefig`.
-        fig: matplotlib.figure.Figure (Default: None)
-            Overplotting on an existing Figure.
-
-        """
-
-        t = np.linspace(0, self.T0, 1000)
-
-        if fig is None:
-
-            fig = plt.figure(figsize=figsize)
-
-        ax = fig.gca()
-
-        plt.plot(t, self.sfr(t))
-        if log:
-
-            ax.set_yscale("log")
-            plt.ylabel("log(Relative Star Formation Rate)")
+            # 2.5 * 1e9 * (365.25 * 24. * 60. * 60.) / np.log(10) = 3.426322886e16
+            rate_of_change = -3.426322886e16 / self.luminosity * self.dLdt
 
         else:
 
-            plt.ylabel("Relative Star Formation Rate")
+            rate_of_change = self.dLdt
 
-        plt.xlabel("Look-back Time / Gyr")
-        plt.grid()
+        rate_of_change[np.isnan(rate_of_change)] = 0.0
+        rate_of_change[~np.isfinite(rate_of_change)] = 0.0
 
-        if title is None:
+        sc6 = ax6.scatter(self.age / 1e9, rate_of_change, c=self.mass, s=5)
+        cbar6 = plt.colorbar(
+            mappable=sc6, ax=ax6, **kwargs_for_cooling_model_colorbar
+        )
+        cbar6.ax.set_ylabel("Solar Mass", rotation=270, labelpad=15)
 
-            title = "Star Formation History"
+        # y axis
+        if cooling_model_use_mag:
 
-        plt.title(title)
-        plt.tight_layout()
-
-        if savefig:
-
-            if isinstance(ext, str):
-
-                ext = [ext]
-
-            if folder is None:
-
-                _folder = os.getcwd()
-
-            else:
-
-                _folder = os.path.abspath(folder)
-
-                if not os.path.exists(_folder):
-
-                    os.makedirs(_folder)
-
-            # Loop through the ext list to save figure into each image type
-            for e in ext:
-
-                if filename is None:
-
-                    _filename = (
-                        "{0:.2f}Gyr_".format(self.T0 / 1e9)
-                        + "sfh_"
-                        + self.wdlf_params["sfr_mode"]
-                        + "_"
-                        + str(t[0])
-                        + "_"
-                        + str(t[-1])
-                        + "."
-                        + e
-                    )
-
-                else:
-
-                    _filename = filename + "." + e
-
-                plt.savefig(os.path.join(_folder, _filename))
-
-        if display:
-
-            plt.show()
-
-        return fig
-
-    def plot_imf(
-        self,
-        log=False,
-        figsize=(12, 8),
-        title=None,
-        display=True,
-        savefig=False,
-        folder=None,
-        filename=None,
-        ext=["png"],
-        fig=None,
-    ):
-        """
-        Plot the input Initial Mass Function.
-
-        Parameters
-        ----------
-        log: bool (Default: False)
-            Set to plot the IMF in logarithmic space
-        figsize: array of size 2 (Default: (12, 8))
-            Set the dimension of the figure.
-        title: str (Default: None)
-            Set the title of the figure.
-        display: bool (Default: True)
-            Set to display the figure.
-        savefig: bool (Default: False)
-            Set to save the figure.
-        folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
-        filename: str (Default: None)
-            The filename of the figure. The default filename will be used
-            if None.
-        ext: str (Default: ['png'])
-            Image type to be saved, multiple extensions can be provided. The
-            supported types are those available in `matplotlib.pyplot.savefig`.
-        fig: matplotlib.figure.Figure (Default: None)
-            Overplotting on an existing Figure.
-
-        """
-
-        m = np.linspace(0.25, 8.25, 1000)
-
-        if fig is None:
-
-            fig = plt.figure(figsize=figsize)
-
-        if log:
-
-            plt.plot(m, np.log10(self._imf(m)))
-            plt.ylabel("log(Initial Mass Function))")
+            ax6.set_ylabel(r"d(M$_{\mathrm{bol}})/dt (Gyr)$")
+            ax6.set_ylim(-0.005, np.nanmax(rate_of_change) * 0.6)
 
         else:
 
-            plt.plot(m, self._imf(m))
-            plt.ylabel("Initial Mass Function")
+            ax6.set_ylabel(r"d(L$_{\mathrm{bol}})/dt (s)$")
+            ax6.set_yscale("log")
+            ax6.set_ylim(np.nanmin(rate_of_change), np.nanmax(rate_of_change))
 
-        plt.xlabel(r"Mass / M$_\odot$")
-        plt.xlim(0.25, 8.25)
-        plt.grid()
+        # x axis
+        ax6.set_xlabel(r"Age / Gyr")
+        ax6.set_xlim(0.0, 16.0)
 
-        if title is None:
+        ax6.grid()
+        ax6.set_title("Cooling Rate")
 
-            title = "Initial Mass Function"
+        plt.subplots_adjust(
+            top=0.95,
+            bottom=0.075,
+            left=0.075,
+            right=0.99,
+            hspace=0.4,
+            wspace=0.225,
+        )
 
-        plt.title(title)
-        plt.tight_layout()
+        if title is not None:
 
-        if savefig:
-
-            if isinstance(ext, str):
-
-                ext = [ext]
-
-            if folder is None:
-
-                _folder = os.getcwd()
-
-            else:
-
-                _folder = os.path.abspath(folder)
-
-                if not os.path.exists(_folder):
-
-                    os.makedirs(_folder)
-
-            # Loop through the ext list to save figure into each image type
-            for e in ext:
-
-                if filename is None:
-
-                    _filename = (
-                        "imf_" + self.wdlf_params["imf_model"] + "." + e
-                    )
-
-                else:
-
-                    _filename = filename + "." + e
-
-                plt.savefig(os.path.join(_folder, _filename))
-
-        if display:
-
-            plt.show()
-
-        return fig
-
-    def plot_ifmr(
-        self,
-        figsize=(12, 8),
-        title=None,
-        display=True,
-        savefig=False,
-        folder=None,
-        filename=None,
-        ext=["png"],
-        fig=None,
-    ):
-        """
-        Plot the input Initial-Final Mass Relation.
-
-        Parameters
-        ----------
-        figsize: array of size 2 (Default: (12, 8))
-            Set the dimension of the figure.
-        title: str (Default: None)
-            Set the title of the figure.
-        display: bool (Default: True)
-            Set to display the figure.
-        savefig: bool (Default: False)
-            Set to save the figure.
-        folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
-        filename: str (Default: None)
-            The filename of the figure. The default filename will be used
-            if None.
-        ext: str (Default: ['png'])
-            Image type to be saved, multiple extensions can be provided. The
-            supported types are those available in `matplotlib.pyplot.savefig`.
-        fig: matplotlib.figure.Figure (Default: None)
-            Overplotting on an existing Figure.
-
-        """
-
-        m = np.linspace(0.25, 8.25, 1000)
-
-        if fig is None:
-
-            fig = plt.figure(figsize=figsize)
-
-        plt.plot(m, self._ifmr(m))
-        plt.ylabel(r"Final Mass / M$_\odot$")
-        plt.xlabel(r"Initial Mass / M$_\odot$")
-        plt.xlim(0.25, 8.25)
-        plt.grid()
-
-        if title is None:
-
-            title = "Initial-Final Mass Relation"
-
-        plt.title(title)
-        plt.tight_layout()
+            plt.suptile(title)
 
         if savefig:
 
@@ -1580,9 +1398,7 @@ class WDLF:
 
                 if filename is None:
 
-                    _filename = (
-                        "ifmr_" + self.wdlf_params["ifmr_model"] + "." + e
-                    )
+                    _filename = "input_model." + e
 
                 else:
 

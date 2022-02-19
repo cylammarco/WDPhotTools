@@ -4,8 +4,10 @@ import numpy as np
 import os
 
 
-class cm_reader:
+class CoolingModelReader(object):
     def __init__(self):
+
+        super(CoolingModelReader, self).__init__()
 
         self.THIS_FILE = os.path.dirname(os.path.abspath(__file__))
 

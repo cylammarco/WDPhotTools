@@ -8,14 +8,14 @@ import os
 from scipy import optimize
 import time
 
-from .atmosphere_model_reader import atm_reader
+from .atmosphere_model_reader import AtmosphereModelReader
 from .reddening import reddening_vector_filter, reddening_vector_interpolated
 
 plt.rc("font", size=18)
 plt.rc("legend", fontsize=12)
 
 
-class WDfitter:
+class WDfitter(AtmosphereModelReader):
     """
     This class provide a set of methods to fit white dwarf properties
     photometrically.
@@ -24,7 +24,7 @@ class WDfitter:
 
     def __init__(self):
 
-        self.atm = atm_reader()
+        super(WDfitter, self).__init__()
         self.interpolator = {"H": {}, "He": {}}
         self.fitting_params = None
         self.results = {"H": {}, "He": {}}
@@ -51,7 +51,7 @@ class WDfitter:
 
         """
 
-        _interpolator = self.atm.interp_atm(
+        _interpolator = self.interp_atm(
             dependent=dependent,
             atmosphere=atmosphere,
             independent=independent,
@@ -72,7 +72,7 @@ class WDfitter:
             self.extinction_interpolated = True
             rv_itp = reddening_vector_interpolated(kind=kind)
             wavelength = np.array(
-                [self.atm.column_wavelengths[i] for i in filters]
+                [self.column_wavelengths[i] for i in filters]
             )
             self.rv = [partial(rv_itp, w) for w in wavelength]
 
@@ -887,15 +887,6 @@ class WDfitter:
         )
 
         return -0.5 * np.sum(chi2 + np.log(2.0 * np.pi * err2))
-
-    def list_atmosphere_parameters(self):
-        """
-        List all the parameters from the atmosphere models using the
-        atmosphere_model_reader.
-
-        """
-
-        return self.atm.list_atmosphere_parameters()
 
     def fit(
         self,
@@ -1735,7 +1726,7 @@ class WDfitter:
         self.pivot_wavelengths = []
         for i in self.fitting_params["filters"]:
 
-            self.pivot_wavelengths.append(self.atm.column_wavelengths[i])
+            self.pivot_wavelengths.append(self.column_wavelengths[i])
 
         for j in atmosphere:
 

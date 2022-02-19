@@ -58,32 +58,11 @@ wdlf.compute_density(Mag=Mag)
 
 @patch("matplotlib.pyplot.show")
 def test_plotting(mock_show):
-    wdlf.plot_cooling_model(
+    wdlf.plot_input_models(
         display=False,
         savefig=True,
         folder="test_output",
-        filename="test_plot_cooling_model",
-        ext="png",
-    )
-    wdlf.plot_sfh(
-        display=False,
-        savefig=True,
-        folder="test_output",
-        filename="test_plot_sfh",
-        ext="png",
-    )
-    wdlf.plot_imf(
-        display=False,
-        savefig=True,
-        folder="test_output",
-        filename="test_plot_imf",
-        ext="png",
-    )
-    wdlf.plot_ifmr(
-        display=False,
-        savefig=True,
-        folder="test_output",
-        filename="test_plot_ifmr",
+        filename="test_input_model",
         ext="png",
     )
     wdlf.plot_wdlf(
@@ -104,35 +83,6 @@ fig5 = plt.figure(5)
 
 @patch("matplotlib.pyplot.show")
 def test_plotting_to_an_external_Figure_object(mock_show):
-    wdlf.plot_cooling_model(
-        use_mag=True,
-        fig=fig1,
-        display=True,
-        savefig=True,
-        folder="test_output",
-        ext=["png", "pdf"],
-    )
-    wdlf.plot_sfh(
-        fig=fig2,
-        display=True,
-        savefig=True,
-        folder="test_output",
-        ext=["png", "pdf"],
-    )
-    wdlf.plot_imf(
-        fig=fig3,
-        display=True,
-        savefig=True,
-        folder="test_output",
-        ext=["png", "pdf"],
-    )
-    wdlf.plot_ifmr(
-        fig=fig4,
-        display=True,
-        savefig=True,
-        folder="test_output",
-        ext=["png", "pdf"],
-    )
     wdlf.plot_wdlf(
         fig=fig5,
         display=True,
@@ -223,7 +173,7 @@ def test_ct_interpolator():
 # YKW Test 1 23Jan2022
 def test_changing_imf_K01_small_mass_log():
     wdlf.set_imf_model("K01")
-    wdlf.plot_imf(display=False, log=True)
+    wdlf.plot_input_models(display=False, imf_log=True)
 
 
 # YKW Test 2 23Jan2022
@@ -237,48 +187,6 @@ def test_plotting_wdlf_log_false_folder_none():
         ext="png",
     )
     # assert the file exists at where you intend to
-
-
-# YKW Test 3 23Jan2022
-def test_plotting_ifmr_folder_none():
-    wdlf.plot_ifmr(
-        fig=fig4, display=False, savefig=True, folder=None, ext=["png", "pdf"]
-    )
-    # assert the files exist at where you intend to
-
-
-# YKW Test 4 23Jan2022
-def test_plotting_imf_folder_none():
-    wdlf.plot_imf(
-        fig=fig3, display=False, savefig=True, folder=None, ext=["png", "pdf"]
-    )
-    # assert the files exist at where you intend to
-
-
-# YKW Test 5 23Jan2022
-def test_plotting_sfh_log_true_folder_none():
-    wdlf.plot_sfh(
-        log=True,
-        fig=fig2,
-        display=False,
-        savefig=True,
-        folder=None,
-        ext=["png", "pdf"],
-    )
-    # assert the files exist at where you intend to
-
-
-# YKW Test 6 23Jan2022
-def test_plotting_cooling_model_not_use_mag_folder_none():
-    wdlf.plot_cooling_model(
-        use_mag=False,
-        fig=fig1,
-        display=False,
-        savefig=True,
-        folder=None,
-        ext=["png", "pdf"],
-    )
-    # assert the files exist at where you intend to
 
 
 # manual function for 'manual' tests
@@ -332,16 +240,3 @@ def test_plotting_wdlf_savefig_path_not_exist():
         ext="png",
     )
     # assert the file exists at where you intend to
-
-
-# YKW Test 7 cooling savefig path not exist 23Jan2022
-def test_plotting_cooling_savefig_path_not_exist():
-    wdlf.plot_cooling_model(
-        use_mag=False,
-        fig=fig1,
-        display=False,
-        savefig=True,
-        folder="test_plot_cooling_ykw_23jan",
-        ext=["png", "pdf"],
-    )
-    # assert the files exist at where you intend to

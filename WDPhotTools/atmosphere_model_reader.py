@@ -4,8 +4,10 @@ from scipy.interpolate import CloughTocher2DInterpolator
 from scipy.interpolate import RBFInterpolator
 
 
-class atm_reader:
+class AtmosphereModelReader(object):
     def __init__(self):
+
+        super(AtmosphereModelReader, self).__init__()
 
         # DA atmosphere
         filepath_da = os.path.join(
