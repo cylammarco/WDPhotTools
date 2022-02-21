@@ -634,66 +634,66 @@ def test_emcee_Mbol_logg_reddening():
 #     )
 # """
 
-# Fitting Mbol: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: No
-def test_emcee_Mbol_distance():
-    ftr = WDfitter()
-    ftr.fit(
-        atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
-        method="emcee",
-        atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
-        nwalkers=100,
-        nsteps=2000,
-        nburns=200,
-        logg=7.5,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
+# # Fitting Mbol: Yes
+# # Fitting logg: No
+# # Fitting distance: Yes
+# # Reddenning: No
+# def test_emcee_Mbol_distance():
+#     ftr = WDfitter()
+#     ftr.fit(
+#         atmosphere="H",
+#         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+#         mags=mags,
+#         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+#         independent=["Mbol"],
+#         method="emcee",
+#         atmosphere_interpolator="CT",
+#         initial_guess=[10.0, 10.0],
+#         nwalkers=100,
+#         nsteps=2000,
+#         nburns=200,
+#         logg=7.5,
+#     )
+#     ftr.best_fit_params["H"]["Mbol"]
+#     ftr.best_fit_params["H"]["Teff"]
+#     assert np.isclose(
+#         ftr.best_fit_params["H"]["Teff"],
+#         13000.0,
+#         rtol=1e-01,
+#         atol=1e-01,
+#     )
 
 
-# Fitting Mbol: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_minimize_Mbol_distance_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
-        method="emcee",
-        atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
-        nwalkers=100,
-        nsteps=2000,
-        nburns=200,
-        logg=7.5,
-        Rv=rv,
-        ebv=ebv,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
+# # Fitting Mbol: Yes
+# # Fitting logg: No
+# # Fitting distance: Yes
+# # Reddenning: Yes
+# def test_minimize_Mbol_distance_reddening():
+#     ftr = WDfitter()
+#     ftr.fit(
+#         atmosphere="H",
+#         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+#         mags=mags + extinction,
+#         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+#         independent=["Mbol"],
+#         method="emcee",
+#         atmosphere_interpolator="CT",
+#         initial_guess=[10.0, 10.0],
+#         nwalkers=100,
+#         nsteps=2000,
+#         nburns=200,
+#         logg=7.5,
+#         Rv=rv,
+#         ebv=ebv,
+#     )
+#     ftr.best_fit_params["H"]["Mbol"]
+#     ftr.best_fit_params["H"]["Teff"]
+#     assert np.isclose(
+#         ftr.best_fit_params["H"]["Teff"],
+#         13000.0,
+#         rtol=1e-01,
+#         atol=1e-01,
+#     )
 
 
 # """ Not working yet
