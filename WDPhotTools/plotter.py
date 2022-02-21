@@ -212,10 +212,10 @@ def plot_atmosphere_model(
 
         if len(x) == 2:
 
-            x0_itp = __dummy_atm.ar.interp_atm(
+            x0_itp = __dummy_atm.ar.interp_am(
                 dependent=x[0], atmosphere=atmosphere, independent=independent
             )
-            x1_itp = __dummy_atm.ar.interp_atm(
+            x1_itp = __dummy_atm.ar.interp_am(
                 dependent=x[1], atmosphere=atmosphere, independent=independent
             )
             x_out.append(
@@ -225,17 +225,17 @@ def plot_atmosphere_model(
 
         else:
 
-            x_itp = __dummy_atm.ar.interp_atm(
+            x_itp = __dummy_atm.ar.interp_am(
                 dependent=x[0], atmosphere=atmosphere, independent=independent
             )
             x_out.append(x_itp(i_v, independent_values[1]))
 
         if len(y) == 2:
 
-            y0_itp = __dummy_atm.ar.interp_atm(
+            y0_itp = __dummy_atm.ar.interp_am(
                 dependent=y[0], atmosphere=atmosphere, independent=independent
             )
-            y1_itp = __dummy_atm.ar.interp_atm(
+            y1_itp = __dummy_atm.ar.interp_am(
                 dependent=y[1], atmosphere=atmosphere, independent=independent
             )
             y_out.append(
@@ -245,7 +245,7 @@ def plot_atmosphere_model(
 
         else:
 
-            y_itp = __dummy_atm.ar.interp_atm(
+            y_itp = __dummy_atm.ar.interp_am(
                 dependent=y[0], atmosphere=atmosphere, independent=independent
             )
             y_out.append(y_itp(i_v, independent_values[1]))

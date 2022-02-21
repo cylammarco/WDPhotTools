@@ -8,9 +8,13 @@ from WDPhotTools import theoretical_lf
 
 wdlf = theoretical_lf.WDLF()
 
-Mag = np.arange(0, 20.0, 2.0)
+Mag = np.arange(4.0, 16.0, 2.0)
 age = [3.0e9, 12.0e9]
 num = np.zeros((len(age), len(Mag)))
+
+
+def test_default():
+    wdlf.compute_density(Mag=Mag)
 
 
 @pytest.mark.xfail
@@ -48,10 +52,6 @@ def test_changing_empty_high_mass_model_to_unknown_name():
     wdlf.set_high_mass_cooling_model("blabla")
 
 
-def test_default():
-    wdlf.compute_density(Mag=Mag)
-
-
 wdlf.set_sfr_model(mode="burst", age=age[0], duration=1e8)
 wdlf.compute_cooling_age_interpolator()
 wdlf.compute_density(Mag=Mag)
@@ -60,14 +60,25 @@ wdlf.compute_density(Mag=Mag)
 @patch("matplotlib.pyplot.show")
 def test_plotting(mock_show):
     wdlf.plot_input_models(
-        display=False,
+        display=True,
         savefig=True,
         folder="test_output",
         filename="test_input_model",
         ext="png",
     )
+    wdlf.plot_input_models(
+        sfh_log=True,
+        imf_log=False,
+        ms_time_log=False,
+        cooling_model_use_mag=False,
+        title="swappped linear and log axes",
+        display=True,
+        savefig=True,
+        folder="test_output",
+        ext="png",
+    )
     wdlf.plot_wdlf(
-        display=False,
+        display=True,
         savefig=True,
         folder="test_output",
         filename="test_plot_wdlf",
@@ -76,16 +87,12 @@ def test_plotting(mock_show):
 
 
 fig1 = plt.figure(1)
-fig2 = plt.figure(2)
-fig3 = plt.figure(3)
-fig4 = plt.figure(4)
-fig5 = plt.figure(5)
 
 
 @patch("matplotlib.pyplot.show")
 def test_plotting_to_an_external_Figure_object(mock_show):
     wdlf.plot_wdlf(
-        fig=fig5,
+        fig=fig1,
         display=True,
         savefig=True,
         folder="test_output",
@@ -253,16 +260,16 @@ def test_compute_density_savefig_folder_none():
 
 # Testing plot_wdlf with filename = None
 def test_plotting_wdlf_savefig_path_not_exist():
+    _folder = "test_output/test_plotting_wdlf_savefig_path_not_exist"
     wdlf.plot_wdlf(
         log=False,
         display=False,
         savefig=True,
-        folder="test_plotting_wdlf_savefig_path_not_exist",
+        folder=_folder,
         filename=None,
         ext="png",
     )
     # assert the file exists at where you intend to
-    _folder = "test_plotting_wdlf_savefig_path_not_exist"
     for e in ["png"]:
         _filename = (
             "{0:.2f}Gyr_".format(wdlf.T0 / 1e9)
@@ -287,15 +294,21 @@ def test_plotting_wdlf_savefig_path_not_exist():
 def test_cooling_model_low_mass_lpcode_he_da_09():
     wdlf.set_low_mass_cooling_model(model="lpcode_he_da_09")
     wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 # Testing set_intermediate_mass_cooling_model with model = "basti_co_da_10"
 def test_cooling_model_intermediate_mass_basti_co_da_10():
     wdlf.set_intermediate_mass_cooling_model(model="basti_co_da_10")
     wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 # Testing set_high_mass_cooling_model with model = "basti_co_da_10"
 def test_cooling_model_high_mass_basti_co_da_10():
     wdlf.set_high_mass_cooling_model(model="basti_co_da_10")
     wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)

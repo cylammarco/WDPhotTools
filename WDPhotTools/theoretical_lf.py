@@ -790,7 +790,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         number_density = np.zeros_like(Mag)
 
-        self.Mag_to_Mbol_itp = self.interp_atm(
+        self.Mag_to_Mbol_itp = self.interp_am(
             dependent="Mbol",
             atmosphere=atmosphere,
             independent=["mass", passband],
@@ -1106,7 +1106,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         if title is not None:
 
-            plt.suptile(title)
+            plt.suptitle(title)
 
         if savefig:
 

@@ -255,7 +255,7 @@ class AtmosphereModelReader(object):
                 )
             )
 
-    def interp_atm(
+    def interp_am(
         self,
         dependent="G3",
         atmosphere="H",
