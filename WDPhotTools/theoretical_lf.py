@@ -45,9 +45,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             "ifmr_model": None,
             "sfr_mode": None,
             "ms_model": None,
-            "low_mass_cooling_model": None,
-            "intermediate_mass_cooling_model": None,
-            "high_mass_cooling_model": None,
         }
 
         self.imf_model_list = ["K01", "C03", "C03b", "manual"]
@@ -68,49 +65,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         self.sfr_mode_list = ["constant", "burst", "decay", "manual"]
 
         self.ms_model_list = ["Bressan", "C16", "manual"]
-
-        self.low_mass_cooling_model_list = [
-            "montreal_co_da_20",
-            "montreal_co_db_20",
-            "lpcode_he_da_07",
-            "lpcode_co_da_07",
-            "lpcode_he_da_09",
-            None,
-        ]
-
-        self.intermediate_mass_cooling_model_list = [
-            "montreal_co_da_20",
-            "montreal_co_db_20",
-            "lpcode_co_da_10_z001",
-            "lpcode_co_da_10_z0001",
-            "lpcode_co_da_15_z00003",
-            "lpcode_co_da_15_z0001",
-            "lpcode_co_da_15_z0005",
-            "lpcode_co_db_17_z0001",
-            "lpcode_co_db_17_z00005",
-            "lpcode_co_da_17_y04",
-            "lpcode_co_db_17",
-            "basti_co_da_10",
-            "basti_co_db_10",
-            "basti_co_da_10_nps",
-            "basti_co_db_10_nps",
-            None,
-        ]
-
-        self.high_mass_cooling_model_list = [
-            "montreal_co_da_20",
-            "montreal_co_db_20",
-            "lpcode_one_da_07",
-            "lpcode_one_da_19",
-            "lpcode_one_db_19",
-            "basti_co_da_10",
-            "basti_co_db_10",
-            "basti_co_da_10_nps",
-            "basti_co_db_10_nps",
-            "mesa_one_da_18",
-            "mesa_one_db_18",
-            None,
-        ]
 
         # The IFMR, WD cooling and MS lifetime models are required to
         # initialise the object.
@@ -351,44 +305,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             m = self.ifmr_function(M)
 
         return m
-
-    def _itp2D_gradient(self, f, val1, val2, frac=1e-6):
-        """
-        A function to find the gradient in the direction in the first dimension
-        of a 2D function at a given coordinate.
-
-        Parameters
-        ----------
-        f: callable function
-            A 2D function
-        val1: float
-            The first input value accepted by f. The gradient is computed in
-            this direction.
-        val2: float
-            The first input value accepted by f.
-        frac: float (Default: 1e-6)
-            The small fractional increment of val1.
-
-        Return
-        ------
-        Gradient in the direction of val1.
-
-        """
-
-        if not callable(f):
-            raise TypeError("f has to be a callable function.")
-
-        increment = val1 * frac / 2.0
-        grad = np.asarray(
-            (f(val1 + increment, val2) - f(val1 - increment, val2))
-            / (increment * 2.0)
-        ).reshape(-1)
-
-        # cooling((L+1), m) - cooling(L, m) is always negative
-        grad[grad > 0.0] = 0.0
-        grad[np.isnan(grad)] = 0.0
-
-        return grad
 
     def _find_M_min(self, M, Mag):
         """
@@ -856,11 +772,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                     + "_"
                     + self.wdlf_params["ifmr_model"]
                     + "_"
-                    + self.wdlf_params["low_mass_cooling_model"]
+                    + self.cooling_models["low_mass_cooling_model"]
                     + "_"
-                    + self.wdlf_params["intermediate_mass_cooling_model"]
+                    + self.cooling_models["intermediate_mass_cooling_model"]
                     + "_"
-                    + self.wdlf_params["high_mass_cooling_model"]
+                    + self.cooling_models["high_mass_cooling_model"]
                     + ".csv"
                 )
 

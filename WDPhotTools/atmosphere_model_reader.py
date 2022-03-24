@@ -354,7 +354,7 @@ class AtmosphereModelReader(object):
                     "variable has to be one of: Teff, mass, Mbol, or age."
                 )
 
-            if interpolator == "CT":
+            if interpolator.upper() == "CT":
 
                 # Interpolate with the scipy CloughTocher2DInterpolator
                 _atmosphere_interpolator = CloughTocher2DInterpolator(
@@ -363,12 +363,12 @@ class AtmosphereModelReader(object):
                     **_kwargs_for_CT,
                 )
 
-                # Interpolate with the scipy interp1d
                 def atmosphere_interpolator(x):
                     return _atmosphere_interpolator(logg, x)
 
-            elif interpolator == "RBF":
+            elif interpolator.upper() == "RBF":
 
+                # Interpolate with the scipy RBFInterpolator
                 _atmosphere_interpolator = RBFInterpolator(
                     np.stack(
                         (model[independent[0]], model[independent[1]]), -1
@@ -377,7 +377,6 @@ class AtmosphereModelReader(object):
                     **_kwargs_for_RBF,
                 )
 
-                # Interpolate with the scipy interp1d
                 def atmosphere_interpolator(x):
 
                     if isinstance(x, (float, int)):
@@ -399,13 +398,17 @@ class AtmosphereModelReader(object):
 
             else:
 
-                raise ValueError("This should never happen.")
+                raise ValueError(
+                    "Interpolator should be CT or RBF, {} is given.".format(
+                        interpolator
+                    )
+                )
 
         # If a 2D grid is to be interpolated, normally is the logg and another
         # parameter
         elif len(independent) == 2:
 
-            if interpolator == "CT":
+            if interpolator.upper() == "CT":
 
                 # Interpolate with the scipy CloughTocher2DInterpolator
                 atmosphere_interpolator = CloughTocher2DInterpolator(
@@ -414,7 +417,7 @@ class AtmosphereModelReader(object):
                     **_kwargs_for_CT,
                 )
 
-            elif interpolator == "RBF":
+            elif interpolator.upper() == "RBF":
 
                 # Interpolate with the scipy RBFInterpolator
                 _atmosphere_interpolator = RBFInterpolator(

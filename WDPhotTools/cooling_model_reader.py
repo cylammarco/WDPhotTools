@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 from scipy.interpolate import CloughTocher2DInterpolator
+from scipy.interpolate import RBFInterpolator
 
 
 class CoolingModelReader(object):
@@ -36,6 +37,55 @@ class CoolingModelReader(object):
             "lpcode_one_db_19": "Camisassa et al. 2019 ONe DB",
             "mesa_one_da_18": "Lauffer et al. 2018 ONe DA",
             "mesa_one_db_18": "Lauffer et al. 2018 ONe DB",
+        }
+
+        self.low_mass_cooling_model_list = [
+            "montreal_co_da_20",
+            "montreal_co_db_20",
+            "lpcode_he_da_07",
+            "lpcode_co_da_07",
+            "lpcode_he_da_09",
+            None,
+        ]
+
+        self.intermediate_mass_cooling_model_list = [
+            "montreal_co_da_20",
+            "montreal_co_db_20",
+            "lpcode_co_da_10_z001",
+            "lpcode_co_da_10_z0001",
+            "lpcode_co_da_15_z00003",
+            "lpcode_co_da_15_z0001",
+            "lpcode_co_da_15_z0005",
+            "lpcode_co_db_17_z0001",
+            "lpcode_co_db_17_z00005",
+            "lpcode_co_da_17_y04",
+            "lpcode_co_db_17",
+            "basti_co_da_10",
+            "basti_co_db_10",
+            "basti_co_da_10_nps",
+            "basti_co_db_10_nps",
+            None,
+        ]
+
+        self.high_mass_cooling_model_list = [
+            "montreal_co_da_20",
+            "montreal_co_db_20",
+            "lpcode_one_da_07",
+            "lpcode_one_da_19",
+            "lpcode_one_db_19",
+            "basti_co_da_10",
+            "basti_co_db_10",
+            "basti_co_da_10_nps",
+            "basti_co_db_10_nps",
+            "mesa_one_da_18",
+            "mesa_one_db_18",
+            None,
+        ]
+
+        self.cooling_models = {
+            "low_mass_cooling_model": None,
+            "intermediate_mass_cooling_model": None,
+            "high_mass_cooling_model": None,
         }
 
     def list_cooling_model(self):
@@ -1592,7 +1642,7 @@ class CoolingModelReader(object):
 
         if model in self.low_mass_cooling_model_list:
 
-            self.wdlf_params["low_mass_cooling_model"] = model
+            self.cooling_models["low_mass_cooling_model"] = model
 
         else:
 
@@ -1634,7 +1684,7 @@ class CoolingModelReader(object):
 
         if model in self.intermediate_mass_cooling_model_list:
 
-            self.wdlf_params["intermediate_mass_cooling_model"] = model
+            self.cooling_models["intermediate_mass_cooling_model"] = model
 
         else:
 
@@ -1674,23 +1724,80 @@ class CoolingModelReader(object):
 
         if model in self.high_mass_cooling_model_list:
 
-            self.wdlf_params["high_mass_cooling_model"] = model
+            self.cooling_models["high_mass_cooling_model"] = model
 
         else:
 
             raise ValueError("Please provide a valid model.")
 
-    def compute_cooling_age_interpolator(self):
+    def _itp2D_gradient(self, f, val1, val2, frac=1e-6):
+        """
+        A function to find the gradient in the direction in the first dimension
+        of a 2D function at a given coordinate.
+
+        Parameters
+        ----------
+        f: callable function
+            A 2D function
+        val1: float
+            The first input value accepted by f. The gradient is computed in
+            this direction.
+        val2: float
+            The first input value accepted by f.
+        frac: float (Default: 1e-6)
+            The small fractional increment of val1.
+
+        Return
+        ------
+        Gradient in the direction of val1.
+
+        """
+
+        if not callable(f):
+            raise TypeError("f has to be a callable function.")
+
+        increment = val1 * frac / 2.0
+        grad = np.asarray(
+            (f(val1 + increment, val2) - f(val1 - increment, val2))
+            / (increment * 2.0)
+        ).reshape(-1)
+
+        # cooling((L+1), m) - cooling(L, m) is always negative
+        grad[grad > 0.0] = 0.0
+        grad[np.isnan(grad)] = 0.0
+
+        return grad
+
+    def compute_cooling_age_interpolator(
+        self,
+        interpolator="CT",
+        kwargs_for_RBF={},
+        kwargs_for_CT={},
+    ):
         """
         Compute the callable CloughTocher2DInterpolator of the cooling time
         of WDs. It needs to use float64 or it runs into float-point error
         at very faint lumnosity.
 
+        Parameters
+        ----------
+        interpolator: str (Default: 'RBF')
+            Choose between 'RBF' and 'CT'.
+        kwargs_for_RBF: dict (Default: {"neighbors": None,
+            "smoothing": 0.0, "kernel": "thin_plate_spline",
+            "epsilon": None, "degree": None,})
+            Keyword argument for the interpolator. See
+            `scipy.interpolate.RBFInterpolator`.
+        kwargs_for_CT: dict (Default: {'fill_value': -np.inf,
+            'tol': 1e-10, 'maxiter': 100000})
+            Keyword argument for the interpolator. See
+            `scipy.interpolate.CloughTocher2DInterpolator`.
+
         """
 
         # Set the low mass cooling model, i.e. M < 0.5 M_sun
         mass_low, cooling_model_low, _, _ = self.get_cooling_model(
-            self.wdlf_params["low_mass_cooling_model"], mass_range="low"
+            self.cooling_models["low_mass_cooling_model"], mass_range="low"
         )
 
         # Set the intermediate mass cooling model, i.e. 0.5 < M < 1.0 M_sun
@@ -1700,13 +1807,13 @@ class CoolingModelReader(object):
             _,
             _,
         ) = self.get_cooling_model(
-            self.wdlf_params["intermediate_mass_cooling_model"],
+            self.cooling_models["intermediate_mass_cooling_model"],
             mass_range="intermediate",
         )
 
         # Set the high mass cooling model, i.e. 1.0 < M M_sun
         mass_high, cooling_model_high, _, _ = self.get_cooling_model(
-            self.wdlf_params["high_mass_cooling_model"], mass_range="high"
+            self.cooling_models["high_mass_cooling_model"], mass_range="high"
         )
 
         # Gather all the models in different mass ranges
@@ -1808,14 +1915,64 @@ class CoolingModelReader(object):
         )
         self.age = np.concatenate((age_low, age_intermediate, age_high))
 
-        self.cooling_interpolator = CloughTocher2DInterpolator(
-            (np.log10(self.luminosity), self.mass),
-            self.age,
-            fill_value=-np.inf,
-            tol=1e-10,
-            maxiter=1000000,
-            rescale=True,
-        )
+        # Configure interpolator for the cooling models
+        _kwargs_for_CT = {
+            "fill_value": float("-inf"),
+            "tol": 1e-10,
+            "maxiter": 100000,
+            "rescale": True,
+        }
+        _kwargs_for_CT.update(**kwargs_for_CT)
+
+        _kwargs_for_RBF = {
+            "neighbors": None,
+            "smoothing": 0.0,
+            "kernel": "thin_plate_spline",
+            "epsilon": None,
+            "degree": None,
+        }
+        _kwargs_for_RBF.update(**kwargs_for_RBF)
+
+        if interpolator.upper() == "CT":
+
+            # Interpolate with the scipy CloughTocher2DInterpolator
+            self.cooling_interpolator = CloughTocher2DInterpolator(
+                (np.log10(self.luminosity), self.mass),
+                self.age,
+                **_kwargs_for_CT,
+            )
+
+        elif interpolator.upper() == "RBF":
+
+            # Interpolate with the scipy RBFInterpolator
+            _cooling_interpolator = RBFInterpolator(
+                np.stack((np.log10(self.luminosity), self.mass), -1),
+                self.age,
+                **_kwargs_for_RBF,
+            )
+
+            def cooling_interpolator(x):
+
+                x0, x1 = np.asarray(x, dtype="object").reshape(-1)
+
+                _x0 = np.asarray(x0)
+                _x1 = np.asarray(x1)
+
+                length0 = len(x0)
+
+                return _cooling_interpolator(
+                    np.asarray([_x0, _x1], dtype="object").reshape(length0, 2)
+                )
+
+            self.cooling_interpolator = cooling_interpolator
+
+        else:
+
+            raise ValueError(
+                "Interpolator should be CT or RBF, {} is given.".format(
+                    interpolator
+                )
+            )
 
         self.dLdt = self._itp2D_gradient(
             self.cooling_interpolator, np.log10(self.luminosity), self.mass
@@ -1823,11 +1980,36 @@ class CoolingModelReader(object):
 
         finite_mask = np.isfinite(self.dLdt)
 
-        self.cooling_rate_interpolator = CloughTocher2DInterpolator(
-            (np.log10(self.luminosity)[finite_mask], self.mass[finite_mask]),
-            self.dLdt[finite_mask],
-            fill_value=0.0,
-            tol=1e-10,
-            maxiter=1000000,
-            rescale=True,
-        )
+        if interpolator.upper() == "CT":
+
+            self.cooling_rate_interpolator = CloughTocher2DInterpolator(
+                (
+                    np.log10(self.luminosity)[finite_mask],
+                    self.mass[finite_mask],
+                ),
+                self.dLdt[finite_mask],
+                **_kwargs_for_CT,
+            )
+
+        elif interpolator.upper() == "RBF":
+
+            # Interpolate with the scipy RBFInterpolator
+            self.cooling_rate_interpolator = RBFInterpolator(
+                np.stack(
+                    (
+                        np.log10(self.luminosity)[finite_mask],
+                        self.mass[finite_mask],
+                    ),
+                    -1,
+                ),
+                self.dLdt[finite_mask],
+                **_kwargs_for_RBF,
+            )
+
+        else:
+
+            raise ValueError(
+                "Interpolator should be CT or RBF, {} is given.".format(
+                    interpolator
+                )
+            )

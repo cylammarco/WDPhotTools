@@ -716,8 +716,8 @@ def test_emcee_Mbol_distance():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[10.0, 10.0],
-        nwalkers=100,
-        nsteps=500,
+        nwalkers=200,
+        nsteps=1000,
         nburns=200,
         logg=7.5,
     )
@@ -735,7 +735,7 @@ def test_emcee_Mbol_distance():
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_minimize_Mbol_distance_reddening():
+def test_emcee_Mbol_distance_reddening():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
@@ -776,8 +776,8 @@ def test_minimize_Mbol_distance_reddening():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[10.0, 10.0],
-        nwalkers=100,
-        nsteps=500,
+        nwalkers=200,
+        nsteps=1000,
         nburns=200,
         logg=7.5,
         Rv=rv,
@@ -797,7 +797,7 @@ def test_minimize_Mbol_distance_reddening():
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_minimize_Mbol_logg_distance_reddening():
+def test_emcee_Mbol_logg_distance_reddening():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
@@ -838,8 +838,8 @@ def test_minimize_Mbol_logg_distance_reddening():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[10.0, 7.5, 10.0],
-        nwalkers=100,
-        nsteps=500,
+        nwalkers=200,
+        nsteps=1000,
         nburns=200,
         Rv=rv,
         ebv=ebv,

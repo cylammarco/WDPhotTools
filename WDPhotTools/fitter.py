@@ -1069,7 +1069,7 @@ class WDfitter(AtmosphereModelReader):
         atmosphere_interpolator="RBF",
         reuse_interpolator=False,
         method="minimize",
-        nwalkers=50,
+        nwalkers=100,
         nsteps=500,
         nburns=50,
         progress=True,
@@ -1146,7 +1146,7 @@ class WDfitter(AtmosphereModelReader):
             Choose from 'minimize', 'least_squares' and 'emcee' for using the
             `scipy.optimize.minimize`, `scipy.optimize.least_squares` or the
             `emcee` respectively.
-        nwalkers: int (Default: 50)
+        nwalkers: int (Default: 100)
             Number of walkers (emcee method only).
         nsteps: int (Default: 500)
             Number of steps each walker walk (emcee method only).
@@ -1175,8 +1175,19 @@ class WDfitter(AtmosphereModelReader):
             Keyword argument for the emcee walker.
 
         """
-        _kwargs_for_RBF = {}
-        _kwargs_for_CT = {}
+        _kwargs_for_RBF = {
+            "neighbors": None,
+            "smoothing": 0.0,
+            "kernel": "thin_plate_spline",
+            "epsilon": None,
+            "degree": None,
+        }
+        _kwargs_for_CT = {
+            "fill_value": float("-inf"),
+            "tol": 1e-10,
+            "maxiter": 100000,
+            "rescale": True,
+        }
         _kwargs_for_minimize = {"method": "Powell", "options": {"xtol": 0.001}}
         _kwargs_for_least_squares = {
             "method": "lm",
