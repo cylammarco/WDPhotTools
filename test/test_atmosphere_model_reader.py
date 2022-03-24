@@ -35,31 +35,46 @@ def test_supplying_3_independent_variables():
     )
 
 
-def test_interpolator_1D_RBF():
+def test_interpolator_1D_RBF_Mbol():
     amr = AtmosphereModelReader()
     amr.interp_am(independent=["Mbol"])
 
 
-def test_interpolator_1D_CT():
+def test_interpolator_1D_CT_Mbol():
     amr = AtmosphereModelReader()
     amr.interp_am(interpolator="CT", independent=["Mbol"])
 
 
-def test_interpolator_2D_RBF():
+def test_interpolator_1D_CT_Teff():
+    amr = AtmosphereModelReader()
+    amr.interp_am(interpolator="CT", independent=["Teff"])
+
+
+def test_interpolator_2D_RBF_logg_Mbol():
     amr = AtmosphereModelReader()
     amr.interp_am(independent=["logg", "Mbol"])
 
 
-def test_interpolator_2D_RBF_swap_order_of_independent_variables():
+def test_interpolator_2D_RBF_Mbol_logg():
     amr = AtmosphereModelReader()
     amr.interp_am(independent=["Mbol", "logg"])
 
 
-def test_interpolator_2D_CT():
+def test_interpolator_2D_RBF_Teff_logg():
+    amr = AtmosphereModelReader()
+    amr.interp_am(independent=["Teff", "logg"])
+
+
+def test_interpolator_2D_CT_logg_Mbol():
     amr = AtmosphereModelReader()
     amr.interp_am(interpolator="CT", independent=["logg", "Mbol"])
 
 
-def test_interpolator_2D_CT_swap_order_of_independent_variables():
+def test_interpolator_2D_CT_Mbol_logg():
     amr = AtmosphereModelReader()
     amr.interp_am(interpolator="CT", independent=["Mbol", "logg"])
+
+
+def test_interpolator_2D_CT_Teff_logg():
+    amr = AtmosphereModelReader()
+    amr.interp_am(interpolator="CT", independent=["Teff", "logg"])

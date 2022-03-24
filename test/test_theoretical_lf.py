@@ -96,6 +96,7 @@ def test_plotting_to_an_external_Figure_object(mock_show):
         display=True,
         savefig=True,
         folder="test_output",
+        filename="test_plot_wdlf_external_figure_object",
         ext=["png", "pdf"],
     )
 
@@ -248,11 +249,11 @@ def test_compute_density_savefig_folder_none():
         + "_"
         + wdlf.wdlf_params["ifmr_model"]
         + "_"
-        + wdlf.wdlf_params["low_mass_cooling_model"]
+        + wdlf.cooling_models["low_mass_cooling_model"]
         + "_"
-        + wdlf.wdlf_params["intermediate_mass_cooling_model"]
+        + wdlf.cooling_models["intermediate_mass_cooling_model"]
         + "_"
-        + wdlf.wdlf_params["high_mass_cooling_model"]
+        + wdlf.cooling_models["high_mass_cooling_model"]
         + ".csv"
     )
     assert os.path.isfile(os.path.join(_folder, _filename))
@@ -279,11 +280,11 @@ def test_plotting_wdlf_savefig_path_not_exist():
             + "_"
             + wdlf.wdlf_params["ifmr_model"]
             + "_"
-            + wdlf.wdlf_params["low_mass_cooling_model"]
+            + wdlf.cooling_models["low_mass_cooling_model"]
             + "_"
-            + wdlf.wdlf_params["intermediate_mass_cooling_model"]
+            + wdlf.cooling_models["intermediate_mass_cooling_model"]
             + "_"
-            + wdlf.wdlf_params["high_mass_cooling_model"]
+            + wdlf.cooling_models["high_mass_cooling_model"]
             + "."
             + e
         )

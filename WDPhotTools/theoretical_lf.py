@@ -1167,11 +1167,13 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                         + "_"
                         + self.wdlf_params["ifmr_model"]
                         + "_"
-                        + self.wdlf_params["low_mass_cooling_model"]
+                        + self.cooling_models["low_mass_cooling_model"]
                         + "_"
-                        + self.wdlf_params["intermediate_mass_cooling_model"]
+                        + self.cooling_models[
+                            "intermediate_mass_cooling_model"
+                        ]
                         + "_"
-                        + self.wdlf_params["high_mass_cooling_model"]
+                        + self.cooling_models["high_mass_cooling_model"]
                         + "."
                         + e
                     )
