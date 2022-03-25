@@ -33,23 +33,23 @@ def test_list_everything():
     ftr.list_atmosphere_parameters()
 
 
-# Fitting for Mbol with 5 filters for both DA and DB
+# Fitting for Teff with 5 filters for both DA and DB
 @patch("matplotlib.pyplot.show")
-def test_fitting_Mbol(mock_show):
+def test_fitting_Teff(mock_show):
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     ftr.show_best_fit(
-        title="Testing Mbol = 9.962",
+        title="Testing Teff = 13000.0",
         display=True,
         savefig=True,
         folder="test_output",
@@ -57,12 +57,12 @@ def test_fitting_Mbol(mock_show):
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for Mbol with 5 filters for both DA and DB with alternating None
-def test_fitting_Mbol_with_None():
+# Fitting for Teff with 5 filters for both DA and DB with alternating None
+def test_fitting_Teff_with_None():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -71,14 +71,14 @@ def test_fitting_Mbol_with_None():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -87,14 +87,14 @@ def test_fitting_Mbol_with_None():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -103,29 +103,29 @@ def test_fitting_Mbol_with_None():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg and Mbol with 5 filters for both DA and DB
+# Fitting for logg and Teff with 5 filters for both DA and DB
 def test_fitting_logg_and_mbol():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
     )
     ftr.show_best_fit(
         display=False,
@@ -134,65 +134,65 @@ def test_fitting_logg_and_mbol():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg, Mbol and distance with 5 filters for both DA and DB
-def test_fitting_logg_Mbol_distance():
+# Fitting for logg, Teff and distance with 5 filters for both DA and DB
+def test_fitting_logg_Teff_distance():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5, 10.0],
+        initial_guess=[13000.0, 7.5, 10.0],
     )
     ftr.show_best_fit(display=False)
     assert np.isclose(
         ftr.results["H"].x,
-        np.array([9.962, 7.5, 10.0]),
+        np.array([13000.0, 7.5, 10.0]),
         rtol=1e-03,
         atol=1e-03,
     ).all()
 
 
-# Fitting for logg, Mbol and distance with 8 filters for both DA and DB with
+# Fitting for logg, Teff and distance with 8 filters for both DA and DB with
 # Nelder-Mead method
-def test_fitting_logg_Mbol_distance_nelder_mead():
+def test_fitting_logg_Teff_distance_nelder_mead():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5, 10.0],
+        initial_guess=[13000.0, 7.5, 10.0],
         kwargs_for_minimize={"method": "Nelder-Mead"},
     )
     ftr.show_best_fit(display=False)
     assert np.isclose(
         ftr.results["H"].x,
-        np.array([9.962, 7.5, 10.0]),
+        np.array([13000.0, 7.5, 10.0]),
         rtol=1e-03,
         atol=1e-03,
     ).all()
 
 
-# Fitting for Mbol with 5 filters for both DA and DB with added extinction
-def test_fitting_Mbol_red():
+# Fitting for Teff with 5 filters for both DA and DB with added extinction
+def test_fitting_Teff_red():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         Rv=rv,
         ebv=ebv,
     )
@@ -204,23 +204,23 @@ def test_fitting_Mbol_red():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg and Mbol with 5 filters for both DA and DB with added
+# Fitting for logg and Teff with 5 filters for both DA and DB with added
 # extinction
-def test_fitting_logg_and_Mbol_red():
+def test_fitting_logg_and_Teff_red():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         Rv=rv,
         ebv=ebv,
     )
@@ -231,21 +231,21 @@ def test_fitting_logg_and_Mbol_red():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg, Mbol and distance with 5 filters for both DA and DB with
+# Fitting for logg, Teff and distance with 5 filters for both DA and DB with
 # added extinction
-def test_fitting_logg_Mbol_distance_red():
+def test_fitting_logg_Teff_distance_red():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         Rv=rv,
         ebv=ebv,
     )
@@ -254,24 +254,24 @@ def test_fitting_logg_Mbol_distance_red():
     )
     assert np.isclose(
         ftr.results["H"].x,
-        np.array([9.962, 7.5, 10.0]),
+        np.array([13000.0, 7.5, 10.0]),
         rtol=1e-03,
         atol=1e-03,
     ).all()
 
 
-# Fitting for logg, Mbol and distance with 5 filters for both DA and DB with
+# Fitting for logg, Teff and distance with 5 filters for both DA and DB with
 # added extinction
 # Manually chaning plot colours
-def test_fitting_logg_Mbol_distance_red_best_fit_plot_colour():
+def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         Rv=rv,
         ebv=ebv,
     )
@@ -283,7 +283,7 @@ def test_fitting_logg_Mbol_distance_red_best_fit_plot_colour():
     )
     assert np.isclose(
         ftr.results["H"].x,
-        np.array([9.962, 7.5, 10.0]),
+        np.array([13000.0, 7.5, 10.0]),
         rtol=1e-03,
         atol=1e-03,
     ).all()
@@ -299,20 +299,20 @@ def test_fitting_logg_Mbol_distance_red_best_fit_plot_colour():
 #
 
 
-# Fitting for Mbol with 5 filters for both DA and DB
-def test_fitting_Mbol_lsq():
+# Fitting for Teff with 5 filters for both DA and DB
+def test_fitting_Teff_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         distance=10.0,
         distance_err=0.1,
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     ftr.show_best_fit(
         display=False,
@@ -322,12 +322,12 @@ def test_fitting_Mbol_lsq():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for Mbol with 5 filters for both DA and DB with alternating None
-def test_fitting_Mbol_with_None_lsq():
+# Fitting for Teff with 5 filters for both DA and DB with alternating None
+def test_fitting_Teff_with_None_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -336,15 +336,15 @@ def test_fitting_Mbol_with_None_lsq():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         distance=10.0,
         distance_err=0.1,
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -353,14 +353,14 @@ def test_fitting_Mbol_with_None_lsq():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         distance=10.0,
         distance_err=0.1,
         method="least_squares",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -369,31 +369,31 @@ def test_fitting_Mbol_with_None_lsq():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         distance=10.0,
         distance_err=0.1,
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg and Mbol with 5 filters for both DA and DB
-def test_fitting_logg_and_Mbol_lsq():
+# Fitting for logg and Teff with 5 filters for both DA and DB
+def test_fitting_logg_and_Teff_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         distance=10.0,
         distance_err=0.1,
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
     )
     ftr.show_best_fit(
         display=False,
@@ -402,67 +402,67 @@ def test_fitting_logg_and_Mbol_lsq():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg, Mbol and distance with 5 filters for both DA and DB
-def test_fitting_logg_Mbol_distance_lsq():
+# Fitting for logg, Teff and distance with 5 filters for both DA and DB
+def test_fitting_logg_Teff_distance_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
     )
     ftr.show_best_fit(display=False)
     assert np.isclose(
         ftr.results["H"].x,
-        np.array([9.962, 7.5, 10.0]),
+        np.array([13000.0, 7.5, 10.0]),
         rtol=1e-03,
         atol=1e-03,
     ).all()
 
 
-# Fitting for logg, Mbol and distance with 8 filters for both DA and DB with
+# Fitting for logg, Teff and distance with 8 filters for both DA and DB with
 # Nelder-Mead method
-def test_fitting_logg_Mbol_distance_nelder_mead_lsq():
+def test_fitting_logg_Teff_distance_nelder_mead_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
-        initial_guess=[10.0, 7.5],
+        independent=["Teff", "logg"],
+        initial_guess=[13000.0, 7.5],
         method="least_squares",
         atmosphere_interpolator="CT",
     )
     ftr.show_best_fit(display=False)
     assert np.isclose(
         ftr.results["H"].x,
-        np.array([9.962, 7.5, 10.0]),
+        np.array([13000.0, 7.5, 10.0]),
         rtol=1e-03,
         atol=1e-03,
     ).all()
 
 
-# Fitting for Mbol with 5 filters for both DA and DB with added extinction
-def test_fitting_Mbol_red_lsq():
+# Fitting for Teff with 5 filters for both DA and DB with added extinction
+def test_fitting_Teff_red_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         distance=10.0,
         distance_err=0.1,
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         Rv=rv,
         ebv=ebv,
     )
@@ -474,22 +474,22 @@ def test_fitting_Mbol_red_lsq():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg and Mbol with 5 filters for both DA and DB with added
+# Fitting for logg and Teff with 5 filters for both DA and DB with added
 # extinction
-def test_fitting_logg_and_Mbol_red_lsq():
+def test_fitting_logg_and_Teff_red_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         method="least_squares",
         atmosphere_interpolator="CT",
         Rv=rv,
@@ -502,20 +502,20 @@ def test_fitting_logg_and_Mbol_red_lsq():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg, Mbol and distance with 5 filters for both DA and DB with
+# Fitting for logg, Teff and distance with 5 filters for both DA and DB with
 # added extinction
-def test_fitting_logg_Mbol_distance_red_lsq():
+def test_fitting_logg_Teff_distance_red_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
-        initial_guess=[10.0, 7.5],
+        independent=["Teff", "logg"],
+        initial_guess=[13000.0, 7.5],
         method="least_squares",
         atmosphere_interpolator="CT",
         Rv=rv,
@@ -526,7 +526,7 @@ def test_fitting_logg_Mbol_distance_red_lsq():
     )
     assert np.isclose(
         ftr.results["H"].x,
-        np.array([9.962, 7.5, 10.0]),
+        np.array([13000.0, 7.5, 10.0]),
         rtol=1e-03,
         atol=1e-03,
     ).all()
@@ -539,20 +539,20 @@ def test_fitting_logg_Mbol_distance_red_lsq():
 #
 #
 
-# Fitting for logg and Mbol with 5 filters for both DA and DB
-def test_fitting_Mbol_emcee():
+# Fitting for logg and Teff with 5 filters for both DA and DB
+def test_fitting_Teff_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     ftr.show_corner_plot(
         display=False,
@@ -569,12 +569,12 @@ def test_fitting_Mbol_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for Mbol with 5 filters for both DA and DB with alternating None
-def test_fitting_Mbol_with_None_emcee():
+# Fitting for Teff with 5 filters for both DA and DB with alternating None
+def test_fitting_Teff_with_None_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -583,19 +583,19 @@ def test_fitting_Mbol_with_None_emcee():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
         refine_bounds=[0.1, 99.9],
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     ftr.show_corner_plot(
         display=False, folder="test_output", ext=["png", "pdf"]
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -604,16 +604,16 @@ def test_fitting_Mbol_with_None_emcee():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
         refine_bounds=[0.1, 99.9],
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -622,33 +622,33 @@ def test_fitting_Mbol_with_None_emcee():
         allow_none=True,
         atmosphere="H",
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
         refine_bounds=[0.1, 99.9],
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg and Mbol with 5 filters for both DA and DB
-def test_fitting_logg_and_Mbol_emcee():
+# Fitting for logg and Teff with 5 filters for both DA and DB
+def test_fitting_logg_and_Teff_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
         refine_bounds=[0.1, 99.9],
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
     )
     ftr.show_best_fit(
         display=False,
@@ -657,24 +657,24 @@ def test_fitting_logg_and_Mbol_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for Mbol with 5 filters for both DA and DB with added extinction
-def test_fitting_Mbol_red_emcee():
+# Fitting for Teff with 5 filters for both DA and DB with added extinction
+def test_fitting_Teff_red_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
         logg=7.5,
-        independent=["Mbol"],
+        independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         refine_bounds=[0.1, 99.9],
         Rv=rv,
         ebv=ebv,
@@ -687,24 +687,24 @@ def test_fitting_Mbol_red_emcee():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
     ).all()
 
 
-# Fitting for logg and Mbol with 5 filters for both DA and DB with added
+# Fitting for logg and Teff with 5 filters for both DA and DB with added
 # extinction
-def test_fitting_logg_and_Mbol_red_emcee():
+def test_fitting_logg_and_Teff_red_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         refine_bounds=[0.1, 99.9],
         Rv=rv,
         ebv=ebv,
@@ -716,7 +716,7 @@ def test_fitting_logg_and_Mbol_red_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
     ).all()
 
 
@@ -736,12 +736,12 @@ def test_chi2_minimization_red_interpolated():
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction_interpolated,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         method="least_squares",
         distance=10.0,
         distance_err=0.1,
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         refine_bounds=[0.1, 99.9],
         extinction_convolved=False_,
         Rv=rv,
@@ -754,5 +754,5 @@ def test_chi2_minimization_red_interpolated():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([9.962, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
     ).all()
