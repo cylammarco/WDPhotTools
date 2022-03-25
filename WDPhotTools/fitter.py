@@ -417,7 +417,7 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - mag) / 2.5) - 100.0 / x[-1] ** 2.0
+            10.0 ** ((obs - mag) / 2.5) - x[-1] ** 2.0 / 100.0
         ) ** 2.0 / err2
 
         if np.isfinite(diff2).all():
@@ -467,7 +467,7 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - mag) / 2.5) - 100.0 / x[-1] ** 2.0
+            10.0 ** ((obs - mag) / 2.5) - x[-1] ** 2.0 / 100.0
         ) ** 2.0 / err2
 
         if np.isfinite(diff2).all():
@@ -994,16 +994,26 @@ class WDfitter(AtmosphereModelReader):
 
             return -np.inf
 
-    def _log_likelihood_distance(self, x, obs, errors, interpolator_filter):
+    def _log_likelihood_distance(
+        self, x, obs, errors, interpolator_filter, logg
+    ):
         """
         Internal method for computing the log-likelihood value in cases when
         the distance is not provided (for emcee).
 
         """
 
-        diff2, err2 = self._diff2_distance(
-            x, obs, errors, interpolator_filter, True
-        )
+        if logg is None:
+
+            diff2, err2 = self._diff2_distance(
+                x, obs, errors, interpolator_filter, True
+            )
+
+        else:
+
+            diff2, err2 = self._diff2_distance_fixed_logg(
+                x, obs, errors, interpolator_filter, logg, True
+            )
 
         if np.isfinite(diff2).all():
 
@@ -1725,17 +1735,35 @@ class WDfitter(AtmosphereModelReader):
 
                     if Rv <= 0.0:
 
-                        self.sampler[j] = emcee.EnsembleSampler(
-                            nwalkers,
-                            ndim,
-                            self._log_likelihood_distance,
-                            args=(
-                                mags,
-                                mag_errors,
-                                [self.interpolator[j][i] for i in filters],
-                            ),
-                            **_kwargs_for_emcee
-                        )
+                        if "logg" in independent:
+
+                            self.sampler[j] = emcee.EnsembleSampler(
+                                nwalkers,
+                                ndim,
+                                self._log_likelihood_distance,
+                                args=(
+                                    mags,
+                                    mag_errors,
+                                    [self.interpolator[j][i] for i in filters],
+                                    None,
+                                ),
+                                **_kwargs_for_emcee
+                            )
+
+                        else:
+
+                            self.sampler[j] = emcee.EnsembleSampler(
+                                nwalkers,
+                                ndim,
+                                self._log_likelihood_distance,
+                                args=(
+                                    mags,
+                                    mag_errors,
+                                    [self.interpolator[j][i] for i in filters],
+                                    logg,
+                                ),
+                                **_kwargs_for_emcee
+                            )
 
                     else:
 

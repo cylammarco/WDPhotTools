@@ -44,16 +44,16 @@ extinction_grizyJHK = np.array(
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: No
-def test_minimize_Mbol_logg():
+def test_minimize_Teff_logg():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
     )
@@ -69,16 +69,16 @@ def test_minimize_Mbol_logg():
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: No
-def test_minimize_Mbol():
+def test_minimize_Teff():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -97,16 +97,16 @@ def test_minimize_Mbol():
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes
-def test_minimize_Mbol_reddening():
+def test_minimize_Teff_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -127,16 +127,16 @@ def test_minimize_Mbol_reddening():
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes
-def test_minimize_Mbol_logg_reddening():
+def test_minimize_Teff_logg_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
         Rv=rv,
@@ -156,16 +156,16 @@ def test_minimize_Mbol_logg_reddening():
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: No
-def test_minimize_Mbol_logg_distance():
+def test_minimize_Teff_logg_distance():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5, 10.0],
+        initial_guess=[13000.0, 7.5, 10.0],
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -181,16 +181,16 @@ def test_minimize_Mbol_logg_distance():
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: No
-def test_minimize_Mbol_distance():
+def test_minimize_Teff_distance():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
+        initial_guess=[13000.0, 10.0],
         logg=7.5,
     )
     ftr.best_fit_params["H"]["Mbol"]
@@ -207,16 +207,16 @@ def test_minimize_Mbol_distance():
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_minimize_Mbol_distance_reddening():
+def test_minimize_Teff_distance_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
+        initial_guess=[13000.0, 10.0],
         logg=7.5,
         Rv=rv,
         ebv=ebv,
@@ -235,16 +235,16 @@ def test_minimize_Mbol_distance_reddening():
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_minimize_Mbol_logg_distance_reddening():
+def test_minimize_Teff_logg_distance_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5, 10.0],
+        initial_guess=[13000.0, 7.5, 10.0],
         Rv=rv,
         ebv=ebv,
     )
@@ -264,16 +264,16 @@ def test_minimize_Mbol_logg_distance_reddening():
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: No
-def test_lsq_Mbol_logg():
+def test_lsq_Teff_logg():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
     )
@@ -291,16 +291,16 @@ def test_lsq_Mbol_logg():
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: No
-def test_lsq_Mbol():
+def test_lsq_Teff():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -319,16 +319,16 @@ def test_lsq_Mbol():
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes
-def test_lsq_Mbol_reddening():
+def test_lsq_Teff_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -349,16 +349,16 @@ def test_lsq_Mbol_reddening():
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes
-def test_lsq_Mbol_logg_reddening():
+def test_lsq_Teff_logg_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
         Rv=rv,
@@ -378,16 +378,16 @@ def test_lsq_Mbol_logg_reddening():
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: No
-def test_lsq_Mbol_logg_distance():
+def test_lsq_Teff_logg_distance():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5, 10.0],
+        initial_guess=[13000.0, 7.5, 10.0],
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -403,17 +403,17 @@ def test_lsq_Mbol_logg_distance():
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: No
-def test_lsq_Mbol_distance():
+def test_lsq_Teff_distance():
     mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
+        initial_guess=[13000.0, 10.0],
         logg=7.5,
     )
     ftr.best_fit_params["H"]["Mbol"]
@@ -430,16 +430,16 @@ def test_lsq_Mbol_distance():
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_lsq_Mbol_distance_logg():
+def test_lsq_Teff_distance_logg():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
+        initial_guess=[13000.0, 10.0],
         logg=7.5,
         Rv=rv,
         ebv=ebv,
@@ -458,16 +458,16 @@ def test_lsq_Mbol_distance_logg():
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_lsq_Mbol_logg_distance_reddening():
+def test_lsq_Teff_logg_distance_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5, 10.0],
+        initial_guess=[13000.0, 7.5, 10.0],
         Rv=rv,
         ebv=ebv,
     )
@@ -490,17 +490,17 @@ def test_lsq_Mbol_logg_distance_reddening():
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: No
-def test_emcee_Mbol_logg():
+def test_emcee_Teff_logg():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         nwalkers=100,
         nsteps=500,
         nburns=200,
@@ -521,17 +521,17 @@ def test_emcee_Mbol_logg():
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: No
-def test_emcee_Mbol():
+def test_emcee_Teff():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         nwalkers=100,
         nsteps=500,
         nburns=200,
@@ -553,17 +553,17 @@ def test_emcee_Mbol():
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes
-def test_emcee_Mbol_reddening():
+def test_emcee_Teff_reddening():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0],
+        initial_guess=[13000.0],
         nwalkers=100,
         nsteps=500,
         nburns=200,
@@ -587,17 +587,17 @@ def test_emcee_Mbol_reddening():
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes
-def test_emcee_Mbol_logg_reddening():
+def test_emcee_Teff_logg_reddening():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
         mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5],
+        initial_guess=[13000.0, 7.5],
         nwalkers=100,
         nsteps=500,
         nburns=200,
@@ -620,7 +620,7 @@ def test_emcee_Mbol_logg_reddening():
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: No
-def test_emcee_Mbol_logg_distance():
+def test_emcee_Teff_logg_distance():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
@@ -655,10 +655,10 @@ def test_emcee_Mbol_logg_distance():
             0.01,
             0.01,
         ],
-        independent=["Mbol", "logg"],
+        independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 7.5, 10.0],
+        initial_guess=[13000.0, 7.5, 10.0],
         nwalkers=100,
         nsteps=500,
         nburns=200,
@@ -677,7 +677,7 @@ def test_emcee_Mbol_logg_distance():
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: No
-def test_emcee_Mbol_distance():
+def test_emcee_Teff_distance():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
@@ -712,10 +712,10 @@ def test_emcee_Mbol_distance():
             0.01,
             0.01,
         ],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
+        initial_guess=[13000.0, 10.0],
         nwalkers=100,
         nsteps=1000,
         nburns=100,
@@ -735,7 +735,7 @@ def test_emcee_Mbol_distance():
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_emcee_Mbol_distance_reddening():
+def test_emcee_Teff_distance_reddening():
     ftr = WDfitter()
     ftr.fit(
         atmosphere="H",
@@ -772,10 +772,10 @@ def test_emcee_Mbol_distance_reddening():
             0.01,
             0.01,
         ],
-        independent=["Mbol"],
+        independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="CT",
-        initial_guess=[10.0, 10.0],
+        initial_guess=[13000.0, 10.0],
         nwalkers=100,
         nsteps=1000,
         nburns=100,
@@ -797,7 +797,7 @@ def test_emcee_Mbol_distance_reddening():
 # # Fitting logg: Yes
 # # Fitting distance: Yes
 # # Reddenning: Yes
-# def test_emcee_Mbol_logg_distance_reddening():
+# def test_emcee_Teff_logg_distance_reddening():
 #     ftr = WDfitter()
 #     ftr.fit(
 #         atmosphere="H",
@@ -834,10 +834,10 @@ def test_emcee_Mbol_distance_reddening():
 #             0.01,
 #             0.01,
 #         ],
-#         independent=["Mbol", "logg"],
+#         independent=["Teff", "logg"],
 #         method="emcee",
 #         atmosphere_interpolator="CT",
-#         initial_guess=[10.0, 7.5, 10.0],
+#         initial_guess=[13000.0, 7.5, 10.0],
 #         nwalkers=100,
 #         nsteps=1000,
 #         nburns=100,
