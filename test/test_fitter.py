@@ -57,7 +57,7 @@ def test_fitting_Teff(mock_show):
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -78,7 +78,7 @@ def test_fitting_Teff_with_None():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -94,7 +94,7 @@ def test_fitting_Teff_with_None():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -110,7 +110,7 @@ def test_fitting_Teff_with_None():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -134,7 +134,7 @@ def test_fitting_logg_and_mbol():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -153,8 +153,8 @@ def test_fitting_logg_Teff_distance():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-03,
-        atol=1e-03,
+        rtol=1e-02,
+        atol=1e-02,
     ).all()
 
 
@@ -175,8 +175,8 @@ def test_fitting_logg_Teff_distance_nelder_mead():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-03,
-        atol=1e-03,
+        rtol=1e-02,
+        atol=1e-02,
     ).all()
 
 
@@ -204,7 +204,7 @@ def test_fitting_Teff_red():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -231,7 +231,7 @@ def test_fitting_logg_and_Teff_red():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -255,8 +255,8 @@ def test_fitting_logg_Teff_distance_red():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-03,
-        atol=1e-03,
+        rtol=1e-02,
+        atol=1e-02,
     ).all()
 
 
@@ -284,8 +284,8 @@ def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-03,
-        atol=1e-03,
+        rtol=1e-02,
+        atol=1e-02,
     ).all()
 
 
@@ -322,7 +322,7 @@ def test_fitting_Teff_lsq():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -344,7 +344,7 @@ def test_fitting_Teff_with_None_lsq():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -360,7 +360,7 @@ def test_fitting_Teff_with_None_lsq():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -377,7 +377,7 @@ def test_fitting_Teff_with_None_lsq():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -402,7 +402,7 @@ def test_fitting_logg_and_Teff_lsq():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -422,8 +422,8 @@ def test_fitting_logg_Teff_distance_lsq():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-03,
-        atol=1e-03,
+        rtol=1e-02,
+        atol=1e-02,
     ).all()
 
 
@@ -444,8 +444,8 @@ def test_fitting_logg_Teff_distance_nelder_mead_lsq():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-03,
-        atol=1e-03,
+        rtol=1e-02,
+        atol=1e-02,
     ).all()
 
 
@@ -474,7 +474,7 @@ def test_fitting_Teff_red_lsq():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -502,7 +502,7 @@ def test_fitting_logg_and_Teff_red_lsq():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -527,8 +527,8 @@ def test_fitting_logg_Teff_distance_red_lsq():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-03,
-        atol=1e-03,
+        rtol=1e-02,
+        atol=1e-02,
     ).all()
 
 
@@ -569,7 +569,7 @@ def test_fitting_Teff_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -595,7 +595,7 @@ def test_fitting_Teff_with_None_emcee():
         display=False, folder="test_output", ext=["png", "pdf"]
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -613,7 +613,7 @@ def test_fitting_Teff_with_None_emcee():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -631,7 +631,7 @@ def test_fitting_Teff_with_None_emcee():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -657,7 +657,7 @@ def test_fitting_logg_and_Teff_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -687,7 +687,7 @@ def test_fitting_Teff_red_emcee():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -716,7 +716,7 @@ def test_fitting_logg_and_Teff_red_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
 
 
@@ -754,5 +754,5 @@ def test_chi2_minimization_red_interpolated():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-03, atol=1e-03
+        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
