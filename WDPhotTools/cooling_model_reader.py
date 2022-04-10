@@ -82,23 +82,38 @@ class CoolingModelReader(object):
             None,
         ]
 
+        # Default to montreal_co_da_20
         self.cooling_models = {
-            "low_mass_cooling_model": None,
-            "intermediate_mass_cooling_model": None,
-            "high_mass_cooling_model": None,
+            "low_mass_cooling_model": "montreal_co_da_20",
+            "intermediate_mass_cooling_model": "montreal_co_da_20",
+            "high_mass_cooling_model": "montreal_co_da_20",
         }
 
-    def list_cooling_model(self):
+    def list_cooling_model(self, print_to_screen=True):
         """
         Print the formatted list of available cooling models.
 
+        Parameters
+        ----------
+        print_to_screen: bool (Default: True)
+            Set to True to print the list of cooling models to screen.
+
+        Returns
+        -------
+        model_list:
+            The names and references of the cooling models.
+
         """
 
-        for i in self.model_list.items():
+        if print_to_screen:
 
-            print("Model: {}, Reference: {}".format(i[0], i[1]))
+            for i in self.model_list.items():
 
-    def list_cooling_parameters(self, model):
+                print("Model: {}, Reference: {}".format(i[0], i[1]))
+
+        return self.model_list.items()
+
+    def list_cooling_parameters(self, model, print_to_screen=True):
         """
         Print the formatted list of parameters available for the specified
         cooling models.
@@ -107,20 +122,35 @@ class CoolingModelReader(object):
         ----------
         model: str
             Name of the cooling model as in the `model_list`.
+        print_to_screen: bool (Default: True)
+            Set to True to print the cooling model parameters to screen.
+
+        Returns
+        -------
+        mass:
+            WD mass available in the specified model.
+        column_names:
+            Available parameters in the specified model.
+        column_units:
+            Unites of the parameters in the specified model.
 
         """
 
         mass, _, column_names, column_units = self.get_cooling_model(model)
 
-        print("Available WD mass: {}".format(mass))
+        if print_to_screen:
 
-        for i, j in zip(column_names.items(), column_units.items()):
+            print("Available WD mass: {}".format(mass))
 
-            print(
-                "Parameter: {}, Column Name: {}, Unit: {}".format(
-                    i[1], i[0], j[1]
+            for i, j in zip(column_names.items(), column_units.items()):
+
+                print(
+                    "Parameter: {}, Column Name: {}, Unit: {}".format(
+                        i[1], i[0], j[1]
+                    )
                 )
-            )
+
+        return mass, column_names.items(), column_units.items()
 
     def get_cooling_model(self, model, mass_range="all"):
         """
@@ -461,10 +491,15 @@ class CoolingModelReader(object):
 
         if mass_range == "all":
             pass
-        if mass_range == "low":
+        elif mass_range == "low":
             mask_low = mass < 0.5
             mass = mass[mask_low]
             filelist = np.array(filelist)[mask_low]
+        else:
+            raise ValueError(
+                "Unknown mass range requested. Please choose "
+                "from 'all' or 'low' for althaus09 models."
+            )
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -795,14 +830,19 @@ class CoolingModelReader(object):
 
         if mass_range == "all":
             pass
-        if mass_range == "low":
+        elif mass_range == "low":
             mask_low = mass < 0.5
             wd_mass = wd_mass[mask_low]
             cooling_model = cooling_model[mask_low]
-        if mass_range == "intermediate":
+        elif mass_range == "intermediate":
             mask_intermediate = (mass >= 0.5) & (mass <= 1.0)
             wd_mass = wd_mass[mask_intermediate]
             cooling_model = cooling_model[mask_intermediate]
+        else:
+            raise ValueError(
+                "Unknown mass range requested. Please choose from"
+                "'all', 'low' or 'intermediate' for althaus17 models."
+            )
 
         return wd_mass, cooling_model, column_names, column_units
 
@@ -913,18 +953,23 @@ class CoolingModelReader(object):
 
         if mass_range == "all":
             pass
-        if mass_range == "low":
+        elif mass_range == "low":
             mask_low = mass < 0.5
             mass = mass[mask_low]
             filelist = np.array(filelist)[mask_low]
-        if mass_range == "intermediate":
+        elif mass_range == "intermediate":
             mask_intermediate = (mass >= 0.5) & (mass <= 1.0)
             mass = mass[mask_intermediate]
             filelist = np.array(filelist)[mask_intermediate]
-        if mass_range == "high":
+        elif mass_range == "high":
             mask_high = mass > 1.0
             mass = mass[mask_high]
             filelist = np.array(filelist)[mask_high]
+        else:
+            raise ValueError(
+                "Unknown mass range requested. Please choose from"
+                "'all', 'low', 'intermediate' or 'high' for bedard20 models."
+            )
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1590,14 +1635,19 @@ class CoolingModelReader(object):
 
         if mass_range == "all":
             pass
-        if mass_range == "intermediate":
+        elif mass_range == "intermediate":
             mask_intermediate = (mass >= 0.5) & (mass <= 1.0)
             mass = mass[mask_intermediate]
             filelist = np.array(filelist)[mask_intermediate]
-        if mass_range == "high":
+        elif mass_range == "high":
             mask_high = mass > 1.0
             mass = mass[mask_high]
             filelist = np.array(filelist)[mask_high]
+        else:
+            raise ValueError(
+                "Unknown mass range requested. Please choose from"
+                "'all', 'intermediate' or 'high' for bedard20 models."
+            )
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1951,9 +2001,7 @@ class CoolingModelReader(object):
                 **_kwargs_for_RBF,
             )
 
-            def cooling_interpolator(x):
-
-                x0, x1 = np.asarray(x, dtype="object").reshape(-1)
+            def cooling_interpolator(x0, x1):
 
                 _x0 = np.asarray(x0)
                 _x1 = np.asarray(x1)

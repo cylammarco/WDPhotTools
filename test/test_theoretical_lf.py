@@ -293,6 +293,8 @@ def test_plotting_wdlf_savefig_path_not_exist():
 
 # Testing set_low_mass_cooling_model with model = "lpcode_he_da_09"
 def test_cooling_model_low_mass_lpcode_he_da_09():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
     wdlf.set_low_mass_cooling_model(model="lpcode_he_da_09")
     wdlf.compute_cooling_age_interpolator()
     wdlf.compute_density(Mag=Mag)
@@ -301,6 +303,8 @@ def test_cooling_model_low_mass_lpcode_he_da_09():
 
 # Testing set_intermediate_mass_cooling_model with model = "basti_co_da_10"
 def test_cooling_model_intermediate_mass_basti_co_da_10():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
     wdlf.set_intermediate_mass_cooling_model(model="basti_co_da_10")
     wdlf.compute_cooling_age_interpolator()
     wdlf.compute_density(Mag=Mag)
@@ -309,7 +313,19 @@ def test_cooling_model_intermediate_mass_basti_co_da_10():
 
 # Testing set_high_mass_cooling_model with model = "basti_co_da_10"
 def test_cooling_model_high_mass_basti_co_da_10():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
     wdlf.set_high_mass_cooling_model(model="basti_co_da_10")
+    wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+# Testing set_intermediate_mass_cooling_model with model = "lpcode_co_db_17"
+def test_cooling_model_intermediate_mass_lpcode_co_db_17():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
+    wdlf.set_intermediate_mass_cooling_model(model="lpcode_co_db_17")
     wdlf.compute_cooling_age_interpolator()
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
