@@ -1009,7 +1009,9 @@ class CoolingModelReader(object):
         """
 
         # Y=0.4, Z=0.0005 models
-        filelist = glob.glob("wd_cooling/camisassa17/*.trk")
+        filelist = glob.glob(
+            os.path.join(self.THIS_FILE, "wd_cooling/camisassa17/*.trk")
+        )
 
         # Prepare the array column dtype
         column_key = np.array(

@@ -45,4 +45,4 @@ def test_get_lpcode_co_da_10_z001():
     assert len(cooling_model[1]) == 10
     assert len(cooling_model[2]) == 13
     assert len(cooling_model[3]) == 13
-    assert len(cooling_model[1][0]) == 646
+    assert len(cooling_model[1][0]) == 746
