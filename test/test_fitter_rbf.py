@@ -1,8 +1,6 @@
 from WDPhotTools.fitter import WDfitter
 import numpy as np
 from unittest.mock import patch
-import os  # For testing file existence with assert
-import time  # For testing file existence with assert
 
 from WDPhotTools.reddening import reddening_vector_filter
 from WDPhotTools.reddening import reddening_vector_interpolated
@@ -63,8 +61,8 @@ def test_minimize_Teff_logg():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -91,8 +89,8 @@ def test_minimize_Teff():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -121,8 +119,8 @@ def test_minimize_Teff_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -150,8 +148,8 @@ def test_minimize_Teff_logg_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -175,8 +173,8 @@ def test_minimize_Teff_logg_distance():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -201,8 +199,8 @@ def test_minimize_Teff_distance():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -229,8 +227,8 @@ def test_minimize_Teff_distance_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -256,8 +254,8 @@ def test_minimize_Teff_logg_distance_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -285,8 +283,8 @@ def test_lsq_Teff_logg():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -313,8 +311,8 @@ def test_lsq_Teff():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -343,8 +341,8 @@ def test_lsq_Teff_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -372,8 +370,8 @@ def test_lsq_Teff_logg_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -397,8 +395,8 @@ def test_lsq_Teff_logg_distance():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -424,8 +422,8 @@ def test_lsq_Teff_distance():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -452,8 +450,8 @@ def test_lsq_Teff_distance_logg():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -479,8 +477,8 @@ def test_lsq_Teff_logg_distance_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-01,
-        atol=1e-01,
+        rtol=5e-02,
+        atol=5e-02,
     )
 
 
@@ -515,8 +513,8 @@ def test_emcee_Teff_logg():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )
 
 
@@ -547,8 +545,8 @@ def test_emcee_Teff():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )
 
 
@@ -581,8 +579,8 @@ def test_emcee_Teff_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )
 
 
@@ -614,8 +612,8 @@ def test_emcee_Teff_logg_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )
 
 
@@ -671,8 +669,8 @@ def test_emcee_Teff_logg_distance():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )
 
 
@@ -729,8 +727,8 @@ def test_emcee_Teff_distance():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )
 
 
@@ -791,8 +789,8 @@ def test_emcee_Teff_distance_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )
 
 
@@ -852,6 +850,6 @@ def test_emcee_Teff_logg_distance_reddening():
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         13000.0,
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=1e-01,
+        atol=1e-01,
     )

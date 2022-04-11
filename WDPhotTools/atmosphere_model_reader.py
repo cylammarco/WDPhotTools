@@ -358,6 +358,9 @@ class AtmosphereModelReader(object):
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
 
+            arg_1_min = np.nanmin(arg_1)
+            arg_1_max = np.nanmax(arg_1)
+
             if independent[1] in ["Teff", "age"]:
 
                 arg_1 = np.log10(arg_1)
@@ -390,10 +393,6 @@ class AtmosphereModelReader(object):
 
                 def atmosphere_interpolator(x):
 
-                    if independent[1] in ["Teff", "age"]:
-
-                        x = np.log10(x)
-
                     if isinstance(x, (float, int)):
 
                         length = 1
@@ -406,6 +405,13 @@ class AtmosphereModelReader(object):
 
                     _logg = np.asarray(_logg)
                     _x = np.asarray(x)
+
+                    _x[_x < arg_1_min] = arg_1_min
+                    _x[_x > arg_1_max] = arg_1_max
+
+                    if independent[1] in ["Teff", "age"]:
+
+                        _x = np.log10(_x)
 
                     return _atmosphere_interpolator(
                         np.array([_logg, _x], dtype=object).reshape(length, 2)
@@ -425,6 +431,11 @@ class AtmosphereModelReader(object):
 
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
+
+            arg_0_min = np.nanmin(arg_0)
+            arg_0_max = np.nanmax(arg_0)
+            arg_1_min = np.nanmin(arg_1)
+            arg_1_max = np.nanmax(arg_1)
 
             if independent[0] in ["Teff", "age"]:
 
@@ -503,6 +514,11 @@ class AtmosphereModelReader(object):
 
                     _x0 = np.asarray(x0)
                     _x1 = np.asarray(x1)
+
+                    _x0[_x0 < arg_0_min] = arg_0_min
+                    _x0[_x0 > arg_0_max] = arg_0_max
+                    _x1[_x1 < arg_1_min] = arg_1_min
+                    _x1[_x1 > arg_1_max] = arg_1_max
 
                     if independent[0] in ["Teff", "age"]:
 

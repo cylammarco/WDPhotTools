@@ -116,6 +116,16 @@ def test_changing_sfr_model():
     assert np.sum(wdlf.number_density) != 1.0
 
 
+def test_rbf_interpolator():
+    wdlf.compute_density(Mag=Mag, interpolator="RBF")
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+def test_ct_interpolator():
+    wdlf.compute_density(Mag=Mag, interpolator="CT")
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
 def test_changing_imf_model():
     wdlf.set_imf_model("K01")
     wdlf.compute_density(Mag=Mag)
@@ -166,16 +176,6 @@ def test_changing_ifmr_model():
     # Testing set_ifmr_model with model = "EB18"
     wdlf.set_ifmr_model("EB18")
     wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
-
-
-def test_rbf_interpolator():
-    wdlf.compute_density(Mag=Mag, interpolator="RBF")
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
-
-
-def test_ct_interpolator():
-    wdlf.compute_density(Mag=Mag, interpolator="CT")
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 

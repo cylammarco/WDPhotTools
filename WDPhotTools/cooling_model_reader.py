@@ -2003,10 +2003,20 @@ class CoolingModelReader(object):
                 **_kwargs_for_RBF,
             )
 
+            lum_min = np.nanmin(np.log10(self.luminosity))
+            lum_max = np.nanmax(np.log10(self.luminosity))
+            mass_min = np.nanmin(self.mass)
+            mass_max = np.nanmax(self.mass)
+
             def cooling_interpolator(x0, x1):
 
                 _x0 = np.asarray(x0)
                 _x1 = np.asarray(x1)
+
+                _x0[_x0 < lum_min] = lum_min
+                _x0[_x0 > lum_max] = lum_max
+                _x1[_x1 < mass_min] = mass_min
+                _x1[_x1 > mass_max] = mass_max
 
                 length0 = len(x0)
 
@@ -2044,7 +2054,7 @@ class CoolingModelReader(object):
         elif interpolator.upper() == "RBF":
 
             # Interpolate with the scipy RBFInterpolator
-            self.cooling_rate_interpolator = RBFInterpolator(
+            _cooling_rate_interpolator = RBFInterpolator(
                 np.stack(
                     (
                         np.log10(self.luminosity)[finite_mask],
@@ -2055,6 +2065,29 @@ class CoolingModelReader(object):
                 self.dLdt[finite_mask],
                 **_kwargs_for_RBF,
             )
+
+            lum_min = np.nanmin(np.log10(self.luminosity))
+            lum_max = np.nanmax(np.log10(self.luminosity))
+            mass_min = np.nanmin(self.mass)
+            mass_max = np.nanmax(self.mass)
+
+            def cooling_rate_interpolator(x0, x1):
+
+                _x0 = np.asarray(x0)
+                _x1 = np.asarray(x1)
+
+                _x0[_x0 < lum_min] = lum_min
+                _x0[_x0 > lum_max] = lum_max
+                _x1[_x1 < mass_min] = mass_min
+                _x1[_x1 > mass_max] = mass_max
+
+                length0 = len(x0)
+
+                return _cooling_rate_interpolator(
+                    np.asarray([_x0, _x1], dtype="object").reshape(length0, 2)
+                )
+
+            self.cooling_rate_interpolator = cooling_rate_interpolator
 
         else:
 
