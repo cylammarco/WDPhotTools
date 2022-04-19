@@ -756,3 +756,5 @@ def test_chi2_minimization_red_interpolated():
     assert np.isclose(
         ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
     ).all()
+
+#ykw
