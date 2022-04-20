@@ -84,6 +84,7 @@ def plot_atmosphere_model(
         np.linspace(7.0, 9.0, 5),
         10.0 ** np.linspace(3.185, 5.165, 100),
     ],
+    interpolator="CT",
     contour=True,
     figsize=(8, 8),
     invert_xaxis=False,
@@ -118,6 +119,8 @@ def plot_atmosphere_model(
     independent_values: list of list or list of arrays (Default:
         [np.linspace(7.0, 9.0, 5), 10.**np.linspace(3.185, 5.165, 100)])
         The coordinates to be interpolated and plotted.
+    interpolator: str (Default: 'CT')
+        Choice of interpolator between CT and RBF.
     contour: bool (Default: True)
         Set to True to plot the contour levels.
     figsize: array of size 2 (Default: (8, 8))
@@ -213,10 +216,16 @@ def plot_atmosphere_model(
         if len(x) == 2:
 
             x0_itp = __dummy_atm.ar.interp_am(
-                dependent=x[0], atmosphere=atmosphere, independent=independent
+                dependent=x[0],
+                atmosphere=atmosphere,
+                independent=independent,
+                interpolator=interpolator,
             )
             x1_itp = __dummy_atm.ar.interp_am(
-                dependent=x[1], atmosphere=atmosphere, independent=independent
+                dependent=x[1],
+                atmosphere=atmosphere,
+                independent=independent,
+                interpolator=interpolator,
             )
             x_out.append(
                 x0_itp(i_v, independent_values[1])
@@ -226,17 +235,26 @@ def plot_atmosphere_model(
         else:
 
             x_itp = __dummy_atm.ar.interp_am(
-                dependent=x[0], atmosphere=atmosphere, independent=independent
+                dependent=x[0],
+                atmosphere=atmosphere,
+                independent=independent,
+                interpolator=interpolator,
             )
             x_out.append(x_itp(i_v, independent_values[1]))
 
         if len(y) == 2:
 
             y0_itp = __dummy_atm.ar.interp_am(
-                dependent=y[0], atmosphere=atmosphere, independent=independent
+                dependent=y[0],
+                atmosphere=atmosphere,
+                independent=independent,
+                interpolator=interpolator,
             )
             y1_itp = __dummy_atm.ar.interp_am(
-                dependent=y[1], atmosphere=atmosphere, independent=independent
+                dependent=y[1],
+                atmosphere=atmosphere,
+                independent=independent,
+                interpolator=interpolator,
             )
             y_out.append(
                 y0_itp(i_v, independent_values[1])
@@ -246,7 +264,10 @@ def plot_atmosphere_model(
         else:
 
             y_itp = __dummy_atm.ar.interp_am(
-                dependent=y[0], atmosphere=atmosphere, independent=independent
+                dependent=y[0],
+                atmosphere=atmosphere,
+                independent=independent,
+                interpolator=interpolator,
             )
             y_out.append(y_itp(i_v, independent_values[1]))
 
