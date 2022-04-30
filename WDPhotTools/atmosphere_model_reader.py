@@ -529,8 +529,7 @@ class AtmosphereModelReader(object):
                         _x1 = np.log10(_x1)
 
                     return _atmosphere_interpolator(
-                        np.asarray([_x0, _x1], dtype="object").reshape(
-                            length0, 2
+                        np.transpose(np.asarray([_x0, _x1], dtype="object")
                         )
                     )
 
