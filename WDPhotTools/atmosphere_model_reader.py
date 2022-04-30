@@ -532,7 +532,6 @@ class AtmosphereModelReader(object):
                         np.asarray([_x0, _x1], dtype="object").T.reshape(
                         length0, 2
                         )
-                        )
                     )
 
             else:
