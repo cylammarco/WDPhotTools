@@ -1232,9 +1232,9 @@ class WDfitter(AtmosphereModelReader):
             initial_guess = list(initial_guess.reshape(-1))
 
         if (
-            (Rv is not None)
-            and (self.rv is None)
-            and (self.extinction_convolved != extinction_convolved)
+            ((Rv >= 0.0) and (self.rv is None))
+            or (self.extinction_convolved != extinction_convolved)
+            or (len(self.interpolator[atmosphere[0]]) - 4 != len(filters))
         ):
 
             self.interp_reddening(
@@ -1367,7 +1367,7 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     False,
                                 ),
-                                **_kwargs_for_minimize
+                                **_kwargs_for_minimize,
                             )
 
                         else:
@@ -1382,7 +1382,7 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     False,
                                 ),
-                                **_kwargs_for_minimize
+                                **_kwargs_for_minimize,
                             )
 
                     else:
@@ -1402,7 +1402,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_minimize
+                                **_kwargs_for_minimize,
                             )
 
                         else:
@@ -1420,7 +1420,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_minimize
+                                **_kwargs_for_minimize,
                             )
 
                 # If distance is provided, fit here.
@@ -1438,7 +1438,7 @@ class WDfitter(AtmosphereModelReader):
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
                             ),
-                            **_kwargs_for_minimize
+                            **_kwargs_for_minimize,
                         )
 
                     else:
@@ -1460,7 +1460,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_minimize
+                                **_kwargs_for_minimize,
                             )
 
                         else:
@@ -1480,7 +1480,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_minimize
+                                **_kwargs_for_minimize,
                             )
 
                 # Store the chi2
@@ -1559,7 +1559,7 @@ class WDfitter(AtmosphereModelReader):
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
-                            **_kwargs_for_least_squares
+                            **_kwargs_for_least_squares,
                         )
 
                     else:
@@ -1579,7 +1579,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_least_squares
+                                **_kwargs_for_least_squares,
                             )
 
                         else:
@@ -1597,7 +1597,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_least_squares
+                                **_kwargs_for_least_squares,
                             )
 
                 # If distance is provided, fit here.
@@ -1616,7 +1616,7 @@ class WDfitter(AtmosphereModelReader):
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
-                            **_kwargs_for_least_squares
+                            **_kwargs_for_least_squares,
                         )
 
                     else:
@@ -1638,7 +1638,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_least_squares
+                                **_kwargs_for_least_squares,
                             )
 
                         else:
@@ -1658,7 +1658,7 @@ class WDfitter(AtmosphereModelReader):
                                     ebv,
                                     False,
                                 ),
-                                **_kwargs_for_least_squares
+                                **_kwargs_for_least_squares,
                             )
 
                 # Store the chi2
@@ -1747,7 +1747,7 @@ class WDfitter(AtmosphereModelReader):
                                     [self.interpolator[j][i] for i in filters],
                                     None,
                                 ),
-                                **_kwargs_for_emcee
+                                **_kwargs_for_emcee,
                             )
 
                         else:
@@ -1762,7 +1762,7 @@ class WDfitter(AtmosphereModelReader):
                                     [self.interpolator[j][i] for i in filters],
                                     logg,
                                 ),
-                                **_kwargs_for_emcee
+                                **_kwargs_for_emcee,
                             )
 
                     else:
@@ -1782,7 +1782,7 @@ class WDfitter(AtmosphereModelReader):
                                     Rv,
                                     ebv,
                                 ),
-                                **_kwargs_for_emcee
+                                **_kwargs_for_emcee,
                             )
 
                         else:
@@ -1800,7 +1800,7 @@ class WDfitter(AtmosphereModelReader):
                                     Rv,
                                     ebv,
                                 ),
-                                **_kwargs_for_emcee
+                                **_kwargs_for_emcee,
                             )
 
                 # If distance is provided, fit here.
@@ -1819,7 +1819,7 @@ class WDfitter(AtmosphereModelReader):
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
                             ),
-                            **_kwargs_for_emcee
+                            **_kwargs_for_emcee,
                         )
 
                     else:
@@ -1841,7 +1841,7 @@ class WDfitter(AtmosphereModelReader):
                                     Rv,
                                     ebv,
                                 ),
-                                **_kwargs_for_emcee
+                                **_kwargs_for_emcee,
                             )
 
                         else:
@@ -1864,7 +1864,7 @@ class WDfitter(AtmosphereModelReader):
                                     Rv,
                                     ebv,
                                 ),
-                                **_kwargs_for_emcee
+                                **_kwargs_for_emcee,
                             )
 
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
@@ -2021,31 +2021,33 @@ class WDfitter(AtmosphereModelReader):
                         )
                     )
 
-            if self.extinction_convolved:
+                if self.extinction_convolved:
 
-                Av = (
-                    np.array(
-                        [
-                            i(
-                                [
-                                    self.best_fit_params[j]["logg"],
-                                    self.best_fit_params[j]["Teff"],
-                                    Rv,
-                                ]
-                            )
-                            for i in self.rv
-                        ]
-                    ).reshape(-1)
-                    * ebv
-                )
+                    Av = (
+                        np.array(
+                            [
+                                i(
+                                    [
+                                        self.best_fit_params[j]["logg"],
+                                        self.best_fit_params[j]["Teff"],
+                                        Rv,
+                                    ]
+                                )
+                                for i in self.rv
+                            ]
+                        ).reshape(-1)
+                        * ebv
+                    )
 
-            else:
+                else:
 
-                Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
+                    Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
 
-            for i, f in enumerate(self.fitting_params["filters"]):
+                Av[np.isnan(Av)] = 0.0
 
-                self.best_fit_params[j]["Av_" + f] = Av[i]
+                for i, f in enumerate(self.fitting_params["filters"]):
+
+                    self.best_fit_params[j]["Av_" + f] = Av[i]
 
     def show_corner_plot(
         self,
@@ -2056,7 +2058,7 @@ class WDfitter(AtmosphereModelReader):
         filename=None,
         ext=["png"],
         return_fig=True,
-        kwarg={"quantiles": [0.158655, 0.5, 0.841345], "show_titles": True},
+        kwarg={},
     ):
         """
         Generate the corner plot(s) of this fit.
@@ -2092,9 +2094,17 @@ class WDfitter(AtmosphereModelReader):
 
         """
 
+        _kwarg = {
+            "quantiles": [0.158655, 0.5, 0.841345],
+            "show_titles": True,
+            "range": [0.95] * len(self.fitting_params["independent"]),
+        }
+
+        _kwarg.update(**kwarg)
+
         if "labels" in kwarg:
 
-            labels = kwarg["labels"]
+            labels = _kwarg["labels"]
 
         else:
 
@@ -2117,7 +2127,7 @@ class WDfitter(AtmosphereModelReader):
                     fig=plt.figure(figsize=figsize),
                     labels=labels,
                     titles=labels,
-                    **kwarg
+                    **_kwarg,
                 )
             )
             plt.tight_layout()
