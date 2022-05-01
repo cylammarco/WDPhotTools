@@ -274,6 +274,13 @@ class CoolingModelReader(object):
                 column_units,
             ) = self._lauffer18_formatter(model)
 
+        elif model is None:
+
+            mass = np.array(())
+            cooling_model = np.array(())
+            column_names = {}
+            column_units = {}
+
         else:
 
             raise ValueError("Invalid model name.")
@@ -1833,7 +1840,7 @@ class CoolingModelReader(object):
 
         Parameters
         ----------
-        interpolator: str (Default: 'RBF')
+        interpolator: str (Default: 'CT')
             Choose between 'RBF' and 'CT'.
         kwargs_for_RBF: dict (Default: {"neighbors": None,
             "smoothing": 0.0, "kernel": "thin_plate_spline",
@@ -1870,92 +1877,115 @@ class CoolingModelReader(object):
 
         # Gather all the models in different mass ranges
 
-        # Reshaping the WD mass array to match the shape of the other two.
-        mass_low = (
-            np.concatenate(
-                np.array(
-                    [
-                        [mass_low[i]] * len(model["age"])
-                        for i, model in enumerate(cooling_model_low)
-                    ],
-                    dtype=object,
+        if mass_low.size == 0:
+
+            luminosity_low = np.array(())
+            age_low = np.array(())
+
+        else:
+
+            # Reshaping the WD mass array to match the shape of the other two.
+            mass_low = (
+                np.concatenate(
+                    np.array(
+                        [
+                            [mass_low[i]] * len(model["age"])
+                            for i, model in enumerate(cooling_model_low)
+                        ],
+                        dtype=object,
+                    )
                 )
+                .T.ravel()
+                .astype(np.float64)
             )
-            .T.ravel()
-            .astype(np.float64)
-        )
 
-        # The luminosity of the WD at the corresponding mass and age
-        luminosity_low = (
-            np.concatenate([i["lum"] for i in cooling_model_low])
-            .reshape(-1)
-            .astype(np.float64)
-        )
+            # The luminosity of the WD at the corresponding mass and age
+            luminosity_low = (
+                np.concatenate([i["lum"] for i in cooling_model_low])
+                .reshape(-1)
+                .astype(np.float64)
+            )
 
-        # The luminosity of the WD at the corresponding mass and luminosity
-        age_low = (
-            np.concatenate([i["age"] for i in cooling_model_low])
-            .reshape(-1)
-            .astype(np.float64)
-        )
+            # The luminosity of the WD at the corresponding mass and luminosity
+            age_low = (
+                np.concatenate([i["age"] for i in cooling_model_low])
+                .reshape(-1)
+                .astype(np.float64)
+            )
 
-        # Reshaping the WD mass array to match the shape of the other two.
-        mass_intermediate = (
-            np.concatenate(
-                np.array(
-                    [
-                        [mass_intermediate[i]] * len(model["age"])
-                        for i, model in enumerate(cooling_model_intermediate)
-                    ],
-                    dtype=object,
+        if mass_intermediate.size == 0:
+
+            luminosity_intermediate = np.array(())
+            age_intermediate = np.array(())
+
+        else:
+
+            # Reshaping the WD mass array to match the shape of the other two.
+            mass_intermediate = (
+                np.concatenate(
+                    np.array(
+                        [
+                            [mass_intermediate[i]] * len(model["age"])
+                            for i, model in enumerate(
+                                cooling_model_intermediate
+                            )
+                        ],
+                        dtype=object,
+                    )
                 )
+                .T.ravel()
+                .astype(np.float64)
             )
-            .T.ravel()
-            .astype(np.float64)
-        )
 
-        # The luminosity of the WD at the corresponding mass and age
-        luminosity_intermediate = (
-            np.concatenate([i["lum"] for i in cooling_model_intermediate])
-            .reshape(-1)
-            .astype(np.float64)
-        )
+            # The luminosity of the WD at the corresponding mass and age
+            luminosity_intermediate = (
+                np.concatenate([i["lum"] for i in cooling_model_intermediate])
+                .reshape(-1)
+                .astype(np.float64)
+            )
 
-        # The luminosity of the WD at the corresponding mass and luminosity
-        age_intermediate = (
-            np.concatenate([i["age"] for i in cooling_model_intermediate])
-            .reshape(-1)
-            .astype(np.float64)
-        )
+            # The luminosity of the WD at the corresponding mass and luminosity
+            age_intermediate = (
+                np.concatenate([i["age"] for i in cooling_model_intermediate])
+                .reshape(-1)
+                .astype(np.float64)
+            )
 
-        # Reshaping the WD mass array to match the shape of the other two.
-        mass_high = (
-            np.concatenate(
-                np.array(
-                    [
-                        [mass_high[i]] * len(model["age"])
-                        for i, model in enumerate(cooling_model_high)
-                    ],
-                    dtype=object,
+        if mass_high.size == 0:
+
+            luminosity_high = np.array(())
+            age_high = np.array(())
+
+        else:
+
+            # Reshaping the WD mass array to match the shape of the other two.
+            mass_high = (
+                np.concatenate(
+                    np.array(
+                        [
+                            [mass_high[i]] * len(model["age"])
+                            for i, model in enumerate(cooling_model_high)
+                        ],
+                        dtype=object,
+                    )
                 )
+                .T.ravel()
+                .astype(np.float64)
             )
-            .T.ravel()
-            .astype(np.float64)
-        )
 
-        # The luminosity of the WD at the corresponding mass and age
-        luminosity_high = (
-            np.concatenate([i["lum"] for i in cooling_model_high])
-            .reshape(-1)
-            .astype(np.float64)
-        )
+            # The luminosity of the WD at the corresponding mass and age
+            luminosity_high = (
+                np.concatenate([i["lum"] for i in cooling_model_high])
+                .reshape(-1)
+                .astype(np.float64)
+            )
 
-        # The luminosity of the WD at the corresponding mass and luminosity
-        age_high = (
-            np.concatenate([i["age"] for i in cooling_model_high])
-            .reshape(-1)
-            .astype(np.float64)
-        )
+            # The luminosity of the WD at the corresponding mass and luminosity
+            age_high = (
+                np.concatenate([i["age"] for i in cooling_model_high])
+                .reshape(-1)
+                .astype(np.float64)
+            )
 
         self.cooling_model_grid = np.concatenate(
             (cooling_model_low, cooling_model_intermediate, cooling_model_high)

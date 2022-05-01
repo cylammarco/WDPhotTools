@@ -9,7 +9,6 @@ This software can generate colour-colour diagram, colour-magnitude diagram in va
 
 the core parts of this work are three-fold: the first and the backbone of this work is the formatters that handle the output models from various works in the format as they are downloaded. This will allow the software to be updated with the newer models easily in the future. The second core part is the photometric fitter that solves for the WD parameters based on the photometry, with or without distance and reddening. The last part is to generate white dwarf luminosity function in bolometric magnitudes or in any of the photometric systems availalbe from the atmosphere model.
 
-
 ## Model Inspection
 
 1. Plotting the WD cooling sequence in Gaia filters
@@ -24,7 +23,7 @@ plotter.plot_atmosphere_model(invert_yaxis=True)
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/DA_cooling_tracks_from_plotter.png?raw=true)
 
-or with finer control by using the interpolators 
+or with finer control by using the interpolators
 
 ```python
 from matplotlib import pyplot as plt
@@ -136,22 +135,25 @@ With a finer control of the `cooling_model_reader`, it is easy to work with more
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/compare_ps_cooling_rates.png?raw=true)
 
 ## Photometric fitting
+
 We provide 3 minimisers for fitting with synthetic photometry: `scipy.optimize.minimize`, `scipy.optimize.least_squares` and `emcee` (with the option to refine with a `scipy.optimize.minimize` in a bounded region.)
 
-3. An example photometric fit of PSO J1801+6254 in 3 Gaia and 5 Pan-STARRS filters without providing a distance:
+3. An example photometric fit of PSO J1801+6254 in 3 Gaia, 5 Pan-STARRS and 3 NIR filters without providing a distance:
 
 ```python
 ftr.fit(
     atmosphere="H",
-    filters=["g_ps1", "r_ps1", "i_ps1", "z_ps1", "y_ps1", "G3", "G3_BP", "G3_RP"],
-    mags=[21.1437, 19.9678, 19.4993, 19.2981, 19.1478, 20.0533, 20.7883, 19.1868],
-    mag_errors=[0.0321, 0.0229, 0.0083, 0.0234, 0.0187, 0.006322, 0.118615, 0.070880],
+    filters=["g_ps1", "r_ps1", "i_ps1", "z_ps1", "y_ps1", "G3", "G3_BP", "G3_RP", "J_mko", "H_mko", "K_mko"],
+    mags=[21.1437, 19.9678, 19.4993, 19.2981, 19.1478, 20.0533, 20.7883, 19.1868, 19.45-0.91, 19.96-1.39, 20.40-1.85],
+    mag_errors=[0.0321, 0.0229, 0.0083, 0.0234, 0.0187, 0.006322, 0.118615, 0.070880, 0.05, 0.03, 0.05],
     independent=["Teff", "logg"],
     initial_guess=[4000.0, 7.5],
+    distance=71.231,
+    distance_err=2.0,
     method='emcee',
     nwalkers=100,
-    nsteps=5000,
-    nburns=500
+    nsteps=1000,
+    nburns=100
 )
 ftr.show_best_fit(display=False)
 ftr.show_corner_plot(
@@ -216,7 +218,7 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
 1. Montreal models
     1. Bedard et al. 2020 -- LIH [CO/DA+DB/0.2-1.3]
 2. LaPlata models
-    1.  Panei et al. 2007 -- L [He+CO/DA/0.187-0.448]
+    1. Panei et al. 2007 -- L [He+CO/DA/0.187-0.448]
     2. Althaus et al. 2009 -- L [He/DA/0.220-0.521]
     3. Renedo et al. 2010 -- I [CO/DA/0.505-0.934/Z=0.001-0.01]
     4. Althaus et al. 2015 -- I [CO/DA/0.506-0.826/Z=0.0003-0.001]
@@ -231,7 +233,7 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
 
 #### Example sets of WDLFs with different star formation scenario
 
-4. The following excerpt demonstrate how to generate luminosity functions with constant, burst and exponentially decaying 
+4. The following excerpt demonstrate how to generate luminosity functions with constant, burst and exponentially decaying
 
 ```python
 import os
@@ -248,39 +250,57 @@ wdlf.compute_cooling_age_interpolator()
 Mag = np.arange(0, 20.0, 0.1)
 age_list = 1e9 * np.arange(2, 15, 2)
 
-fig1, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, sharey=True, figsize=(10, 15))
+constant_density = []
+burst_density = []
+decay_density = []
 
 for i, age in enumerate(age_list):
 
     # Constant SFR
-    wdlf.set_sfr_model(mode='constant', age=age)
-    _, constant_density = wdlf.compute_density(Mag=Mag)
-    ax1.plot(Mag, np.log10(constant_density), label="{0:.2f} Gyr".format(age / 1e9))
+    wdlf.set_sfr_model(mode="constant", age=age)
+    constant_density.append(wdlf.compute_density(Mag=Mag)[1])
 
     # Burst SFR
-    wdlf.set_sfr_model(mode="burst", age=age, duration=1e9)
-    _, burst_density = wdlf.compute_density(Mag=Mag, passband="G3")
-    ax2.plot(Mag, np.log10(burst_density), label="{0:.2f} Gyr".format(age / 1e9))
+    wdlf.set_sfr_model(mode="burst", age=age, duration=1e8)
+    burst_density.append(wdlf.compute_density(Mag=Mag)[1])
 
     # Exponential decay SFR
     wdlf.set_sfr_model(mode="decay", age=age)
-    _, decay_density = wdlf.compute_density(Mag=Mag, passband="G3")
-    ax3.plot(Mag, np.log10(decay_density), label="{0:.2f} Gyr".format(age / 1e9))
+    decay_density.append(wdlf.compute_density(Mag=Mag)[1])
+
+# normalise the WDLFs relative to the density at 10 mag
+constant_density = [constant_density[i]/constant_density[i][Mag==10.0] for i in range(len(constant_density))]
+burst_density = [burst_density[i]/burst_density[i][Mag==10.0] for i in range(len(burst_density))]
+decay_density = [decay_density[i]/decay_density[i][Mag==10.0] for i in range(len(decay_density))]
+
+fig1, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, sharey=True, figsize=(10, 15))
+
+for i, age in enumerate(age_list):
+    ax1.plot(
+        Mag, np.log10(constant_density[i]), label="{0:.2f} Gyr".format(age / 1e9)
+    )
+    ax2.plot(
+        Mag, np.log10(burst_density[i])
+    )
+    ax3.plot(
+        Mag, np.log10(decay_density[i])
+    )
 
 ax1.legend()
 ax1.grid()
-ax1.set_xlim(7.5, 20)
-ax1.set_ylim(-5, 0)
-ax1.set_title("Star Formation History: Constant")
+ax1.set_xlim(0, 20)
+ax1.set_ylim(-3.75, 2.75)
+ax1.set_title("Constant")
 
 ax2.grid()
 ax2.set_ylabel("log(arbitrary number density)")
-ax2.set_title("Star Formation History: 1 Gyr Burst")
+ax2.set_title("100 Myr Burst")
 
 ax3.grid()
 ax3.set_xlabel(r"G$_{DR3}$ / mag")
-ax3.set_title(r"Star Formation History: Exponential Decay ($\tau=3$)")
+ax3.set_title(r"Exponential Decay ($\tau=3\,Gyr$)")
 
+plt.subplots_adjust(left=0.15, right=0.98, top=0.96, bottom=0.075)
 plt.show()
 ```
 

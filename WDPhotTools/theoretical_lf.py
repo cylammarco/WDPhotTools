@@ -638,7 +638,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         Mag,
         passband="Mbol",
         atmosphere="H",
-        interpolator="RBF",
+        interpolator="CT",
         M_max=8.0,
         limit=10000,
         n_points=100,

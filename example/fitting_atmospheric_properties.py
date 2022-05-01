@@ -85,6 +85,8 @@ ftr.fit(
         0.070880,
     ],
     independent=["Mbol", "logg"],
+    distance=71.231,
+    distance_err=2.0,
     initial_guess=[15.0, 7.5],
     kwargs_for_minimize={"method": "Nelder-Mead"},
 )
@@ -99,6 +101,7 @@ ftr.show_best_fit(
 
 
 # Fitting for logg and Mbol with 8 filters for both DA and DB
+ftr = WDfitter()
 ftr.fit(
     atmosphere="H",
     filters=[
@@ -133,14 +136,17 @@ ftr.fit(
     ],
     independent=["Mbol", "logg"],
     initial_guess=[14.0, 7.5],
+    atmosphere_interpolator="CT",
+    distance=71.231,
+    distance_err=2.0,
     method="emcee",
     nwalkers=100,
     nsteps=5000,
     nburns=500,
 )
 ftr.results["H"]
-ftr.results["He"]
 ftr.show_best_fit(
+    atmosphere="H",
     display=False,
     savefig=True,
     folder=os.path.join(HERE, "example_output"),
@@ -155,6 +161,6 @@ ftr.show_corner_plot(
     kwarg={
         "quantiles": [0.158655, 0.5, 0.841345],
         "show_titles": True,
-        "truths": [3550, 7.45, 72.962],
+        "truths": [3550, 7.45],
     },
 )

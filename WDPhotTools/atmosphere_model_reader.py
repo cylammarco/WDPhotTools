@@ -303,7 +303,6 @@ class AtmosphereModelReader(object):
             A callable function of CloughTocher2DInterpolator.
 
         """
-
         _kwargs_for_RBF = {
             "neighbors": None,
             "smoothing": 0.0,
@@ -529,7 +528,7 @@ class AtmosphereModelReader(object):
                         _x1 = np.log10(_x1)
 
                     return _atmosphere_interpolator(
-                        np.asarray([_x0, _x1], dtype="object").reshape(
+                        np.asarray([_x0, _x1], dtype="object").T.reshape(
                             length0, 2
                         )
                     )
