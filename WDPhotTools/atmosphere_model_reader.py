@@ -414,7 +414,7 @@ class AtmosphereModelReader(object):
                         _x = np.log10(_x)
 
                     return _atmosphere_interpolator(
-                        np.array([_logg, _x], dtype=object).reshape(length, 2)
+                        np.array([_logg, _x], dtype="object").T.reshape(length, 2)
                     )
 
             else:
@@ -529,8 +529,8 @@ class AtmosphereModelReader(object):
                         _x1 = np.log10(_x1)
 
                     return _atmosphere_interpolator(
-                        np.asarray([_x0, _x1], dtype="object").reshape(
-                            length0, 2
+                        np.asarray([_x0, _x1], dtype="object").T.reshape(
+                        length0, 2
                         )
                     )
 
