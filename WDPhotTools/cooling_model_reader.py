@@ -45,6 +45,7 @@ class CoolingModelReader(object):
             "lpcode_he_da_07",
             "lpcode_co_da_07",
             "lpcode_he_da_09",
+            "lpcode_da_22",
             None,
         ]
 
@@ -60,6 +61,8 @@ class CoolingModelReader(object):
             "lpcode_co_db_17_z00005",
             "lpcode_co_da_17_y04",
             "lpcode_co_db_17",
+            "lpcode_da_22",
+            "lpcode_db_22",
             "basti_co_da_10",
             "basti_co_db_10",
             "basti_co_da_10_nps",
@@ -73,6 +76,8 @@ class CoolingModelReader(object):
             "lpcode_one_da_07",
             "lpcode_one_da_19",
             "lpcode_one_db_19",
+            "lpcode_da_22",
+            "lpcode_db_22",
             "basti_co_da_10",
             "basti_co_db_10",
             "basti_co_da_10_nps",
@@ -273,6 +278,15 @@ class CoolingModelReader(object):
                 column_names,
                 column_units,
             ) = self._lauffer18_formatter(model)
+
+        elif model in ["lpcode_da_22", "lpcode_db_22"]:
+
+            (
+                mass,
+                cooling_model,
+                column_names,
+                column_units,
+            ) = self._lpcode22_formatter(model)
 
         elif model is None:
 
@@ -1350,6 +1364,234 @@ class CoolingModelReader(object):
 
         return mass, cooling_model, column_names, column_units
 
+    def _lpcode22_formatter(self, model):
+        """ """
+
+        # He core models
+        if model == "lpcode_da_22":
+            filelist = glob.glob(
+                os.path.join(
+                    self.THIS_FILE, "wd_cooling", "lpcode22", "DA", "*.trk"
+                )
+            )
+
+        # CO core models
+        if model == "lpcode_db_22":
+            filelist = glob.glob(
+                os.path.join(
+                    self.THIS_FILE, "wd_cooling", "lpcode22", "DB", "*.trk"
+                )
+            )
+
+        # Prepare the array column dtype
+        column_key = np.array(
+            (
+                "Teff",
+                "lum",
+                "logg",
+                "age",
+                "Rsun",
+                "Mbol",
+                "F070W",
+                "F090W",
+                "F115W",
+                "F150W",
+                "F200W",
+                "F277W",
+                "F356W",
+                "F444W",
+                "F164N",
+                "F187N",
+                "F212N",
+                "F323N",
+                "F405N",
+                "G",
+                "BP",
+                "RP",
+                "U",
+                "B",
+                "V",
+                "R",
+                "I",
+                "J",
+                "H",
+                "K",
+                "L",
+                "FUV",
+                "NUV",
+                "u",
+                "g",
+                "r",
+                "i",
+                "z",
+                "F220W",
+                "F250W",
+                "F330W",
+                "F344N",
+                "F435W",
+                "F475W",
+                "F502N",
+                "F550M",
+                "F555W",
+                "F606W",
+                "F625W",
+                "F658N",
+                "F660N",
+                "F775W",
+                "F814W",
+                "F850LP",
+                "F892N",
+            )
+        )
+        column_key_formatted = np.array(
+            (
+                r"log(T$_{\mathrm{eff}})$",
+                "log(Luminosity)",
+                "log(g)",
+                "log(Cooling Age)",
+                "Radius",
+                r"M$_{\mathrm{bol}}$",
+                "F070W",
+                "F090W",
+                "F115W",
+                "F150W",
+                "F200W",
+                "F277W",
+                "F356W",
+                "F444W",
+                "F164N",
+                "F187N",
+                "F212N",
+                "F323N",
+                "F405N",
+                "G",
+                "BP",
+                "RP",
+                "U",
+                "B",
+                "V",
+                "R",
+                "I",
+                "J",
+                "H",
+                "K",
+                "L",
+                "FUV",
+                "NUV",
+                "u",
+                "g",
+                "r",
+                "i",
+                "z",
+                "F220W",
+                "F250W",
+                "F330W",
+                "F344N",
+                "F435W",
+                "F475W",
+                "F502N",
+                "F550M",
+                "F555W",
+                "F606W",
+                "F625W",
+                "F658N",
+                "F660N",
+                "F775W",
+                "F814W",
+                "F850LP",
+                "F892N",
+            )
+        )
+        column_key_unit = np.array(
+            (
+                "log(K)",
+                r"log(L/L$_{\odot}$)",
+                r"log(cm/s$^2$)",
+                "log(yr)",
+                r"R$_{\odot}$",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+            )
+        )
+        column_type = np.array(([np.float64] * len(column_key)))
+        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+
+        column_names = {}
+        column_units = {}
+        for i, j, k in zip(column_key, column_key_formatted, column_key_unit):
+            column_names[i] = j
+            column_units[i] = k
+
+        # Get the mass from the file name
+        mass = np.array(
+            [i.split("Msun")[0].split(os.path.sep)[-1] for i in filelist]
+        ).astype(np.float64)
+
+        # Create an empty array for holding the cooling models
+        cooling_model = np.array(([""] * len(mass)), dtype="object")
+
+        for i, filepath in enumerate(filelist):
+
+            cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
+
+            # Convert the luminosity into erg/s
+            cooling_model[i]["lum"] = (
+                10.0 ** cooling_model[i]["lum"] * 3.826e33
+            )
+
+            # Convert the age to yr
+            cooling_model[i]["age"] *= 1.0e9
+
+        return mass, cooling_model, column_names, column_units
+
     def _panei07_formatter(self, model):
         """
         A formatter to load the Panei et al. 2007 WD cooling model
@@ -1689,6 +1931,8 @@ class CoolingModelReader(object):
             3. 'lpcode_he_da_07' - Panei et al. 2007 He DA
             4. 'lpcode_co_da_07' - Panei et al. 2007 CO DA
             5. 'lpcode_he_da_09' - Althaus et al. 2009 He DA
+            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
+               Camisassa et al. 2019
 
             The naming convention follows this format:
             [model]_[core composition]_[atmosphere]_[publication year]
@@ -1725,11 +1969,14 @@ class CoolingModelReader(object):
             7. 'lpcode_co_da_15_z0005' - Althaus et al. 2015 DA Z=0.0005
             8. 'lpcode_co_da_17_y04' - Althaus et al. 2017 DB Y=0.4
             9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
-            10. 'basti_co_da_10' - Salaris et al. 2010 CO DA
-            11. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            12. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
+            10. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
+                Camisassa et al. 2019
+            11. 'lpcode_db_20' - Camisassa et al. 2017, Camisassa et al. 2019
+            12. 'basti_co_da_10' - Salaris et al. 2010 CO DA
+            13. 'basti_co_db_10' - Salaris et al. 2010 CO DB
+            14. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
                 no phase separation
-            13. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
+            15. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
                 no phase separation
 
             The naming convention follows this format:
@@ -1763,14 +2010,17 @@ class CoolingModelReader(object):
             3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
             4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
             5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
-            6. 'basti_co_da_10' - Salaris et al. 2010 CO DA
-            7. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            8. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
-                no phase separation
-            9. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
-                no phase separation
-            10. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
-            11. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
+            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
+                Camisassa et al. 2019
+            7. 'lpcode_db_20' - Camisassa et al. 2017, Camisassa et al. 2019
+            8. 'basti_co_da_10' - Salaris et al. 2010 CO DA
+            9. 'basti_co_db_10' - Salaris et al. 2010 CO DB
+            10. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
+                 no phase separation
+            11. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
+                 no phase separation
+            12. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
+            13. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 
             The naming convention follows this format:
             [model]_[core composition]_[atmosphere]_[publication year]
@@ -1870,7 +2120,7 @@ class CoolingModelReader(object):
             mass_range="intermediate",
         )
 
-        # Set the high mass cooling model, i.e. 1.0 < M M_sun
+        # Set the high mass cooling model, i.e. 1.0 < M_sun
         mass_high, cooling_model_high, _, _ = self.get_cooling_model(
             self.cooling_models["high_mass_cooling_model"], mass_range="high"
         )

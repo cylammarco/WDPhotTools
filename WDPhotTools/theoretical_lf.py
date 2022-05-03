@@ -385,12 +385,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         # Get the mass function
         MF = self._imf(M)
 
-        if MF < 0.0:
-
-            return 0.0
-
         Mbol = self.Mag_to_Mbol_itp(m, Mag)
-        if not np.isfinite(Mbol):
+
+        if (Mbol < -2.0) or (Mbol > 20.0) or (not np.isfinite(Mbol)):
+
             return 0.0
 
         logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
@@ -398,29 +396,33 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         # Get the WD cooling time
         t_cool = self.cooling_interpolator(logL, m)
 
-        # Get the MS lifetime
-        t_ms = self._ms_age(M)
-
-        # Get the time since star formation
-        time = t_cool + t_ms
-
-        if time < 0.0:
+        if t_cool < 0.0:
 
             return 0.0
 
-        # Get the SFR
-        sfr = self.sfr(time)
+        # Get the MS lifetime
+        t_ms = self._ms_age(M)
 
-        if sfr <= 0.0:
+        if t_ms < 0:
+
+            return 0.0
+
+        # Get the time since star formation
+        # and then the SFR
+        sfr = self.sfr(t_cool + t_ms)
+
+        if sfr < 0.0:
 
             return 0.0
 
         # Get the cooling rate
         dLdt = self.cooling_rate_interpolator(logL, m)
 
-        if np.isfinite(MF) & np.isfinite(sfr) & np.isfinite(dLdt):
+        total_contribution = MF * sfr * dLdt
 
-            return MF * sfr * dLdt
+        if np.isfinite(total_contribution):
+
+            return total_contribution
 
         else:
 
@@ -507,10 +509,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             if mode == "constant":
 
                 t1 = age
-                t0 = t1 + 1.0
+                t0 = t1 * 1.00001
                 # current time = 0.
                 t2 = 0.0
-                t3 = t2 - 1.0
+                t3 = t2 * 0.99999
 
                 self.sfr = interp1d(
                     np.array((30e9, t0, t1, t2, t3, -30e9)),
@@ -521,9 +523,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             elif mode == "burst":
 
                 t1 = age
-                t0 = t1 + 1.0
+                t0 = t1 * 1.00001
                 t2 = t1 - duration
-                t3 = t2 - 1.0
+                t3 = t2 * 0.99999
 
                 self.sfr = interp1d(
                     np.array((30e9, t0, t1, t2, t3, -30e9)),
@@ -751,6 +753,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         if normed:
 
             number_density /= np.nansum(number_density)
+
+        number_density[np.isnan(number_density)] = 0.0
 
         if save_csv:
 
