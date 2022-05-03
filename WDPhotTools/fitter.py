@@ -1084,7 +1084,7 @@ class WDfitter(AtmosphereModelReader):
         nburns=100,
         progress=True,
         refine=True,
-        refine_bounds=[1.0, 99.0],
+        refine_bounds=[5.0, 95.0],
         kwargs_for_RBF={},
         kwargs_for_CT={},
         kwargs_for_minimize={},
