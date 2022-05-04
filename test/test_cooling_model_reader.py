@@ -13,6 +13,12 @@ def test_cooling_model_dictionary():
 @pytest.mark.xfail(raises=ValueError)
 def test_loading_unknown_interpolator():
     cmr = CoolingModelReader()
+    cmr.get_cooling_model("blablabla")
+
+
+@pytest.mark.xfail(raises=ValueError)
+def test_loading_unknown_interpolator():
+    cmr = CoolingModelReader()
     cmr.compute_cooling_age_interpolator(interpolator="linear")
 
 

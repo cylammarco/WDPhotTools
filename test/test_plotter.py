@@ -32,7 +32,7 @@ def test_plot_atmosphere_model_with_ext_as_str():
 
 
 @patch("matplotlib.pyplot.show")
-def test_plot_atmosphere_model_with_ext_as_str(mock_show):
+def test_plot_atmosphere_model_with_ext_as_str_and_display(mock_show):
     plotter.plot_atmosphere_model(
         display=True,
         savefig=True,

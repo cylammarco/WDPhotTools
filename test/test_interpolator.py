@@ -27,7 +27,7 @@ Mbol_range = np.arange(5, 15, 0.1)
 
 # Test that the CT and RBF interpolator are returning values within 1%
 # interpolated over (logg, Teff)
-def test_compare_amr_CT_and_RBF():
+def test_compare_amr_CT_and_RBF_over_logg_Teff():
 
     for logg in np.arange(7.5, 9.0, 0.1):
         assert np.isclose(
@@ -40,8 +40,7 @@ def test_compare_amr_CT_and_RBF():
 
 # Test that the CT and RBF interpolator are returning values within 1%
 # interpolated over (logg, Mbol)
-def test_compare_amr_CT_and_RBF():
-
+def test_compare_amr_CT_and_RBF_over_logg_Mbol():
     for logg in np.arange(7.5, 9.0, 0.1):
         assert np.isclose(
             G3_RBF_logg_Mbol(logg, Mbol_range),
@@ -63,7 +62,6 @@ mass_range = np.arange(0.45, 1.2, 0.01)
 
 # Test that the CT and RBF interpolator are returning values within 1%
 def test_compare_cmr_CT_and_RBF():
-
     for logL in logL_range:
         assert np.isclose(
             cmr_ct.cooling_interpolator(logL, mass_range),

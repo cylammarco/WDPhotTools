@@ -330,3 +330,51 @@ def test_cooling_model_intermediate_mass_lpcode_co_db_17():
     wdlf.compute_cooling_age_interpolator()
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+# Testing set_intermediate_mass_cooling_model with model = "lpcode_co_db_17_z0001"
+def test_cooling_model_intermediate_mass_lpcode_co_db_17_z0001():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
+    wdlf.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
+    wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+# Testing set_low_mass_cooling_model with model = "lpcode_co_db_17_z0001"
+def test_cooling_model_low_mass_lpcode_co_db_17_z0001():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
+    wdlf.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
+    wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+# Testing set_low_mass_cooling_model with model = None
+# Testing set_intermediate_mass_cooling_model with model = "lpcode_da_22"
+# Testing set_high_mass_cooling_model with model = "lpcode_da_22"
+def test_cooling_model_intermediate_mass_lpcode_da_22():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
+    wdlf.set_low_mass_cooling_model(model=None)
+    wdlf.set_intermediate_mass_cooling_model(model="lpcode_da_22")
+    wdlf.set_high_mass_cooling_model(model="lpcode_da_22")
+    wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+# Testing set_low_mass_cooling_model with model = None
+# Testing set_intermediate_mass_cooling_model with model = "lpcode_db_22"
+# Testing set_high_mass_cooling_model with model = "lpcode_db_22"
+def test_cooling_model_intermediate_mass_lpcode_db_22():
+    wdlf = theoretical_lf.WDLF()
+    Mag = np.arange(4.0, 16.0, 2.0)
+    wdlf.set_low_mass_cooling_model(model=None)
+    wdlf.set_intermediate_mass_cooling_model(model="lpcode_db_22")
+    wdlf.set_high_mass_cooling_model(model="lpcode_db_22")
+    wdlf.compute_cooling_age_interpolator()
+    wdlf.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
