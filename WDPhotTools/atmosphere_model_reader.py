@@ -469,7 +469,7 @@ class AtmosphereModelReader(object):
 
                     return _atmosphere_interpolator(x0, x1)
 
-            elif interpolator.lower() == "ct":
+            elif interpolator.lower() == "rbf":
 
                 # Interpolate with the scipy RBFInterpolator
                 _atmosphere_interpolator = RBFInterpolator(
