@@ -2306,7 +2306,7 @@ class CoolingModelReader(object):
                 _x1[_x1 < mass_min] = mass_min
                 _x1[_x1 > mass_max] = mass_max
 
-                length0 = x0.size
+                length0 = _x0.size
 
                 return _cooling_interpolator(
                     np.array([_x0, _x1], dtype="object").T.reshape(length0, 2)
@@ -2377,7 +2377,7 @@ class CoolingModelReader(object):
                 _x1[_x1 < mass_min] = mass_min
                 _x1[_x1 > mass_max] = mass_max
 
-                length0 = len(x0)
+                length0 = _x0.size
 
                 return _cooling_rate_interpolator(
                     np.asarray([_x0, _x1], dtype="object").T.reshape(
