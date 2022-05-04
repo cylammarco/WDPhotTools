@@ -44,7 +44,8 @@ extinction_grizyJHK = np.array(
     [A_g, A_r, A_i, A_z, A_y, A_J, A_H, A_Ks]
 ).reshape(-1)
 
-# Fitting Mbol: Yes
+
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: No
@@ -69,7 +70,7 @@ def test_minimize_Teff_logg():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: No
@@ -97,7 +98,7 @@ def test_minimize_Teff():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes
@@ -127,7 +128,7 @@ def test_minimize_Teff_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes (interpolated)
@@ -158,7 +159,7 @@ def test_minimize_Teff_reddening_interpolated():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes
@@ -187,7 +188,7 @@ def test_minimize_Teff_logg_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes (interpolated)
@@ -217,7 +218,7 @@ def test_minimize_Teff_logg_reddening_interpolated():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: No
@@ -242,7 +243,7 @@ def test_minimize_Teff_logg_distance():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: No
@@ -268,7 +269,7 @@ def test_minimize_Teff_distance():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes
@@ -296,7 +297,7 @@ def test_minimize_Teff_distance_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes (interpolated)
@@ -325,7 +326,7 @@ def test_minimize_Teff_distance_reddening_interpolated():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes
@@ -352,7 +353,7 @@ def test_minimize_Teff_logg_distance_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes (interpolated)
@@ -382,7 +383,7 @@ def test_minimize_Teff_logg_distance_reddening_interpolated():
 
 # least_squares
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: No
@@ -409,7 +410,7 @@ def test_lsq_Teff_logg():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: No
@@ -437,7 +438,7 @@ def test_lsq_Teff():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes
@@ -467,11 +468,11 @@ def test_lsq_Teff_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes (interpolated)
-def test_lsq_Teff_reddening():
+def test_lsq_Teff_reddening_interpolated():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -498,7 +499,7 @@ def test_lsq_Teff_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes
@@ -527,11 +528,11 @@ def test_lsq_Teff_logg_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes (interpolated)
-def test_lsq_Teff_logg_reddening():
+def test_lsq_Teff_logg_reddening_interpolated():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -557,7 +558,7 @@ def test_lsq_Teff_logg_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: No
@@ -582,7 +583,7 @@ def test_lsq_Teff_logg_distance():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: No
@@ -609,11 +610,11 @@ def test_lsq_Teff_distance():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes
-def test_lsq_Teff_distance_logg():
+def test_lsq_Teff_distance_reddening():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -637,11 +638,11 @@ def test_lsq_Teff_distance_logg():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes (interpolated)
-def test_lsq_Teff_distance_logg():
+def test_lsq_Teff_distance_reddening_interpolated():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -666,7 +667,7 @@ def test_lsq_Teff_distance_logg():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes
@@ -693,11 +694,11 @@ def test_lsq_Teff_logg_distance_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes (interpolated)
-def test_lsq_Teff_logg_distance_reddening():
+def test_lsq_Teff_logg_distance_reddening_interpolated():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -726,7 +727,7 @@ def test_lsq_Teff_logg_distance_reddening():
 #
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: No
@@ -741,9 +742,10 @@ def test_emcee_Teff_logg():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5],
+        refine=False,
         nwalkers=100,
-        nsteps=2000,
-        nburns=200,
+        nsteps=1000,
+        nburns=100,
         distance=10.0,
         distance_err=0.1,
     )
@@ -757,7 +759,7 @@ def test_emcee_Teff_logg():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: No
@@ -772,9 +774,10 @@ def test_emcee_Teff():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0],
+        refine=False,
         nwalkers=100,
-        nsteps=2000,
-        nburns=200,
+        nsteps=1000,
+        nburns=100,
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -789,7 +792,7 @@ def test_emcee_Teff():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes
@@ -804,9 +807,10 @@ def test_emcee_Teff_reddening():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0],
+        refine=False,
         nwalkers=100,
-        nsteps=2000,
-        nburns=200,
+        nsteps=1000,
+        nburns=100,
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -823,7 +827,7 @@ def test_emcee_Teff_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: No
 # Reddenning: Yes (interpolated)
@@ -839,9 +843,10 @@ def test_emcee_Teff_reddening_interpolated():
         atmosphere_interpolator="CT",
         extinction_convolved=False,
         initial_guess=[13000.0],
+        refine=False,
         nwalkers=100,
-        nsteps=2000,
-        nburns=200,
+        nsteps=1000,
+        nburns=100,
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -858,7 +863,7 @@ def test_emcee_Teff_reddening_interpolated():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes
@@ -873,9 +878,10 @@ def test_emcee_Teff_logg_reddening():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5],
+        refine=False,
         nwalkers=100,
-        nsteps=2000,
-        nburns=200,
+        nsteps=1000,
+        nburns=100,
         distance=10.0,
         distance_err=0.1,
         Rv=rv,
@@ -891,7 +897,7 @@ def test_emcee_Teff_logg_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
 # Reddenning: Yes (interpolated)
@@ -907,9 +913,10 @@ def test_emcee_Teff_logg_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5],
+        refine=False,
         nwalkers=100,
-        nsteps=2000,
-        nburns=200,
+        nsteps=1000,
+        nburns=100,
         distance=10.0,
         distance_err=0.1,
         Rv=rv,
@@ -925,7 +932,7 @@ def test_emcee_Teff_logg_reddening_interpolated():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: No
@@ -968,9 +975,10 @@ def test_emcee_Teff_logg_distance():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
+        refine=False,
         nwalkers=100,
-        nsteps=2000,
-        nburns=200,
+        nsteps=1000,
+        nburns=100,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -982,7 +990,7 @@ def test_emcee_Teff_logg_distance():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: No
@@ -1025,6 +1033,7 @@ def test_emcee_Teff_distance():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 10.0],
+        refine=False,
         nwalkers=100,
         nsteps=1000,
         nburns=100,
@@ -1040,7 +1049,7 @@ def test_emcee_Teff_distance():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes
@@ -1085,6 +1094,7 @@ def test_emcee_Teff_distance_reddening():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 10.0],
+        refine=False,
         nwalkers=100,
         nsteps=1000,
         nburns=100,
@@ -1102,7 +1112,7 @@ def test_emcee_Teff_distance_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: No
 # Fitting distance: Yes
 # Reddenning: Yes (interpolated)
@@ -1151,6 +1161,7 @@ def test_emcee_Teff_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 10.0],
+        refine=False,
         nwalkers=100,
         nsteps=1000,
         nburns=100,
@@ -1168,7 +1179,7 @@ def test_emcee_Teff_distance_reddening_interpolated():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes
@@ -1213,6 +1224,7 @@ def test_emcee_Teff_logg_distance_reddening():
         method="emcee",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
+        refine=False,
         nwalkers=100,
         nsteps=1000,
         nburns=100,
@@ -1229,7 +1241,7 @@ def test_emcee_Teff_logg_distance_reddening():
     )
 
 
-# Fitting Mbol: Yes
+# Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: Yes
 # Reddenning: Yes
@@ -1278,6 +1290,7 @@ def test_emcee_Teff_logg_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
+        refine=False,
         nwalkers=100,
         nsteps=1000,
         nburns=100,

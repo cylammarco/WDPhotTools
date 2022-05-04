@@ -200,6 +200,7 @@ def test_plotting_wdlf_log_false_folder_none():
     for e in ["png"]:
         _filename = "test_plot_wdlf" + "." + e
         assert os.path.isfile(os.path.join(_folder, _filename))
+    os.remove(os.path.join(_folder, _filename))
 
 
 # manual function for 'manual' tests

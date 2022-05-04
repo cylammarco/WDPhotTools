@@ -9,6 +9,8 @@ This software can generate colour-colour diagram, colour-magnitude diagram in va
 
 the core parts of this work are three-fold: the first and the backbone of this work is the formatters that handle the output models from various works in the format as they are downloaded. This will allow the software to be updated with the newer models easily in the future. The second core part is the photometric fitter that solves for the WD parameters based on the photometry, with or without distance and reddening. The last part is to generate white dwarf luminosity function in bolometric magnitudes or in any of the photometric systems availalbe from the atmosphere model.
 
+When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9 which provides a speed gain of O(100) times.
+
 ## Model Inspection
 
 1. Plotting the WD cooling sequence in Gaia filters

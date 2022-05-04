@@ -40,7 +40,7 @@ def test_fitting_Teff(mock_show):
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
@@ -57,7 +57,7 @@ def test_fitting_Teff(mock_show):
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
 
 
@@ -67,7 +67,7 @@ def test_fitting_Teff_with_None():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 10.0],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -78,12 +78,12 @@ def test_fitting_Teff_with_None():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -94,12 +94,12 @@ def test_fitting_Teff_with_None():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 10.0],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -110,7 +110,7 @@ def test_fitting_Teff_with_None():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
 
 
@@ -120,7 +120,7 @@ def test_fitting_logg_and_mbol():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         distance=10.0,
@@ -134,7 +134,10 @@ def test_fitting_logg_and_mbol():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x,
+        np.array([13000.0, 7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -144,7 +147,7 @@ def test_fitting_logg_Teff_distance():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
@@ -153,8 +156,8 @@ def test_fitting_logg_Teff_distance():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -165,7 +168,7 @@ def test_fitting_logg_Teff_distance_nelder_mead():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
@@ -175,8 +178,8 @@ def test_fitting_logg_Teff_distance_nelder_mead():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -186,7 +189,7 @@ def test_fitting_Teff_red():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
@@ -204,7 +207,7 @@ def test_fitting_Teff_red():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
 
 
@@ -215,7 +218,7 @@ def test_fitting_logg_and_Teff_red():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         distance=10.0,
@@ -231,7 +234,10 @@ def test_fitting_logg_and_Teff_red():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x,
+        np.array([13000.0, 7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -242,7 +248,7 @@ def test_fitting_logg_Teff_distance_red():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5],
@@ -255,8 +261,8 @@ def test_fitting_logg_Teff_distance_red():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -268,7 +274,7 @@ def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5],
@@ -284,8 +290,8 @@ def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -305,7 +311,7 @@ def test_fitting_Teff_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         distance=10.0,
@@ -322,7 +328,7 @@ def test_fitting_Teff_lsq():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
 
 
@@ -332,7 +338,7 @@ def test_fitting_Teff_with_None_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 10.0],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -344,12 +350,12 @@ def test_fitting_Teff_with_None_lsq():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -360,12 +366,12 @@ def test_fitting_Teff_with_None_lsq():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 10.0],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -377,7 +383,7 @@ def test_fitting_Teff_with_None_lsq():
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
 
 
@@ -387,7 +393,7 @@ def test_fitting_logg_and_Teff_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         distance=10.0,
         distance_err=0.1,
@@ -402,7 +408,10 @@ def test_fitting_logg_and_Teff_lsq():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x,
+        np.array([13000.0, 7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -412,7 +421,7 @@ def test_fitting_logg_Teff_distance_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
@@ -422,8 +431,8 @@ def test_fitting_logg_Teff_distance_lsq():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -434,7 +443,7 @@ def test_fitting_logg_Teff_distance_nelder_mead_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         initial_guess=[13000.0, 7.5],
         method="least_squares",
@@ -444,8 +453,8 @@ def test_fitting_logg_Teff_distance_nelder_mead_lsq():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -455,7 +464,7 @@ def test_fitting_Teff_red_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         distance=10.0,
@@ -474,7 +483,7 @@ def test_fitting_Teff_red_lsq():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
 
 
@@ -485,7 +494,7 @@ def test_fitting_logg_and_Teff_red_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         distance=10.0,
         distance_err=0.1,
@@ -502,7 +511,10 @@ def test_fitting_logg_and_Teff_red_lsq():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
+        ftr.results["H"].x,
+        np.array([13000.0, 7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -513,7 +525,7 @@ def test_fitting_logg_Teff_distance_red_lsq():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         initial_guess=[13000.0, 7.5],
         method="least_squares",
@@ -527,8 +539,8 @@ def test_fitting_logg_Teff_distance_red_lsq():
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
-        rtol=1e-02,
-        atol=1e-02,
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -545,7 +557,7 @@ def test_fitting_Teff_emcee():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
@@ -569,7 +581,10 @@ def test_fitting_Teff_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -579,7 +594,7 @@ def test_fitting_Teff_with_None_emcee():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 10.0],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -588,6 +603,7 @@ def test_fitting_Teff_with_None_emcee():
         method="emcee",
         distance=10.0,
         distance_err=0.1,
+        refine=True,
         refine_bounds=[0.1, 99.9],
         initial_guess=[13000.0],
     )
@@ -595,12 +611,15 @@ def test_fitting_Teff_with_None_emcee():
         display=False, folder="test_output", ext=["png", "pdf"]
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -609,16 +628,20 @@ def test_fitting_Teff_with_None_emcee():
         method="emcee",
         distance=10.0,
         distance_err=0.1,
+        refine=True,
         refine_bounds=[0.1, 99.9],
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1, 10.0],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -627,11 +650,15 @@ def test_fitting_Teff_with_None_emcee():
         method="emcee",
         distance=10.0,
         distance_err=0.1,
+        refine=True,
         refine_bounds=[0.1, 99.9],
         initial_guess=[13000.0],
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -641,12 +668,13 @@ def test_fitting_logg_and_Teff_emcee():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
+        refine=True,
         refine_bounds=[0.1, 99.9],
         initial_guess=[13000.0, 7.5],
     )
@@ -657,7 +685,16 @@ def test_fitting_logg_and_Teff_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    ).all()
+    assert np.isclose(
+        ftr.best_fit_params["H"]["logg"],
+        np.array([7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -667,7 +704,7 @@ def test_fitting_Teff_red_emcee():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
@@ -675,6 +712,7 @@ def test_fitting_Teff_red_emcee():
         distance=10.0,
         distance_err=0.1,
         initial_guess=[13000.0],
+        refine=True,
         refine_bounds=[0.1, 99.9],
         Rv=rv,
         ebv=ebv,
@@ -687,7 +725,16 @@ def test_fitting_Teff_red_emcee():
         return_fig=True,
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    ).all()
+    assert np.isclose(
+        ftr.best_fit_params["H"]["logg"],
+        np.array([7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -698,13 +745,14 @@ def test_fitting_logg_and_Teff_red_emcee():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         method="emcee",
         distance=10.0,
         distance_err=0.1,
         initial_guess=[13000.0, 7.5],
+        refine=True,
         refine_bounds=[0.1, 99.9],
         Rv=rv,
         ebv=ebv,
@@ -716,7 +764,16 @@ def test_fitting_logg_and_Teff_red_emcee():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    ).all()
+    assert np.isclose(
+        ftr.best_fit_params["H"]["logg"],
+        np.array([7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
 
 
@@ -735,13 +792,14 @@ def test_chi2_minimization_red_interpolated():
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
         mags=mags + extinction_interpolated,
-        mag_errors=[0.1, 0.1, 0.1, 0.1, 0.1],
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         method="least_squares",
         distance=10.0,
         distance_err=0.1,
         initial_guess=[13000.0, 7.5],
+        refine=True,
         refine_bounds=[0.1, 99.9],
         extinction_convolved=False_,
         Rv=rv,
@@ -754,7 +812,14 @@ def test_chi2_minimization_red_interpolated():
         ext="png",
     )
     assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0, 7.5]), rtol=1e-02, atol=1e-02
+        ftr.best_fit_params["H"]["Teff"],
+        np.array([13000.0]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
     ).all()
-
-#ykw
+    assert np.isclose(
+        ftr.best_fit_params["H"]["logg"],
+        np.array([7.5]),
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    ).all()

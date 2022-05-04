@@ -446,7 +446,7 @@ class AtmosphereModelReader(object):
 
                 arg_1 = np.log10(arg_1)
 
-            if interpolator.upper() == "CT":
+            if interpolator.lower() == "ct":
 
                 # Interpolate with the scipy CloughTocher2DInterpolator
                 _atmosphere_interpolator = CloughTocher2DInterpolator(
@@ -469,7 +469,7 @@ class AtmosphereModelReader(object):
 
                     return _atmosphere_interpolator(x0, x1)
 
-            elif interpolator.upper() == "RBF":
+            elif interpolator.lower() == "ct":
 
                 # Interpolate with the scipy RBFInterpolator
                 _atmosphere_interpolator = RBFInterpolator(
@@ -530,7 +530,7 @@ class AtmosphereModelReader(object):
                         _x1 = np.log10(_x1)
 
                     return _atmosphere_interpolator(
-                        np.asarray([_x0, _x1], dtype="object").T.reshape(
+                        np.array([_x0, _x1], dtype="object").T.reshape(
                             length0, 2
                         )
                     )

@@ -1083,7 +1083,7 @@ class WDfitter(AtmosphereModelReader):
         nsteps=1000,
         nburns=100,
         progress=True,
-        refine=True,
+        refine=False,
         refine_bounds=[5.0, 95.0],
         kwargs_for_RBF={},
         kwargs_for_CT={},
@@ -1256,10 +1256,6 @@ class WDfitter(AtmosphereModelReader):
             if len(initial_guess) == len(independent):
 
                 initial_guess = initial_guess + [50.0]
-
-        if distance is np.inf:
-
-            distance = None
 
         # Reuse the interpolator if instructed or possible
         # The +4 is to account for ['Teff', 'mass', 'Mbol', 'age']
@@ -1897,11 +1893,11 @@ class WDfitter(AtmosphereModelReader):
 
                     print("Refining")
 
-                    if distance is None:
+                    _initial_guess = np.percentile(
+                        self.samples[j], [50], axis=0
+                    )
 
-                        _initial_guess = np.percentile(
-                            self.samples[j], [50], axis=0
-                        )
+                    if distance is None:
 
                         # setting distance to infinity so that it will be
                         # turned back to None after the line appending to the
@@ -1916,7 +1912,7 @@ class WDfitter(AtmosphereModelReader):
                             independent=independent,
                             reuse_interpolator=True,
                             method="minimize",
-                            distance=np.inf,
+                            distance=None,
                             distance_err=None,
                             initial_guess=_initial_guess,
                             Rv=Rv,
@@ -1938,9 +1934,7 @@ class WDfitter(AtmosphereModelReader):
                             method="minimize",
                             distance=distance,
                             distance_err=distance_err,
-                            initial_guess=np.percentile(
-                                self.samples[j], [50], axis=0
-                            ),
+                            initial_guess=_initial_guess,
                             Rv=Rv,
                             ebv=ebv,
                             kwargs_for_minimize=kwargs,
@@ -2034,14 +2028,20 @@ class WDfitter(AtmosphereModelReader):
                                     ]
                                 )
                                 for i in self.rv
-                            ]
+                            ],
+                            dtype=np.float64,
                         ).reshape(-1)
                         * ebv
                     )
 
                 else:
 
-                    Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
+                    Av = (
+                        np.array(
+                            [i(Rv) for i in self.rv], dtype=np.float64
+                        ).reshape(-1)
+                        * ebv
+                    )
 
                 Av[np.isnan(Av)] = 0.0
 
@@ -2084,7 +2084,8 @@ class WDfitter(AtmosphereModelReader):
             Set to return the Figure object.
         **kwarg: dict (Default: {
             'quantiles': [0.158655, 0.5, 0.841345],
-            'show_titles': True})
+            'show_titles': True,
+            'range': [0.95] * len(self.fitting_params["independent"],})
             Keyword argument for the corner.corner().
 
         Return

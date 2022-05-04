@@ -2084,9 +2084,9 @@ class CoolingModelReader(object):
         kwargs_for_CT={},
     ):
         """
-        Compute the callable CloughTocher2DInterpolator of the cooling time
-        of WDs. It needs to use float64 or it runs into float-point error
-        at very faint lumnosity.
+        Compute the callable CloughTocher2DInterpolator taking (logL, m) and
+        returning the cooling time of the WDs. It needs to use float64 or it
+        runs into float-point error at very faint lumnosity.
 
         Parameters
         ----------
@@ -2265,7 +2265,7 @@ class CoolingModelReader(object):
         }
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
-        if interpolator.upper() == "CT":
+        if interpolator.lower() == "ct":
 
             # Interpolate with the scipy CloughTocher2DInterpolator
             self.cooling_interpolator = CloughTocher2DInterpolator(
@@ -2274,7 +2274,7 @@ class CoolingModelReader(object):
                 **_kwargs_for_CT,
             )
 
-        elif interpolator.upper() == "RBF":
+        elif interpolator.lower() == "rbf":
 
             # Interpolate with the scipy RBFInterpolator
             _cooling_interpolator = RBFInterpolator(
@@ -2290,18 +2290,26 @@ class CoolingModelReader(object):
 
             def cooling_interpolator(x0, x1):
 
-                _x0 = np.asarray(x0)
-                _x1 = np.asarray(x1)
+                _x0 = np.array(x0)
+                _x1 = np.array(x1)
+
+                if (_x0.size == 1) & (_x1.size > 1):
+
+                    _x0 = np.repeat(_x0, _x1.size)
+
+                if (_x1.size == 1) & (_x0.size > 1):
+
+                    _x0 = np.repeat(_x1, _x0.size)
 
                 _x0[_x0 < lum_min] = lum_min
                 _x0[_x0 > lum_max] = lum_max
                 _x1[_x1 < mass_min] = mass_min
                 _x1[_x1 > mass_max] = mass_max
 
-                length0 = len(x0)
+                length0 = x0.size
 
                 return _cooling_interpolator(
-                    np.asarray([_x0, _x1], dtype="object").reshape(length0, 2)
+                    np.array([_x0, _x1], dtype="object").T.reshape(length0, 2)
                 )
 
             self.cooling_interpolator = cooling_interpolator
@@ -2320,7 +2328,7 @@ class CoolingModelReader(object):
 
         finite_mask = np.isfinite(self.dLdt)
 
-        if interpolator.upper() == "CT":
+        if interpolator.lower() == "ct":
 
             self.cooling_rate_interpolator = CloughTocher2DInterpolator(
                 (
@@ -2331,7 +2339,7 @@ class CoolingModelReader(object):
                 **_kwargs_for_CT,
             )
 
-        elif interpolator.upper() == "RBF":
+        elif interpolator.lower() == "rbf":
 
             # Interpolate with the scipy RBFInterpolator
             _cooling_rate_interpolator = RBFInterpolator(
@@ -2356,6 +2364,14 @@ class CoolingModelReader(object):
                 _x0 = np.asarray(x0)
                 _x1 = np.asarray(x1)
 
+                if (_x0.size == 1) & (_x1.size > 1):
+
+                    _x0 = np.repeat(_x0, _x1.size)
+
+                if (_x1.size == 1) & (_x0.size > 1):
+
+                    _x0 = np.repeat(_x1, _x0.size)
+
                 _x0[_x0 < lum_min] = lum_min
                 _x0[_x0 > lum_max] = lum_max
                 _x1[_x1 < mass_min] = mass_min
@@ -2364,7 +2380,9 @@ class CoolingModelReader(object):
                 length0 = len(x0)
 
                 return _cooling_rate_interpolator(
-                    np.asarray([_x0, _x1], dtype="object").reshape(length0, 2)
+                    np.asarray([_x0, _x1], dtype="object").T.reshape(
+                        length0, 2
+                    )
                 )
 
             self.cooling_rate_interpolator = cooling_rate_interpolator
