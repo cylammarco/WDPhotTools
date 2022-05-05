@@ -258,6 +258,9 @@ def test_compute_density_savefig_folder_none():
         + ".csv"
     )
     assert os.path.isfile(os.path.join(_folder, _filename))
+    os.remove(
+        "10.00Gyr_manual_manual_manual_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.csv"
+    )
 
 
 # Testing plot_wdlf with filename = None

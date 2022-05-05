@@ -279,14 +279,23 @@ class CoolingModelReader(object):
                 column_units,
             ) = self._lauffer18_formatter(model)
 
-        elif model in ["lpcode_da_22", "lpcode_db_22"]:
+        elif model == "lpcode_da_22":
 
             (
                 mass,
                 cooling_model,
                 column_names,
                 column_units,
-            ) = self._lpcode22_formatter(model)
+            ) = self._lpcode22_da_formatter()
+
+        elif model == "lpcode_db_22":
+
+            (
+                mass,
+                cooling_model,
+                column_names,
+                column_units,
+            ) = self._lpcode22_db_formatter()
 
         elif model is None:
 
@@ -1364,24 +1373,17 @@ class CoolingModelReader(object):
 
         return mass, cooling_model, column_names, column_units
 
-    def _lpcode22_formatter(self, model):
-        """ """
+    def _lpcode22_da_formatter(self):
+        """
+        A formatter to load the LPCODE collated DA cooling model grid.
 
-        # He core models
-        if model == "lpcode_da_22":
-            filelist = glob.glob(
-                os.path.join(
-                    self.THIS_FILE, "wd_cooling", "lpcode22", "DA", "*.trk"
-                )
-            )
+        """
 
-        # CO core models
-        if model == "lpcode_db_22":
-            filelist = glob.glob(
-                os.path.join(
-                    self.THIS_FILE, "wd_cooling", "lpcode22", "DB", "*.trk"
-                )
+        filelist = glob.glob(
+            os.path.join(
+                self.THIS_FILE, "wd_cooling", "lpcode22", "DA", "*.trk"
             )
+        )
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -1555,6 +1557,89 @@ class CoolingModelReader(object):
                 "mag",
                 "mag",
                 "mag",
+                "mag",
+                "mag",
+                "mag",
+                "mag",
+            )
+        )
+        column_type = np.array(([np.float64] * len(column_key)))
+        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+
+        column_names = {}
+        column_units = {}
+        for i, j, k in zip(column_key, column_key_formatted, column_key_unit):
+            column_names[i] = j
+            column_units[i] = k
+
+        # Get the mass from the file name
+        mass = np.array(
+            [i.split("Msun")[0].split(os.path.sep)[-1] for i in filelist]
+        ).astype(np.float64)
+
+        # Create an empty array for holding the cooling models
+        cooling_model = np.array(([""] * len(mass)), dtype="object")
+
+        for i, filepath in enumerate(filelist):
+
+            cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
+
+            # Convert the luminosity into erg/s
+            cooling_model[i]["lum"] = (
+                10.0 ** cooling_model[i]["lum"] * 3.826e33
+            )
+
+            # Convert the age to yr
+            cooling_model[i]["age"] *= 1.0e9
+
+        return mass, cooling_model, column_names, column_units
+
+    def _lpcode22_db_formatter(self):
+        """
+        A formatter to load the LPCODE collated DB cooling model grid.
+
+        """
+
+        filelist = glob.glob(
+            os.path.join(
+                self.THIS_FILE, "wd_cooling", "lpcode22", "DB", "*.trk"
+            )
+        )
+
+        # Prepare the array column dtype
+        column_key = np.array(
+            (
+                "Teff",
+                "lum",
+                "logg",
+                "age",
+                "Rsun",
+                "Mbol",
+                "G",
+                "BP",
+                "RP",
+            )
+        )
+        column_key_formatted = np.array(
+            (
+                r"log(T$_{\mathrm{eff}})$",
+                "log(Luminosity)",
+                "log(g)",
+                "log(Cooling Age)",
+                "Radius",
+                r"M$_{\mathrm{bol}}$",
+                "G",
+                "BP",
+                "RP",
+            )
+        )
+        column_key_unit = np.array(
+            (
+                "log(K)",
+                r"log(L/L$_{\odot}$)",
+                r"log(cm/s$^2$)",
+                "log(yr)",
+                r"R$_{\odot}$",
                 "mag",
                 "mag",
                 "mag",
