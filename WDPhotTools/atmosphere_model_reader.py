@@ -261,7 +261,7 @@ class AtmosphereModelReader(object):
         atmosphere="H",
         independent=["logg", "Mbol"],
         logg=8.0,
-        interpolator="RBF",
+        interpolator="CT",
         kwargs_for_RBF={},
         kwargs_for_CT={},
     ):
@@ -313,7 +313,7 @@ class AtmosphereModelReader(object):
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
         _kwargs_for_CT = {
-            "fill_value": float("-inf"),
+            "fill_value": -1e10,
             "tol": 1e-10,
             "maxiter": 100000,
             "rescale": True,

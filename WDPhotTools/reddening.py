@@ -130,6 +130,11 @@ def reddening_vector_filter(filter):
 
     data = data.reshape(len(logg), len(Teff), len(Rv))
 
+    # fill_value is set to None to allow extrapolation. The scipy default is Nan.
     return RegularGridInterpolator(
-        (logg, Teff, Rv), data, method="linear", bounds_error=False
+        (logg, Teff, Rv),
+        data,
+        method="linear",
+        bounds_error=False,
+        fill_value=None,
     )
