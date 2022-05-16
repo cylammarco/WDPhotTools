@@ -220,7 +220,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz00002":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -234,7 +236,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz00005":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -248,7 +252,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0001":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -262,7 +268,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0002":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -276,7 +284,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0004":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -290,7 +300,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0006":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -304,7 +316,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0008":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -318,7 +332,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz001":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -332,7 +348,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0014":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -346,7 +364,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0017":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -360,7 +380,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz002":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -374,7 +396,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz003":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -388,7 +412,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz004":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -402,7 +428,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "PARSECz006":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -416,7 +444,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "GENEVAz014":
             # https://obswww.unige.ch/Research/evol/tables_grids2011/
@@ -430,7 +460,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "GENEVAz006":
             # https://obswww.unige.ch/Research/evol/tables_grids2011/
@@ -444,7 +476,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "GENEVAz002":
             # https://obswww.unige.ch/Research/evol/tables_grids2011/
@@ -458,7 +492,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFe050":
             # http://waps.cfa.harvard.edu/MIST/
@@ -472,7 +508,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFe025":
             # http://waps.cfa.harvard.edu/MIST/
@@ -486,7 +524,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFe000":
             # http://waps.cfa.harvard.edu/MIST/
@@ -500,7 +540,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem025":
             # http://waps.cfa.harvard.edu/MIST/
@@ -514,7 +556,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem050":
             # http://waps.cfa.harvard.edu/MIST/
@@ -528,7 +572,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem075":
             # http://waps.cfa.harvard.edu/MIST/
@@ -542,7 +588,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem100":
             # http://waps.cfa.harvard.edu/MIST/
@@ -556,7 +604,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem125":
             # http://waps.cfa.harvard.edu/MIST/
@@ -570,7 +620,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem150":
             # http://waps.cfa.harvard.edu/MIST/
@@ -584,7 +636,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem175":
             # http://waps.cfa.harvard.edu/MIST/
@@ -598,7 +652,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem200":
             # http://waps.cfa.harvard.edu/MIST/
@@ -612,7 +668,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem250":
             # http://waps.cfa.harvard.edu/MIST/
@@ -626,7 +684,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem300":
             # http://waps.cfa.harvard.edu/MIST/
@@ -640,7 +700,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem350":
             # http://waps.cfa.harvard.edu/MIST/
@@ -654,7 +716,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         elif self.wdlf_params["ms_model"] == "MISTFem400":
             # http://waps.cfa.harvard.edu/MIST/
@@ -668,7 +732,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time)(M)
+            age = interp1d(
+                massi, time, kind="cubic", fill_value="extrapolate"
+            )(M)
 
         else:
 
