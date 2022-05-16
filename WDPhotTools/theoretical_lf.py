@@ -222,7 +222,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz00002":
+        elif self.wdlf_params["ms_model"] == "PARSECz00002":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -236,7 +236,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz00005":
+        elif self.wdlf_params["ms_model"] == "PARSECz00005":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -250,7 +250,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz0001":
+        elif self.wdlf_params["ms_model"] == "PARSECz0001":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -264,7 +264,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz0002":
+        elif self.wdlf_params["ms_model"] == "PARSECz0002":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -278,7 +278,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz0004":
+        elif self.wdlf_params["ms_model"] == "PARSECz0004":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -292,7 +292,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz0006":
+        elif self.wdlf_params["ms_model"] == "PARSECz0006":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -306,7 +306,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz0008":
+        elif self.wdlf_params["ms_model"] == "PARSECz0008":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -320,7 +320,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz001":
+        elif self.wdlf_params["ms_model"] == "PARSECz001":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -334,7 +334,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz0014":
+        elif self.wdlf_params["ms_model"] == "PARSECz0014":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -348,7 +348,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz0017":
+        elif self.wdlf_params["ms_model"] == "PARSECz0017":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -362,7 +362,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz002":
+        elif self.wdlf_params["ms_model"] == "PARSECz002":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -376,7 +376,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz003":
+        elif self.wdlf_params["ms_model"] == "PARSECz003":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -390,7 +390,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz004":
+        elif self.wdlf_params["ms_model"] == "PARSECz004":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
@@ -404,7 +404,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        if self.wdlf_params["ms_model"] == "PARSECz006":
+        elif self.wdlf_params["ms_model"] == "PARSECz006":
             # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
