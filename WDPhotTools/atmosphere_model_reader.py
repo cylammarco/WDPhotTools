@@ -12,18 +12,18 @@ class AtmosphereModelReader(object):
         # DA atmosphere
         filepath_da = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "wd_photometry/Table_DA.txt",
+            "wd_photometry/Table_DA_13012021.txt",
         )
 
         # DB atmosphere
         filepath_db = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "wd_photometry/Table_DB.txt",
+            "wd_photometry/Table_DB_13012021.txt",
         )
 
         # Prepare the array column dtype
         self.column_key = np.array(
-            (
+            [
                 "Teff",
                 "logg",
                 "mass",
@@ -68,10 +68,10 @@ class AtmosphereModelReader(object):
                 "FUV",
                 "NUV",
                 "age",
-            )
+            ]
         )
         self.column_key_formatted = np.array(
-            (
+            [
                 r"T$_{\mathrm{eff}}$",
                 "log(g)",
                 "Mass",
@@ -116,10 +116,10 @@ class AtmosphereModelReader(object):
                 "FUV",
                 "NUV",
                 "Age",
-            )
+            ]
         )
         self.column_key_unit = np.array(
-            (
+            [
                 "K",
                 r"(cm/s$^2$)",
                 r"M$_\odot$",
@@ -164,10 +164,10 @@ class AtmosphereModelReader(object):
                 "mag",
                 "mag",
                 "yr",
-            )
+            ]
         )
         self.column_key_wavelength = np.array(
-            (
+            [
                 0.0,
                 0.0,
                 0.0,
@@ -212,7 +212,7 @@ class AtmosphereModelReader(object):
                 1535.0,
                 2301.0,
                 0.0,
-            )
+            ]
         )
 
         self.column_names = {}

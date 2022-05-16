@@ -64,7 +64,42 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         self.sfr_mode_list = ["constant", "burst", "decay", "manual"]
 
-        self.ms_model_list = ["Bressan", "C16", "manual"]
+        self.ms_model_list = [
+            "PARSECz00001",
+            "PARSECz00002",
+            "PARSECz00005",
+            "PARSECz0001",
+            "PARSECz0002",
+            "PARSECz0004",
+            "PARSECz0006",
+            "PARSECz0008",
+            "PARSECz001",
+            "PARSECz0014",
+            "PARSECz0017",
+            "PARSECz002",
+            "PARSECz003",
+            "PARSECz004",
+            "PARSECz006",
+            "GENEVAz002",
+            "GENEVAz006",
+            "GENEVAz014",
+            "MISTFem400",
+            "MISTFem350",
+            "MISTFem300",
+            "MISTFem250",
+            "MISTFem200",
+            "MISTFem175",
+            "MISTFem150",
+            "MISTFem125",
+            "MISTFem100",
+            "MISTFem075",
+            "MISTFem050",
+            "MISTFem025",
+            "MISTFe000",
+            "MISTFe025",
+            "MISTFe050",
+            "manual",
+        ]
 
         # The IFMR, WD cooling and MS lifetime models are required to
         # initialise the object.
@@ -93,7 +128,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         Returns
         -------
         MF: array
-            Array of MF, normalised to 1 at 1M_sun.
+            Array of MF, normalised to 1 at 1 M_sun.
 
         """
 
@@ -155,7 +190,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
     def _ms_age(self, M):
         """
         Compute the main sequence lifetime based on the pre-selected MS model
-        and the given mass (M).
+        and the given solar mass (M).
 
         See set_ms_model() for more details.
 
@@ -173,12 +208,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         M = np.asarray(M).reshape(-1)
 
-        if self.wdlf_params["ms_model"] == "Bressan":
-
+        if self.wdlf_params["ms_model"] == "PARSECz00001":
+            # https://people.sissa.it/~sbressan/parsec.html
             datatable = np.loadtxt(
                 glob.glob(
                     pkg_resources.resource_filename(
-                        "WDPhotTools", "ms_lifetime/bressan00170279.csv"
+                        "WDPhotTools", "ms_lifetime/PARSECz00001.csv"
                     )
                 )[0],
                 delimiter=",",
@@ -187,22 +222,453 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(massi, time)(M)
 
-        elif self.wdlf_params["ms_model"] == "C16":
-
-            age = 10.0 ** (
-                13.37807
-                - 6.292517 * M
-                + 4.451837 * M**2
-                - 1.773315 * M**3
-                + 0.2944963 * M**4
+        if self.wdlf_params["ms_model"] == "PARSECz00002":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz00002.csv"
+                    )
+                )[0],
+                delimiter=",",
             )
-            if (M > 2.11).any():
-                age[M > 2.11] = 10.0 ** (
-                    10.75941
-                    - 1.043523 * M[M > 2.11]
-                    + 0.1366088 * M[M > 2.11] ** 2
-                    - 7.110290e-3 * M[M > 2.11] ** 3
-                )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz00005":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz00005.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz0001":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz0001.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz0002":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz0002.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz0004":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz0004.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz0006":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz0006.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz0008":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz0008.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz001":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz001.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz0014":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz0014.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz0017":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz0017.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz002":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz002.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz003":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz003.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz004":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz004.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        if self.wdlf_params["ms_model"] == "PARSECz006":
+            # https://people.sissa.it/~sbressan/parsec.html
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/PARSECz006.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "GENEVAz014":
+            # https://obswww.unige.ch/Research/evol/tables_grids2011/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/genevaz014.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "GENEVAz006":
+            # https://obswww.unige.ch/Research/evol/tables_grids2011/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/genevaz006.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "GENEVAz002":
+            # https://obswww.unige.ch/Research/evol/tables_grids2011/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/genevaz002.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFe050":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fe050.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFe025":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fe025.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFe000":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fe000.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem025":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem025.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem050":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem050.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem075":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem075.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem100":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem100.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem125":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem125.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem150":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem150.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem175":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem175.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem200":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem200.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem250":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem250.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem300":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem300.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem350":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem350.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
+
+        elif self.wdlf_params["ms_model"] == "MISTFem400":
+            # http://waps.cfa.harvard.edu/MIST/
+            datatable = np.loadtxt(
+                glob.glob(
+                    pkg_resources.resource_filename(
+                        "WDPhotTools", "ms_lifetime/MISTv1p2Fem400.csv"
+                    )
+                )[0],
+                delimiter=",",
+            )
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            age = interp1d(massi, time)(M)
 
         else:
 
@@ -210,7 +676,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         return age
 
-    def _ifmr(self, M, fill_value=0):
+    def _ifmr(self, M):
         """
         Compute the final mass (i.e. WD mass) based on the pre-selected IFMR
         model and the zero-age MS mass (M).
@@ -221,10 +687,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         ----------
         M: float, list of float or array of float
             Input MS mass
-        fill_value: numeric, str or list of size 2 (Default: 0)
-            Value to fill if m_WD is outside the interpolated grid. Set to
-            'extrapolate' to return the extrapolated values, for 'C18' and
-            'EB18' only.
 
         Returns
         -------
@@ -574,16 +1036,48 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
     def set_ms_model(self, model, ms_function=None):
         """
-        Set the main sequence total lifetime model.
+        Set the total stellar evolution lifetime model.
 
         Parameters
         ----------
         model: str (Default: 'C16')
-            Choice of IFMR model:
+            Choice of MS model are from the PARSEC, Geneva and MIST stellar
+            evolution models. The complete list of available models is as
+            follow:
 
-                1. C16 - Choi et al. 2016
-                2. Bressan - BASTI
-                3. manual
+                1. PARSECz00001 - Z = 0.0001, Y = 0.249
+                2. PARSECz00002 - Z = 0.0002, Y = 0.249
+                3. PARSECz00005 - Z = 0.0005, Y = 0.249
+                4. PARSECz0001 - Z = 0.001, Y = 0.25
+                5. PARSECz0002 - Z = 0.002, Y = 0.252
+                6. PARSECz0004 - Z = 0.004, Y = 0.256
+                7. PARSECz0006 - Z = 0.006, Y = 0.259
+                8. PARSECz0008 - Z = 0.008, Y = 0.263
+                9. PARSECz001 - Z = 0.01, Y = 0.267
+                10. PARSECz0014 - Z = 0.014, Y = 0.273
+                11. PARSECz0017 - Z = 0.017, Y = 0.279
+                12. PARSECz002 - Z = 0.02, Y = 0.284
+                13. PARSECz003 - Z = 0.03, Y = 0.302
+                14. PARSECz004 - Z = 0.04, Y = 0.321
+                15. PARSECz006 - Z = 0.06, Y = 0.356
+                16. GENEVAz002 - Z = 0.002
+                17. GENEVAz006 - Z = 0.006
+                18. GENEVAz014 - Z = 0.014
+                19. MISTFem400 - [Fe/H] = -4.0
+                20. MISTFem350 - [Fe/H] = -3.5
+                21. MISTFem300 - [Fe/H] = -3.0
+                22. MISTFem250 - [Fe/H] = -2.5
+                23. MISTFem200 - [Fe/H] = -2.0
+                24. MISTFem175 - [Fe/H] = -1.75
+                25. MISTFem150 - [Fe/H] = -1.5
+                26. MISTFem125 - [Fe/H] = -1.25
+                27. MISTFem100 - [Fe/H] = -1.0
+                28. MISTFem075 - [Fe/H] = -0.75
+                29. MISTFem050 - [Fe/H] = -0.5
+                30. MISTFem025 - [Fe/H] = -0.25
+                31. MISTFe000 - [Fe/H] = 0.0
+                32. MISTFe025 - [Fe/H] = 0.25
+                33. MISTFe050 - [Fe/H] = 0.5
 
         ms_function: callable function (Default: None)
             A callable ifmr function, only used if model is 'manual'.

@@ -8,23 +8,23 @@ try:
 except DistributionNotFound:
     pass  # package is not installed
 
-__credits__ = ["K W Yuen", "W Li", "M Green"]
+__credits__ = ["K W Yuen", "M Green"]
 __status__ = "Production"
 
-from . import theoretical_lf
-from . import cooling_model_reader
 from . import atmosphere_model_reader
-from . import plotter
+from . import cooling_model_reader
 from . import fitter
+from . import plotter
 from . import reddening
+from . import theoretical_lf
 from . import util
 
 __all__ = [
-    "theoretical_lf",
-    "cooling_model_reader",
     "atmosphere_model_reader",
-    "plotter",
+    "cooling_model_reader",
     "fitter",
+    "plotter",
     "reddening",
+    "theoretical_lf",
     "util",
 ]
