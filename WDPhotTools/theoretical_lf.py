@@ -34,7 +34,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         low_mass_cooling_model="montreal_co_da_20",
         intermediate_mass_cooling_model="montreal_co_da_20",
         high_mass_cooling_model="montreal_co_da_20",
-        ms_model="C16",
+        ms_model="PARSECz0017",
     ):
 
         super(WDLF, self).__init__()
@@ -1040,7 +1040,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         Parameters
         ----------
-        model: str (Default: 'C16')
+        model: str (Default: 'PARSECz0017')
             Choice of MS model are from the PARSEC, Geneva and MIST stellar
             evolution models. The complete list of available models is as
             follow:
