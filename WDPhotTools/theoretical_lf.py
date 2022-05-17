@@ -453,7 +453,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             datatable = np.loadtxt(
                 glob.glob(
                     pkg_resources.resource_filename(
-                        "WDPhotTools", "ms_lifetime/genevaz014.csv"
+                        "WDPhotTools", "ms_lifetime/geneva2011z014.csv"
                     )
                 )[0],
                 delimiter=",",
@@ -469,7 +469,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             datatable = np.loadtxt(
                 glob.glob(
                     pkg_resources.resource_filename(
-                        "WDPhotTools", "ms_lifetime/genevaz006.csv"
+                        "WDPhotTools", "ms_lifetime/geneva2011z006.csv"
                     )
                 )[0],
                 delimiter=",",
@@ -485,7 +485,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             datatable = np.loadtxt(
                 glob.glob(
                     pkg_resources.resource_filename(
-                        "WDPhotTools", "ms_lifetime/genevaz002.csv"
+                        "WDPhotTools", "ms_lifetime/geneva2011z002.csv"
                     )
                 )[0],
                 delimiter=",",
