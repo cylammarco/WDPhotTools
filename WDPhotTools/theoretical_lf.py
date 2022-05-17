@@ -813,8 +813,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         elif self.wdlf_params["ifmr_model"] == "C18":
 
             m = interp1d(
-                (0.23, 0.5, 0.95, 2.8, 3.65, 8.2, 10),
-                (0.19, 0.4, 0.50, 0.72, 0.87, 1.25, 1.4),
+                (0.83, 2.85, 3.60, 7.20),
+                (0.5554, 0.71695, 0.8572, 1.2414),
                 fill_value="extrapolate",
                 bounds_error=False,
             )(M)
