@@ -8,7 +8,7 @@ try:
 except DistributionNotFound:
     pass  # package is not installed
 
-__credits__ = ["K W Yuen", "M Green"]
+__credits__ = ["K W Yuen", "M Green", "W Li"]
 __status__ = "Production"
 
 from . import atmosphere_model_reader
