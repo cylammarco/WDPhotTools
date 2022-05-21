@@ -1076,7 +1076,7 @@ class WDfitter(AtmosphereModelReader):
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 8.0],
         logg=8.0,
-        atmosphere_interpolator="RBF",
+        atmosphere_interpolator="CT",
         reuse_interpolator=False,
         method="minimize",
         nwalkers=100,
@@ -1116,7 +1116,8 @@ class WDfitter(AtmosphereModelReader):
         mag_errors: list/array of float (Default: [1., 1., 1.])
             The uncertainties in the magnitudes provided.
         allow_none: bool (Default: False)
-            Set to True to detect None in the `mags` list to create a mask.
+            Set to True to detect None in the `mags` list to create a mask,
+            this check requires extra run-time.
         distance: float (Default: None)
             The distance to the source, in parsec. Set to None if the
             distance is to be fitted simultanenous. Provide an initial
@@ -1151,7 +1152,7 @@ class WDfitter(AtmosphereModelReader):
         reuse_interpolator: bool (Default: False)
             Set to use the existing interpolated grid, it should be set to
             True if the same collection of data is fitted in the same set of
-            filters with occasional non-detection.
+            filters with occasional non-detection (with allow_none=False).
         method: str (Default: 'minimize')
             Choose from 'minimize', 'least_squares' and 'emcee' for using the
             `scipy.optimize.minimize`, `scipy.optimize.least_squares` or the
@@ -2061,7 +2062,7 @@ class WDfitter(AtmosphereModelReader):
         kwarg={},
     ):
         """
-        Generate the corner plot(s) of this fit.
+        Generate the corner plot(s) of this fit. Only if fitting with `emcee`.
 
         Parameters
         ----------

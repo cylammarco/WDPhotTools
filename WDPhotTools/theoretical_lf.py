@@ -1258,6 +1258,13 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             The filename of the csv. The default filename will be used
             if None.
 
+        Returns
+        -------
+        Mag: array of float
+            The magnitude at which the number density is computed.
+        number_density: array of float
+            The (arbitrary) number density at that magnitude.
+
         """
 
         if self.cooling_interpolator is None:
@@ -1545,7 +1552,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         else:
 
-            rate_of_change = self.dLdt
+            rate_of_change = -self.dLdt
 
         rate_of_change[np.isnan(rate_of_change)] = 0.0
         rate_of_change[~np.isfinite(rate_of_change)] = 0.0
@@ -1564,7 +1571,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         else:
 
-            ax6.set_ylabel(r"d(L$_{\mathrm{bol}})/dt (s)$")
+            ax6.set_ylabel(r"-d(L$_{\mathrm{bol}})/dt (s)$")
             ax6.set_yscale("log")
             ax6.set_ylim(np.nanmin(rate_of_change), np.nanmax(rate_of_change))
 

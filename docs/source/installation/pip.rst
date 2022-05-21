@@ -1,8 +1,15 @@
 Installation
 ============
 
-Make sure your pip is linked to python 3.6+, you may need to use pip3 instead.
+Make sure your pip is linked to python 3, you may need to use pip3 instead.
 
+
+PyPI
+----
+
+WDPhotTools is registered on the Python Package Index so it can be installed using the command
+
+`pip install wdphottools`.
 
 Github
 ------

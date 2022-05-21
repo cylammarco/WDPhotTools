@@ -14,6 +14,7 @@ class Dummy_cm:
     pass
 
 
+# Create dummy object, only load the respective readers when needed.
 __dummy_atm = Dummy_atm()
 __dummy_atm.ar = None
 

@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/wdphottools/badge/?version=latest)](https://wdphottools.readthedocs.io/en/latest/?badge=latest)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) main sequence total lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
+This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) total stellar evolution lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
 
 the core parts of this work are three-fold: the first and the backbone of this work is the formatters that handle the output models from various works in the format as they are downloaded. This will allow the software to be updated with the newer models easily in the future. The second core part is the photometric fitter that solves for the WD parameters based on the photometry, with or without distance and reddening. The last part is to generate white dwarf luminosity function in bolometric magnitudes or in any of the photometric systems availalbe from the atmosphere model.
 
@@ -187,16 +187,42 @@ The options for the various models include:
 3. Charbrier 2003 (including binary)
 4. Manual
 
-### Main Sequence Total Lifetime
+### Total Stellar Evolution Lifetime
 
-1. Choi et al. 2016
-2. Bressan et al. 2013 (solar metallicity)
-3. Manual
-
-to be added:
-
-4. other metallicities
-5. other models
+1. PARSECz00001 - Z = 0.0001, Y = 0.249
+2. PARSECz00002 - Z = 0.0002, Y = 0.249
+3. PARSECz00005 - Z = 0.0005, Y = 0.249
+4. PARSECz0001 - Z = 0.001, Y = 0.25
+5. PARSECz0002 - Z = 0.002, Y = 0.252
+6. PARSECz0004 - Z = 0.004, Y = 0.256
+7. PARSECz0006 - Z = 0.006, Y = 0.259
+8. PARSECz0008 - Z = 0.008, Y = 0.263
+9. PARSECz001 - Z = 0.01, Y = 0.267
+10. PARSECz0014 - Z = 0.014, Y = 0.273
+11. PARSECz0017 - Z = 0.017, Y = 0.279
+12. PARSECz002 - Z = 0.02, Y = 0.284
+13. PARSECz003 - Z = 0.03, Y = 0.302
+14. PARSECz004 - Z = 0.04, Y = 0.321
+15. PARSECz006 - Z = 0.06, Y = 0.356
+16. GENEVAz002 - Z = 0.002
+17. GENEVAz006 - Z = 0.006
+18. GENEVAz014 - Z = 0.014
+19. MISTFem400 - [Fe/H] = -4.0
+20. MISTFem350 - [Fe/H] = -3.5
+21. MISTFem300 - [Fe/H] = -3.0
+22. MISTFem250 - [Fe/H] = -2.5
+23. MISTFem200 - [Fe/H] = -2.0
+24. MISTFem175 - [Fe/H] = -1.75
+25. MISTFem150 - [Fe/H] = -1.5
+26. MISTFem125 - [Fe/H] = -1.25
+27. MISTFem100 - [Fe/H] = -1.0
+28. MISTFem075 - [Fe/H] = -0.75
+29. MISTFem050 - [Fe/H] = -0.5
+30. MISTFem025 - [Fe/H] = -0.25
+31. MISTFe000 - [Fe/H] = 0.0
+32. MISTFe025 - [Fe/H] = 0.25
+33. MISTFe050 - [Fe/H] = 0.5
+34. Manual
 
 ### Initial-Final Mass Relation
 

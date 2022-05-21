@@ -4,8 +4,7 @@ How to Use The WDPhotTools
 To start, you're probably going to need to follow the :ref:`Installation` guide to
 get WdPhotTools installed on your computer.
 After you finish that, you can probably learn most of what you need from the
-tutorials listed below (you might want to start with
-:ref:`quickstart` and go from there).
+tutorials listed below.
 If you need more details about specific functionality, the User Guide below
 should have what you need.
 
@@ -35,10 +34,12 @@ User Guide
    :maxdepth: 1
    :caption: Tutorials
 
-   tutorials/quickstart
    tutorials/plotting
    tutorials/fitting
    tutorials/generate_wdlf
+
+API
+===
 
 .. toctree::
    :maxdepth: 1
@@ -71,6 +72,15 @@ User Guide
    modules/theoretical_wdlf_api
 
 
+Extra API
+=========
+.. toctree::
+   :maxdepth: 1
+   :caption: Extra Utility API
+
+   modules/extra_utility_api
+
+
 License and Attribution
 =======================
 
@@ -78,12 +88,18 @@ Copyright 2021-2022
 
 If you make use of WdPhotTools in your work, please cite our paper
 
-and the specific Software version should it be relevant
+and the Software
 
 
 Acknowledgement
 ===============
+MCL is supported by a European Research Council (ERC) grant under the European
+Union's Horizon 2020 research and innovation program (grant agreement number
+833031).
 
+This research has made use of the Spanish Virtual Observatory
+(http://svo.cab.inta-csic.es) supported from the Spanish MICINN/FEDER through
+grant AyA2017-84089.
 
 
 Indices and tables

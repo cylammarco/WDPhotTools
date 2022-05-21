@@ -1,6 +1,5 @@
 Cooling Model Reader API
 ========================
 
-.. automodule:: WDPhotTools.cooling_model_reader
+.. autoclass:: WDPhotTools.cooling_model_reader.CoolingModelReader
    :members:
-   :private-members:

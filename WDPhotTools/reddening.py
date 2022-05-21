@@ -10,6 +10,11 @@ folder_path = os.path.dirname(os.path.abspath(__file__))
 
 # Interpolating with the custom-build (extra-)interpolator
 def reddening_vector_interpolated(kind="cubic"):
+    """
+    This generates an interpolation using the pre-computed table from
+    Schlafly et al. 2012 for a 7000K blackbody source.
+
+    """
 
     filepath = os.path.join(folder_path, "extinction", "schlafly12.csv")
 
@@ -31,6 +36,18 @@ def reddening_vector_interpolated(kind="cubic"):
 
 
 def reddening_vector_filter(filter):
+    """
+    This generate an interpolation over the parameter space where the models
+    from Koester, D. 2010; MSAI 81, 921 and Trembley & Bergeron 2010;
+    ApJ696, 1755 cover. The extinction is computed for each filter available
+    from the Montreal photometry grid by convolving their filter profile with
+    the publicly available spectra at each temperature from the Koester models.
+
+    See http://svo2.cab.inta-csic.es/theory/newov2/index.php?models=koester2,
+    WDPhotTools/extinction/generate_extinction_table.py and
+    WDPhotTools/filter_response/
+
+    """
 
     filepath = os.path.join(folder_path, "extinction", "{}.csv".format(filter))
 
