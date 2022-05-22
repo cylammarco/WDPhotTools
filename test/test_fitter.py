@@ -702,45 +702,6 @@ def test_fitting_Teff_red_emcee():
     ).all()
 
 
-# Fitting for logg and Teff with 5 filters for both DA and DB with added
-# extinction
-def test_fitting_logg_and_Teff_red_emcee():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        atmosphere_interpolator="CT",
-        method="emcee",
-        distance=10.0,
-        distance_err=0.1,
-        initial_guess=[13000.0, 7.5],
-        refine=True,
-        refine_bounds=[0.1, 99.9],
-        Rv=rv,
-        ebv=ebv,
-    )
-    ftr.show_best_fit(
-        display=False,
-        folder="test_output",
-        filename="test_fitting_logg_and_mbol",
-        ext="png",
-    )
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        np.array([13000.0]),
-        rtol=2.5e-02,
-        atol=2.5e-02,
-    ).all()
-    assert np.isclose(
-        ftr.best_fit_params["H"]["logg"],
-        np.array([7.5]),
-        rtol=2.5e-02,
-        atol=2.5e-02,
-    ).all()
-
-
 # Testing interp_reddening()
 def test_interp_reddening():
     ftr = WDfitter()
