@@ -21,7 +21,7 @@ To inspect the Montreal atmosphere models, it can be done easily with the follow
 
 .. figure:: ../_static/DA_cooling_tracks_from_plotter.png
 
-In order to inspect the cooling models, it is slightly less straight forward because each model comes with different parameters. In the following example, we define the model to be `montreal_co_da_20` and plotting the cooling tracks at those 5 masses only. The names of the model can be retrieved with `plotter.list_cooling_model()`, while the model parameters can be found using `plotter.list_cooling_parameters(MODEL_NAME)`
+In order to inspect the cooling models, it is slightly less straight forward because each model comes with different parameters. In the following example, we define the model to be `montreal_co_da_20` and plotting the cooling tracks at those 5 masses only. The names of the models can be retrieved with `plotter.list_cooling_model()`, while the model parameters can be found using `plotter.list_cooling_parameters(MODEL_NAME)`
 
 .. code:: python
 

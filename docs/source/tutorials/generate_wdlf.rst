@@ -1,7 +1,7 @@
 Generate WDLF
 =============
 
-To compute a WDLF, 5 models have to be specified (there are presets, so you don't have to explicitly specify them if you don't have to change from the default). After setting the cooling models, an explicit call (`compute_cooling_age_interpolator()`) is required to generate an interpolator to update the choice of cooling models. The following example shows how each of the model can be explicityly specified before computing the WDLF.
+To compute a WDLF, 5 models have to be specified (there are presets, so you don't have to explicitly specify them if you don't have to change from the default). After setting the cooling models, an explicit call (`compute_cooling_age_interpolator()`) is required to generate an interpolator to update the choice of cooling models. The following example shows how each of the model can be explicitly specified before computing the WDLF.
 
 .. code:: python
 

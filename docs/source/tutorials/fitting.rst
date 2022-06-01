@@ -23,7 +23,7 @@ Photometric fitting with the Montreal DA & DB models is possible with 2 minimise
 | 8    + :math:`\checkmark` |                    |                    |                    |
 +------+--------------------+--------------------+--------------------+--------------------+
 
-Below is the default setup of the `fit` method, we will go through the 7 cases one by one ans see how we can configure the fitter to perform fitting in each scenario.
+Below is the default setup of the `fit` method, we will go through the 8 cases one by one and see how we can configure the fitter to perform fitting in each scenario.
 
 .. code:: python
 
@@ -63,11 +63,11 @@ Below is the default setup of the `fit` method, we will go through the 7 cases o
     ...
     ...
 
-Below shows the example of how the fitter can be configured to fit differently, the argument that is worth particular mentioning is the `independent`. It refers to the mathemtical term *independent variable*, which are the parameters to be fitted. It accepts a list of 1 or 2 stings, one from `["Mbol", "Teff"]`, and one from `["logg", "mass"]`. When distance is to be fitted, it is not configured here, but instead a `None` should be provided to the `distance` argument. See further down for the examples. When a distance is provided, **its uncertainty has to be provided**.
+Below shows the example of how the fitter can be configured to fit differently, the argument that is worth particular mentioning is the `independent`. It refers to the mathemtical term *independent variable*, which are the parameters to be fitted. It accepts a list of 1 or 2 strings, one from `["Mbol", "Teff"]`, and one from `["logg", "mass"]`. When distance is to be fitted, it is not configured here, but instead a `None` should be provided to the `distance` argument. See further down for the examples. When a distance is provided, **its uncertainty has to be provided**.
 
 **Case 1**
 
-When a log(g) is not included in the `independent` list, it will assume a fixed surface gravitiy as provided by `logg`, which is defaulted to 8.0, in this case we want to fit for the bolometric magnitude with a surface gravity of 7.81 for a DA at 21.0 pc with a reddening of `E(B-V) = 0.1` and `Rv`` of 3.1 where the extinction is computed by convolving the filter profiles with the DA spectra. The magnitudes and uncertainties in the Gaia eDR3 are some variables `a`, `b`, and `c`.
+When a log(g) is not included in the `independent` list, it will assume a fixed surface gravitiy as provided by `logg`, which is defaulted to 8.0, in this case we want to fit for the bolometric magnitude with a surface gravity of 7.81 for a DA at 21.0 pc with a reddening of `E(B-V) = 0.1` and `Rv` of 3.1 where the extinction is computed by convolving the filter profiles with the DA spectra. The magnitudes and uncertainties in the Gaia eDR3 are some variables `a`, `b`, and `c`.
 
 .. code:: python
 

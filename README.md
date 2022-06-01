@@ -3,6 +3,9 @@
 ![example workflow name](https://github.com/cylammarco/WDPhotTools/workflows/Python%20package/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/cylammarco/WDPhotTools/badge.svg?branch=main)](https://coveralls.io/github/cylammarco/WDPhotTools?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/wdphottools/badge/?version=latest)](https://wdphottools.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/wdphottools.svg)](https://badge.fury.io/py/wdphottools)
+[![DOI](https://zenodo.org/badge/310723364.svg)](https://zenodo.org/badge/latestdoi/310723364)
+[![arXiv](https://img.shields.io/badge/arXiv-2205.15321-00ff00.svg)](https://arxiv.org/abs/2205.15321)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) total stellar evolution lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
@@ -10,6 +13,45 @@ This software can generate colour-colour diagram, colour-magnitude diagram in va
 the core parts of this work are three-fold: the first and the backbone of this work is the formatters that handle the output models from various works in the format as they are downloaded. This will allow the software to be updated with the newer models easily in the future. The second core part is the photometric fitter that solves for the WD parameters based on the photometry, with or without distance and reddening. The last part is to generate white dwarf luminosity function in bolometric magnitudes or in any of the photometric systems availalbe from the atmosphere model.
 
 When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9 which provides a speed gain of O(100) times.
+
+## Documentation
+
+Documentation and more examples can be found at [Read the Docs](https://wdphottools.readthedocs.io/en/latest/).
+
+## Attribution
+
+If you have made use of the WDPhotTools, we would appreciate if you can refernce the follow article and the software itself. The BibTex of the two items are::
+
+    @ARTICLE{2022arXiv220515321L,
+           author = {{Lam}, M.~C. and {Yuen}, K.~W. and {Li}, W. and {Green}, M.~J.},
+            title = "{WDPhotTools -- A White Dwarf Photometric Toolkit in Python}",
+          journal = {arXiv e-prints},
+         keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - Solar and Stellar Astrophysics},
+             year = 2022,
+            month = may,
+              eid = {arXiv:2205.15321},
+            pages = {arXiv:2205.15321},
+    archivePrefix = {arXiv},
+           eprint = {2205.15321},
+     primaryClass = {astro-ph.IM},
+           adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220515321L},
+          adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+    }
+
+and
+
+    @software{marco_c_lam_2022_6595030,
+      author       = {Marco C Lam and
+                      Ka Wai Yuen},
+      title        = {cylammarco/WDPhotTools: 0.0.1},
+      month        = may,
+      year         = 2022,
+      publisher    = {Zenodo},
+      version      = {0.0.1},
+      doi          = {10.5281/zenodo.6595030},
+      url          = {https://doi.org/10.5281/zenodo.6595030}
+    }
+
 
 ## Model Inspection
 

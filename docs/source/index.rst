@@ -38,6 +38,7 @@ User Guide
    tutorials/fitting
    tutorials/generate_wdlf
 
+
 API
 ===
 
@@ -86,9 +87,9 @@ License and Attribution
 
 Copyright 2021-2022
 
-If you make use of WdPhotTools in your work, please cite our paper
-
-and the Software
+If you make use of WdPhotTools in your work, please cite our
+`article <https://arxiv.org/abs/2205.15321>_` and the
+`Software <https://doi.org/10.5281/zenodo.6570263>`_.
 
 
 Acknowledgement

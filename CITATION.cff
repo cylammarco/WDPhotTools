@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: WDPhotTools
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Marco C
+    family-names: Lam
+    email: lam@tau.ac.il
+    affiliation: Tel Aviv University
+    orcid: 'https://orcid.org/0000-0002-9347-2298'
+  - given-names: Ka Wai
+    family-names: Yuen
+    email: kawai.yuen@cuhk.edu.hk 
+    affiliation: The Chinese University of Hong Kong
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.6570263
+    description: Zenodo
+  - type: article
+    value: "arXiv:2205.15321"
+    description: The ArXiv preprint of the article
+repository-code: 'https://github.com/cylammarco/WDPhotTools'
+url: 'https://pypi.org/project/wdphottools/'
+license: BSD-3-Clause
