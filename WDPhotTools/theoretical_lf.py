@@ -1030,11 +1030,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                     )
                     mode = "constant"
 
-            else:
-
-                pass
-
-            if mode == "constant":
+            elif mode == "constant":
 
                 t1 = age
                 t0 = t1 * 1.00001
@@ -1281,8 +1277,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             independent=["mass", passband],
             interpolator=interpolator,
         )
-
-        print("The input age is {0:.2f} Gyr.".format(self.T0 / 1e9))
 
         M_upper_bound = M_max
 
