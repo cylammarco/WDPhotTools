@@ -6,7 +6,7 @@ from WDPhotTools import theoretical_lf
 wdlf = theoretical_lf.WDLF()
 wdlf_manual = theoretical_lf.WDLF()
 
-Mag = np.arange(4.0, 16.0, 0.5)
+Mag = np.arange(4.0, 16.0, 2.0)
 age = [3.0e9, 12.0e9]
 num = np.zeros((len(age), len(Mag)))
 
@@ -37,15 +37,15 @@ def manual_C08_ifmr(M):
 
 
 # manual sfr function
-def manual_constant_sfr(age=5e9):
+def manual_constant_sfr(age):
     t1 = age
     t0 = t1 * 1.00001
     # current time = 0.
     t2 = 0.0
     t3 = t2 * 0.99999
     sfr = interp1d(
-        np.array((30e9, t0, t1, t2, t3, -30e9)),
-        np.array((0.0, 0.0, 1.0, 1.0, 0.0, 0.0)),
+        np.array([30e9, t0, t1, t2, t3, -30e9]),
+        np.array([0.0, 0.0, 1.0, 1.0, 0.0, 0.0]),
         fill_value="extrapolate",
     )
     return sfr
@@ -73,7 +73,9 @@ def test_manual_ifmr_model():
 def test_manual_sfr_model():
     wdlf.set_sfr_model(mode="constant", age=5e9)
     wdlf.compute_density(Mag=Mag)
-    wdlf_manual.set_sfr_model(mode="manual", sfr_model=manual_constant_sfr)
+    wdlf_manual.set_sfr_model(
+        mode="manual", sfr_model=manual_constant_sfr(5e9)
+    )
     wdlf_manual.compute_density(Mag=Mag)
     assert np.isclose(
         wdlf.number_density, wdlf_manual.number_density, rtol=1e-3, atol=1e-3
