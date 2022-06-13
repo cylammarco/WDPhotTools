@@ -1685,10 +1685,13 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         plt.xlim(0, 20)
         plt.xlabel(r"M$_{\mathrm{bol}}$ / mag")
 
-        plt.ylim(
-            np.floor(np.min(_density[np.isfinite(_density)])),
-            np.ceil(np.max(_density[np.isfinite(_density)])),
-        )
+        _density_finite = _density[np.isfinite(_density)]
+        if len(_density_finite) == 0:
+            return 0
+
+        ymin = np.floor(np.nanmin(_density_finite))
+        ymax = np.ceil(np.nanmax(_density_finite))
+        plt.ylim(ymin, ymax)
         plt.ylabel(r"$\log{(N)}$")
 
         plt.grid()
