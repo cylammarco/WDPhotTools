@@ -1,7 +1,7 @@
 {
     "description": "WDPhotTools is a Python library for photometric fitting and computing luminosity functions of white dwarfs.", 
     "license": "BSD-3-Clause", 
-    "title": "WDPhotTools: White Dwarf Photometric Toolkit",
+    "title": "WDPhotTools: A White Dwarf Photometric Toolkit in Python",
     "upload_type": "software",
     "creators": [
         {
