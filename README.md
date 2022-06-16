@@ -42,14 +42,13 @@ and
 
     @software{marco_c_lam_2022_6595030,
       author       = {Marco C Lam and
-                      Ka Wai Yuen},
-      title        = {cylammarco/WDPhotTools: 0.0.1},
+                      K Yuen},
+      title        = {WDPhotTools: A White Dwarf Photometric Toolkit in Python},
       month        = may,
       year         = 2022,
       publisher    = {Zenodo},
-      version      = {0.0.1},
-      doi          = {10.5281/zenodo.6595030},
-      url          = {https://doi.org/10.5281/zenodo.6595030}
+      doi          = {10.5281/zenodo.6595029},
+      url          = {https://doi.org/10.5281/zenodo.6595029}
     }
 
 
