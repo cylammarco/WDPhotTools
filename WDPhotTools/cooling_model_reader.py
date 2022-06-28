@@ -442,6 +442,7 @@ class CoolingModelReader(object):
                 "L",
                 "U-B",
                 "B-V",
+                "V-R",
                 "V-K",
                 "V-I",
                 "R-I",
@@ -469,6 +470,7 @@ class CoolingModelReader(object):
                 r"$L$",
                 r"$U-B$",
                 r"$B-V$",
+                r"$V-R$",
                 r"$V-K$",
                 r"$V-I$",
                 r"$R-I$",
@@ -483,6 +485,7 @@ class CoolingModelReader(object):
                 r"(cm/s$^2$)",
                 r"L$_{\odot}$",
                 "(yr)",
+                "mag",
                 "mag",
                 "mag",
                 "mag",
@@ -536,7 +539,7 @@ class CoolingModelReader(object):
 
         for i, filepath in enumerate(filelist):
 
-            cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
+            cooling_model[i] = np.loadtxt(filepath, dtype=dtype)
 
             # Convert the luminosity into erg/s
             cooling_model[i]["lum"] = (
@@ -696,7 +699,7 @@ class CoolingModelReader(object):
 
         for i, filepath in enumerate(filelist):
 
-            cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
+            cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
             cooling_model[i]["lum"] = (
@@ -1070,6 +1073,8 @@ class CoolingModelReader(object):
                 "mass_Hefc",
                 "logg",
                 "Rsun",
+                "LH",
+                "SF",
             )
         )
         column_key_formatted = np.array(
@@ -1128,6 +1133,8 @@ class CoolingModelReader(object):
                 r"M$_{\odot}$",
                 r"(cm/s$^2$)",
                 r"R$_{\odot}$",
+                "erg/s",
+                "erg/s",
             )
         )
         column_type = np.array(([np.float64] * len(column_key)))
