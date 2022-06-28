@@ -184,6 +184,9 @@ We provide 3 minimisers for fitting with synthetic photometry: `scipy.optimize.m
 3. An example photometric fit of PSO J1801+6254 in 3 Gaia, 5 Pan-STARRS and 3 NIR filters without providing a distance:
 
 ```python
+from WDPhotTools.fitter import WDfitter
+ftr = WDfitter()
+
 ftr.fit(
     atmosphere="H",
     filters=["g_ps1", "r_ps1", "i_ps1", "z_ps1", "y_ps1", "G3", "G3_BP", "G3_RP", "J_mko", "H_mko", "K_mko"],
