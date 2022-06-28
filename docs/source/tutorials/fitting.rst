@@ -71,19 +71,22 @@ When a log(g) is not included in the `independent` list, it will assume a fixed 
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=21.0,
-        distance_err=0.1,
-        extinction_convolved=True,
-        kind="cubic",
-        Rv=3.1,
-        ebv=0.1,
-        independent=["Mbol"],
-        initial_guess=[10.0],
-        logg=7.81)
+    from WDPhotTools.fitter import WDfitter
+    ftr = WDfitter()
+
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=21.0,
+            distance_err=0.1,
+            extinction_convolved=True,
+            kind="cubic",
+            Rv=3.1,
+            ebv=0.1,
+            independent=["Mbol"],
+            initial_guess=[10.0],
+            logg=7.81)
 
 **Case 2**
 
@@ -91,19 +94,19 @@ Compared to case 1, this fits for the logg, so we needs to add `"logg"` to the `
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=21.0,
-        distance_err=0.1,
-        extinction_convolved=True,
-        kind="cubic",
-        Rv=3.1,
-        ebv=0.1,
-        independent=["Mbol", "logg"],
-        initial_guess=[10.0],
-        logg=7.81)
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=21.0,
+            distance_err=0.1,
+            extinction_convolved=True,
+            kind="cubic",
+            Rv=3.1,
+            ebv=0.1,
+            independent=["Mbol", "logg"],
+            initial_guess=[10.0],
+            logg=7.81)
 
 **Case 3**
 
@@ -111,18 +114,18 @@ Compared to case 1, this fits for the distance, but we need to change two things
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=None,
-        extinction_convolved=True,
-        kind="cubic",
-        Rv=3.1,
-        ebv=0.1,
-        independent=["Mbol"],
-        initial_guess=[10.0, 30.7],
-        logg=7.81)
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=None,
+            extinction_convolved=True,
+            kind="cubic",
+            Rv=3.1,
+            ebv=0.1,
+            independent=["Mbol"],
+            initial_guess=[10.0, 30.7],
+            logg=7.81)
 
 **Case 4**
 
@@ -130,16 +133,16 @@ This requires a very simple change, compared to case 1, we change `ebv` to 0.0, 
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=21.0,
-        distance_err=0.1,
-        ebv=0.0,
-        independent=["Mbol"],
-        initial_guess=[10.0],
-        logg=7.81)
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=21.0,
+            distance_err=0.1,
+            ebv=0.0,
+            independent=["Mbol"],
+            initial_guess=[10.0],
+            logg=7.81)
 
 **Case 5**
 
@@ -147,18 +150,18 @@ This is a combination of case 3 and 4, and on top, if we opt to use the other in
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=None,
-        ebv=0.0,
-        independent=["Mbol"],
-        initial_guess=[10.0, 30.7],
-        logg=7.81,
-        atmosphere_interpolator='RBF',
-        method="least_squares"
-        )
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=None,
+            ebv=0.0,
+            independent=["Mbol"],
+            initial_guess=[10.0, 30.7],
+            logg=7.81,
+            atmosphere_interpolator='RBF',
+            method="least_squares"
+            )
 
 **Case 6**
 
@@ -166,24 +169,24 @@ This is a combination of case 2 and 4. We are also demonstrating how to modify t
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=20.1,
-        distance_err=0.1,
-        ebv=0.0,
-        independent=["Mbol", "logg"],
-        initial_guess=[10.0, 8.0],
-        atmosphere_interpolator='RBF',
-        method="emcee",
-        nwalkers=50,
-        nsteps=2000,
-        nburns=200,
-        refine=True,
-        refine_bounds=[2.5, 97.5],
-        kwargs_for_RBF={"kernel": quintic}
-        )
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=20.1,
+            distance_err=0.1,
+            ebv=0.0,
+            independent=["Mbol", "logg"],
+            initial_guess=[10.0, 8.0],
+            atmosphere_interpolator='RBF',
+            method="emcee",
+            nwalkers=50,
+            nsteps=2000,
+            nburns=200,
+            refine=True,
+            refine_bounds=[2.5, 97.5],
+            kwargs_for_RBF={"kernel": quintic}
+            )
 
 
 **Case 7**
@@ -192,21 +195,21 @@ This is the setup that is the most likely to fail because it is fitting 3 unknow
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=None,
-        Rv=3.1,
-        ebv=0.1,
-        independent=["Mbol", "logg"],
-        initial_guess=[10.0, 8.0, 30.0],
-        method="emcee",
-        nwalkers=50,
-        nsteps=2000,
-        nburns=200,
-        kwargs_for_CT={"tol": 1e-12}
-        )
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=None,
+            Rv=3.1,
+            ebv=0.1,
+            independent=["Mbol", "logg"],
+            initial_guess=[10.0, 8.0, 30.0],
+            method="emcee",
+            nwalkers=50,
+            nsteps=2000,
+            nburns=200,
+            kwargs_for_CT={"tol": 1e-12}
+            )
 
 **Case 8**
 
@@ -214,18 +217,18 @@ This is the same as case 7 except the reddening is not considered (ebv is set to
 
 .. code:: python
 
-    fit(atmosphere=["H"],
-        filters=["G3", "G3_BP", "G3_RP"],
-        mags=[a, b, c],
-        mag_errors=[a_err, b_err, c_err],
-        distance=None,
-        ebv=0.0,
-        independent=["Mbol", "logg"],
-        initial_guess=[10.0, 8.0, 30.0],
-        method="emcee",
-        nwalkers=50,
-        nsteps=2000,
-        nburns=200,
-        kwargs_for_CT={"tol": 1e-12}
-        )
+    ftr.fit(atmosphere=["H"],
+            filters=["G3", "G3_BP", "G3_RP"],
+            mags=[a, b, c],
+            mag_errors=[a_err, b_err, c_err],
+            distance=None,
+            ebv=0.0,
+            independent=["Mbol", "logg"],
+            initial_guess=[10.0, 8.0, 30.0],
+            method="emcee",
+            nwalkers=50,
+            nsteps=2000,
+            nburns=200,
+            kwargs_for_CT={"tol": 1e-12}
+            )
 

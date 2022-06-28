@@ -20,7 +20,7 @@ identifiers:
     description: Zenodo
   - type: article
     value: "arXiv:2205.15321"
-    description: The ArXiv preprint of the article
+    description: The arXiv preprint of the article
 repository-code: 'https://github.com/cylammarco/WDPhotTools'
 url: 'https://pypi.org/project/wdphottools/'
 license: BSD-3-Clause
