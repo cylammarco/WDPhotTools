@@ -208,6 +208,7 @@ ftr.show_corner_plot(
     kwarg={
         "quantiles": [0.158655, 0.5, 0.841345],
         "show_titles": True,
+        "truths": [3550, 7.45],
     },
 )
 
