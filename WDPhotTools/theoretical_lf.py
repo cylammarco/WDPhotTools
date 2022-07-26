@@ -142,7 +142,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             if (M < 0.5).any():
 
                 M_mask = M < 0.5
-                MF[M_mask] = M[M_mask] ** 1.3
+                # (0.5**-2.3) / (0.5**-1.3) = 2.0
+                MF[M_mask] = M[M_mask] ** -1.3 * 2.0
 
         elif self.wdlf_params["imf_model"] == "C03":
 
@@ -1541,7 +1542,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         if cooling_model_use_mag:
 
-            # 2.5 * 1e9 * (365.25 * 24. * 60. * 60.) / np.log(10) = 3.426322886e16
+            # 2.5 * 1e9 * (365.25 * 24. * 60. * 60.) / np.log(10) =
+            # 3.426322886e16
             rate_of_change = -3.426322886e16 / self.luminosity * self.dLdt
 
         else:
