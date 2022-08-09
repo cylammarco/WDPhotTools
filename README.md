@@ -51,7 +51,6 @@ and
       url          = {https://doi.org/10.5281/zenodo.6595029}
     }
 
-
 ## Model Inspection
 
 1. Plotting the WD cooling sequence in Gaia filters

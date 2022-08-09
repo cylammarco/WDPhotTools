@@ -18,8 +18,8 @@ class CoolingModelReader(object):
             "montreal_co_da_20": "Bedard et al. 2020 CO DA",
             "montreal_co_db_20": "Bedard et al. 2020 CO DB",
             "lpcode_he_da_07": "Panei et al. 2007 He DA",
-            "lpcode_co_da_07": "Panei et al. 2007 CO DA",
             "lpcode_he_da_09": "Althaus et al. 2009 He DA",
+            "lpcode_co_da_07": "Panei et al. 2007 CO DA",
             "lpcode_co_da_10_z001": "Renedo et al. 2010 CO DA Z=0.01",
             "lpcode_co_da_10_z0001": "Renedo et al. 2010 CO DA Z=0.001",
             "lpcode_co_da_15_z00003": "Althaus et al. 2015 DA Z=0.00003",
@@ -28,13 +28,19 @@ class CoolingModelReader(object):
             "lpcode_co_db_17_z00005": "Althaus et al. 2017 DB Y=0.4",
             "lpcode_co_db_17_z0001": "Althaus et al. 2017 DB Y=0.4",
             "lpcode_co_db_17": "Camisassa et al. 2017 DB",
-            "basti_co_da_10": "Salaris et al. 2010 CO DA",
-            "basti_co_db_10": "Salaris et al. 2010 CO DB",
-            "basti_co_da_10_nps": "Salaris et al. 2010 CO DA, no phase separation",
-            "basti_co_db_10_nps": "Salaris et al. 2010 CO DB, no phase separation",
             "lpcode_one_da_07": "Althaus et al. 2007 ONe DA",
             "lpcode_one_da_19": "Camisassa et al. 2019 ONe DA",
             "lpcode_one_db_19": "Camisassa et al. 2019 ONe DB",
+            "lpcode_da_22": "Althaus et al. 2013 He DA, "
+            + "Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
+            "lpcode_db_22": "Camisassa et al. 2017 CO DB, "
+            + "Camisassa et al. 2019 ONe DB",
+            "basti_co_da_10": "Salaris et al. 2010 CO DA",
+            "basti_co_db_10": "Salaris et al. 2010 CO DB",
+            "basti_co_da_10_nps": "Salaris et al. 2010 CO DA, "
+            + "no phase separation",
+            "basti_co_db_10_nps": "Salaris et al. 2010 CO DB, "
+            + "no phase separation",
             "mesa_one_da_18": "Lauffer et al. 2018 ONe DA",
             "mesa_one_db_18": "Lauffer et al. 2018 ONe DB",
         }

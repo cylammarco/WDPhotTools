@@ -2016,35 +2016,41 @@ class WDfitter(AtmosphereModelReader):
                         )
                     )
 
-                if self.extinction_convolved:
+                if Rv > 0.0:
 
-                    Av = (
-                        np.array(
-                            [
-                                i(
-                                    [
-                                        self.best_fit_params[j]["logg"],
-                                        self.best_fit_params[j]["Teff"],
-                                        Rv,
-                                    ]
-                                )
-                                for i in self.rv
-                            ],
-                            dtype=np.float64,
-                        ).reshape(-1)
-                        * ebv
-                    )
+                    if self.extinction_convolved:
+
+                        Av = (
+                            np.array(
+                                [
+                                    i(
+                                        [
+                                            self.best_fit_params[j]["logg"],
+                                            self.best_fit_params[j]["Teff"],
+                                            Rv,
+                                        ]
+                                    )
+                                    for i in self.rv
+                                ],
+                                dtype=np.float64,
+                            ).reshape(-1)
+                            * ebv
+                        )
+
+                    else:
+
+                        Av = (
+                            np.array(
+                                [i(Rv) for i in self.rv], dtype=np.float64
+                            ).reshape(-1)
+                            * ebv
+                        )
+
+                    Av[np.isnan(Av)] = 0.0
 
                 else:
 
-                    Av = (
-                        np.array(
-                            [i(Rv) for i in self.rv], dtype=np.float64
-                        ).reshape(-1)
-                        * ebv
-                    )
-
-                Av[np.isnan(Av)] = 0.0
+                    Av = np.zeros(len(self.rv)).reshape(-1)
 
                 for i, f in enumerate(self.fitting_params["filters"]):
 

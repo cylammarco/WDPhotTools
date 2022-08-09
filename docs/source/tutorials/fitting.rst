@@ -105,7 +105,7 @@ Compared to case 1, this fits for the logg, so we needs to add `"logg"` to the `
             Rv=3.1,
             ebv=0.1,
             independent=["Mbol", "logg"],
-            initial_guess=[10.0],
+            initial_guess=[10.0, 8.0],
             logg=7.81)
 
 **Case 3**
@@ -185,7 +185,7 @@ This is a combination of case 2 and 4. We are also demonstrating how to modify t
             nburns=200,
             refine=True,
             refine_bounds=[2.5, 97.5],
-            kwargs_for_RBF={"kernel": quintic}
+            kwargs_for_RBF={"kernel": 'quintic'}
             )
 
 

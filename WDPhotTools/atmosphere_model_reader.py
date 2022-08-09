@@ -9,6 +9,31 @@ class AtmosphereModelReader(object):
 
         super(AtmosphereModelReader, self).__init__()
 
+        self.THIS_FILE = os.path.dirname(os.path.abspath(__file__))
+
+        self.model_list = {
+            "montreal_co_da_20": "Bedard et al. 2020 CO DA",
+            "montreal_co_db_20": "Bedard et al. 2020 CO DB",
+            "lpcode_he_da_07": "Panei et al. 2007 He DA",
+            "lpcode_co_da_07": "Panei et al. 2007 CO DA",
+            "lpcode_he_da_09": "Althaus et al. 2009 He DA",
+            "lpcode_co_da_10_z001": "Renedo et al. 2010 CO DA Z=0.01",
+            "lpcode_co_da_10_z0001": "Renedo et al. 2010 CO DA Z=0.001",
+            "lpcode_co_da_15_z00003": "Althaus et al. 2015 DA Z=0.00003",
+            "lpcode_co_da_15_z0001": "Althaus et al. 2015 DA Z=0.0001",
+            "lpcode_co_da_15_z0005": "Althaus et al. 2015 DA Z=0.0005",
+            "lpcode_co_db_17_z00005": "Althaus et al. 2017 DB Y=0.4",
+            "lpcode_co_db_17_z0001": "Althaus et al. 2017 DB Y=0.4",
+            "lpcode_co_db_17": "Camisassa et al. 2017 DB",
+            "lpcode_one_da_07": "Althaus et al. 2007 ONe DA",
+            "lpcode_one_da_19": "Camisassa et al. 2019 ONe DA",
+            "lpcode_one_db_19": "Camisassa et al. 2019 ONe DB",
+            "lpcode_da_22": "Althaus et al. 2013 He DA, "
+            + "Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
+            "lpcode_db_22": "Camisassa et al. 2017 CO DB, "
+            + "Camisassa et al. 2019 ONe DB",
+        }
+
         # DA atmosphere
         filepath_da = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
