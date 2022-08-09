@@ -1873,7 +1873,7 @@ class WDfitter(AtmosphereModelReader):
                 if len(independent) == 1:
 
                     self.best_fit_params[j][independent[0]] = np.percentile(
-                        self.samples[j][:, 0], [50]
+                        self.samples[j][:, 0], 50.0
                     )
                     self.best_fit_params[j]["logg"] = logg
 
@@ -1883,7 +1883,7 @@ class WDfitter(AtmosphereModelReader):
 
                         self.best_fit_params[j][
                             independent[k]
-                        ] = np.percentile(self.samples[j][:, k], [50])
+                        ] = np.percentile(self.samples[j][:, k], 50.0)
 
                 if refine:
 
@@ -1895,7 +1895,7 @@ class WDfitter(AtmosphereModelReader):
                     print("Refining")
 
                     _initial_guess = np.percentile(
-                        self.samples[j], [50], axis=0
+                        self.samples[j], 50.0, axis=0
                     )
 
                     if distance is None:
@@ -1965,7 +1965,7 @@ class WDfitter(AtmosphereModelReader):
                     if distance is None:
 
                         self.best_fit_params[j]["distance"] = np.percentile(
-                            self.samples[j][:, -1], [50]
+                            self.samples[j][:, -1], 50.0
                         )
 
                     else:

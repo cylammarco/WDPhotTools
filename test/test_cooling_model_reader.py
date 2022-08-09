@@ -7,7 +7,7 @@ from WDPhotTools.cooling_model_reader import CoolingModelReader
 def test_cooling_model_dictionary():
     cmr = CoolingModelReader()
     model_list = cmr.list_cooling_model()
-    assert len(model_list) == 22
+    assert len(model_list) == 24
 
 
 @pytest.mark.xfail(raises=ValueError)
