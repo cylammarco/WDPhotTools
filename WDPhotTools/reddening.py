@@ -2,6 +2,7 @@ import itertools
 import numpy as np
 import os
 from scipy.interpolate import RegularGridInterpolator
+from scipy import __version__ as scipy_version
 
 from .util import GlobalSpline2D
 
@@ -149,10 +150,19 @@ def reddening_vector_filter(filter):
 
     # fill_value is set to None to allow extrapolation.
     # The scipy default is Nan the otherwise.
-    return RegularGridInterpolator(
-        (logg, Teff, Rv),
-        data,
-        method="cubic",
-        bounds_error=False,
-        fill_value=None,
-    )
+    if scipy_version >= 1.9:
+        return RegularGridInterpolator(
+            (logg, Teff, Rv),
+            data,
+            method="cubic",
+            bounds_error=False,
+            fill_value=None,
+        )
+    else:
+        return RegularGridInterpolator(
+            (logg, Teff, Rv),
+            data,
+            method="linear",
+            bounds_error=False,
+            fill_value=None,
+        )
