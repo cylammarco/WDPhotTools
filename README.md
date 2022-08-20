@@ -210,8 +210,54 @@ ftr.show_corner_plot(
         "truths": [3550, 7.45],
     },
 )
+```
+
+
+### Retrieving the fitted solution(s)
+
+#### `scipy.optimize`
+
+After using `minimize` or `least_squares` as the fitting method, the fitted solution natively returned from the respective minimizer will be stored in `ftr.results`. The best fit parameters can be retrieved from `self.best_fit_params`. For example, if `minimize` is used for fitting both DA and DB, the solutions should be populated like this:
 
 ```
+>>> ftr.results
+{'H':  final_simplex: (array([[15.74910563,  7.87520654],
+    [15.74910582,  7.87521853],
+    [15.74911116,  7.87521092]]), array([48049.35474212, 48049.35474769, 48049.35481848]))
+        fun: 48049.35474211679
+    message: 'Optimization terminated successfully.'
+        nfev: 76
+        nit: 39
+        status: 0
+    success: True
+            x: array([15.74910563,  7.87520654]), 'He':  final_simplex: (array([[15.79568165,  8.02103768],
+    [15.79569834,  8.02106531],
+    [15.79567785,  8.02106278]]), array([229832.28271338, 229832.28273065, 229832.28280722]))
+        fun: 229832.28271338015
+    message: 'Optimization terminated successfully.'
+        nfev: 77
+        nit: 39
+        status: 0
+    success: True
+            x: array([15.79568165,  8.02103768])}
+>>> ftr.best_fit_params
+{'H': {'chi2': 48049.35474211679, 'Mbol': 15.749105627543678, 'logg': 7.8752065443415855, 'g_ps1': 16.69916986233527, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.70245142010905, 'i_ps1': 15.27999922650563, 'z_ps1': 15.09081392652083, 'y_ps1': 15.024638867608507, 'G3': 15.712770938687193, 'G3_BP': 16.412224345060014, 'G3_RP': 14.909077154537117, 'J_mko': 14.184631300400948, 'H_mko': 14.346932580334999, 'K_mko': 14.45762496540764, 'Teff': 3938.3629810184757, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5012792858359962, 'age': 8476557147.551262}, 'He': {'chi2': 229832.28271338015, 'Mbol': 15.795681651022917, 'logg': 8.021037682319758, 'g_ps1': 16.647080466245477, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.864271909334223, 'i_ps1': 15.47707317676176, 'z_ps1': 15.301590157883489, 'y_ps1': 15.223378346895153, 'G3': 15.850502814794408, 'G3_BP': 16.447663029663754, 'G3_RP': 15.106868401061806, 'J_mko': 14.263205256499184, 'H_mko': 14.008369006244761, 'K_mko': 14.06873997553539, 'Teff': 4086.859143309932, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5814194593591747, 'age': 7729298854.568574}}
+```
+
+#### `emcee`
+
+After using `emcee` for sampling, the sampler and samples can be found in `ftr.sampler`` and `ftr.samples`` respectively. The median of the samples of each parameter is stored in `ftr.best_fit_params`, while `ftr.results` would be empty. In this case, if we are fitting for the DA solutions only, we should have, for example,
+
+```
+>>> ftr.results
+{'H': {}, 'He': {}}
+
+>>> ftr.best_fit_params
+{'H': {'Teff': 3945.625635361961, 'logg': 7.883639838582892, 'g_ps1': 16.697125671252905, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.704045244111995, 'i_ps1': 15.283491818672182, 'z_ps1': 15.09508631221802, 'y_ps1': 15.027169564857946, 'G3': 15.715149775870088, 'G3_BP': 16.41201611210156, 'G3_RP': 14.912271357471289, 'J_mko': 14.18413410444271, 'H_mko': 14.34993093524838, 'K_mko': 14.462282105594221, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5068082166552429, 'Mbol': 15.752000094345544, 'age': 8412958994.73455}, 'He': {}}
+```
+
+If you want to fully explore the infromation stored in the fitting object, use `ftr.__dict__`, or just the keys with `ftr.__dict__.keys()`.
+
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/PSOJ1801p6254_emcee.png?raw=true)
 
