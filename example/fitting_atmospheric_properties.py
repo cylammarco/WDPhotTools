@@ -53,10 +53,10 @@ ftr.fit(
         0.03,
         0.05,
     ],
-    independent=["Mbol", "logg"],
+    independent=["Teff", "logg"],
     distance=71.231,
     distance_err=2.0,
-    initial_guess=[15.0, 7.5],
+    initial_guess=[4000.0, 7.5],
     kwargs_for_minimize={"method": "Nelder-Mead"},
 )
 ftr.results["H"]
@@ -111,8 +111,8 @@ ftr.fit(
         0.03,
         0.05,
     ],
-    independent=["Mbol", "logg"],
-    initial_guess=[14.0, 7.5],
+    independent=["Teff", "logg"],
+    initial_guess=[4000.0, 7.5],
     atmosphere_interpolator="CT",
     distance=71.231,
     distance_err=2.0,
