@@ -27,12 +27,15 @@ class WDfitter(AtmosphereModelReader):
         super(WDfitter, self).__init__()
         self.interpolator = {"H": {}, "He": {}}
         self.fitting_params = None
+        # Only used if minimize or least_squares are the fitting method
         self.results = {"H": {}, "He": {}}
         self.best_fit_params = {"H": {}, "He": {}}
         self.best_fit_mag = {"H": [], "He": []}
+        # Only used if emcee is the fitting method
         self.sampler = {"H": [], "He": []}
         self.samples = {"H": [], "He": []}
         self.extinction_convolved = None
+        # Note this is the extinction Rv, not radial velocity RV.
         self.rv = None
 
     def _interp_am(
