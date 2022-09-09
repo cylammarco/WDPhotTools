@@ -118,8 +118,8 @@ ftr.fit(
     distance_err=2.0,
     method="emcee",
     nwalkers=100,
-    nsteps=5000,
-    nburns=500,
+    nsteps=1000,
+    nburns=100,
 )
 ftr.results["H"]
 ftr.show_best_fit(

@@ -12,7 +12,7 @@ folder_path = os.path.dirname(os.path.abspath(__file__))
 def reddening_vector_interpolated(kind="cubic"):
     """
     This generates an interpolation using the pre-computed table from
-    Schlafly et al. 2012 for a 7000K blackbody source.
+    Schlafly et al. 2012 for a 7000K, log_Z = -1, and log_g = 4.5 source.
 
     """
 

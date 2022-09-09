@@ -108,11 +108,17 @@ class WDfitter(AtmosphereModelReader):
 
         mag = np.asarray(mag).reshape(-1)
 
-        err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        err2 = (
+            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        ) * 1.1788231063225867
 
         diff2 = (
-            10.0 ** ((obs - mag) / 2.5) - distance**2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0 ** ((obs - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -244,11 +250,18 @@ class WDfitter(AtmosphereModelReader):
 
         Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        err2 = (
+            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        ) * 1.1788231063225867
 
         diff2 = (
-            10.0 ** ((obs - Av - mag) / 2.5) - distance**2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0
+                ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -310,11 +323,18 @@ class WDfitter(AtmosphereModelReader):
         logg = x[logg_pos]
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        err2 = (
+            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        ) * 1.1788231063225867
 
         diff2 = (
-            10.0 ** ((obs - Av - mag) / 2.5) - distance**2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0
+                ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -364,11 +384,18 @@ class WDfitter(AtmosphereModelReader):
         teff = float(interpolator_teff(x))
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        err2 = (
+            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
+        ) * 1.1788231063225867
 
         diff2 = (
-            10.0 ** ((obs - Av - mag) / 2.5) - distance**2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0
+                ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -420,8 +447,9 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - mag) / 2.5) - x[-1] ** 2.0 / 100.0
-        ) ** 2.0 / err2
+            (10.0 ** ((obs - mag - 5.0 * np.log10(x[-1]) + 5.0) / 2.5) - 1.0)
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -470,8 +498,9 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - mag) / 2.5) - x[-1] ** 2.0 / 100.0
-        ) ** 2.0 / err2
+            (10.0 ** ((obs - mag - 5.0 * np.log10(x[-1]) + 5.0) / 2.5) - 1.0)
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -523,8 +552,12 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - Av - mag) / 2.5) - x[-1] ** 2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0 ** ((obs - Av - mag - 5.0 * np.log10(x[-1]) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -587,8 +620,12 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - Av - mag) / 2.5) - x[-1] ** 2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0 ** ((obs - Av - mag - 5.0 * np.log10(x[-1]) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -640,8 +677,12 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - Av - mag) / 2.5) - x[-1] ** 2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0 ** ((obs - Av - mag - 5.0 * np.log10(x[-1]) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 
@@ -703,8 +744,12 @@ class WDfitter(AtmosphereModelReader):
         err2 = errors**2.0
 
         diff2 = (
-            10.0 ** ((obs - Av - mag) / 2.5) - x[-1] ** 2.0 / 100.0
-        ) ** 2.0 / err2
+            (
+                10.0 ** ((obs - Av - mag - 5.0 * np.log10(x[-1]) + 5.0) / 2.5)
+                - 1.0
+            )
+            ** 2.0
+        ) / err2
 
         if np.isfinite(diff2).all():
 

@@ -425,7 +425,7 @@ def test_fitting_logg_Teff_distance_lsq():
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
-        initial_guess=[13000.0, 7.5],
+        initial_guess=[13000.0, 7.5, 10.0],
     )
     ftr.show_best_fit(display=False)
     assert np.isclose(
@@ -445,7 +445,7 @@ def test_fitting_logg_Teff_distance_nelder_mead_lsq():
         mags=mags,
         mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
-        initial_guess=[13000.0, 7.5],
+        initial_guess=[13000.0, 7.5, 10.0],
         method="least_squares",
         atmosphere_interpolator="CT",
     )
@@ -527,7 +527,7 @@ def test_fitting_logg_Teff_distance_red_lsq():
         mags=mags + extinction,
         mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
-        initial_guess=[13000.0, 7.5],
+        initial_guess=[13000.0, 7.5, 10.0],
         method="least_squares",
         atmosphere_interpolator="CT",
         Rv=rv,
