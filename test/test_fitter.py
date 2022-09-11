@@ -251,7 +251,7 @@ def test_fitting_logg_Teff_distance_red():
         mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
-        initial_guess=[13000.0, 7.5],
+        initial_guess=[13000.0, 7.5, 10.0],
         Rv=rv,
         ebv=ebv,
     )
@@ -277,7 +277,7 @@ def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
         mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
-        initial_guess=[13000.0, 7.5],
+        initial_guess=[13000.0, 7.5, 10.0],
         Rv=rv,
         ebv=ebv,
     )

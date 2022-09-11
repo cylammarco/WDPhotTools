@@ -1,5 +1,6 @@
-import numpy as np
+import autograd.numpy as np
 from scipy import interpolate
+from numpy import linalg
 
 
 # Taken from
@@ -165,3 +166,31 @@ class GlobalSpline2D(interpolate.interp2d):
             zss = zss[0]
 
         return np.array(zss)
+
+
+def get_uncertainty_least_squares(res):
+    """
+    Get the 1 standard deviation uncertainty of the results returned by
+    least_squares().
+
+    """
+
+    _, s, Vh = linalg.svd(res.jac, full_matrices=False)
+    tol = np.finfo(float).eps * s[0] * max(res.jac.shape)
+    w = s > tol
+    cov = (Vh[w].T / s[w] ** 2) @ Vh[w]  # robust covariance matrix
+    stdev = np.sqrt(np.diag(cov))
+
+    return stdev
+
+
+def get_uncertainty_emcee(samples):
+    """
+    Get the 15.8655 & 84.1345 percentile of the samples returned by
+    emcee.
+
+    """
+
+    stdevs = np.percentile(samples, [0.158655, 0.841345])
+
+    return stdevs

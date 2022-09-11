@@ -1,15 +1,18 @@
+import autograd
 import copy
 import corner
 import emcee
 from functools import partial
 from matplotlib import pyplot as plt
-import numpy as np
+import autograd.numpy as np
 import os
 from scipy import optimize
 import time
 
 from .atmosphere_model_reader import AtmosphereModelReader
 from .reddening import reddening_vector_filter, reddening_vector_interpolated
+from .util import get_uncertainty_least_squares, get_uncertainty_emcee
+
 
 plt.rc("font", size=18)
 plt.rc("legend", fontsize=12)
@@ -615,6 +618,8 @@ class WDfitter(AtmosphereModelReader):
 
         teff = float(interpolator_teff(x[:2]))
         logg = x[logg_pos]
+        if type(logg) == autograd.numpy.numpy_boxes.ArrayBox:
+            logg = logg._value._value
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
@@ -1247,7 +1252,7 @@ class WDfitter(AtmosphereModelReader):
             "maxiter": 100000,
             "rescale": True,
         }
-        _kwargs_for_minimize = {"method": "Powell", "options": {"xtol": 0.001}}
+        _kwargs_for_minimize = {"method": "Powell", "options": {"tol": 0.001}}
         _kwargs_for_least_squares = {
             "method": "lm",
         }
@@ -1433,7 +1438,6 @@ class WDfitter(AtmosphereModelReader):
                     else:
 
                         if "logg" in independent:
-
                             self.results[j] = optimize.minimize(
                                 self._diff2_distance_red_summed,
                                 initial_guess,
@@ -1451,7 +1455,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             self.results[j] = optimize.minimize(
                                 self._diff2_distance_red_summed,
                                 initial_guess,
@@ -1472,7 +1475,6 @@ class WDfitter(AtmosphereModelReader):
                 else:
 
                     if Rv <= 0.0:
-
                         self.results[j] = optimize.minimize(
                             self._diff2_summed,
                             initial_guess,
@@ -1489,7 +1491,6 @@ class WDfitter(AtmosphereModelReader):
                     else:
 
                         if "logg" in independent:
-
                             self.results[j] = optimize.minimize(
                                 self._diff2_red_summed,
                                 initial_guess,
@@ -1509,7 +1510,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             self.results[j] = optimize.minimize(
                                 self._diff2_red_summed,
                                 initial_guess,
@@ -1530,6 +1530,9 @@ class WDfitter(AtmosphereModelReader):
 
                 # Store the chi2
                 self.best_fit_params[j]["chi2"] = self.results[j].fun
+                self.best_fit_params[j]["chi2dof"] = (
+                    self.results[j].fun.size - self.results[j].x.size
+                )
 
                 # Save the best fit results
                 if len(independent) == 1:
@@ -1537,6 +1540,7 @@ class WDfitter(AtmosphereModelReader):
                     self.best_fit_params[j][independent[0]] = self.results[
                         j
                     ].x[0]
+                    self.best_fit_params[j][independent[0] + "_err"] = np.nan
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
@@ -1546,6 +1550,9 @@ class WDfitter(AtmosphereModelReader):
                         self.best_fit_params[j][independent[k]] = self.results[
                             j
                         ].x[k]
+                        self.best_fit_params[j][
+                            independent[k] + "_err"
+                        ] = np.nan
 
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
@@ -1707,7 +1714,15 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                 # Store the chi2
-                self.best_fit_params[j]["chi2"] = self.results[j].fun
+                self.best_fit_params[j]["chi2"] = np.sum(self.results[j].fun)
+                self.best_fit_params[j]["chi2dof"] = (
+                    self.results[j].fun.size - self.results[j].x.size
+                )
+                # rescaled the uncertainty by the reduced_chi2
+                _stdev = get_uncertainty_least_squares(self.results[j]) * (
+                    self.best_fit_params[j]["chi2"]
+                    / self.best_fit_params[j]["chi2dof"]
+                )
 
                 # Save the best fit results
                 if len(independent) == 1:
@@ -1715,6 +1730,7 @@ class WDfitter(AtmosphereModelReader):
                     self.best_fit_params[j][independent[0]] = self.results[
                         j
                     ].x[0]
+                    self.best_fit_params[j][independent[0] + "_err"] = _stdev
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
@@ -1724,6 +1740,9 @@ class WDfitter(AtmosphereModelReader):
                         self.best_fit_params[j][independent[k]] = self.results[
                             j
                         ].x[k]
+                        self.best_fit_params[j][
+                            independent[k] + "_err"
+                        ] = _stdev[k]
 
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
@@ -1920,18 +1939,35 @@ class WDfitter(AtmosphereModelReader):
                 # Save the best fit results
                 if len(independent) == 1:
 
+                    _stdev = get_uncertainty_emcee(self.samples[j])
                     self.best_fit_params[j][independent[0]] = np.percentile(
                         self.samples[j][:, 0], 50.0
                     )
+                    self.best_fit_params[j][independent[0] + "_err"] = np.mean(
+                        _stdev
+                    )
+                    self.best_fit_params[j][independent[0] + "_16"] = _stdev[0]
+                    self.best_fit_params[j][independent[0] + "_84"] = _stdev[1]
+
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
 
                     for k in range(len(independent)):
 
+                        _stdev = get_uncertainty_emcee(self.samples[j][:, k])
                         self.best_fit_params[j][
                             independent[k]
                         ] = np.percentile(self.samples[j][:, k], 50.0)
+                        self.best_fit_params[j][
+                            independent[k] + "_err"
+                        ] = np.mean(_stdev)
+                        self.best_fit_params[j][
+                            independent[k] + "_16"
+                        ] = _stdev[0]
+                        self.best_fit_params[j][
+                            independent[k] + "_84"
+                        ] = _stdev[1]
 
                 if refine:
 
