@@ -1716,10 +1716,7 @@ class WDfitter(AtmosphereModelReader):
                     self.results[j].fun.size - self.results[j].x.size
                 )
                 # rescaled the uncertainty by the reduced_chi2
-                _stdev = get_uncertainty_least_squares(self.results[j]) * (
-                    self.best_fit_params[j]["chi2"]
-                    / self.best_fit_params[j]["chi2dof"]
-                )
+                _stdev = get_uncertainty_least_squares(self.results[j])
 
                 # Save the best fit results
                 if len(independent) == 1:

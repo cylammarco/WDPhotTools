@@ -191,6 +191,9 @@ def get_uncertainty_emcee(samples):
 
     """
 
-    stdevs = np.percentile(samples, [0.158655, 0.841345])
+    percentiles = np.percentile(samples, [0.158655, 0.5, 0.841345])
+    stdevs = np.array(
+        [percentiles[1] - percentiles[0], percentiles[2] - percentiles[1]]
+    )
 
     return stdevs

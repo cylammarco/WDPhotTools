@@ -1,4 +1,4 @@
-recursive-include WDPhotTools/wd_photometry *
-recursive-include WDPhotTools/wd_cooling *
-recursive-include WDPhotTools/ms_lifetime *
-recursive-include WDPhotTools/extinction *
+recursive-include src/WDPhotTools/wd_photometry *
+recursive-include src/WDPhotTools/wd_cooling *
+recursive-include src/WDPhotTools/ms_lifetime *
+recursive-include src/WDPhotTools/extinction *
