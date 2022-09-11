@@ -1,4 +1,3 @@
-import autograd
 import copy
 import corner
 import emcee
