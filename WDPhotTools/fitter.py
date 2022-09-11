@@ -3,7 +3,7 @@ import corner
 import emcee
 from functools import partial
 from matplotlib import pyplot as plt
-import autograd.numpy as np
+import numpy as np
 import os
 from scipy import optimize
 import time
@@ -617,8 +617,6 @@ class WDfitter(AtmosphereModelReader):
 
         teff = float(interpolator_teff(x[:2]))
         logg = x[logg_pos]
-        if type(logg) == autograd.numpy.numpy_boxes.ArrayBox:
-            logg = logg._value._value
         Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
         mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
