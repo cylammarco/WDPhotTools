@@ -37,10 +37,29 @@ class WDfitter(AtmosphereModelReader):
         self.sampler = {"H": [], "He": []}
         self.samples = {"H": [], "He": []}
         self.extinction_convolved = None
+        self.extinction_mode = "total"
         # Note this is the extinction Rv, not radial velocity RV.
         self.rv = None
 
-    def _extinction_fraction(self, distance, b=None, z_min=100.0, z_max=250.0):
+    def set_extinction_mode(self, mode="total", z_min=100.0, z_max=250.0):
+
+        if mode == "total":
+
+            self.extinction_mode = mode
+            self.z_min = None
+            self.z_max = None
+
+        elif mode == "linear":
+
+            self.extinction_mode = mode
+            self.z_min = z_min
+            self.z_max = z_max
+
+        else:
+
+            raise ValueError("Unknown extinction mode: {}.".format(mode))
+
+    def _get_extinction_fraction(self, distance, b, z_min=None, z_max=None):
         """
         Harris et al. (2006) used the following scheme on P.5 in
         https://arxiv.org/pdf/astro-ph/0510820.pdf
@@ -49,38 +68,68 @@ class WDfitter(AtmosphereModelReader):
         ----------
         distance : float
             Distance to the target (in unit of pc)
-        b : float (default: None)
-            b of the Galactic coordinate system (l, b), in unit of degree.
-            Default is None, which returns 1.0.
-        z_min : floast (default: 100.0)
+        b : float
+            the Galactic latitude, in unit of degree. If b is not a finite
+            value, return 1.0.
+        z_min : float
             Distance below which interstellar extinction is discarded.
-        z_max : floast (default: 250.0)
+        z_max : float
             Distance above which the total interstellar extinction is used.
 
         Returns
         -------
-
+        The fraction (of extinction) should be used, in the range of
+        [0.0, 1.0].
 
         """
+
+        if z_min is None:
+
+            z_min = self.z_min
+
+        if z_max is None:
+
+            z_max = self.z_max
+
         if z_min < 0:
+
             raise ValueError(
                 "z_min has to be non-negative. { } is provided.".format(z_min)
             )
+
         if z_max < z_min:
+
             raise ValueError(
                 "z_max ({}) has to be larger than z_min ({}).".format(
                     z_max, z_min
                 )
             )
-        if b is None:
-            return 1.0
+
+        # if b is not numeric,
+        if not np.isfinite(b):
+
+            raise ValueError(
+                "b ({}) has to be finite between 0.0 and 90.0.".format(b)
+            )
+
         else:
+
+            # Get the distance from the Galactic mid-plane
             z = abs(distance * np.sin(b * np.pi / 180.0))
+
+            # if z is lower than the lower limit, assume no extinction
             if z < z_min:
+
                 return 0.0
+
+            # if z is higher than the upper limit, assume total extinction
             elif z > z_max:
+
                 return 1.0
+
+            # Otherwise, apply a linear approximation of the extinction
             else:
+
                 return (z - z_min) / (z_max - z_min)
 
     def _interp_am(
@@ -197,6 +246,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -220,6 +272,9 @@ class WDfitter(AtmosphereModelReader):
                 interpolator_filter,
                 Rv,
                 ebv,
+                b,
+                z_min,
+                z_max,
                 True,
             )
 
@@ -243,6 +298,9 @@ class WDfitter(AtmosphereModelReader):
                     logg_pos,
                     Rv,
                     ebv,
+                    b,
+                    z_min,
+                    z_max,
                     True,
                 )
 
@@ -259,6 +317,9 @@ class WDfitter(AtmosphereModelReader):
                     logg,
                     Rv,
                     ebv,
+                    b,
+                    z_min,
+                    z_max,
                     True,
                 )
 
@@ -280,6 +341,9 @@ class WDfitter(AtmosphereModelReader):
         interpolator_filter,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -293,7 +357,21 @@ class WDfitter(AtmosphereModelReader):
 
             mag.append(interp(x))
 
-        Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
+        if self.extinction_mode == "total":
+
+            self.extinction_fraction = 1.0
+
+        else:
+
+            self.extinction_fraction = self._get_extinction_fraction(
+                distance, b, z_min, z_max
+            )
+
+        Av = (
+            np.array([i(Rv) for i in self.rv]).reshape(-1)
+            * ebv
+            * self.extinction_fraction
+        )
         mag = np.asarray(mag).reshape(-1)
         err2 = (
             errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
@@ -340,6 +418,9 @@ class WDfitter(AtmosphereModelReader):
         logg_pos,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -365,8 +446,22 @@ class WDfitter(AtmosphereModelReader):
 
                 return np.ones_like(obs) * np.inf
 
+        if self.extinction_mode == "total":
+
+            self.extinction_fraction = 1.0
+
+        else:
+
+            self.extinction_fraction = self._get_extinction_fraction(
+                distance, b, z_min, z_max
+            )
+
         logg = x[logg_pos]
-        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        Av = (
+            np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1)
+            * ebv
+            * self.extinction_fraction
+        )
         mag = np.asarray(mag).reshape(-1)
         err2 = (
             errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
@@ -413,6 +508,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -426,8 +524,22 @@ class WDfitter(AtmosphereModelReader):
 
             mag.append(interp(x))
 
+        if self.extinction_mode == "total":
+
+            self.extinction_fraction = 1.0
+
+        else:
+
+            self.extinction_fraction = self._get_extinction_fraction(
+                distance, b, z_min, z_max
+            )
+
         teff = float(interpolator_teff(x))
-        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        Av = (
+            np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1)
+            * ebv
+            * self.extinction_fraction
+        )
         mag = np.asarray(mag).reshape(-1)
         err2 = (
             errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
@@ -568,7 +680,17 @@ class WDfitter(AtmosphereModelReader):
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance_red_interpolated(
-        self, x, obs, errors, interpolator_filter, Rv, ebv, return_err
+        self,
+        x,
+        obs,
+        errors,
+        interpolator_filter,
+        Rv,
+        ebv,
+        b,
+        z_min,
+        z_max,
+        return_err,
     ):
         """
         Internal method for computing the ch2-squared value in cases when
@@ -592,7 +714,21 @@ class WDfitter(AtmosphereModelReader):
 
             mag.append(interp(x[:2]))
 
-        Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
+        if self.extinction_mode == "total":
+
+            self.extinction_fraction = 1.0
+
+        else:
+
+            self.extinction_fraction = self._get_extinction_fraction(
+                distance, b, z_min, z_max
+            )
+
+        Av = (
+            np.array([i(Rv) for i in self.rv]).reshape(-1)
+            * ebv
+            * self.extinction_fraction
+        )
         mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
@@ -634,6 +770,9 @@ class WDfitter(AtmosphereModelReader):
         logg_pos,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -658,9 +797,23 @@ class WDfitter(AtmosphereModelReader):
 
             mag.append(interp(x[:2]))
 
+        if self.extinction_mode == "total":
+
+            self.extinction_fraction = 1.0
+
+        else:
+
+            self.extinction_fraction = self._get_extinction_fraction(
+                distance, b, z_min, z_max
+            )
+
         teff = float(interpolator_teff(x[:2]))
         logg = x[logg_pos]
-        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        Av = (
+            np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1)
+            * ebv
+            * self.extinction_fraction
+        )
         mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
@@ -693,7 +846,17 @@ class WDfitter(AtmosphereModelReader):
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance_red_interpolated_fixed_logg(
-        self, x, obs, errors, interpolator_filter, Rv, ebv, return_err
+        self,
+        x,
+        obs,
+        errors,
+        interpolator_filter,
+        Rv,
+        ebv,
+        b,
+        z_min,
+        z_max,
+        return_err,
     ):
         """
         Internal method for computing the ch2-squared value in cases when
@@ -717,7 +880,21 @@ class WDfitter(AtmosphereModelReader):
 
             mag.append(interp(x[0]))
 
-        Av = np.array([i(Rv) for i in self.rv]).reshape(-1) * ebv
+        if self.extinction_mode == "total":
+
+            self.extinction_fraction = 1.0
+
+        else:
+
+            self.extinction_fraction = self._get_extinction_fraction(
+                distance, b, z_min, z_max
+            )
+
+        Av = (
+            np.array([i(Rv) for i in self.rv]).reshape(-1)
+            * ebv
+            * self.extinction_fraction
+        )
         mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
@@ -759,6 +936,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -783,8 +963,22 @@ class WDfitter(AtmosphereModelReader):
 
             mag.append(interp(x[0]))
 
+        if self.extinction_mode == "total":
+
+            self.extinction_fraction = 1.0
+
+        else:
+
+            self.extinction_fraction = self._get_extinction_fraction(
+                distance, b, z_min, z_max
+            )
+
         teff = float(interpolator_teff(x[0]))
-        Av = np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1) * ebv
+        Av = (
+            np.array([i([logg, teff, Rv]) for i in self.rv]).reshape(-1)
+            * ebv
+            * self.extinction_fraction
+        )
         mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
 
@@ -826,6 +1020,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -839,13 +1036,31 @@ class WDfitter(AtmosphereModelReader):
             if logg is None:
 
                 diff2, err2 = self._diff2_distance_red_interpolated(
-                    x, obs, errors, interpolator_filter, Rv, ebv, True
+                    x,
+                    obs,
+                    errors,
+                    interpolator_filter,
+                    Rv,
+                    ebv,
+                    b,
+                    z_min,
+                    z_max,
+                    True,
                 )
 
             else:
 
                 diff2, err2 = self._diff2_distance_red_interpolated_fixed_logg(
-                    x, obs, errors, interpolator_filter, Rv, ebv, True
+                    x,
+                    obs,
+                    errors,
+                    interpolator_filter,
+                    Rv,
+                    ebv,
+                    b,
+                    z_min,
+                    z_max,
+                    True,
                 )
 
         else:
@@ -866,6 +1081,9 @@ class WDfitter(AtmosphereModelReader):
                     logg_pos,
                     Rv,
                     ebv,
+                    b,
+                    z_min,
+                    z_max,
                     True,
                 )
 
@@ -880,6 +1098,9 @@ class WDfitter(AtmosphereModelReader):
                     logg,
                     Rv,
                     ebv,
+                    b,
+                    z_min,
+                    z_max,
                     True,
                 )
 
@@ -918,6 +1139,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -937,6 +1161,9 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
+            b,
+            z_min,
+            z_max,
             True,
         )
 
@@ -987,6 +1214,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
         return_err,
     ):
         """
@@ -1004,6 +1234,9 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
+            b,
+            z_min,
+            z_max,
             True,
         )
 
@@ -1059,6 +1292,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
     ):
         """
         Internal method for computing the log-likelihood value (for emcee).
@@ -1076,6 +1312,9 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
+            b,
+            z_min,
+            z_max,
             True,
         )
 
@@ -1126,6 +1365,9 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
+        b,
+        z_min,
+        z_max,
     ):
         """
         Internal method for computing the log-likelihood value in cases when
@@ -1142,6 +1384,9 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
+            b,
+            z_min,
+            z_max,
             True,
         )
 
@@ -1166,6 +1411,9 @@ class WDfitter(AtmosphereModelReader):
         kind="cubic",
         Rv=0.0,
         ebv=0.0,
+        b=None,
+        z_min=None,
+        z_max=None,
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 8.0],
         logg=8.0,
@@ -1231,6 +1479,13 @@ class WDfitter(AtmosphereModelReader):
             The choice of Rv, only used if a numerical value is provided.
         ebv: float (Default: None)
             The magnitude of the E(B-V).
+        b : float (Default: None)
+            the Galactic latitude, in unit of degree. If b is not a finite
+            value, return 1.0.
+        z_min : float (Default: None)
+            Distance below which interstellar extinction is discarded.
+        z_max : float (Default: None)
+            Distance above which the total interstellar extinction is used.
         independent: list of str (Default: ['Mbol', 'logg']
             Independent variables to be interpolated in the atmosphere model,
             these are parameters to be fitted for.
@@ -1412,6 +1667,9 @@ class WDfitter(AtmosphereModelReader):
             "kind": kind,
             "Rv": Rv,
             "ebv": ebv,
+            "b": b,
+            "z_min": z_min,
+            "z_max": z_max,
             "reuse_interpolator": reuse_interpolator,
             "method": method,
             "nwalkers": nwalkers,
@@ -1489,6 +1747,9 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1506,6 +1767,9 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1544,6 +1808,9 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1563,6 +1830,9 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1669,6 +1939,9 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -1687,6 +1960,9 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -1728,6 +2004,9 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -1748,6 +2027,9 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -1882,6 +2164,9 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -1900,6 +2185,9 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -1941,6 +2229,9 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -1964,6 +2255,9 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
+                                    b,
+                                    z_min,
+                                    z_max,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -2039,6 +2333,9 @@ class WDfitter(AtmosphereModelReader):
                             initial_guess=_initial_guess,
                             Rv=Rv,
                             ebv=ebv,
+                            b=b,
+                            z_min=z_min,
+                            z_max=z_max,
                             kwargs_for_minimize=kwargs,
                         )
 
@@ -2059,6 +2356,9 @@ class WDfitter(AtmosphereModelReader):
                             initial_guess=_initial_guess,
                             Rv=Rv,
                             ebv=ebv,
+                            b=b,
+                            z_min=z_min,
+                            z_max=z_max,
                             kwargs_for_minimize=kwargs,
                         )
 
@@ -2156,6 +2456,7 @@ class WDfitter(AtmosphereModelReader):
                                 dtype=np.float64,
                             ).reshape(-1)
                             * ebv
+                            * self.extinction_fraction
                         )
 
                     else:
@@ -2165,6 +2466,7 @@ class WDfitter(AtmosphereModelReader):
                                 [i(Rv) for i in self.rv], dtype=np.float64
                             ).reshape(-1)
                             * ebv
+                            * self.extinction_fraction
                         )
 
                     Av[np.isnan(Av)] = 0.0

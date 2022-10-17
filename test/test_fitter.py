@@ -32,27 +32,72 @@ def test_list_everything():
     ftr.list_atmosphere_parameters()
 
 
-def test_fitter_extinction_fraction():
+def test_fitter_get_extinction_fraction():
     ftr = WDfitter()
-    np.isclose(ftr._extinction_fraction(distance=150.0), 1.0)
-    np.isclose(ftr._extinction_fraction(distance=90.0, b=90.0), 0.0)
-    np.isclose(ftr._extinction_fraction(distance=100.0, b=90.0), 0.0)
-    np.isclose(ftr._extinction_fraction(distance=175.0, b=90.0), 0.5)
-    np.isclose(ftr._extinction_fraction(distance=250.0, b=90.0), 1.0)
-    np.isclose(ftr._extinction_fraction(distance=251.0, b=90.0), 1.0)
-    np.isclose(ftr._extinction_fraction(distance=500.0, b=30.0), 1.0)
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=150.0, b=90.0, z_min=100.0, z_max=250.0
+        ),
+        1.0,
+    )
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=90.0, b=90.0, z_min=100.0, z_max=250.0
+        ),
+        0.0,
+    )
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=100.0, b=90.0, z_min=100.0, z_max=250.0
+        ),
+        0.0,
+    )
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=175.0, b=90.0, z_min=100.0, z_max=250.0
+        ),
+        0.5,
+    )
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=250.0, b=90.0, z_min=100.0, z_max=250.0
+        ),
+        1.0,
+    )
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=251.0, b=90.0, z_min=100.0, z_max=250.0
+        ),
+        1.0,
+    )
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=500.0, b=30.0, z_min=100.0, z_max=250.0
+        ),
+        1.0,
+    )
 
 
 @pytest.mark.xfail
-def test_fitter_extinction_fraction():
+def test_fitter_get_extinction_fraction_fail_zmin():
     ftr = WDfitter()
-    ftr._extinction_fraction(distance=150.0, z_min=-10)
+    ftr._get_extinction_fraction(
+        distance=150.0, b=90.0, z_min=-10.0, z_max=100.0
+    )
 
 
 @pytest.mark.xfail
-def test_fitter_extinction_fraction():
+def test_fitter_get_extinction_fraction_fail_zmax():
     ftr = WDfitter()
-    ftr._extinction_fraction(distance=150.0, z_min=10, z_max=0)
+    ftr._get_extinction_fraction(distance=150.0, b=90.0, z_min=10.0, z_max=0.0)
+
+
+@pytest.mark.xfail
+def test_fitter_get_extinction_fraction_fail_b():
+    ftr = WDfitter()
+    ftr._get_extinction_fraction(
+        distance=150.0, b=None, z_min=10.0, z_max=100.0
+    )
 
 
 # Fitting for Teff with 5 filters for both DA and DB
