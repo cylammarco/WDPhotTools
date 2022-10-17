@@ -1,8 +1,7 @@
 from WDPhotTools.fitter import WDfitter
 import numpy as np
 from unittest.mock import patch
-import os  # For testing file existence with assert
-import time  # For testing file existence with assert
+import pytest
 
 from WDPhotTools.reddening import reddening_vector_filter
 from WDPhotTools.reddening import reddening_vector_interpolated
@@ -31,6 +30,29 @@ extinction = np.array([A_G3, A_G3_BP, A_G3_RP, A_FUV, A_NUV]).reshape(-1)
 def test_list_everything():
     ftr = WDfitter()
     ftr.list_atmosphere_parameters()
+
+
+def test_fitter_extinction_fraction():
+    ftr = WDfitter()
+    np.isclose(ftr._extinction_fraction(distance=150.0), 1.0)
+    np.isclose(ftr._extinction_fraction(distance=90.0, b=90.0), 0.0)
+    np.isclose(ftr._extinction_fraction(distance=100.0, b=90.0), 0.0)
+    np.isclose(ftr._extinction_fraction(distance=175.0, b=90.0), 0.5)
+    np.isclose(ftr._extinction_fraction(distance=250.0, b=90.0), 1.0)
+    np.isclose(ftr._extinction_fraction(distance=251.0, b=90.0), 1.0)
+    np.isclose(ftr._extinction_fraction(distance=500.0, b=30.0), 1.0)
+
+
+@pytest.mark.xfail
+def test_fitter_extinction_fraction():
+    ftr = WDfitter()
+    ftr._extinction_fraction(distance=150.0, z_min=-10)
+
+
+@pytest.mark.xfail
+def test_fitter_extinction_fraction():
+    ftr = WDfitter()
+    ftr._extinction_fraction(distance=150.0, z_min=10, z_max=0)
 
 
 # Fitting for Teff with 5 filters for both DA and DB

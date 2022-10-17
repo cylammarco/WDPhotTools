@@ -40,6 +40,49 @@ class WDfitter(AtmosphereModelReader):
         # Note this is the extinction Rv, not radial velocity RV.
         self.rv = None
 
+    def _extinction_fraction(self, distance, b=None, z_min=100.0, z_max=250.0):
+        """
+        Harris et al. (2006) used the following scheme on P.5 in
+        https://arxiv.org/pdf/astro-ph/0510820.pdf
+
+        Parameters
+        ----------
+        distance : float
+            Distance to the target (in unit of pc)
+        b : float (default: None)
+            b of the Galactic coordinate system (l, b), in unit of degree.
+            Default is None, which returns 1.0.
+        z_min : floast (default: 100.0)
+            Distance below which interstellar extinction is discarded.
+        z_max : floast (default: 250.0)
+            Distance above which the total interstellar extinction is used.
+
+        Returns
+        -------
+
+
+        """
+        if z_min < 0:
+            raise ValueError(
+                "z_min has to be non-negative. { } is provided.".format(z_min)
+            )
+        if z_max < z_min:
+            raise ValueError(
+                "z_max ({}) has to be larger than z_min ({}).".format(
+                    z_max, z_min
+                )
+            )
+        if b is None:
+            return 1.0
+        else:
+            z = abs(distance * np.sin(b * np.pi / 180.0))
+            if z < z_min:
+                return 0.0
+            elif z > z_max:
+                return 1.0
+            else:
+                return (z - z_min) / (z_max - z_min)
+
     def _interp_am(
         self,
         dependent,
