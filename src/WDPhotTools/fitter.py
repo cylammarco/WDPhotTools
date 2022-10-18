@@ -721,7 +721,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                distance, b, z_min, z_max
+                x[-1], b, z_min, z_max
             )
 
         Av = (
@@ -804,7 +804,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                distance, b, z_min, z_max
+                x[-1], b, z_min, z_max
             )
 
         teff = float(interpolator_teff(x[:2]))
@@ -887,7 +887,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                distance, b, z_min, z_max
+                x[-1], b, z_min, z_max
             )
 
         Av = (
@@ -970,7 +970,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                distance, b, z_min, z_max
+                x[-1], b, z_min, z_max
             )
 
         teff = float(interpolator_teff(x[0]))
