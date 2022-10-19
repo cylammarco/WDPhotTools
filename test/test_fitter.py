@@ -124,6 +124,12 @@ def test_fitter_get_extinction_fraction_fail_zmax_None():
     ftr._get_extinction_fraction(distance=150.0, b=90.0, z_min=10.0)
 
 
+def test_fitter_get_extinction_fraction_pass_zmin_zmax_None():
+    ftr = WDfitter()
+    ftr.set_extinction_mode(mode="linear")
+    ftr._get_extinction_fraction(distance=150.0, b=90.0)
+
+
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_fail_b():
     ftr = WDfitter()
