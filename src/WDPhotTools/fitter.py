@@ -37,7 +37,7 @@ class WDfitter(AtmosphereModelReader):
         self.sampler = {"H": [], "He": []}
         self.samples = {"H": [], "He": []}
         self.extinction_convolved = None
-        self.extinction_mode = "total"
+        self.set_extinction_mode()
         # Note this is the extinction Rv, not radial velocity RV.
         self.rv = None
 
@@ -85,16 +85,24 @@ class WDfitter(AtmosphereModelReader):
 
         if z_min is None:
 
+            if self.z_min is None:
+
+                raise ValueError("z_min cannot be None")
+
             z_min = self.z_min
 
         if z_max is None:
+
+            if self.z_max is None:
+
+                raise ValueError("z_max cannot be None")
 
             z_max = self.z_max
 
         if z_min < 0:
 
             raise ValueError(
-                "z_min has to be non-negative. { } is provided.".format(z_min)
+                "z_min has to be non-negative. {} is provided.".format(z_min)
             )
 
         if z_max < z_min:

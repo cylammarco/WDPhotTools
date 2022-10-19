@@ -44,6 +44,7 @@ extinction_grizyJHK = np.array(
     [A_g, A_r, A_i, A_z, A_y, A_J, A_H, A_Ks]
 ).reshape(-1)
 
+
 # Fitting Teff: Yes
 # Fitting logg: Yes
 # Fitting distance: No
@@ -125,6 +126,32 @@ def test_minimize_Teff_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="minimize",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0],
+        logg=7.5,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -147,6 +174,33 @@ def test_minimize_Teff_reddening_interpolated():
         distance_err=0.1,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="minimize",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0],
+        logg=7.5,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -185,6 +239,31 @@ def test_minimize_Teff_logg_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="minimize",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5],
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -206,6 +285,32 @@ def test_minimize_Teff_logg_reddening_interpolated():
         distance_err=0.1,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="minimize",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5],
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -294,6 +399,30 @@ def test_minimize_Teff_distance_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="minimize",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 10.0],
+        logg=7.5,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -350,6 +479,29 @@ def test_minimize_Teff_logg_distance_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="minimize",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5, 10.0],
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -369,6 +521,30 @@ def test_minimize_Teff_logg_distance_reddening_interpolated():
         initial_guess=[13000.0, 7.5, 10.0],
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="minimize",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5, 10.0],
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -465,6 +641,32 @@ def test_lsq_Teff_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="least_squares",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0],
+        logg=7.5,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -487,6 +689,33 @@ def test_lsq_Teff_reddening_interpolated():
         distance_err=0.1,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="least_squares",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0],
+        logg=7.5,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -525,6 +754,31 @@ def test_lsq_Teff_logg_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="least_squares",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5],
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -546,6 +800,32 @@ def test_lsq_Teff_logg_reddening_interpolated():
         distance_err=0.1,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="least_squares",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5],
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -635,6 +915,30 @@ def test_lsq_Teff_distance_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="least_squares",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 10.0],
+        logg=7.5,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -655,6 +959,31 @@ def test_lsq_Teff_distance_reddening_interpolated():
         logg=7.5,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="least_squares",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 10.0],
+        logg=7.5,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -691,6 +1020,29 @@ def test_lsq_Teff_logg_distance_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="least_squares",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5, 10.0],
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -710,6 +1062,30 @@ def test_lsq_Teff_logg_distance_reddening_interpolated():
         initial_guess=[13000.0, 7.5, 10.0],
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="least_squares",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5, 10.0],
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -824,6 +1200,37 @@ def test_emcee_Teff_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="emcee",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        logg=7.5,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -851,6 +1258,38 @@ def test_emcee_Teff_reddening_interpolated():
         distance_err=0.1,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff"],
+        method="emcee",
+        atmosphere_interpolator="RBF",
+        extinction_convolved=False,
+        initial_guess=[13000.0],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        logg=7.5,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -894,6 +1333,36 @@ def test_emcee_Teff_logg_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="emcee",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -920,6 +1389,37 @@ def test_emcee_Teff_logg_reddening_interpolated():
         distance_err=0.1,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        mags=mags + extinction_interpolated,
+        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        independent=["Teff", "logg"],
+        method="emcee",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        distance=10.0,
+        distance_err=0.1,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -1109,6 +1609,65 @@ def test_emcee_Teff_distance_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=[
+            "G3",
+            "G3_BP",
+            "G3_RP",
+            "FUV",
+            "NUV",
+            "g_ps1",
+            "r_ps1",
+            "i_ps1",
+            "z_ps1",
+            "y_ps1",
+            "J",
+            "H",
+            "Ks",
+        ],
+        mags=np.concatenate(
+            (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
+        ),
+        mag_errors=[
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+        ],
+        independent=["Teff"],
+        method="emcee",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 10.0],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        logg=7.5,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -1167,6 +1726,69 @@ def test_emcee_Teff_distance_reddening_interpolated():
         logg=7.5,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=[
+            "G3",
+            "G3_BP",
+            "G3_RP",
+            "FUV",
+            "NUV",
+            "g_ps1",
+            "r_ps1",
+            "i_ps1",
+            "z_ps1",
+            "y_ps1",
+            "J",
+            "H",
+            "Ks",
+        ],
+        mags=np.concatenate(
+            (
+                mags + extinction_interpolated,
+                mags_grizyJHK + extinction_grizyJHK_interpolated,
+            )
+        ),
+        mag_errors=[
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+        ],
+        independent=["Teff"],
+        method="emcee",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 10.0],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        logg=7.5,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]
@@ -1238,6 +1860,64 @@ def test_emcee_Teff_logg_distance_reddening():
         rtol=2.5e-02,
         atol=2.5e-02,
     )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=[
+            "G3",
+            "G3_BP",
+            "G3_RP",
+            "FUV",
+            "NUV",
+            "g_ps1",
+            "r_ps1",
+            "i_ps1",
+            "z_ps1",
+            "y_ps1",
+            "J",
+            "H",
+            "Ks",
+        ],
+        mags=np.concatenate(
+            (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
+        ),
+        mag_errors=[
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+        ],
+        independent=["Teff", "logg"],
+        method="emcee",
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5, 10.0],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
 
 
 # Fitting Teff: Yes
@@ -1295,6 +1975,68 @@ def test_emcee_Teff_logg_distance_reddening_interpolated():
         nburns=100,
         Rv=rv,
         ebv=ebv,
+    )
+    ftr.best_fit_params["H"]["Mbol"]
+    ftr.best_fit_params["H"]["Teff"]
+    assert np.isclose(
+        ftr.best_fit_params["H"]["Teff"],
+        13000.0,
+        rtol=2.5e-02,
+        atol=2.5e-02,
+    )
+    ftr.set_extinction_mode(mode="linear")
+    ftr.fit(
+        atmosphere="H",
+        filters=[
+            "G3",
+            "G3_BP",
+            "G3_RP",
+            "FUV",
+            "NUV",
+            "g_ps1",
+            "r_ps1",
+            "i_ps1",
+            "z_ps1",
+            "y_ps1",
+            "J",
+            "H",
+            "Ks",
+        ],
+        mags=np.concatenate(
+            (
+                mags + extinction_interpolated,
+                mags_grizyJHK + extinction_grizyJHK_interpolated,
+            )
+        ),
+        mag_errors=[
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+            0.02,
+        ],
+        independent=["Teff", "logg"],
+        method="emcee",
+        extinction_convolved=False,
+        atmosphere_interpolator="RBF",
+        initial_guess=[13000.0, 7.5, 10.0],
+        refine=False,
+        nwalkers=100,
+        nsteps=1000,
+        nburns=100,
+        Rv=rv,
+        ebv=ebv,
+        b=90.0,
+        z_min=0,
+        z_max=1,
     )
     ftr.best_fit_params["H"]["Mbol"]
     ftr.best_fit_params["H"]["Teff"]

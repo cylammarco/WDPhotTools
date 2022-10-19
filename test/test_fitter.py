@@ -78,6 +78,26 @@ def test_fitter_get_extinction_fraction():
     )
 
 
+def test_fitter_change_extinction_mode():
+    ftr = WDfitter()
+    ftr.set_extinction_mode(mode="linear")
+    assert np.isclose(
+        ftr._get_extinction_fraction(
+            distance=175.0, b=90.0, z_min=100.0, z_max=250.0
+        ),
+        0.5,
+    )
+    assert ftr.extinction_mode == "linear"
+    ftr.set_extinction_mode(mode="total")
+    assert ftr.extinction_mode == "total"
+
+
+@pytest.mark.xfail
+def test_fitter_change_extinction_mode_unknown():
+    ftr = WDfitter()
+    ftr.set_extinction_mode(mode="blabla")
+
+
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_fail_zmin():
     ftr = WDfitter()
@@ -90,6 +110,18 @@ def test_fitter_get_extinction_fraction_fail_zmin():
 def test_fitter_get_extinction_fraction_fail_zmax():
     ftr = WDfitter()
     ftr._get_extinction_fraction(distance=150.0, b=90.0, z_min=10.0, z_max=0.0)
+
+
+@pytest.mark.xfail
+def test_fitter_get_extinction_fraction_fail_zmin_None():
+    ftr = WDfitter()
+    ftr._get_extinction_fraction(distance=150.0, b=90.0, z_max=100.0)
+
+
+@pytest.mark.xfail
+def test_fitter_get_extinction_fraction_fail_zmax_None():
+    ftr = WDfitter()
+    ftr._get_extinction_fraction(distance=150.0, b=90.0, z_min=10.0)
 
 
 @pytest.mark.xfail
