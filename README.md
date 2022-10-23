@@ -219,7 +219,9 @@ The default setup assumes the provided reddening is the total amount at the give
 
 ```python
 ftr = WDfitter()
+# the fitter will be using this configuration after setting it in the beginning
 ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
+# Calling the private function as an example
 ftr._get_extinction_fraction(
             distance=175.0,
             ra=192.85949646,
