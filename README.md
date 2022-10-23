@@ -6,6 +6,7 @@
 [![PyPI version](https://badge.fury.io/py/wdphottools.svg)](https://badge.fury.io/py/wdphottools)
 [![DOI](https://zenodo.org/badge/310723364.svg)](https://zenodo.org/badge/latestdoi/310723364)
 [![arXiv](https://img.shields.io/badge/arXiv-2205.15321-00ff00.svg)](https://arxiv.org/abs/2205.15321)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/wdphottools)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) total stellar evolution lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
@@ -212,6 +213,20 @@ ftr.show_corner_plot(
 )
 ```
 
+### Reddening model
+
+The default setup assumes the provided reddening is the total amount at the given distance.  Hence, it is the mode `total` in the `set_extinction_mode`. However, if the reddening at the distance is not known, a fractional value as a linear function of distance from the galactic plane can be used with model `linear`, with the `z_min` and `z_max` provided as the range in which the reddening is linearly interpolated such at E(B-V) = 0.0 at a z(distance, ra, dec) smaller than or equal to `z_min`, and E(B-V) equals the total reddening at z(distance, ra, dec) greater than or equal to `z_min`. The conversion from (distance, ra, dec) to Galactic (x, y, z) cartesian coordinate makes use of the Astropy Coordinate pacakge and their default values for the geometry of the Galaxy and the Sun. This is adapted from [Harris et al. (2006)](https://arxiv.org/pdf/astro-ph/0510820.pdf) (footnote on page 5).
+
+```python
+ftr = WDfitter()
+ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
+ftr._get_extinction_fraction(
+            distance=175.0,
+            ra=192.85949646,
+            dec=27.12835323,
+        )
+>>> 0.6386628473110217
+```
 
 ### Retrieving the fitted solution(s)
 

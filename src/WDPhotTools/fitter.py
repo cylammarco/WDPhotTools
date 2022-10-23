@@ -1,12 +1,15 @@
 import copy
+from functools import partial
+import os
+import time
+
+import astropy.units as u
+import astropy.coordinates as coord
 import corner
 import emcee
-from functools import partial
 from matplotlib import pyplot as plt
 import numpy as np
-import os
 from scipy import optimize
-import time
 
 from .atmosphere_model_reader import AtmosphereModelReader
 from .reddening import reddening_vector_filter, reddening_vector_interpolated
@@ -51,6 +54,22 @@ class WDfitter(AtmosphereModelReader):
 
         elif mode == "linear":
 
+            if z_min < 0:
+
+                raise ValueError(
+                    "z_min has to be non-negative. {} is provided.".format(
+                        z_min
+                    )
+                )
+
+            if z_max < z_min:
+
+                raise ValueError(
+                    "z_max ({}) has to be larger than z_min ({}).".format(
+                        z_max, z_min
+                    )
+                )
+
             self.extinction_mode = mode
             self.z_min = z_min
             self.z_max = z_max
@@ -59,22 +78,22 @@ class WDfitter(AtmosphereModelReader):
 
             raise ValueError("Unknown extinction mode: {}.".format(mode))
 
-    def _get_extinction_fraction(self, distance, b, z_min=None, z_max=None):
+    def _get_extinction_fraction(self, distance, ra, dec):
         """
-        Harris et al. (2006) used the following scheme on P.5 in
-        https://arxiv.org/pdf/astro-ph/0510820.pdf
+        The linear mode follows the scheme on page 5 of Harris et al. (2006)
+        in https://arxiv.org/pdf/astro-ph/0510820.pdf.
+
+        The conversion from distance, ra and dec to z is powered by AstroPy
+        coordinate transformation.
 
         Parameters
         ----------
         distance : float
             Distance to the target (in unit of pc)
-        b : float
-            the Galactic latitude, in unit of degree. If b is not a finite
-            value, return 1.0.
-        z_min : float
-            Distance below which interstellar extinction is discarded.
-        z_max : float
-            Distance above which the total interstellar extinction is used.
+        ra : float
+            Right Ascension in unit of degree.
+        dec : float
+            Declination in unit of degree.
 
         Returns
         -------
@@ -83,62 +102,40 @@ class WDfitter(AtmosphereModelReader):
 
         """
 
-        if z_min is None:
+        c = coord.SkyCoord(
+            ra=ra * u.degree,
+            dec=dec * u.degree,
+            distance=distance * u.pc,
+            frame="icrs",
+        )
+        c_gal_cen = c.transform_to(coord.Galactocentric)
 
-            if self.z_min is None:
-
-                raise ValueError("z_min cannot be None")
-
-            z_min = self.z_min
-
-        if z_max is None:
-
-            if self.z_max is None:
-
-                raise ValueError("z_max cannot be None")
-
-            z_max = self.z_max
-
-        if z_min < 0:
+        if (self.z_min is None) or (self.z_max is None):
 
             raise ValueError(
-                "z_min has to be non-negative. {} is provided.".format(z_min)
-            )
-
-        if z_max < z_min:
-
-            raise ValueError(
-                "z_max ({}) has to be larger than z_min ({}).".format(
-                    z_max, z_min
-                )
-            )
-
-        # if b is not numeric,
-        if not np.isfinite(b):
-
-            raise ValueError(
-                "b ({}) has to be finite between 0.0 and 90.0.".format(b)
+                "z_min and z_max cannot be None, please initialise with "
+                "set_extinction_mode()"
             )
 
         else:
 
             # Get the distance from the Galactic mid-plane
-            z = abs(distance * np.sin(b * np.pi / 180.0))
+            z = getattr(c_gal_cen, "z").value
 
             # if z is lower than the lower limit, assume no extinction
-            if z < z_min:
+            if z < self.z_min:
 
                 return 0.0
 
             # if z is higher than the upper limit, assume total extinction
-            elif z > z_max:
+            elif z > self.z_max:
 
                 return 1.0
 
             # Otherwise, apply a linear approximation of the extinction
             else:
 
-                return (z - z_min) / (z_max - z_min)
+                return (z - self.z_min) / (self.z_max - self.z_min)
 
     def _interp_am(
         self,

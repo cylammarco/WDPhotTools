@@ -5,7 +5,7 @@ import pytest
 
 from WDPhotTools.reddening import reddening_vector_filter
 from WDPhotTools.reddening import reddening_vector_interpolated
-from numpy import False_
+
 
 # testing with logg=7.5 and Teff=13000.
 wave_GBRFN = np.array((6218.0, 5110.0, 7769.0, 1535.0, 2301.0))
@@ -34,45 +34,48 @@ def test_list_everything():
 
 def test_fitter_get_extinction_fraction():
     ftr = WDfitter()
+    ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
     np.isclose(
         ftr._get_extinction_fraction(
-            distance=150.0, b=90.0, z_min=100.0, z_max=250.0
+            distance=250.0,
+            ra=192.85949646,
+            dec=27.12835323,
         ),
         1.0,
     )
     np.isclose(
         ftr._get_extinction_fraction(
-            distance=90.0, b=90.0, z_min=100.0, z_max=250.0
+            distance=75.0, ra=192.85949646, dec=27.12835323
         ),
         0.0,
     )
     np.isclose(
         ftr._get_extinction_fraction(
-            distance=100.0, b=90.0, z_min=100.0, z_max=250.0
+            distance=100.0, ra=192.85949646, dec=27.12835323
         ),
-        0.0,
+        0.1386644841777267,
     )
     np.isclose(
         ftr._get_extinction_fraction(
-            distance=175.0, b=90.0, z_min=100.0, z_max=250.0
+            distance=175.0, ra=192.85949646, dec=27.12835323
         ),
-        0.5,
+        0.6386628473110217,
     )
     np.isclose(
         ftr._get_extinction_fraction(
-            distance=250.0, b=90.0, z_min=100.0, z_max=250.0
-        ),
-        1.0,
-    )
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=251.0, b=90.0, z_min=100.0, z_max=250.0
+            distance=250.0, ra=192.85949646, dec=27.12835323
         ),
         1.0,
     )
     np.isclose(
         ftr._get_extinction_fraction(
-            distance=500.0, b=30.0, z_min=100.0, z_max=250.0
+            distance=251.0, ra=192.85949646, dec=27.12835323
+        ),
+        1.0,
+    )
+    np.isclose(
+        ftr._get_extinction_fraction(
+            distance=500.0, ra=240.63412385, dec=-11.01234783
         ),
         1.0,
     )
@@ -80,12 +83,12 @@ def test_fitter_get_extinction_fraction():
 
 def test_fitter_change_extinction_mode():
     ftr = WDfitter()
-    ftr.set_extinction_mode(mode="linear")
+    ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
     assert np.isclose(
         ftr._get_extinction_fraction(
-            distance=175.0, b=90.0, z_min=100.0, z_max=250.0
+            distance=175.0, ra=192.85949646, dec=27.12835323
         ),
-        0.5,
+        0.6386628473110217,
     )
     assert ftr.extinction_mode == "linear"
     ftr.set_extinction_mode(mode="total")
@@ -101,41 +104,25 @@ def test_fitter_change_extinction_mode_unknown():
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_fail_zmin():
     ftr = WDfitter()
-    ftr._get_extinction_fraction(
-        distance=150.0, b=90.0, z_min=-10.0, z_max=100.0
-    )
+    ftr.set_extinction_mode(mode="linear", z_min=-10.0, z_max=250.0)
 
 
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_fail_zmax():
     ftr = WDfitter()
-    ftr._get_extinction_fraction(distance=150.0, b=90.0, z_min=10.0, z_max=0.0)
+    ftr.set_extinction_mode(mode="linear", z_min=1000.0, z_max=250.0)
 
 
 @pytest.mark.xfail
-def test_fitter_get_extinction_fraction_fail_zmin_None():
-    ftr = WDfitter()
-    ftr._get_extinction_fraction(distance=150.0, b=90.0, z_max=100.0)
-
-
-@pytest.mark.xfail
-def test_fitter_get_extinction_fraction_fail_zmax_None():
-    ftr = WDfitter()
-    ftr._get_extinction_fraction(distance=150.0, b=90.0, z_min=10.0)
-
-
 def test_fitter_get_extinction_fraction_pass_zmin_zmax_None():
     ftr = WDfitter()
-    ftr.set_extinction_mode(mode="linear")
-    ftr._get_extinction_fraction(distance=150.0, b=90.0)
+    ftr._get_extinction_fraction(distance=150.0, ra=10.0, dec=100.0)
 
 
 @pytest.mark.xfail
-def test_fitter_get_extinction_fraction_fail_b():
+def test_fitter_get_extinction_fraction_fail_ra():
     ftr = WDfitter()
-    ftr._get_extinction_fraction(
-        distance=150.0, b=None, z_min=10.0, z_max=100.0
-    )
+    ftr._get_extinction_fraction(distance=150.0, ra=None, dec=None)
 
 
 # Fitting for Teff with 5 filters for both DA and DB
@@ -831,7 +818,7 @@ def test_chi2_minimization_red_interpolated():
         initial_guess=[13000.0, 7.5],
         refine=True,
         refine_bounds=[0.1, 99.9],
-        extinction_convolved=False_,
+        extinction_convolved=False,
         Rv=rv,
         ebv=ebv,
     )
