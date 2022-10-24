@@ -251,9 +251,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -277,9 +276,8 @@ class WDfitter(AtmosphereModelReader):
                 interpolator_filter,
                 Rv,
                 ebv,
-                b,
-                z_min,
-                z_max,
+                ra,
+                dec,
                 True,
             )
 
@@ -303,9 +301,8 @@ class WDfitter(AtmosphereModelReader):
                     logg_pos,
                     Rv,
                     ebv,
-                    b,
-                    z_min,
-                    z_max,
+                    ra,
+                    dec,
                     True,
                 )
 
@@ -322,9 +319,8 @@ class WDfitter(AtmosphereModelReader):
                     logg,
                     Rv,
                     ebv,
-                    b,
-                    z_min,
-                    z_max,
+                    ra,
+                    dec,
                     True,
                 )
 
@@ -346,9 +342,8 @@ class WDfitter(AtmosphereModelReader):
         interpolator_filter,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -369,7 +364,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                distance, b, z_min, z_max
+                distance, ra, dec
             )
 
         Av = (
@@ -423,9 +418,8 @@ class WDfitter(AtmosphereModelReader):
         logg_pos,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -458,7 +452,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                distance, b, z_min, z_max
+                distance, ra, dec
             )
 
         logg = x[logg_pos]
@@ -513,9 +507,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -536,7 +529,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                distance, b, z_min, z_max
+                distance, ra, dec
             )
 
         teff = float(interpolator_teff(x))
@@ -692,9 +685,8 @@ class WDfitter(AtmosphereModelReader):
         interpolator_filter,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -726,7 +718,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                x[-1], b, z_min, z_max
+                x[-1], ra, dec
             )
 
         Av = (
@@ -775,9 +767,8 @@ class WDfitter(AtmosphereModelReader):
         logg_pos,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -809,7 +800,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                x[-1], b, z_min, z_max
+                x[-1], ra, dec
             )
 
         teff = float(interpolator_teff(x[:2]))
@@ -858,9 +849,8 @@ class WDfitter(AtmosphereModelReader):
         interpolator_filter,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -892,7 +882,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                x[-1], b, z_min, z_max
+                x[-1], ra, dec
             )
 
         Av = (
@@ -941,9 +931,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -975,7 +964,7 @@ class WDfitter(AtmosphereModelReader):
         else:
 
             self.extinction_fraction = self._get_extinction_fraction(
-                x[-1], b, z_min, z_max
+                x[-1], ra, dec
             )
 
         teff = float(interpolator_teff(x[0]))
@@ -1025,9 +1014,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -1047,9 +1035,8 @@ class WDfitter(AtmosphereModelReader):
                     interpolator_filter,
                     Rv,
                     ebv,
-                    b,
-                    z_min,
-                    z_max,
+                    ra,
+                    dec,
                     True,
                 )
 
@@ -1062,9 +1049,8 @@ class WDfitter(AtmosphereModelReader):
                     interpolator_filter,
                     Rv,
                     ebv,
-                    b,
-                    z_min,
-                    z_max,
+                    ra,
+                    dec,
                     True,
                 )
 
@@ -1086,9 +1072,8 @@ class WDfitter(AtmosphereModelReader):
                     logg_pos,
                     Rv,
                     ebv,
-                    b,
-                    z_min,
-                    z_max,
+                    ra,
+                    dec,
                     True,
                 )
 
@@ -1103,9 +1088,8 @@ class WDfitter(AtmosphereModelReader):
                     logg,
                     Rv,
                     ebv,
-                    b,
-                    z_min,
-                    z_max,
+                    ra,
+                    dec,
                     True,
                 )
 
@@ -1144,9 +1128,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -1166,9 +1149,8 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
-            b,
-            z_min,
-            z_max,
+            ra,
+            dec,
             True,
         )
 
@@ -1219,9 +1201,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
         return_err,
     ):
         """
@@ -1239,9 +1220,8 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
-            b,
-            z_min,
-            z_max,
+            ra,
+            dec,
             True,
         )
 
@@ -1297,9 +1277,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
     ):
         """
         Internal method for computing the log-likelihood value (for emcee).
@@ -1317,9 +1296,8 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
-            b,
-            z_min,
-            z_max,
+            ra,
+            dec,
             True,
         )
 
@@ -1370,9 +1348,8 @@ class WDfitter(AtmosphereModelReader):
         logg,
         Rv,
         ebv,
-        b,
-        z_min,
-        z_max,
+        ra,
+        dec,
     ):
         """
         Internal method for computing the log-likelihood value in cases when
@@ -1389,9 +1366,8 @@ class WDfitter(AtmosphereModelReader):
             logg,
             Rv,
             ebv,
-            b,
-            z_min,
-            z_max,
+            ra,
+            dec,
             True,
         )
 
@@ -1416,9 +1392,8 @@ class WDfitter(AtmosphereModelReader):
         kind="cubic",
         Rv=0.0,
         ebv=0.0,
-        b=None,
-        z_min=None,
-        z_max=None,
+        ra=None,
+        dec=None,
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 8.0],
         logg=8.0,
@@ -1484,13 +1459,10 @@ class WDfitter(AtmosphereModelReader):
             The choice of Rv, only used if a numerical value is provided.
         ebv: float (Default: None)
             The magnitude of the E(B-V).
-        b : float (Default: None)
-            the Galactic latitude, in unit of degree. If b is not a finite
-            value, return 1.0.
-        z_min : float (Default: None)
-            Distance below which interstellar extinction is discarded.
-        z_max : float (Default: None)
-            Distance above which the total interstellar extinction is used.
+        ra : float (Default: None)
+            Right Ascension in unit of degree.
+        dec : float (Default: None)
+            Declination in unit of degree.
         independent: list of str (Default: ['Mbol', 'logg']
             Independent variables to be interpolated in the atmosphere model,
             these are parameters to be fitted for.
@@ -1672,9 +1644,8 @@ class WDfitter(AtmosphereModelReader):
             "kind": kind,
             "Rv": Rv,
             "ebv": ebv,
-            "b": b,
-            "z_min": z_min,
-            "z_max": z_max,
+            "ra": ra,
+            "dec": dec,
             "reuse_interpolator": reuse_interpolator,
             "method": method,
             "nwalkers": nwalkers,
@@ -1752,9 +1723,8 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1772,9 +1742,8 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1813,9 +1782,8 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1835,9 +1803,8 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_minimize,
@@ -1944,9 +1911,8 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -1965,9 +1931,8 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -2009,9 +1974,8 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -2032,9 +1996,8 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                     False,
                                 ),
                                 **_kwargs_for_least_squares,
@@ -2169,9 +2132,8 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -2190,9 +2152,8 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -2234,9 +2195,8 @@ class WDfitter(AtmosphereModelReader):
                                     None,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -2260,9 +2220,8 @@ class WDfitter(AtmosphereModelReader):
                                     logg,
                                     Rv,
                                     ebv,
-                                    b,
-                                    z_min,
-                                    z_max,
+                                    ra,
+                                    dec,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -2338,9 +2297,8 @@ class WDfitter(AtmosphereModelReader):
                             initial_guess=_initial_guess,
                             Rv=Rv,
                             ebv=ebv,
-                            b=b,
-                            z_min=z_min,
-                            z_max=z_max,
+                            ra=ra,
+                            dec=dec,
                             kwargs_for_minimize=kwargs,
                         )
 
@@ -2361,9 +2319,8 @@ class WDfitter(AtmosphereModelReader):
                             initial_guess=_initial_guess,
                             Rv=Rv,
                             ebv=ebv,
-                            b=b,
-                            z_min=z_min,
-                            z_max=z_max,
+                            ra=ra,
+                            dec=dec,
                             kwargs_for_minimize=kwargs,
                         )
 
