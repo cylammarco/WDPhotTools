@@ -1390,7 +1390,7 @@ class WDfitter(AtmosphereModelReader):
         distance_err=None,
         extinction_convolved=True,
         kind="cubic",
-        Rv=0.0,
+        Rv=3.1,
         ebv=0.0,
         ra=None,
         dec=None,
@@ -1455,9 +1455,9 @@ class WDfitter(AtmosphereModelReader):
             provided in Schlafly et al. 2011.
         kind: str (Default: 'cubic')
             The kind of interpolation of the extinction curve.
-        Rv: float (Default: None)
+        Rv: float (Default: 3.1)
             The choice of Rv, only used if a numerical value is provided.
-        ebv: float (Default: None)
+        ebv: float (Default: 0.0)
             The magnitude of the E(B-V).
         ra : float (Default: None)
             Right Ascension in unit of degree.
