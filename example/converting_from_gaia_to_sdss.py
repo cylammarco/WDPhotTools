@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Converting Gaia photometry to SDSS photometry"""
+
 import os
 
 from astropy.io import fits
@@ -8,10 +13,11 @@ from WDPhotTools import atmosphere_model_reader as amr
 
 try:
     HERE = os.path.dirname(os.path.realpath(__file__))
-except:
+except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
-data = fits.open(os.path.join(HERE, "GaiaEDR3_WD_SDSSspec.FITS"))[1].data
+_hdu = fits.open(os.path.join(HERE, "GaiaEDR3_WD_SDSSspec.FITS"))[1]
+data = _hdu.data
 size = len(data)
 
 # Get the Gaia photometry
@@ -22,59 +28,59 @@ loggH = data["logg_H"]
 TeffH = data["Teff_H"]
 dist_mod = np.log10(1000.0 / data["parallax"]) * 5.0 - 5.0
 
-atm = amr.atm_reader()
+atm = amr.AtmosphereModelReader()
 
 # Getting the interpolation function depending on G3 and logg
-u_itp = atm.interp_atm(dependent="u_sdss", independent=["G3", "logg"])
-g_itp = atm.interp_atm(dependent="g_sdss", independent=["G3", "logg"])
-r_itp = atm.interp_atm(dependent="r_sdss", independent=["G3", "logg"])
+u_itp = atm.interp_am(dependent="u_sdss", independent=["G3", "logg"])
+g_itp = atm.interp_am(dependent="g_sdss", independent=["G3", "logg"])
+r_itp = atm.interp_am(dependent="r_sdss", independent=["G3", "logg"])
 
 # Getting the interpolation function depending on G3_BP and logg
-u_itp_bp = atm.interp_atm(dependent="u_sdss", independent=["G3_BP", "logg"])
-g_itp_bp = atm.interp_atm(dependent="g_sdss", independent=["G3_BP", "logg"])
-r_itp_bp = atm.interp_atm(dependent="r_sdss", independent=["G3_BP", "logg"])
+u_itp_bp = atm.interp_am(dependent="u_sdss", independent=["G3_BP", "logg"])
+g_itp_bp = atm.interp_am(dependent="g_sdss", independent=["G3_BP", "logg"])
+r_itp_bp = atm.interp_am(dependent="r_sdss", independent=["G3_BP", "logg"])
 
 # Getting the interpolation function depending on G3_RP and logg
-u_itp_rp = atm.interp_atm(dependent="u_sdss", independent=["G3_RP", "logg"])
-g_itp_rp = atm.interp_atm(dependent="g_sdss", independent=["G3_RP", "logg"])
-r_itp_rp = atm.interp_atm(dependent="r_sdss", independent=["G3_RP", "logg"])
+u_itp_rp = atm.interp_am(dependent="u_sdss", independent=["G3_RP", "logg"])
+g_itp_rp = atm.interp_am(dependent="g_sdss", independent=["G3_RP", "logg"])
+r_itp_rp = atm.interp_am(dependent="r_sdss", independent=["G3_RP", "logg"])
 
 # Getting the interpolation function depending on G3 and Teff
-u_itp_teff = atm.interp_atm(dependent="u_sdss", independent=["G3", "Teff"])
-g_itp_teff = atm.interp_atm(dependent="g_sdss", independent=["G3", "Teff"])
-r_itp_teff = atm.interp_atm(dependent="r_sdss", independent=["G3", "Teff"])
+u_itp_teff = atm.interp_am(dependent="u_sdss", independent=["G3", "Teff"])
+g_itp_teff = atm.interp_am(dependent="g_sdss", independent=["G3", "Teff"])
+r_itp_teff = atm.interp_am(dependent="r_sdss", independent=["G3", "Teff"])
 
 # Getting the interpolation function depending on G3_BP and Teff
-u_itp_bp_teff = atm.interp_atm(
+u_itp_bp_teff = atm.interp_am(
     dependent="u_sdss", independent=["G3_BP", "Teff"]
 )
-g_itp_bp_teff = atm.interp_atm(
+g_itp_bp_teff = atm.interp_am(
     dependent="g_sdss", independent=["G3_BP", "Teff"]
 )
-r_itp_bp_teff = atm.interp_atm(
+r_itp_bp_teff = atm.interp_am(
     dependent="r_sdss", independent=["G3_BP", "Teff"]
 )
 
 # Getting the interpolation function depending on G3_RP and Teff
-u_itp_rp_teff = atm.interp_atm(
+u_itp_rp_teff = atm.interp_am(
     dependent="u_sdss", independent=["G3_RP", "Teff"]
 )
-g_itp_rp_teff = atm.interp_atm(
+g_itp_rp_teff = atm.interp_am(
     dependent="g_sdss", independent=["G3_RP", "Teff"]
 )
-r_itp_rp_teff = atm.interp_atm(
+r_itp_rp_teff = atm.interp_am(
     dependent="r_sdss", independent=["G3_RP", "Teff"]
 )
 
 
 # Getting the interpolation function depending on G3_RP and Teff
-u_itp_logg_teff = atm.interp_atm(
+u_itp_logg_teff = atm.interp_am(
     dependent="u_sdss", independent=["logg", "Teff"]
 )
-g_itp_logg_teff = atm.interp_atm(
+g_itp_logg_teff = atm.interp_am(
     dependent="g_sdss", independent=["logg", "Teff"]
 )
-r_itp_logg_teff = atm.interp_atm(
+r_itp_logg_teff = atm.interp_am(
     dependent="r_sdss", independent=["logg", "Teff"]
 )
 

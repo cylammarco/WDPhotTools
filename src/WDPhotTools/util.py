@@ -1,28 +1,36 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Some utility class/functions"""
+
 import numpy as np
 from scipy import interpolate
-from numpy import linalg
 
 
-# Taken from
-# https://github.com/pig2015/mathpy/blob/master/polation/globalspline.py
 class GlobalSpline2D(interpolate.interp2d):
-    def __init__(self, x, y, z, kind="linear"):
+    """
+    Taken from
+    https://github.com/pig2015/mathpy/blob/master/polation/globalspline.py
+    which extends the base interp2d to extrapolate.
+    """
+
+    def __init__(self, _x, _y, _z, kind="linear"):
 
         if kind == "linear":
 
-            if len(x) < 2 or len(y) < 2:
+            if len(_x) < 2 or len(_y) < 2:
 
                 raise self.get_size_error(2, kind)
 
         elif kind == "cubic":
 
-            if len(x) < 4 or len(y) < 4:
+            if len(_x) < 4 or len(_y) < 4:
 
                 raise self.get_size_error(4, kind)
 
         elif kind == "quintic":
 
-            if len(x) < 6 or len(y) < 6:
+            if len(_x) < 6 or len(_y) < 6:
 
                 raise self.get_size_error(6, kind)
 
@@ -30,62 +38,69 @@ class GlobalSpline2D(interpolate.interp2d):
 
             raise ValueError("unidentifiable kind of spline")
 
-        super().__init__(x, y, z, kind=kind)
+        super().__init__(_x, _y, _z, kind=kind)
 
-        self.extrap_fd_based_xs = self._linspace_10(self.x_min, self.x_max, -4)
-        self.extrap_bd_based_xs = self._linspace_10(self.x_min, self.x_max, 4)
-        self.extrap_fd_based_ys = self._linspace_10(self.y_min, self.y_max, -4)
-        self.extrap_bd_based_ys = self._linspace_10(self.y_min, self.y_max, 4)
+        self.extrap_fd_based_x_s = self._linspace_10(
+            self.x_min, self.x_max, -4
+        )
+        self.extrap_bd_based_x_s = self._linspace_10(self.x_min, self.x_max, 4)
+        self.extrap_fd_based_y_s = self._linspace_10(
+            self.y_min, self.y_max, -4
+        )
+        self.extrap_bd_based_y_s = self._linspace_10(self.y_min, self.y_max, 4)
 
     @staticmethod
     def get_size_error(size, spline_kind):
 
         return ValueError(
-            "length of x and y must be larger or at least equal "
-            "to {} when applying {} spline, assign arrays with "
-            "length no less than "
-            "{}".format(size, spline_kind, size)
+            "Length of x and y must be larger or at least equal "
+            "to {size} when applying {spline_kind} spline, assign array_s "
+            "with length no less than {size}."
         )
 
     @staticmethod
-    def _extrap1d(xs, ys, tar_x):
+    def _extrap_1d(x_s, y_s, tar_x):
 
-        if isinstance(xs, np.ndarray):
+        if isinstance(x_s, np.ndarray):
 
-            xs = np.ndarray.flatten(xs)
+            x_s = np.ndarray.flatten(x_s)
 
-        if isinstance(ys, np.ndarray):
+        if isinstance(y_s, np.ndarray):
 
-            ys = np.ndarray.flatten(ys)
+            y_s = np.ndarray.flatten(y_s)
 
-        assert len(xs) >= 4
-        assert len(xs) == len(ys)
+        assert len(x_s) >= 4
+        assert len(x_s) == len(y_s)
 
-        f = interpolate.InterpolatedUnivariateSpline(xs, ys)
+        _f = interpolate.InterpolatedUnivariateSpline(x_s, y_s)
 
-        return f(tar_x)
+        return _f(tar_x)
 
     @staticmethod
-    def _linspace_10(p1, p2, cut=None):
+    def _linspace_10(p_1, p_2, cut=None):
 
-        ls = list(np.linspace(p1, p2, 10))
+        _ls = list(np.linspace(p_1, p_2, 10))
 
         if cut is None:
 
-            return ls
+            return _ls
 
-        assert cut <= 10
+        else:
 
-        return ls[-cut:] if cut < 0 else ls[:cut]
+            cut = int(cut)
+
+            assert cut <= 10
+
+            return _ls[-cut:] if cut < 0 else _ls[:cut]
 
     def _get_extrap_based_points(self, axis, extrap_p):
 
         if axis == "x":
 
             return (
-                self.extrap_fd_based_xs
+                self.extrap_fd_based_x_s
                 if extrap_p > self.x_max
-                else self.extrap_bd_based_xs
+                else self.extrap_bd_based_x_s
                 if extrap_p < self.x_min
                 else []
             )
@@ -93,73 +108,79 @@ class GlobalSpline2D(interpolate.interp2d):
         elif axis == "y":
 
             return (
-                self.extrap_fd_based_ys
+                self.extrap_fd_based_y_s
                 if extrap_p > self.y_max
-                else self.extrap_bd_based_ys
+                else self.extrap_bd_based_y_s
                 if extrap_p < self.y_min
                 else []
             )
 
         assert False, "axis unknown"
 
-    def __call__(self, x_, y_, **kwargs):
+    def __call__(self, _x, _y, **kwargs):
 
-        xs = np.atleast_1d(x_)
-        ys = np.atleast_1d(y_)
+        x_s = np.atleast_1d(_x)
+        y_s = np.atleast_1d(_y)
 
-        if xs.ndim != 1 or ys.ndim != 1:
+        if x_s.ndim != 1 or y_s.ndim != 1:
 
-            raise ValueError("x and y should both be 1-D arrays")
+            raise ValueError("x and y should both be 1-D array_s")
 
-        pz_yqueue = []
+        p_z_yqueue = []
 
-        for y in ys:
+        for y_i in y_s:
 
-            extrap_based_ys = self._get_extrap_based_points("y", y)
+            extrap_based_y_s = self._get_extrap_based_points("y", y_i)
 
-            pz_xqueue = []
+            p_z_xqueue = []
 
-            for x in xs:
+            for x_i in x_s:
 
-                extrap_based_xs = self._get_extrap_based_points("x", x)
+                extrap_based_x_s = self._get_extrap_based_points("x", x_i)
 
-                if not extrap_based_xs and not extrap_based_ys:
+                if not extrap_based_x_s and not extrap_based_y_s:
 
                     # inbounds
-                    pz = super().__call__(x, y, **kwargs)[0]
+                    p_z = super().__call__(x_i, y_i, **kwargs)[0]
 
-                elif extrap_based_xs and extrap_based_ys:
+                elif extrap_based_x_s and extrap_based_y_s:
 
                     # both x, y atr outbounds
-                    # allocate based_z from x, based_ys
+                    # allocate based_z from x, based_y_s
                     extrap_based_zs = self.__call__(
-                        x, extrap_based_ys, **kwargs
+                        x_i, extrap_based_y_s, **kwargs
                     )
 
-                    # allocate z of x, y from based_ys, based_zs
-                    pz = self._extrap1d(extrap_based_ys, extrap_based_zs, y)
+                    # allocate z of x, y from based_y_s, based_zs
+                    p_z = self._extrap_1d(
+                        extrap_based_y_s, extrap_based_zs, y_i
+                    )
 
-                elif extrap_based_xs:
+                elif extrap_based_x_s:
 
                     # only x outbounds
                     extrap_based_zs = super().__call__(
-                        extrap_based_xs, y, **kwargs
+                        extrap_based_x_s, y_i, **kwargs
                     )
-                    pz = self._extrap1d(extrap_based_xs, extrap_based_zs, x)
+                    p_z = self._extrap_1d(
+                        extrap_based_x_s, extrap_based_zs, x_i
+                    )
 
                 else:
 
                     # only y outbounds
                     extrap_based_zs = super().__call__(
-                        x, extrap_based_ys, **kwargs
+                        x_i, extrap_based_y_s, **kwargs
                     )
-                    pz = self._extrap1d(extrap_based_ys, extrap_based_zs, y)
+                    p_z = self._extrap_1d(
+                        extrap_based_y_s, extrap_based_zs, y_i
+                    )
 
-                pz_xqueue.append(pz)
+                p_z_xqueue.append(p_z)
 
-            pz_yqueue.append(pz_xqueue)
+            p_z_yqueue.append(p_z_xqueue)
 
-        zss = pz_yqueue
+        zss = p_z_yqueue
 
         if len(zss) == 1:
 
@@ -175,10 +196,10 @@ def get_uncertainty_least_squares(res):
 
     """
 
-    _, s, Vh = linalg.svd(res.jac, full_matrices=False)
-    tol = np.finfo(float).eps * s[0] * max(res.jac.shape)
-    w = s > tol
-    cov = (Vh[w].T / s[w] ** 2) @ Vh[w]  # robust covariance matrix
+    _, _s, _vh = np.linalg.svd(res.jac, full_matrices=False)
+    tol = np.finfo(float).eps * _s[0] * max(res.jac.shape)
+    _w = _s > tol
+    cov = (_vh[_w].T / _s[_w] ** 2) @ _vh[_w]  # robust covariance matrix
     stdev = np.sqrt(np.diag(cov))
 
     return stdev

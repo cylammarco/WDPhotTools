@@ -8,6 +8,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2205.15321-00ff00.svg)](https://arxiv.org/abs/2205.15321)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/wdphottools)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0c8fae5312564fffb1aed3a862009fe5)](https://www.codacy.com/gh/cylammarco/WDPhotTools/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cylammarco/WDPhotTools&amp;utm_campaign=Badge_Grade)
 
 This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) total stellar evolution lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
 
@@ -23,38 +24,42 @@ Documentation and more examples can be found at [Read the Docs](https://wdphotto
 
 If you have made use of the WDPhotTools, we would appreciate if you can refernce the follow article and the software itself. The BibTex of the two items are::
 
-    @ARTICLE{2022arXiv220515321L,
-           author = {{Lam}, M.~C. and {Yuen}, K.~W. and {Li}, W. and {Green}, M.~J.},
-            title = "{WDPhotTools -- A White Dwarf Photometric Toolkit in Python}",
-          journal = {arXiv e-prints},
-         keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - Solar and Stellar Astrophysics},
-             year = 2022,
-            month = may,
-              eid = {arXiv:2205.15321},
-            pages = {arXiv:2205.15321},
-    archivePrefix = {arXiv},
-           eprint = {2205.15321},
-     primaryClass = {astro-ph.IM},
-           adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220515321L},
-          adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-    }
+```bash
+@ARTICLE{2022arXiv220515321L,
+        author = {{Lam}, M.~C. and {Yuen}, K.~W. and {Li}, W. and {Green}, M.~J.},
+        title = "{WDPhotTools -- A White Dwarf Photometric Toolkit in Python}",
+        journal = {arXiv e-prints},
+        keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - Solar and Stellar Astrophysics},
+            year = 2022,
+        month = may,
+            eid = {arXiv:2205.15321},
+        pages = {arXiv:2205.15321},
+archivePrefix = {arXiv},
+        eprint = {2205.15321},
+    primaryClass = {astro-ph.IM},
+        adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220515321L},
+        adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+```
 
 and
 
-    @software{marco_c_lam_2022_6595030,
-      author       = {Marco C Lam and
-                      K Yuen},
-      title        = {WDPhotTools: A White Dwarf Photometric Toolkit in Python},
-      month        = may,
-      year         = 2022,
-      publisher    = {Zenodo},
-      doi          = {10.5281/zenodo.6595029},
-      url          = {https://doi.org/10.5281/zenodo.6595029}
-    }
+```bash
+@software{marco_c_lam_2022_6595030,
+    author       = {Marco C Lam and
+                    K Yuen},
+    title        = {WDPhotTools: A White Dwarf Photometric Toolkit in Python},
+    month        = may,
+    year         = 2022,
+    publisher    = {Zenodo},
+    doi          = {10.5281/zenodo.6595029},
+    url          = {https://doi.org/10.5281/zenodo.6595029}
+}
+```
 
 ## Model Inspection
 
-1. Plotting the WD cooling sequence in Gaia filters
+### Plotting the WD cooling sequence in Gaia filters
 
 The cooling models only include the modelling of the bolometric lumninosity, the synthetic photometry is not usually provided. We have included the synthetic colours computed by the [Montreal group](http://www.astro.umontreal.ca/~bergeron/CoolingModels/). By default, it maps the (logg, Mbol) to Gaia G band (DR3). The DA cooling tracks can be generated with
 
@@ -104,11 +109,11 @@ plt.tight_layout()
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/DA_cooling_tracks.png?raw=true)
 
-2. Plotting the cooling models
+### Plotting the cooling models
 
 The cooling sequence above is mostly concerned with the synthetic photometry, in this example, it is mostly regarding the physical properties beneath the photosphere. To check what models are embedded, you can use:
 
-```
+```python
 from WDPhotTools.cooling_model_reader import cm_reader
 
 cr = cm_reader()
@@ -117,7 +122,7 @@ cr.list_cooling_model()
 
 This should output:
 
-```
+```python
 Model: montreal_co_da_20, Reference: Bedard et al. 2020 CO DA
 Model: montreal_co_db_20, Reference: Bedard et al. 2020 CO DB
 Model: lpcode_he_da_07, Reference: Panei et al. 2007 He DA
@@ -150,7 +155,7 @@ cr.list_cooling_parameters('basti_co_da_10')
 
 which will print
 
-```
+```bash
 Available WD mass: [0.54 0.55 0.61 0.68 0.77 0.87 1.   1.1  1.2 ]
 Parameter: log(Age), Column Name: age, Unit: (Gyr)
 Parameter: Mass, Column Name: mass, Unit: M$_{\odot}$
@@ -181,7 +186,7 @@ With a finer control of the `cooling_model_reader`, it is easy to work with more
 
 We provide 3 minimisers for fitting with synthetic photometry: `scipy.optimize.minimize`, `scipy.optimize.least_squares` and `emcee` (with the option to refine with a `scipy.optimize.minimize` in a bounded region.)
 
-3. An example photometric fit of PSO J1801+6254 in 3 Gaia, 5 Pan-STARRS and 3 NIR filters without providing a distance:
+### An example photometric fit of PSO J1801+6254 in 3 Gaia, 5 Pan-STARRS and 3 NIR filters without providing a distance
 
 ```python
 from WDPhotTools.fitter import WDfitter
@@ -236,7 +241,7 @@ ftr._get_extinction_fraction(
 
 After using `minimize` or `least_squares` as the fitting method, the fitted solution natively returned from the respective minimizer will be stored in `ftr.results`. The best fit parameters can be retrieved from `self.best_fit_params`. For example, if `minimize` is used for fitting both DA and DB, the solutions should be populated like this:
 
-```
+```python
 >>> ftr.results
 {'H':  final_simplex: (array([[15.74910563,  7.87520654],
     [15.74910582,  7.87521853],
@@ -263,9 +268,9 @@ After using `minimize` or `least_squares` as the fitting method, the fitted solu
 
 #### `emcee`
 
-After using `emcee` for sampling, the sampler and samples can be found in `ftr.sampler`` and `ftr.samples`` respectively. The median of the samples of each parameter is stored in `ftr.best_fit_params`, while `ftr.results` would be empty. In this case, if we are fitting for the DA solutions only, we should have, for example,
+After using `emcee` for sampling, the sampler and samples can be found in `ftr.sampler`` and`ftr.samples`` respectively. The median of the samples of each parameter is stored in `ftr.best_fit_params`, while `ftr.results` would be empty. In this case, if we are fitting for the DA solutions only, we should have, for example,
 
-```
+```python
 >>> ftr.results
 {'H': {}, 'He': {}}
 
@@ -274,7 +279,6 @@ After using `emcee` for sampling, the sampler and samples can be found in `ftr.s
 ```
 
 If you want to fully explore the infromation stored in the fitting object, use `ftr.__dict__`, or just the keys with `ftr.__dict__.keys()`.
-
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/PSOJ1801p6254_emcee.png?raw=true)
 
@@ -367,7 +371,7 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
 
 #### Example sets of WDLFs with different star formation scenario
 
-4. The following excerpt demonstrate how to generate luminosity functions with constant, burst and exponentially decaying
+The following excerpt demonstrate how to generate luminosity functions with constant, burst and exponentially decaying
 
 ```python
 import os

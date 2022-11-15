@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Compare the effect of phase separation in the cooling rates"""
+
 import os
 
 import numpy as np
@@ -9,7 +14,7 @@ from WDPhotTools import theoretical_lf
 
 try:
     HERE = os.path.dirname(os.path.realpath(__file__))
-except:
+except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
 
@@ -28,13 +33,13 @@ wdlf_nps.set_high_mass_cooling_model("basti_co_da_10_nps")
 wdlf.compute_cooling_age_interpolator()
 wdlf_nps.compute_cooling_age_interpolator()
 
-atm = amr.atm_reader()
+atm = amr.AtmosphereModelReader()
 
 # Default passband is G3
-G = atm.interp_atm()
-BP = atm.interp_atm(dependent="G3_BP")
-RP = atm.interp_atm(dependent="G3_RP")
-m = atm.interp_atm(dependent="mass")
+G = atm.interp_am()
+BP = atm.interp_am(dependent="G3_BP")
+RP = atm.interp_am(dependent="G3_RP")
+m = atm.interp_am(dependent="mass")
 
 logg = np.arange(7.25, 8.75, 0.02)
 Mbol = np.arange(6.0, 16.0, 0.02)
@@ -69,37 +74,37 @@ z2 = np.log10(np.concatenate(_z2))
 # masking the non-finite values
 mask1 = np.isfinite(z1)
 mask2 = np.isfinite(z2)
-cmap = "RdBu_r"
-levels = 50
+CMAP = "RdBu_r"
+LEVELS = 50
 
 # make the contour lines
 ax1.tricontour(
-    x[mask1], y[mask1], z1[mask1], levels=levels, linewidths=0.5, colors="k"
+    x[mask1], y[mask1], z1[mask1], levels=LEVELS, linewidths=0.5, colors="k"
 )
 ax2.tricontour(
-    x[mask2], y[mask2], z1[mask2], levels=levels, linewidths=0.5, colors="k"
+    x[mask2], y[mask2], z1[mask2], levels=LEVELS, linewidths=0.5, colors="k"
 )
 ax3.tricontour(
     x[mask1 & mask2],
     y[mask1 & mask2],
     (z1 / z2)[mask1 & mask2],
-    levels=levels,
+    levels=LEVELS,
     linewidths=0.5,
     colors="k",
 )
 # make the contour shades
 contour1 = ax1.tricontourf(
-    x[mask1], y[mask1], z1[mask1], levels=levels, cmap=cmap
+    x[mask1], y[mask1], z1[mask1], levels=LEVELS, cmap=CMAP
 )
 contour2 = ax2.tricontourf(
-    x[mask2], y[mask2], z2[mask2], levels=levels, cmap=cmap
+    x[mask2], y[mask2], z2[mask2], levels=LEVELS, cmap=CMAP
 )
 contour3 = ax3.tricontourf(
     x[mask1 & mask2],
     y[mask1 & mask2],
     (z1 / z2)[mask1 & mask2],
-    levels=levels,
-    cmap=cmap,
+    levels=LEVELS,
+    cmap=CMAP,
 )
 
 ax1.set_ylim(16.0, 10.0)

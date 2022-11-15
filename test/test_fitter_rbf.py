@@ -1,7 +1,11 @@
-from WDPhotTools.fitter import WDfitter
-import numpy as np
-from unittest.mock import patch
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+"""Testing the fitter using RBF interpolator"""
+
+import numpy as np
+
+from WDPhotTools.fitter import WDfitter
 from WDPhotTools.reddening import reddening_vector_filter
 from WDPhotTools.reddening import reddening_vector_interpolated
 
@@ -11,28 +15,26 @@ wave_grizyJHK = np.array(
     (4849.0, 6201.0, 7535.0, 8674.0, 9628.0, 12350.00, 16460.00, 21600.00)
 )
 
-rv = 3.1
-ebv = 0.123
+RV = 3.1
+EBV = 0.123
 
 reddening = reddening_vector_interpolated(kind="cubic")
-extinction_interpolated = reddening(wave_GBRFN, rv) * ebv
-extinction_grizyJHK_interpolated = reddening(wave_grizyJHK, rv) * ebv
+extinction_interpolated = reddening(wave_GBRFN, RV) * EBV
+extinction_grizyJHK_interpolated = reddening(wave_grizyJHK, RV) * EBV
 
-ftr = WDfitter()
-
-A_G3 = reddening_vector_filter("G3")([7.5, 13000.0, rv]) * ebv
-A_G3_BP = reddening_vector_filter("G3_BP")([7.5, 13000.0, rv]) * ebv
-A_G3_RP = reddening_vector_filter("G3_RP")([7.5, 13000.0, rv]) * ebv
-A_FUV = reddening_vector_filter("FUV")([7.5, 13000.0, rv]) * ebv
-A_NUV = reddening_vector_filter("NUV")([7.5, 13000.0, rv]) * ebv
-A_g = reddening_vector_filter("g_ps1")([7.5, 13000.0, rv]) * ebv
-A_r = reddening_vector_filter("r_ps1")([7.5, 13000.0, rv]) * ebv
-A_i = reddening_vector_filter("i_ps1")([7.5, 13000.0, rv]) * ebv
-A_z = reddening_vector_filter("z_ps1")([7.5, 13000.0, rv]) * ebv
-A_y = reddening_vector_filter("y_ps1")([7.5, 13000.0, rv]) * ebv
-A_J = reddening_vector_filter("J")([7.5, 13000.0, rv]) * ebv
-A_H = reddening_vector_filter("H")([7.5, 13000.0, rv]) * ebv
-A_Ks = reddening_vector_filter("Ks")([7.5, 13000.0, rv]) * ebv
+A_G3 = reddening_vector_filter("G3")([7.5, 13000.0, RV]) * EBV
+A_G3_BP = reddening_vector_filter("G3_BP")([7.5, 13000.0, RV]) * EBV
+A_G3_RP = reddening_vector_filter("G3_RP")([7.5, 13000.0, RV]) * EBV
+A_FUV = reddening_vector_filter("FUV")([7.5, 13000.0, RV]) * EBV
+A_NUV = reddening_vector_filter("NUV")([7.5, 13000.0, RV]) * EBV
+A_g = reddening_vector_filter("g_ps1")([7.5, 13000.0, RV]) * EBV
+A_r = reddening_vector_filter("r_ps1")([7.5, 13000.0, RV]) * EBV
+A_i = reddening_vector_filter("i_ps1")([7.5, 13000.0, RV]) * EBV
+A_z = reddening_vector_filter("z_ps1")([7.5, 13000.0, RV]) * EBV
+A_y = reddening_vector_filter("y_ps1")([7.5, 13000.0, RV]) * EBV
+A_J = reddening_vector_filter("J")([7.5, 13000.0, RV]) * EBV
+A_H = reddening_vector_filter("H")([7.5, 13000.0, RV]) * EBV
+A_Ks = reddening_vector_filter("Ks")([7.5, 13000.0, RV]) * EBV
 
 mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
 extinction = np.array([A_G3, A_G3_BP, A_G3_RP, A_FUV, A_NUV]).reshape(-1)
@@ -44,17 +46,38 @@ extinction_grizyJHK = np.array(
     [A_g, A_r, A_i, A_z, A_y, A_J, A_H, A_Ks]
 ).reshape(-1)
 
+five_filters_name_list = np.array(["G3", "G3_BP", "G3_RP", "FUV", "NUV"])
+thirteen_filters_name_list = np.array(
+    [
+        "G3",
+        "G3_BP",
+        "G3_RP",
+        "FUV",
+        "NUV",
+        "g_ps1",
+        "r_ps1",
+        "i_ps1",
+        "z_ps1",
+        "y_ps1",
+        "J",
+        "H",
+        "Ks",
+    ]
+)
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: No
-def test_minimize_Teff_logg():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+
+def test_minimize_teff_logg():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: No
+    """
+    ftr1 = WDfitter()
+    ftr1.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -63,23 +86,25 @@ def test_minimize_Teff_logg():
         distance_err=0.1,
     )
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr1.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: No
-def test_minimize_Teff():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: No
+    """
+    ftr2 = WDfitter()
+    ftr2.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -88,26 +113,26 @@ def test_minimize_Teff():
         distance=10.0,
         distance_err=0.1,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr2.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: Yes
-def test_minimize_Teff_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: Yes
+    """
+    ftr3 = WDfitter()
+    ftr3.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -115,54 +140,29 @@ def test_minimize_Teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="minimize",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0],
-        logg=7.5,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr3.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: Yes (interpolated)
-def test_minimize_Teff_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: Yes (interpolated)
+    """
+    ftr4 = WDfitter()
+    ftr4.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         extinction_convolved=False,
@@ -171,108 +171,58 @@ def test_minimize_Teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="minimize",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0],
-        logg=7.5,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr4.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: Yes
-def test_minimize_Teff_logg_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_logg_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: Yes
+    """
+    ftr5 = WDfitter()
+    ftr5.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="minimize",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5],
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr5.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: Yes (interpolated)
-def test_minimize_Teff_logg_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_logg_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: Yes (interpolated)
+    """
+    ftr6 = WDfitter()
+    ftr6.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         extinction_convolved=False,
@@ -280,269 +230,174 @@ def test_minimize_Teff_logg_reddening_interpolated():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="minimize",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5],
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr6.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: No
-def test_minimize_Teff_logg_distance():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_logg_distance():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: No
+    """
+    ftr7 = WDfitter()
+    ftr7.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr7.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: No
-def test_minimize_Teff_distance():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_distance():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: No
+    """
+    ftr8 = WDfitter()
+    ftr8.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr8.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_minimize_Teff_distance_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_distance_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: Yes
+    """
+    ftr9 = WDfitter()
+    ftr9.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="minimize",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 10.0],
-        logg=7.5,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr9.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: Yes (interpolated)
-def test_minimize_Teff_distance_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_distance_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: Yes (interpolated)
+    """
+    ftr10 = WDfitter()
+    ftr10.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr10.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_minimize_Teff_logg_distance_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_logg_distance_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: Yes
+    """
+    ftr11 = WDfitter()
+    ftr11.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="minimize",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr11.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: Yes (interpolated)
-def test_minimize_Teff_logg_distance_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_minimize_teff_logg_distance_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: Yes (interpolated)
+    """
+    ftr12 = WDfitter()
+    ftr12.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="minimize",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr12.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
@@ -551,16 +406,19 @@ def test_minimize_Teff_logg_distance_reddening_interpolated():
 
 # least_squares
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: No
-def test_lsq_Teff_logg():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+
+def test_lsq_teff_logg():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: No
+    """
+    ftr13 = WDfitter()
+    ftr13.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -568,26 +426,26 @@ def test_lsq_Teff_logg():
         distance=10.0,
         distance_err=0.1,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr13.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: No
-def test_lsq_Teff():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: No
+    """
+    ftr14 = WDfitter()
+    ftr14.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -596,26 +454,26 @@ def test_lsq_Teff():
         distance=10.0,
         distance_err=0.1,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr14.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: Yes
-def test_lsq_Teff_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: Yes
+    """
+    ftr15 = WDfitter()
+    ftr15.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -623,54 +481,29 @@ def test_lsq_Teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="least_squares",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0],
-        logg=7.5,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr15.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: Yes (interpolated)
-def test_lsq_Teff_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: Yes (interpolated)
+    """
+    ftr16 = WDfitter()
+    ftr16.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         extinction_convolved=False,
@@ -679,108 +512,58 @@ def test_lsq_Teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="least_squares",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0],
-        logg=7.5,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr16.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: Yes
-def test_lsq_Teff_logg_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_logg_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: Yes
+    """
+    ftr17 = WDfitter()
+    ftr17.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="least_squares",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5],
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr17.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: Yes (interpolated)
-def test_lsq_Teff_logg_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_logg_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: Yes (interpolated)
+    """
+    ftr18 = WDfitter()
+    ftr18.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         extinction_convolved=False,
@@ -788,294 +571,174 @@ def test_lsq_Teff_logg_reddening_interpolated():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="least_squares",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5],
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr18.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: No
-def test_lsq_Teff_logg_distance():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_logg_distance():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: No
+    """
+    ftr19 = WDfitter()
+    ftr19.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr19.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: No
-def test_lsq_Teff_distance():
-    mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_distance():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: No
+    """
+    ftr20 = WDfitter()
+    ftr20.fit(
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr20.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_lsq_Teff_distance_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_distance_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: Yes
+    """
+    ftr21 = WDfitter()
+    ftr21.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="least_squares",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 10.0],
-        logg=7.5,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr21.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: Yes (interpolated)
-def test_lsq_Teff_distance_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_distance_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: Yes (interpolated)
+    """
+    ftr22 = WDfitter()
+    ftr22.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="least_squares",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 10.0],
-        logg=7.5,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr22.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_lsq_Teff_logg_distance_reddening():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_logg_distance_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: Yes
+    """
+    ftr23 = WDfitter()
+    ftr23.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="least_squares",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr23.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: Yes (interpolated)
-def test_lsq_Teff_logg_distance_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+def test_lsq_teff_logg_distance_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: Yes (interpolated)
+    """
+    ftr24 = WDfitter()
+    ftr24.fit(
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="least_squares",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr24.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
@@ -1087,17 +750,19 @@ def test_lsq_Teff_logg_distance_reddening_interpolated():
 #
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: No
-def test_emcee_Teff_logg():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_logg():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: No
+    """
+    ftr25 = WDfitter()
+    ftr25.fit(
         atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1109,27 +774,27 @@ def test_emcee_Teff_logg():
         distance=10.0,
         distance_err=0.1,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr25.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: No
-def test_emcee_Teff():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: No
+    """
+    ftr26 = WDfitter()
+    ftr26.fit(
         atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        filters=five_filters_name_list,
         mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1142,27 +807,27 @@ def test_emcee_Teff():
         distance=10.0,
         distance_err=0.1,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr26.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: Yes
-def test_emcee_Teff_reddening():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: Yes
+    """
+    ftr27 = WDfitter()
+    ftr27.fit(
         atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1174,60 +839,30 @@ def test_emcee_Teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="emcee",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        logg=7.5,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr27.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: No
-# Reddenning: Yes (interpolated)
-def test_emcee_Teff_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: No
+    Reddenning: Yes (interpolated)
+    """
+    ftr28 = WDfitter()
+    ftr28.fit(
         atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1240,61 +875,30 @@ def test_emcee_Teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff"],
-        method="emcee",
-        atmosphere_interpolator="RBF",
-        extinction_convolved=False,
-        initial_guess=[13000.0],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        logg=7.5,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr28.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: Yes
-def test_emcee_Teff_logg_reddening():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_logg_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: Yes
+    """
+    ftr29 = WDfitter()
+    ftr29.fit(
         atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        filters=five_filters_name_list,
         mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1305,59 +909,30 @@ def test_emcee_Teff_logg_reddening():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="emcee",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr29.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: No
-# Reddenning: Yes (interpolated)
-def test_emcee_Teff_logg_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_logg_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: No
+    Reddenning: Yes (interpolated)
+    """
+    ftr30 = WDfitter()
+    ftr30.fit(
         atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
+        filters=five_filters_name_list,
         mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         extinction_convolved=False,
@@ -1369,88 +944,30 @@ def test_emcee_Teff_logg_reddening_interpolated():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
-        independent=["Teff", "logg"],
-        method="emcee",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        distance=10.0,
-        distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr30.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: No
-def test_emcee_Teff_logg_distance():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_logg_distance():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: No
+    """
+    ftr31 = WDfitter()
+    ftr31.fit(
         atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
+        filters=thirteen_filters_name_list,
         mags=np.concatenate((mags, mags_grizyJHK)),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
+        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1460,55 +977,27 @@ def test_emcee_Teff_logg_distance():
         nsteps=1000,
         nburns=100,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr31.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: No
-def test_emcee_Teff_distance():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_distance():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: No
+    """
+    ftr32 = WDfitter()
+    ftr32.fit(
         atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
+        filters=thirteen_filters_name_list,
         mags=np.concatenate((mags, mags_grizyJHK)),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
+        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1519,57 +1008,29 @@ def test_emcee_Teff_distance():
         nburns=100,
         logg=7.5,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr32.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_emcee_Teff_distance_reddening():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_distance_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: Yes
+    """
+    ftr33 = WDfitter()
+    ftr33.fit(
         atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
+        filters=thirteen_filters_name_list,
         mags=np.concatenate(
             (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
         ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
+        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1579,121 +1040,35 @@ def test_emcee_Teff_distance_reddening():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
-        mags=np.concatenate(
-            (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
-        ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
-        independent=["Teff"],
-        method="emcee",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 10.0],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        logg=7.5,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr33.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: No
-# Fitting distance: Yes
-# Reddenning: Yes (interpolated)
-def test_emcee_Teff_distance_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_distance_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: No
+    Fitting distance: Yes
+    Reddenning: Yes (interpolated)
+    """
+    ftr34 = WDfitter()
+    ftr34.fit(
         atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
+        filters=thirteen_filters_name_list,
         mags=np.concatenate(
             (
                 mags + extinction_interpolated,
                 mags_grizyJHK + extinction_grizyJHK_interpolated,
             )
         ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
+        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         extinction_convolved=False,
@@ -1704,122 +1079,32 @@ def test_emcee_Teff_distance_reddening_interpolated():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
-        mags=np.concatenate(
-            (
-                mags + extinction_interpolated,
-                mags_grizyJHK + extinction_grizyJHK_interpolated,
-            )
-        ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
-        independent=["Teff"],
-        method="emcee",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 10.0],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        logg=7.5,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr34.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_emcee_Teff_logg_distance_reddening():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_logg_distance_reddening():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: Yes
+    """
+    ftr35 = WDfitter()
+    ftr35.fit(
         atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
+        filters=thirteen_filters_name_list,
         mags=np.concatenate(
             (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
         ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
+        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
@@ -1828,120 +1113,35 @@ def test_emcee_Teff_logg_distance_reddening():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
-        mags=np.concatenate(
-            (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
-        ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
-        independent=["Teff", "logg"],
-        method="emcee",
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5, 10.0],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr35.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,
     )
 
 
-# Fitting Teff: Yes
-# Fitting logg: Yes
-# Fitting distance: Yes
-# Reddenning: Yes
-def test_emcee_Teff_logg_distance_reddening_interpolated():
-    ftr = WDfitter()
-    ftr.fit(
+def test_emcee_teff_logg_distance_reddening_interpolated():
+    """
+    Fitting Teff: Yes
+    Fitting logg: Yes
+    Fitting distance: Yes
+    Reddenning: Yes
+    """
+    ftr36 = WDfitter()
+    ftr36.fit(
         atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
+        filters=thirteen_filters_name_list,
         mags=np.concatenate(
             (
                 mags + extinction_interpolated,
                 mags_grizyJHK + extinction_grizyJHK_interpolated,
             )
         ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
+        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         extinction_convolved=False,
@@ -1951,74 +1151,11 @@ def test_emcee_Teff_logg_distance_reddening_interpolated():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
     assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
-        13000.0,
-        rtol=1e-01,
-        atol=1e-01,
-    )
-    ftr.set_extinction_mode(mode="linear", z_min=0, z_max=1)
-    ftr.fit(
-        atmosphere="H",
-        filters=[
-            "G3",
-            "G3_BP",
-            "G3_RP",
-            "FUV",
-            "NUV",
-            "g_ps1",
-            "r_ps1",
-            "i_ps1",
-            "z_ps1",
-            "y_ps1",
-            "J",
-            "H",
-            "Ks",
-        ],
-        mags=np.concatenate(
-            (
-                mags + extinction_interpolated,
-                mags_grizyJHK + extinction_grizyJHK_interpolated,
-            )
-        ),
-        mag_errors=[
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-            0.02,
-        ],
-        independent=["Teff", "logg"],
-        method="emcee",
-        extinction_convolved=False,
-        atmosphere_interpolator="RBF",
-        initial_guess=[13000.0, 7.5, 10.0],
-        refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
-        Rv=rv,
-        ebv=ebv,
-        ra=192.85949646,
-        dec=27.12835323,
-    )
-    ftr.best_fit_params["H"]["Mbol"]
-    ftr.best_fit_params["H"]["Teff"]
-    assert np.isclose(
-        ftr.best_fit_params["H"]["Teff"],
+        ftr36.best_fit_params["H"]["Teff"],
         13000.0,
         rtol=1e-01,
         atol=1e-01,

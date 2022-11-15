@@ -1,15 +1,23 @@
-import numpy as np
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Handling the formatting of different atmosphere models"""
+
 import os
+
+import numpy as np
 from scipy.interpolate import CloughTocher2DInterpolator
 from scipy.interpolate import RBFInterpolator
 
 
 class AtmosphereModelReader(object):
+    """Handling the formatting of different atmosphere models"""
+
     def __init__(self):
 
         super(AtmosphereModelReader, self).__init__()
 
-        self.THIS_FILE = os.path.dirname(os.path.abspath(__file__))
+        self.this_file = os.path.dirname(os.path.abspath(__file__))
 
         self.model_list = {
             "montreal_co_da_20": "Bedard et al. 2020 CO DA",
@@ -243,7 +251,7 @@ class AtmosphereModelReader(object):
         self.column_names = {}
         self.column_units = {}
         self.column_wavelengths = {}
-        for i, j, k, l in zip(
+        for i, j, k, _l in zip(
             self.column_key,
             self.column_key_formatted,
             self.column_key_unit,
@@ -251,7 +259,7 @@ class AtmosphereModelReader(object):
         ):
             self.column_names[i] = j
             self.column_units[i] = k
-            self.column_wavelengths[i] = l
+            self.column_wavelengths[i] = _l
 
         self.column_type = np.array(([np.float64] * len(self.column_key)))
         self.dtype = [
@@ -398,13 +406,13 @@ class AtmosphereModelReader(object):
                     **_kwargs_for_CT,
                 )
 
-                def atmosphere_interpolator(x):
+                def atmosphere_interpolator(_x):
 
                     if independent[1] in ["Teff", "age"]:
 
-                        x = np.log10(x)
+                        _log_x = np.log10(_x)
 
-                    return _atmosphere_interpolator(logg, x)
+                    return _atmosphere_interpolator(logg, _log_x)
 
             elif interpolator.lower() == "rbf":
 
@@ -415,20 +423,20 @@ class AtmosphereModelReader(object):
                     **_kwargs_for_RBF,
                 )
 
-                def atmosphere_interpolator(x):
+                def atmosphere_interpolator(_x):
 
-                    if isinstance(x, (float, int)):
+                    if isinstance(_x, (float, int)):
 
                         length = 1
                         _logg = logg
 
                     else:
 
-                        length = len(x)
+                        length = len(_x)
                         _logg = [logg] * length
 
                     _logg = np.asarray(_logg)
-                    _x = np.asarray(x)
+                    _x = np.asarray(_x)
 
                     _x[_x < arg_1_min] = arg_1_min
                     _x[_x > arg_1_max] = arg_1_max
@@ -446,9 +454,8 @@ class AtmosphereModelReader(object):
             else:
 
                 raise ValueError(
-                    "Interpolator should be CT or RBF, {} is given.".format(
-                        interpolator
-                    )
+                    "Interpolator should be CT or RBF,"
+                    "{} is given.".format(interpolator)
                 )
 
         # If a 2D grid is to be interpolated, normally is the logg and another
@@ -482,17 +489,17 @@ class AtmosphereModelReader(object):
 
                 def atmosphere_interpolator(*x):
 
-                    x0, x1 = np.asarray(x, dtype="object").reshape(-1)
+                    x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
 
                     if independent[0] in ["Teff", "age"]:
 
-                        x0 = np.log10(x0)
+                        x_0 = np.log10(x_0)
 
                     if independent[1] in ["Teff", "age"]:
 
-                        x1 = np.log10(x1)
+                        x_1 = np.log10(x_1)
 
-                    return _atmosphere_interpolator(x0, x1)
+                    return _atmosphere_interpolator(x_0, x_1)
 
             elif interpolator.lower() == "rbf":
 
@@ -505,17 +512,17 @@ class AtmosphereModelReader(object):
 
                 def atmosphere_interpolator(*x):
 
-                    x0, x1 = np.asarray(x, dtype="object").reshape(-1)
+                    x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
 
-                    if isinstance(x0, (float, int, np.int32)):
+                    if isinstance(x_0, (float, int, np.int32)):
                         length0 = 1
                     else:
-                        length0 = len(x0)
+                        length0 = len(x_0)
 
-                    if isinstance(x1, (float, int, np.int32)):
+                    if isinstance(x_1, (float, int, np.int32)):
                         length1 = 1
                     else:
-                        length1 = len(x1)
+                        length1 = len(x_1)
 
                     if length0 == length1:
 
@@ -523,12 +530,12 @@ class AtmosphereModelReader(object):
 
                     elif (length0 == 1) & (length1 > 1):
 
-                        x0 = [x0] * length1
+                        x_0 = [x_0] * length1
                         length0 = length1
 
                     elif (length0 > 1) & (length1 == 1):
 
-                        x1 = [x1] * length0
+                        x_1 = [x_1] * length0
                         length1 = length0
 
                     else:
@@ -538,24 +545,24 @@ class AtmosphereModelReader(object):
                             "1, or two variables should have the same size."
                         )
 
-                    _x0 = np.asarray(x0)
-                    _x1 = np.asarray(x1)
+                    _x_0 = np.asarray(x_0)
+                    _x_1 = np.asarray(x_1)
 
-                    _x0[_x0 < arg_0_min] = arg_0_min
-                    _x0[_x0 > arg_0_max] = arg_0_max
-                    _x1[_x1 < arg_1_min] = arg_1_min
-                    _x1[_x1 > arg_1_max] = arg_1_max
+                    _x_0[_x_0 < arg_0_min] = arg_0_min
+                    _x_0[_x_0 > arg_0_max] = arg_0_max
+                    _x_1[_x_1 < arg_1_min] = arg_1_min
+                    _x_1[_x_1 > arg_1_max] = arg_1_max
 
                     if independent[0] in ["Teff", "age"]:
 
-                        _x0 = np.log10(_x0)
+                        _x_0 = np.log10(_x_0)
 
                     if independent[1] in ["Teff", "age"]:
 
-                        _x1 = np.log10(_x1)
+                        _x_1 = np.log10(_x_1)
 
                     return _atmosphere_interpolator(
-                        np.array([_x0, _x1], dtype="object").T.reshape(
+                        np.array([_x_0, _x_1], dtype="object").T.reshape(
                             length0, 2
                         )
                     )

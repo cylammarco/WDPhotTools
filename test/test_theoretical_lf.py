@@ -1,8 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Testing the computation of theoretical luminosity functions"""
+
+import os  # For testing file existence with assert
+from unittest.mock import patch
+
 from matplotlib import pyplot as plt
 import numpy as np
 import pytest
-from unittest.mock import patch
-import os  # For testing file existence with assert
 
 from WDPhotTools import theoretical_lf
 
@@ -14,41 +20,50 @@ num = np.zeros((len(age), len(Mag)))
 
 
 def test_default():
+    """Test default setup"""
     wdlf.compute_density(Mag=Mag)
 
 
 @pytest.mark.xfail
 def test_changing_sfr_mode_to_unknown_name():
+    """Test error trapping when changing sfr model to unknown"""
     wdlf.set_sfr_model("blabla")
 
 
 @pytest.mark.xfail
 def test_changing_imf_model_to_unknown_name():
+    """Test error trapping when changing imf model to unknown"""
     wdlf.set_imf_model("blabla")
 
 
 @pytest.mark.xfail
 def test_changing_ms_model_to_unknown_name():
+    """Test error trapping when changing ms model to unknown"""
     wdlf.set_ms_model("blabla")
 
 
 @pytest.mark.xfail
 def test_changing_ifmr_model_to_unknown_name():
+    """Test error trapping when changing ifmr model to unknown"""
     wdlf.set_ifmr_model("blabla")
 
 
 @pytest.mark.xfail
 def test_changing_empty_low_mass_model_to_unknown_name():
+    """Test error trapping when changing low mass cooling model to unknown"""
     wdlf.set_low_mass_cooling_model("blabla")
 
 
 @pytest.mark.xfail
 def test_changing_empty_intermediate_mass_model_to_unknown_name():
+    """Test error trapping when changing intermediate mass cooling model
+    to unknown"""
     wdlf.set_intermediate_mass_cooling_model("blabla")
 
 
 @pytest.mark.xfail
 def test_changing_empty_high_mass_model_to_unknown_name():
+    """Test error trapping when changing high mass cooling model to unknown"""
     wdlf.set_high_mass_cooling_model("blabla")
 
 
@@ -59,6 +74,7 @@ wdlf.compute_density(Mag=Mag)
 
 @patch("matplotlib.pyplot.show")
 def test_plotting(mock_show):
+    """Test plotting to display and exporting"""
     wdlf.plot_input_models(
         display=True,
         savefig=True,
@@ -86,13 +102,14 @@ def test_plotting(mock_show):
     )
 
 
-fig1 = plt.figure(1)
+mock_fig = plt.figure(1)
 
 
 @patch("matplotlib.pyplot.show")
-def test_plotting_to_an_external_Figure_object(mock_show):
+def test_plotting_to_an_external_figure_object(mock_fig):
+    """Test plotting to a manually provided Figure object"""
     wdlf.plot_wdlf(
-        fig=fig1,
+        fig=mock_fig,
         display=True,
         savefig=True,
         folder="test_output",
@@ -101,8 +118,8 @@ def test_plotting_to_an_external_Figure_object(mock_show):
     )
 
 
-# not normalising the WDLF
 def test_changing_sfr_model():
+    """Test changing sfr models and then recompute the density"""
     wdlf.set_sfr_model(mode="constant", age=age[0])
     wdlf.compute_density(Mag=Mag, save_csv=True, folder="test_output")
     wdlf.set_sfr_model(mode="decay", age=age[0])
@@ -117,16 +134,19 @@ def test_changing_sfr_model():
 
 
 def test_rbf_interpolator():
+    """Test changing the interpolator and then recompute the density"""
     wdlf.compute_density(Mag=Mag, interpolator="RBF")
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_ct_interpolator():
+    """Test changing the interpolator and then recompute the density"""
     wdlf.compute_density(Mag=Mag, interpolator="CT")
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_changing_imf_model():
+    """Test changing the imf model and then recompute the density"""
     wdlf.set_imf_model("K01")
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
@@ -140,6 +160,7 @@ def test_changing_imf_model():
 
 
 def test_changing_ms_model():
+    """Test changing the ms model and then recompute the density"""
     wdlf.set_ms_model("PARSECz00001")
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
@@ -245,6 +266,7 @@ def test_changing_ms_model():
 
 
 def test_changing_ifmr_model():
+    """Test changing the ifmr model and then recompute the density"""
     wdlf.set_ifmr_model("C08")
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
@@ -275,14 +297,15 @@ def test_changing_ifmr_model():
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# Testing set_imf_model with model = "K01" and plot the imf in logarithmic space
-def test_changing_imf_K01_small_mass_log():
+def test_changing_imf_k01_small_mass_log():
+    """Testing set_imf_model with model = "K01" and plot the imf in
+    logarithmic space"""
     wdlf.set_imf_model("K01")
     wdlf.plot_input_models(display=False, imf_log=True)
 
 
-# Testing plot_wdlf with log=False and savefig with folder = None
 def test_plotting_wdlf_log_false_folder_none():
+    """Testing plot_wdlf with log=False and savefig with folder = None"""
     wdlf.plot_wdlf(
         log=False,
         display=False,
@@ -293,53 +316,55 @@ def test_plotting_wdlf_log_false_folder_none():
     )
     # assert the file exists at where you intend to
     _folder = os.getcwd()
-    for e in ["png"]:
-        _filename = "test_plot_wdlf" + "." + e
+    for _e in ["png"]:
+        _filename = "test_plot_wdlf" + "." + _e
         assert os.path.isfile(os.path.join(_folder, _filename))
     os.remove(os.path.join(_folder, _filename))
 
 
-# manual function for 'manual' tests
-def manual_fn(x):
-    return 1.0
+def manual_fn(some_input):
+    """manual function for 'manual' tests"""
+    # return 1.0 regardless
+    return some_input**0.0
 
 
-# Testing set_imf_model with model = 'manual'
 def test_manual_imf_model():
+    """Testing set_imf_model with model = 'manual'"""
     wdlf.set_imf_model(model="manual", imf_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# Testing set_ms_model with model = 'manual'
 def test_manual_ms_model():
+    """Testing set_ms_model with model = 'manual'"""
     wdlf.set_ms_model(model="manual", ms_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# Testing set_sfr_model with model = 'manual'
 def test_manual_sfr_model():
+    """Testing set_sfr_model with model = 'manual'"""
     wdlf.set_sfr_model(mode="manual", sfr_model=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# Testing set_ifmr_model with model = 'manual'
 def test_manual_ifmr_model():
+    """Testing set_ifmr_model with model = 'manual'"""
     wdlf.set_ifmr_model(model="manual", ifmr_function=manual_fn)
     wdlf.compute_density(Mag=Mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
-# Testing set_imf_model with model = 'manual' and save_csv with folder = None
 def test_compute_density_savefig_folder_none():
+    """Testing set_imf_model with model = 'manual' and
+    save_csv with folder = None"""
     wdlf.set_ifmr_model(model="manual", ifmr_function=manual_fn)
     wdlf.compute_density(save_csv=True, folder=None, Mag=Mag)
     # assert the file exists at where you intend to
     _folder = os.getcwd()
     _filename = (
-        "{0:.2f}Gyr_".format(wdlf.T0 / 1e9)
+        "{:.2f}Gyr_".format(wdlf.T0 / 1e9)
         + wdlf.wdlf_params["sfr_mode"]
         + "_"
         + wdlf.wdlf_params["ms_model"]
@@ -355,12 +380,13 @@ def test_compute_density_savefig_folder_none():
     )
     assert os.path.isfile(os.path.join(_folder, _filename))
     os.remove(
-        "10.00Gyr_manual_manual_manual_montreal_co_da_20_montreal_co_da_20_montreal_co_da_20.csv"
+        "10.00Gyr_manual_manual_manual_montreal_"
+        "co_da_20_montreal_co_da_20_montreal_co_da_20.csv"
     )
 
 
-# Testing plot_wdlf with filename = None
 def test_plotting_wdlf_savefig_path_not_exist():
+    """Testing plot_wdlf with filename = None"""
     _folder = "test_output/test_plotting_wdlf_savefig_path_not_exist"
     wdlf.plot_wdlf(
         log=False,
@@ -371,9 +397,9 @@ def test_plotting_wdlf_savefig_path_not_exist():
         ext="png",
     )
     # assert the file exists at where you intend to
-    for e in ["png"]:
+    for _e in ["png"]:
         _filename = (
-            "{0:.2f}Gyr_".format(wdlf.T0 / 1e9)
+            "{:.2f}Gyr_".format(wdlf.T0 / 1e9)
             + wdlf.wdlf_params["sfr_mode"]
             + "_"
             + wdlf.wdlf_params["ms_model"]
@@ -386,86 +412,99 @@ def test_plotting_wdlf_savefig_path_not_exist():
             + "_"
             + wdlf.cooling_models["high_mass_cooling_model"]
             + "."
-            + e
+            + _e
         )
         assert os.path.isfile(os.path.join(_folder, _filename))
 
 
-# Testing set_low_mass_cooling_model with model = "lpcode_he_da_09"
 def test_cooling_model_low_mass_lpcode_he_da_09():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_low_mass_cooling_model(model="lpcode_he_da_09")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """Testing set_low_mass_cooling_model with model = lpcode_he_da_09"""
+    wdlf1 = theoretical_lf.WDLF()
+    wdlf1.set_low_mass_cooling_model(model="lpcode_he_da_09")
+    wdlf1.compute_cooling_age_interpolator()
+    wdlf1.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf1.number_density), 1.0)
 
 
-# Testing set_intermediate_mass_cooling_model with model = "basti_co_da_10"
 def test_cooling_model_intermediate_mass_basti_co_da_10():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_intermediate_mass_cooling_model(model="basti_co_da_10")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """
+    Testing set_intermediate_mass_cooling_model with model = basti_co_da_10
+    """
+    wdlf2 = theoretical_lf.WDLF()
+    wdlf2.set_intermediate_mass_cooling_model(model="basti_co_da_10")
+    wdlf2.compute_cooling_age_interpolator()
+    wdlf2.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf2.number_density), 1.0)
 
 
-# Testing set_high_mass_cooling_model with model = "basti_co_da_10"
 def test_cooling_model_high_mass_basti_co_da_10():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_high_mass_cooling_model(model="basti_co_da_10")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """Testing set_high_mass_cooling_model with model = basti_co_da_10"""
+    wdlf3 = theoretical_lf.WDLF()
+    wdlf3.set_high_mass_cooling_model(model="basti_co_da_10")
+    wdlf3.compute_cooling_age_interpolator()
+    wdlf3.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf3.number_density), 1.0)
 
 
-# Testing set_intermediate_mass_cooling_model with model = "lpcode_co_db_17"
 def test_cooling_model_intermediate_mass_lpcode_co_db_17():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_intermediate_mass_cooling_model(model="lpcode_co_db_17")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """
+    Testing set_intermediate_mass_cooling_model with model = lpcode_co_db_17
+    """
+    wdlf4 = theoretical_lf.WDLF()
+    wdlf4.set_intermediate_mass_cooling_model(model="lpcode_co_db_17")
+    wdlf4.compute_cooling_age_interpolator()
+    wdlf4.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf4.number_density), 1.0)
 
 
-# Testing set_intermediate_mass_cooling_model with model = "lpcode_co_db_17_z0001"
 def test_cooling_model_intermediate_mass_lpcode_co_db_17_z0001():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """
+    Testing set_intermediate_mass_cooling_model with model =
+    lpcode_co_db_17_z0001
+    """
+    wdlf5 = theoretical_lf.WDLF()
+    wdlf5.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
+    wdlf5.compute_cooling_age_interpolator()
+    wdlf5.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf5.number_density), 1.0)
 
 
-# Testing set_low_mass_cooling_model with model = "lpcode_co_db_17_z0001"
 def test_cooling_model_low_mass_lpcode_co_db_17_z0001():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """
+    Testing set_low_mass_cooling_model with model = lpcode_co_db_17_z0001
+    """
+    wdlf6 = theoretical_lf.WDLF()
+    wdlf6.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
+    wdlf6.compute_cooling_age_interpolator()
+    wdlf6.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf6.number_density), 1.0)
 
 
-# Testing set_low_mass_cooling_model with model = None
-# Testing set_intermediate_mass_cooling_model with model = "lpcode_da_22"
-# Testing set_high_mass_cooling_model with model = "lpcode_da_22"
 def test_cooling_model_intermediate_mass_lpcode_da_22():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_low_mass_cooling_model(model=None)
-    wdlf.set_intermediate_mass_cooling_model(model="lpcode_da_22")
-    wdlf.set_high_mass_cooling_model(model="lpcode_da_22")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """
+    Testing set_low_mass_cooling_model with model = None
+    Testing set_intermediate_mass_cooling_model with model = lpcode_da_22
+    Testing set_high_mass_cooling_model with model = lpcode_da_22
+    """
+    wdlf7 = theoretical_lf.WDLF()
+    wdlf7.set_low_mass_cooling_model(model=None)
+    wdlf7.set_intermediate_mass_cooling_model(model="lpcode_da_22")
+    wdlf7.set_high_mass_cooling_model(model="lpcode_da_22")
+    wdlf7.compute_cooling_age_interpolator()
+    wdlf7.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf7.number_density), 1.0)
 
 
-# Testing set_low_mass_cooling_model with model = None
-# Testing set_intermediate_mass_cooling_model with model = "lpcode_db_22"
-# Testing set_high_mass_cooling_model with model = "lpcode_db_22"
 def test_cooling_model_intermediate_mass_lpcode_db_22():
-    wdlf = theoretical_lf.WDLF()
-    wdlf.set_low_mass_cooling_model(model=None)
-    wdlf.set_intermediate_mass_cooling_model(model="lpcode_db_22")
-    wdlf.set_high_mass_cooling_model(model="lpcode_db_22")
-    wdlf.compute_cooling_age_interpolator()
-    wdlf.compute_density(Mag=Mag)
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+    """
+    Testing set_low_mass_cooling_model with model = None
+    Testing set_intermediate_mass_cooling_model with model = lpcode_db_22
+    Testing set_high_mass_cooling_model with model = lpcode_db_22
+    """
+    wdlf8 = theoretical_lf.WDLF()
+    wdlf8.set_low_mass_cooling_model(model=None)
+    wdlf8.set_intermediate_mass_cooling_model(model="lpcode_db_22")
+    wdlf8.set_high_mass_cooling_model(model="lpcode_db_22")
+    wdlf8.compute_cooling_age_interpolator()
+    wdlf8.compute_density(Mag=Mag)
+    assert np.isclose(np.sum(wdlf8.number_density), 1.0)

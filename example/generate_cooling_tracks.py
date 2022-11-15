@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Plot the cooling tracks imported"""
+
 import os
 
 from matplotlib import pyplot as plt
@@ -8,7 +13,7 @@ from WDPhotTools.atmosphere_model_reader import atm_reader
 
 try:
     HERE = os.path.dirname(os.path.realpath(__file__))
-except:
+except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
 
@@ -28,7 +33,7 @@ for i in logg:
     plt.plot(
         BP(logg_i, Mbol) - RP(logg_i, Mbol),
         G(logg_i, Mbol),
-        label=r"$\log(g) = {}$".format(i),
+        label=r"$\log(g) = {i}$",
     )
 
 plt.ylim(20.0, 6.0)

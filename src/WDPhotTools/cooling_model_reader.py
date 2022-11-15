@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Handling the formatting of different cooling models"""
+
 import io
 import glob
 import os
@@ -8,11 +13,13 @@ from scipy.interpolate import RBFInterpolator
 
 
 class CoolingModelReader(object):
+    """Handling the formatting of different cooling models"""
+
     def __init__(self):
 
         super(CoolingModelReader, self).__init__()
 
-        self.THIS_FILE = os.path.dirname(os.path.abspath(__file__))
+        self.this_file = os.path.dirname(os.path.abspath(__file__))
 
         self.model_list = {
             "montreal_co_da_20": "Bedard et al. 2020 CO DA",
@@ -100,6 +107,14 @@ class CoolingModelReader(object):
             "high_mass_cooling_model": "montreal_co_da_20",
         }
 
+        self.mass = None
+        self.age = None
+        self.luminosity = None
+        self.cooling_model_grid = None
+        self.cooling_interpolator = None
+        self.cooling_rate_interpolator = None
+        self.dLdt = None
+
     def list_cooling_model(self, print_to_screen=True):
         """
         Print the formatted list of available cooling models.
@@ -120,7 +135,7 @@ class CoolingModelReader(object):
 
             for i in self.model_list.items():
 
-                print("Model: {}, Reference: {}".format(i[0], i[1]))
+                print("Model: {i[0]}, Reference: {i[1]}")
 
         return self.model_list.items()
 
@@ -151,7 +166,7 @@ class CoolingModelReader(object):
 
         if print_to_screen:
 
-            print("Available WD mass: {}".format(mass))
+            print("Available WD mass: {mass}")
 
             for i, j in zip(column_names.items(), column_units.items()):
 
@@ -323,7 +338,7 @@ class CoolingModelReader(object):
         """
 
         filelist = glob.glob(
-            os.path.join(self.THIS_FILE, "wd_cooling/althaus07/*.dat")
+            os.path.join(self.this_file, "wd_cooling/althaus07/*.dat")
         )
 
         # Prepare the array column dtype
@@ -425,7 +440,7 @@ class CoolingModelReader(object):
         """
 
         filelist = glob.glob(
-            os.path.join(self.THIS_FILE, "wd_cooling/althaus09/z.*")
+            os.path.join(self.this_file, "wd_cooling/althaus09/z.*")
         )
 
         # Prepare the array column dtype
@@ -572,7 +587,7 @@ class CoolingModelReader(object):
         if model == "lpcode_co_da_15_z00003":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/althaus15/Z=3d-5/*.trk"
+                    self.this_file, "wd_cooling/althaus15/Z=3d-5/*.trk"
                 )
             )
 
@@ -580,7 +595,7 @@ class CoolingModelReader(object):
         if model == "lpcode_co_da_15_z0001":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/althaus15/Z=1d-4/*.trk"
+                    self.this_file, "wd_cooling/althaus15/Z=1d-4/*.trk"
                 )
             )
 
@@ -588,7 +603,7 @@ class CoolingModelReader(object):
         if model == "lpcode_co_da_15_z0005":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/althaus15/Z=5d-4/*.trk"
+                    self.this_file, "wd_cooling/althaus15/Z=5d-4/*.trk"
                 )
             )
 
@@ -735,13 +750,13 @@ class CoolingModelReader(object):
         # Y=0.4, Z=0.001 models
         if model == "lpcode_co_db_17_z00005":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/althaus17/*d4.trk")
+                os.path.join(self.this_file, "wd_cooling/althaus17/*d4.trk")
             )
 
         # Y=0.4, Z=0.0005 models
         if model == "lpcode_co_db_17_z0001":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/althaus17/*d3.trk")
+                os.path.join(self.this_file, "wd_cooling/althaus17/*d3.trk")
             )
 
         # Prepare the array column dtype
@@ -905,13 +920,13 @@ class CoolingModelReader(object):
         # DA models
         if model == "montreal_co_da_20":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/bedard20/*thick*")
+                os.path.join(self.this_file, "wd_cooling/bedard20/*thick*")
             )
 
         # DB models
         if model == "montreal_co_db_20":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/bedard20/*thin*")
+                os.path.join(self.this_file, "wd_cooling/bedard20/*thin*")
             )
 
         # Prepare the array column dtype
@@ -1015,7 +1030,7 @@ class CoolingModelReader(object):
 
         for i, filepath in enumerate(filelist):
 
-            with open(filepath) as infile:
+            with open(filepath, encoding="ascii") as infile:
 
                 count = -5
                 cooling_model_text = ""
@@ -1049,7 +1064,7 @@ class CoolingModelReader(object):
 
         # Y=0.4, Z=0.0005 models
         filelist = glob.glob(
-            os.path.join(self.THIS_FILE, "wd_cooling/camisassa17/*.trk")
+            os.path.join(self.this_file, "wd_cooling/camisassa17/*.trk")
         )
 
         # Prepare the array column dtype
@@ -1196,7 +1211,7 @@ class CoolingModelReader(object):
         if model == "lpcode_one_da_19":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/camisassa19/*hrich.dat"
+                    self.this_file, "wd_cooling/camisassa19/*hrich.dat"
                 )
             )
 
@@ -1204,7 +1219,7 @@ class CoolingModelReader(object):
         if model == "lpcode_one_db_19":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/camisassa19/*hdef.dat"
+                    self.this_file, "wd_cooling/camisassa19/*hdef.dat"
                 )
             )
 
@@ -1320,13 +1335,13 @@ class CoolingModelReader(object):
         # H models
         if model == "mesa_one_da_18":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/lauffer18/H_*.dat")
+                os.path.join(self.this_file, "wd_cooling/lauffer18/H_*.dat")
             )
 
         # He models
         if model == "mesa_one_db_18":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/lauffer18/He_*.dat")
+                os.path.join(self.this_file, "wd_cooling/lauffer18/He_*.dat")
             )
 
         # Prepare the array column dtype
@@ -1394,7 +1409,7 @@ class CoolingModelReader(object):
 
         filelist = glob.glob(
             os.path.join(
-                self.THIS_FILE, "wd_cooling", "lpcode22", "DA", "*.trk"
+                self.this_file, "wd_cooling", "lpcode22", "DA", "*.trk"
             )
         )
 
@@ -1615,7 +1630,7 @@ class CoolingModelReader(object):
 
         filelist = glob.glob(
             os.path.join(
-                self.THIS_FILE, "wd_cooling", "lpcode22", "DB", "*.trk"
+                self.this_file, "wd_cooling", "lpcode22", "DB", "*.trk"
             )
         )
 
@@ -1704,13 +1719,13 @@ class CoolingModelReader(object):
         # He core models
         if model == "lpcode_he_da_07":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/panei07/*He.SDSS")
+                os.path.join(self.this_file, "wd_cooling/panei07/*He.SDSS")
             )
 
         # CO core models
         if model == "lpcode_co_da_07":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/panei07/*CO.SDSS")
+                os.path.join(self.this_file, "wd_cooling/panei07/*CO.SDSS")
             )
 
         # Prepare the array column dtype
@@ -1794,13 +1809,13 @@ class CoolingModelReader(object):
         # Solar metallicity model
         if model == "lpcode_co_da_10_z001":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/renedo10/*z001.trk")
+                os.path.join(self.this_file, "wd_cooling/renedo10/*z001.trk")
             )
 
         # Low metallicity model
         if model == "lpcode_co_da_10_z0001":
             filelist = glob.glob(
-                os.path.join(self.THIS_FILE, "wd_cooling/renedo10/*z0001.trk")
+                os.path.join(self.this_file, "wd_cooling/renedo10/*z0001.trk")
             )
 
         # Prepare the array column dtype
@@ -1907,7 +1922,7 @@ class CoolingModelReader(object):
         if model == "basti_co_da_10":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/salaris10/*DAsep.sdss"
+                    self.this_file, "wd_cooling/salaris10/*DAsep.sdss"
                 )
             )
 
@@ -1915,7 +1930,7 @@ class CoolingModelReader(object):
         if model == "basti_co_db_10":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/salaris10/*DBsep.sdss"
+                    self.this_file, "wd_cooling/salaris10/*DBsep.sdss"
                 )
             )
 
@@ -1923,7 +1938,7 @@ class CoolingModelReader(object):
         if model == "basti_co_da_10_nps":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/salaris10/*DAnosep.sdss"
+                    self.this_file, "wd_cooling/salaris10/*DAnosep.sdss"
                 )
             )
 
@@ -1931,7 +1946,7 @@ class CoolingModelReader(object):
         if model == "basti_co_db_10_nps":
             filelist = glob.glob(
                 os.path.join(
-                    self.THIS_FILE, "wd_cooling/salaris10/*DBnosep.sdss"
+                    self.this_file, "wd_cooling/salaris10/*DBnosep.sdss"
                 )
             )
 
@@ -2137,7 +2152,7 @@ class CoolingModelReader(object):
 
             raise ValueError("Please provide a valid model.")
 
-    def _itp2D_gradient(self, f, val1, val2, frac=1e-6):
+    def _itp2D_gradient(self, _f, val1, val2, frac=1e-6):
         """
         A function to find the gradient in the direction in the first dimension
         of a 2D function at a given coordinate.
@@ -2160,12 +2175,12 @@ class CoolingModelReader(object):
 
         """
 
-        if not callable(f):
+        if not callable(_f):
             raise TypeError("f has to be a callable function.")
 
         increment = val1 * frac / 2.0
         grad = np.asarray(
-            (f(val1 + increment, val2) - f(val1 - increment, val2))
+            (_f(val1 + increment, val2) - _f(val1 - increment, val2))
             / (increment * 2.0)
         ).reshape(-1)
 
@@ -2386,28 +2401,30 @@ class CoolingModelReader(object):
             mass_min = np.nanmin(self.mass)
             mass_max = np.nanmax(self.mass)
 
-            def cooling_interpolator(x0, x1):
+            def cooling_interpolator(x_0, x_1):
 
-                _x0 = np.array(x0)
-                _x1 = np.array(x1)
+                _x_0 = np.array(x_0)
+                _x_1 = np.array(x_1)
 
-                if (_x0.size == 1) & (_x1.size > 1):
+                if (_x_0.size == 1) & (_x_1.size > 1):
 
-                    _x0 = np.repeat(_x0, _x1.size)
+                    _x_0 = np.repeat(_x_0, _x_1.size)
 
-                if (_x1.size == 1) & (_x0.size > 1):
+                if (_x_1.size == 1) & (_x_0.size > 1):
 
-                    _x0 = np.repeat(_x1, _x0.size)
+                    _x_0 = np.repeat(_x_1, _x_0.size)
 
-                _x0[_x0 < lum_min] = lum_min
-                _x0[_x0 > lum_max] = lum_max
-                _x1[_x1 < mass_min] = mass_min
-                _x1[_x1 > mass_max] = mass_max
+                _x_0[_x_0 < lum_min] = lum_min
+                _x_0[_x_0 > lum_max] = lum_max
+                _x_1[_x_1 < mass_min] = mass_min
+                _x_1[_x_1 > mass_max] = mass_max
 
-                length0 = _x0.size
+                length0 = _x_0.size
 
                 return _cooling_interpolator(
-                    np.array([_x0, _x1], dtype="object").T.reshape(length0, 2)
+                    np.array([_x_0, _x_1], dtype="object").T.reshape(
+                        length0, 2
+                    )
                 )
 
             self.cooling_interpolator = cooling_interpolator
@@ -2457,28 +2474,28 @@ class CoolingModelReader(object):
             mass_min = np.nanmin(self.mass)
             mass_max = np.nanmax(self.mass)
 
-            def cooling_rate_interpolator(x0, x1):
+            def cooling_rate_interpolator(x_0, x_1):
 
-                _x0 = np.asarray(x0)
-                _x1 = np.asarray(x1)
+                _x_0 = np.asarray(x_0)
+                _x_1 = np.asarray(x_1)
 
-                if (_x0.size == 1) & (_x1.size > 1):
+                if (_x_0.size == 1) & (_x_1.size > 1):
 
-                    _x0 = np.repeat(_x0, _x1.size)
+                    _x_0 = np.repeat(_x_0, _x_1.size)
 
-                if (_x1.size == 1) & (_x0.size > 1):
+                if (_x_1.size == 1) & (_x_0.size > 1):
 
-                    _x0 = np.repeat(_x1, _x0.size)
+                    _x_0 = np.repeat(_x_1, _x_0.size)
 
-                _x0[_x0 < lum_min] = lum_min
-                _x0[_x0 > lum_max] = lum_max
-                _x1[_x1 < mass_min] = mass_min
-                _x1[_x1 > mass_max] = mass_max
+                _x_0[_x_0 < lum_min] = lum_min
+                _x_0[_x_0 > lum_max] = lum_max
+                _x_1[_x_1 < mass_min] = mass_min
+                _x_1[_x_1 > mass_max] = mass_max
 
-                length0 = _x0.size
+                length0 = _x_0.size
 
                 return _cooling_rate_interpolator(
-                    np.asarray([_x0, _x1], dtype="object").T.reshape(
+                    np.asarray([_x_0, _x_1], dtype="object").T.reshape(
                         length0, 2
                     )
                 )

@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Compute and plot multiple WDLFs with different SFH"""
+
 import os
 
 from matplotlib import pyplot as plt
@@ -7,7 +12,7 @@ from WDPhotTools import theoretical_lf
 
 try:
     HERE = os.path.dirname(os.path.realpath(__file__))
-except:
+except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
 wdlf = theoretical_lf.WDLF()
@@ -26,23 +31,17 @@ for i, age in enumerate(age_list):
     # Constant SFR
     wdlf.set_sfr_model(mode="constant", age=age)
     _, constant_density = wdlf.compute_density(Mag=Mag)
-    ax1.plot(
-        Mag, np.log10(constant_density), label="{0:.2f} Gyr".format(age / 1e9)
-    )
+    ax1.plot(Mag, np.log10(constant_density), label="{age / 1e9:.2f} Gyr")
 
     # Burst SFR
     wdlf.set_sfr_model(mode="burst", age=age, duration=1e9)
     _, burst_density = wdlf.compute_density(Mag=Mag, passband="G3")
-    ax2.plot(
-        Mag, np.log10(burst_density), label="{0:.2f} Gyr".format(age / 1e9)
-    )
+    ax2.plot(Mag, np.log10(burst_density), label="{age / 1e9:.2f} Gyr")
 
     # Exponential decay SFR
     wdlf.set_sfr_model(mode="decay", age=age)
     _, decay_density = wdlf.compute_density(Mag=Mag, passband="G3")
-    ax3.plot(
-        Mag, np.log10(decay_density), label="{0:.2f} Gyr".format(age / 1e9)
-    )
+    ax3.plot(Mag, np.log10(decay_density), label="{age / 1e9:.2f} Gyr")
 
 ax1.legend()
 ax1.grid()

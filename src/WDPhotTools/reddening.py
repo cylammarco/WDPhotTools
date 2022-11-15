@@ -1,6 +1,12 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Handling interstellar reddening"""
+
 import itertools
-import numpy as np
 import os
+
+import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 
 from .util import GlobalSpline2D
@@ -30,12 +36,12 @@ def reddening_vector_interpolated(kind="cubic"):
         ]
     )
     _z = data[:, 1:].flatten()
-    x, y, z = np.vstack((_xy.T, _z))
+    x_new, y_new, z_new = np.vstack((_xy.T, _z))
 
-    return GlobalSpline2D(x, y, z, kind=kind)
+    return GlobalSpline2D(x_new, y_new, z_new, kind=kind)
 
 
-def reddening_vector_filter(filter):
+def reddening_vector_filter(filter_name):
     """
     This generate an interpolation over the parameter space where the models
     from Koester, D. 2010; MSAI 81, 921 and Trembley & Bergeron 2010;
@@ -49,7 +55,7 @@ def reddening_vector_filter(filter):
 
     """
 
-    filepath = os.path.join(folder_path, "extinction", "{}.csv".format(filter))
+    filepath = os.path.join(folder_path, "extinction", filter_name + ".csv")
 
     # Load the reddening vectors from file
     data = np.loadtxt(filepath, delimiter=",")

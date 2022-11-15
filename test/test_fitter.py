@@ -26,13 +26,14 @@ mags = [10.882, 10.853, 10.946, 11.301, 11.183]
 extinction = np.array([A_G3, A_G3_BP, A_G3_RP, A_FUV, A_NUV]).reshape(-1)
 
 
-# List all atmosphere parameters
 def test_list_everything():
+    """List all atmosphere parameters"""
     ftr = WDfitter()
     ftr.list_atmosphere_parameters()
 
 
 def test_fitter_get_extinction_fraction():
+    """Test exitnction function"""
     ftr = WDfitter()
     ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
     np.isclose(
@@ -82,6 +83,7 @@ def test_fitter_get_extinction_fraction():
 
 
 def test_fitter_change_extinction_mode():
+    """Test chaning extinction mode"""
     ftr = WDfitter()
     ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
     assert np.isclose(
@@ -97,37 +99,42 @@ def test_fitter_change_extinction_mode():
 
 @pytest.mark.xfail
 def test_fitter_change_extinction_mode_unknown():
+    """Test giving unknown mode of extinction"""
     ftr = WDfitter()
     ftr.set_extinction_mode(mode="blabla")
 
 
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_fail_zmin():
+    """Test giving negative z-distance"""
     ftr = WDfitter()
     ftr.set_extinction_mode(mode="linear", z_min=-10.0, z_max=250.0)
 
 
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_fail_zmax():
+    """Test giving maximum smaller than minimum"""
     ftr = WDfitter()
     ftr.set_extinction_mode(mode="linear", z_min=1000.0, z_max=250.0)
 
 
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_pass_zmin_zmax_None():
+    """Test dec larger than 90"""
     ftr = WDfitter()
     ftr._get_extinction_fraction(distance=150.0, ra=10.0, dec=100.0)
 
 
 @pytest.mark.xfail
 def test_fitter_get_extinction_fraction_fail_ra():
+    """test ra and dec are None"""
     ftr = WDfitter()
     ftr._get_extinction_fraction(distance=150.0, ra=None, dec=None)
 
 
-# Fitting for Teff with 5 filters for both DA and DB
 @patch("matplotlib.pyplot.show")
 def test_fitting_Teff(mock_show):
+    """Fitting for Teff with 5 filters for both DA and DB"""
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -153,8 +160,10 @@ def test_fitting_Teff(mock_show):
     ).all()
 
 
-# Fitting for Teff with 5 filters for both DA and DB with alternating None
 def test_fitting_Teff_with_None():
+    """
+    Fitting for Teff with 5 filters for both DA and DB with alternating None
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -206,8 +215,10 @@ def test_fitting_Teff_with_None():
     ).all()
 
 
-# Fitting for logg and Teff with 5 filters for both DA and DB
 def test_fitting_logg_and_mbol():
+    """
+    Fitting for logg and Teff with 5 filters for both DA and DB
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -233,8 +244,10 @@ def test_fitting_logg_and_mbol():
     ).all()
 
 
-# Fitting for logg, Teff and distance with 5 filters for both DA and DB
 def test_fitting_logg_Teff_distance():
+    """
+    Fitting for logg, Teff and distance with 5 filters for both DA and DB
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -253,9 +266,11 @@ def test_fitting_logg_Teff_distance():
     ).all()
 
 
-# Fitting for logg, Teff and distance with 8 filters for both DA and DB with
-# Nelder-Mead method
 def test_fitting_logg_Teff_distance_nelder_mead():
+    """
+    Fitting for logg, Teff and distance with 8 filters for both DA and DB with
+    Nelder-Mead method
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -275,8 +290,10 @@ def test_fitting_logg_Teff_distance_nelder_mead():
     ).all()
 
 
-# Fitting for Teff with 5 filters for both DA and DB with added extinction
 def test_fitting_Teff_red():
+    """
+    Fitting for Teff with 5 filters for both DA and DB with added extinction
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -303,9 +320,11 @@ def test_fitting_Teff_red():
     ).all()
 
 
-# Fitting for logg and Teff with 5 filters for both DA and DB with added
-# extinction
 def test_fitting_logg_and_Teff_red():
+    """
+    Fitting for logg and Teff with 5 filters for both DA and DB with added
+    extinction
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -333,9 +352,11 @@ def test_fitting_logg_and_Teff_red():
     ).all()
 
 
-# Fitting for logg, Teff and distance with 5 filters for both DA and DB with
-# added extinction
 def test_fitting_logg_Teff_distance_red():
+    """
+    Fitting for logg, Teff and distance with 5 filters for both DA and DB with
+    added extinction
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -358,10 +379,12 @@ def test_fitting_logg_Teff_distance_red():
     ).all()
 
 
-# Fitting for logg, Teff and distance with 5 filters for both DA and DB with
-# added extinction
-# Manually chaning plot colours
 def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
+    """
+    Fitting for logg, Teff and distance with 5 filters for both DA and DB with
+    added extinction
+    Manually chaning plot colours
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -395,10 +418,10 @@ def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
 #
 #
 #
-
-
-# Fitting for Teff with 5 filters for both DA and DB
 def test_fitting_Teff_lsq():
+    """
+    Fitting for Teff with 5 filters for both DA and DB
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -424,8 +447,10 @@ def test_fitting_Teff_lsq():
     ).all()
 
 
-# Fitting for Teff with 5 filters for both DA and DB with alternating None
 def test_fitting_Teff_with_None_lsq():
+    """
+    Fitting for Teff with 5 filters for both DA and DB with alternating None
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -479,8 +504,10 @@ def test_fitting_Teff_with_None_lsq():
     ).all()
 
 
-# Fitting for logg and Teff with 5 filters for both DA and DB
 def test_fitting_logg_and_Teff_lsq():
+    """
+    Fitting for logg and Teff with 5 filters for both DA and DB
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -507,8 +534,10 @@ def test_fitting_logg_and_Teff_lsq():
     ).all()
 
 
-# Fitting for logg, Teff and distance with 5 filters for both DA and DB
 def test_fitting_logg_Teff_distance_lsq():
+    """
+    Fitting for logg, Teff and distance with 5 filters for both DA and DB
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -528,9 +557,11 @@ def test_fitting_logg_Teff_distance_lsq():
     ).all()
 
 
-# Fitting for logg, Teff and distance with 8 filters for both DA and DB with
-# Nelder-Mead method
 def test_fitting_logg_Teff_distance_nelder_mead_lsq():
+    """
+    Fitting for logg, Teff and distance with 8 filters for both DA and DB with
+    Nelder-Mead method
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -550,8 +581,10 @@ def test_fitting_logg_Teff_distance_nelder_mead_lsq():
     ).all()
 
 
-# Fitting for Teff with 5 filters for both DA and DB with added extinction
 def test_fitting_Teff_red_lsq():
+    """
+    Fitting for Teff with 5 filters for both DA and DB with added extinction
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -579,9 +612,11 @@ def test_fitting_Teff_red_lsq():
     ).all()
 
 
-# Fitting for logg and Teff with 5 filters for both DA and DB with added
-# extinction
 def test_fitting_logg_and_Teff_red_lsq():
+    """
+    Fitting for logg and Teff with 5 filters for both DA and DB with added
+    extinction
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -610,9 +645,11 @@ def test_fitting_logg_and_Teff_red_lsq():
     ).all()
 
 
-# Fitting for logg, Teff and distance with 5 filters for both DA and DB with
-# added extinction
 def test_fitting_logg_Teff_distance_red_lsq():
+    """
+    Fitting for logg, Teff and distance with 5 filters for both DA and DB with
+    added extinction
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -642,9 +679,10 @@ def test_fitting_logg_Teff_distance_red_lsq():
 #
 #
 #
-
-# Fitting for logg and Teff with 5 filters for both DA and DB
 def test_fitting_Teff_emcee():
+    """
+    Fitting for logg and Teff with 5 filters for both DA and DB
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -680,8 +718,10 @@ def test_fitting_Teff_emcee():
     ).all()
 
 
-# Fitting for Teff with 5 filters for both DA and DB with alternating None
 def test_fitting_Teff_with_None_emcee():
+    """
+    Fitting for Teff with 5 filters for both DA and DB with alternating None
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
@@ -754,8 +794,10 @@ def test_fitting_Teff_with_None_emcee():
     ).all()
 
 
-# Fitting for Teff with 5 filters for both DA and DB with added extinction
 def test_fitting_Teff_red_emcee():
+    """
+    Fitting for Teff with 5 filters for both DA and DB with added extinction
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -794,8 +836,10 @@ def test_fitting_Teff_red_emcee():
     ).all()
 
 
-# Testing interp_reddening()
 def test_interp_reddening():
+    """
+    Testing interp_reddening()
+    """
     ftr = WDfitter()
     ftr.interp_reddening(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
@@ -803,8 +847,10 @@ def test_interp_reddening():
     )
 
 
-# Testing _chi2_minimization_red_interpolated()
 def test_chi2_minimization_red_interpolated():
+    """
+    Testing _chi2_minimization_red_interpolated()
+    """
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
