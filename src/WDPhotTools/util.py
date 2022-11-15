@@ -54,8 +54,8 @@ class GlobalSpline2D(interpolate.interp2d):
 
         return ValueError(
             "Length of x and y must be larger or at least equal "
-            "to {size} when applying {spline_kind} spline, assign array_s "
-            "with length no less than {size}."
+            "to {0} when applying {1} spline, assign array_s "
+            "with length no less than {0}.".format(size, spline_kind)
         )
 
     @staticmethod

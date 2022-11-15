@@ -32,7 +32,9 @@ for i, age in enumerate(age_list):
     _, constant_density = wdlf.compute_density(
         Mag=Mag, save_csv=True, folder=os.path.join(HERE, "example_output")
     )
-    ax1.plot(Mag, np.log10(constant_density), label="{age / 1e9:.2f} Gyr")
+    ax1.plot(
+        Mag, np.log10(constant_density), label="{:.2f} Gyr".format(age / 1e9)
+    )
 
 ax1.legend()
 ax1.grid()

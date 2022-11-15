@@ -1,11 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""For computing theorectical WDLFs"""
+
+import warnings
+
 import glob
+import os
+import pkg_resources
+
 import numpy as np
 from scipy import optimize, integrate
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
-import os
-import pkg_resources
-import warnings
 
 from .atmosphere_model_reader import AtmosphereModelReader
 from .cooling_model_reader import CoolingModelReader
@@ -112,6 +119,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         self.set_high_mass_cooling_model(high_mass_cooling_model)
         self.set_ms_model(ms_model)
         self.set_sfr_model()
+
+        self.Mag = None
+        self.Mag_to_Mbol_itp = None
+        self.number_density = None
 
     def _imf(self, M):
         """
@@ -757,7 +768,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         Returns
         -------
-        m: array
+        mass: array
             Array of WD mass, same size as M.
 
         """
@@ -766,54 +777,54 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         if self.wdlf_params["ifmr_model"] == "C08":
 
-            m = 0.117 * M + 0.384
-            if (m < 0.4349).any():
-                m[m < 0.4349] = 0.4349
+            mass = 0.117 * M + 0.384
+            if (mass < 0.4349).any():
+                mass[mass < 0.4349] = 0.4349
 
         elif self.wdlf_params["ifmr_model"] == "C08b":
 
-            m = 0.096 * M + 0.429
+            mass = 0.096 * M + 0.429
             if (M >= 2.7).any():
-                m[M >= 2.7] = 0.137 * M[M >= 2.7] + 0.318
-            if (m < 0.4746).any():
-                m[m < 0.4746] = 0.4746
+                mass[M >= 2.7] = 0.137 * M[M >= 2.7] + 0.318
+            if (mass < 0.4746).any():
+                mass[mass < 0.4746] = 0.4746
 
         elif self.wdlf_params["ifmr_model"] == "S09":
 
-            m = 0.084 * M + 0.466
-            if (m < 0.5088).any():
-                m[m < 0.5088] = 0.5088
+            mass = 0.084 * M + 0.466
+            if (mass < 0.5088).any():
+                mass[mass < 0.5088] = 0.5088
 
         elif self.wdlf_params["ifmr_model"] == "S09b":
 
-            m = 0.134 * M[M < 4.0] + 0.331
+            mass = 0.134 * M[M < 4.0] + 0.331
             if (M >= 4.0).any():
-                m = 0.047 * M[M >= 4.0] + 0.679
+                mass = 0.047 * M[M >= 4.0] + 0.679
 
-            if (m < 0.3823).any():
-                m[m < 0.3823] = 0.3823
+            if (mass < 0.3823).any():
+                mass[mass < 0.3823] = 0.3823
 
         elif self.wdlf_params["ifmr_model"] == "W09":
 
-            m = 0.129 * M + 0.339
-            if (m < 0.3893).any():
-                m[m < 0.3893] = 0.3893
+            mass = 0.129 * M + 0.339
+            if (mass < 0.3893).any():
+                mass[mass < 0.3893] = 0.3893
 
         elif self.wdlf_params["ifmr_model"] == "K09":
 
-            m = 0.109 * M + 0.428
-            if (m < 0.4804).any():
-                m[m < 0.4804] = 0.4804
+            mass = 0.109 * M + 0.428
+            if (mass < 0.4804).any():
+                mass[mass < 0.4804] = 0.4804
 
         elif self.wdlf_params["ifmr_model"] == "K09b":
 
-            m = 0.101 * M + 0.463
-            if (m < 0.4804).any():
-                m[m < 0.4804] = 0.4804
+            mass = 0.101 * M + 0.463
+            if (mass < 0.4804).any():
+                mass[mass < 0.4804] = 0.4804
 
         elif self.wdlf_params["ifmr_model"] == "C18":
 
-            m = interp1d(
+            mass = interp1d(
                 (0.83, 2.85, 3.60, 7.20),
                 (0.5554, 0.71695, 0.8572, 1.2414),
                 fill_value="extrapolate",
@@ -822,7 +833,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         elif self.wdlf_params["ifmr_model"] == "EB18":
 
-            m = interp1d(
+            mass = interp1d(
                 (0.95, 2.75, 3.54, 5.21, 8.0),
                 (0.5, 0.67, 0.81, 0.91, 1.37),
                 fill_value="extrapolate",
@@ -831,9 +842,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         else:
 
-            m = self.ifmr_function(M)
+            mass = self.ifmr_function(M)
 
-        return m
+        return mass
 
     def _find_M_min(self, M, Mag):
         """
@@ -856,17 +867,17 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         # Get the WD mass
-        m = self._ifmr(M)
+        mass = self._ifmr(M)
 
         # Get the bolometric magnitude
-        Mbol = self.Mag_to_Mbol_itp(m, Mag)
+        Mbol = self.Mag_to_Mbol_itp(mass, Mag)
         if Mbol == -np.inf:
             return np.inf
 
         logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
 
         # Get the cooling age from the WD mass and the luminosity
-        t_cool = self.cooling_interpolator(logL, m)
+        t_cool = self.cooling_interpolator(logL, mass)
         if t_cool <= 0.0:
             return np.inf
 
@@ -909,12 +920,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         """
         # Get the WD mass
-        m = self._ifmr(M)
+        mass = self._ifmr(M)
 
         # Get the mass function
         MF = self._imf(M)
 
-        Mbol = self.Mag_to_Mbol_itp(m, Mag)
+        Mbol = self.Mag_to_Mbol_itp(mass, Mag)
 
         if (Mbol < -2.0) or (Mbol > 20.0) or (not np.isfinite(Mbol)):
 
@@ -923,7 +934,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
 
         # Get the WD cooling time
-        t_cool = self.cooling_interpolator(logL, m)
+        t_cool = self.cooling_interpolator(logL, mass)
 
         if t_cool < 0.0:
 
@@ -945,7 +956,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             return 0.0
 
         # Get the cooling rate
-        dLdt = self.cooling_rate_interpolator(logL, m)
+        dLdt = self.cooling_rate_interpolator(logL, mass)
 
         total_contribution = MF * sfr * dLdt
 
@@ -1033,27 +1044,27 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             elif mode == "constant":
 
-                t1 = age
-                t0 = t1 * 1.00001
+                t_1 = age
+                t_0 = t_1 * 1.00001
                 # current time = 0.
-                t2 = 0.0
-                t3 = t2 * 0.99999
+                t_2 = 0.0
+                t_3 = t_2 * 0.99999
 
                 self.sfr = interp1d(
-                    np.array((30e9, t0, t1, t2, t3, -30e9)),
+                    np.array((30e9, t_0, t_1, t_2, t_3, -30e9)),
                     np.array((0.0, 0.0, 1.0, 1.0, 0.0, 0.0)),
                     fill_value="extrapolate",
                 )
 
             elif mode == "burst":
 
-                t1 = age
-                t0 = t1 * 1.00001
-                t2 = t1 - duration
-                t3 = t2 * 0.99999
+                t_1 = age
+                t_0 = t_1 * 1.00001
+                t_2 = t_1 - duration
+                t_3 = t_2 * 0.99999
 
                 self.sfr = interp1d(
-                    np.array((30e9, t0, t1, t2, t3, -30e9)),
+                    np.array((30e9, t_0, t_1, t_2, t_3, -30e9)),
                     np.array((0.0, 0.0, 1.0, 1.0, 0.0, 0.0)),
                     fill_value="extrapolate",
                 )
@@ -1430,16 +1441,16 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         # Initial Mass Function
         #
-        m = np.linspace(0.25, 8.25, 1000)
+        mass = np.linspace(0.25, 8.25, 1000)
 
         if imf_log:
 
-            ax1.plot(m, np.log10(self._imf(m)))
+            ax1.plot(mass, np.log10(self._imf(mass)))
             ax1.set_ylabel("log(IMF)")
 
         else:
 
-            ax1.plot(m, self._imf(m))
+            ax1.plot(mass, self._imf(mass))
             ax1.set_ylabel("IMF")
 
         ax1.set_xlabel(r"Mass / M$_\odot$")
@@ -1470,7 +1481,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         # Main Sequence Lifetime
         #
-        ax3.plot(m, self._ms_age(m))
+        ax3.plot(mass, self._ms_age(mass))
 
         if ms_time_log:
 
@@ -1488,7 +1499,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         # Initial-Final Mass Relation
         #
-        ax4.plot(m, self._ifmr(m))
+        ax4.plot(mass, self._ifmr(mass))
         ax4.set_ylabel(r"Final Mass / M$_\odot$")
         ax4.set_xlabel(r"Initial Mass / M$_\odot$")
         ax4.set_xlim(0.25, 8.25)
@@ -1610,15 +1621,15 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                     os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
-            for e in ext:
+            for _e in ext:
 
                 if filename is None:
 
-                    _filename = "input_model." + e
+                    _filename = "input_model." + _e
 
                 else:
 
-                    _filename = filename + "." + e
+                    _filename = filename + "." + _e
 
                 plt.savefig(os.path.join(_folder, _filename))
 
@@ -1725,7 +1736,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                     os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
-            for e in ext:
+            for _e in ext:
 
                 if filename is None:
 
@@ -1745,12 +1756,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                         + "_"
                         + self.cooling_models["high_mass_cooling_model"]
                         + "."
-                        + e
+                        + _e
                     )
 
                 else:
 
-                    _filename = filename + "." + e
+                    _filename = filename + "." + _e
 
                 plt.savefig(os.path.join(_folder, _filename))
 
