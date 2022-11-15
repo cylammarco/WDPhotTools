@@ -2499,7 +2499,7 @@ class WDfitter(AtmosphereModelReader):
                 labels = labels + ["distance"]
 
         fig = []
-        for _, j in enumerate(self.fitting_params["atmosphere"]):
+        for i, j in enumerate(self.fitting_params["atmosphere"]):
 
             if self.best_fit_params[j] == {}:
 
