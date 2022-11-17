@@ -1,8 +1,14 @@
-from WDPhotTools.fitter import WDfitter
-import numpy as np
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Testing some general methods in a fitter"""
+
 from unittest.mock import patch
+
+import numpy as np
 import pytest
 
+from WDPhotTools.fitter import WDfitter
 from WDPhotTools.reddening import reddening_vector_filter
 from WDPhotTools.reddening import reddening_vector_interpolated
 
@@ -119,7 +125,7 @@ def test_fitter_get_extinction_fraction_fail_zmax():
 
 
 @pytest.mark.xfail
-def test_fitter_get_extinction_fraction_pass_zmin_zmax_None():
+def test_fitter_get_extinction_fraction_pass_zmin_zmax_none():
     """Test dec larger than 90"""
     ftr = WDfitter()
     ftr._get_extinction_fraction(distance=150.0, ra=10.0, dec=100.0)
@@ -133,7 +139,7 @@ def test_fitter_get_extinction_fraction_fail_ra():
 
 
 @patch("matplotlib.pyplot.show")
-def test_fitting_Teff(mock_show):
+def test_fitting_teff(mock_show):
     """Fitting for Teff with 5 filters for both DA and DB"""
     ftr = WDfitter()
     ftr.fit(
@@ -160,7 +166,7 @@ def test_fitting_Teff(mock_show):
     ).all()
 
 
-def test_fitting_Teff_with_None():
+def test_fitting_teff_with_none():
     """
     Fitting for Teff with 5 filters for both DA and DB with alternating None
     """
@@ -244,7 +250,7 @@ def test_fitting_logg_and_mbol():
     ).all()
 
 
-def test_fitting_logg_Teff_distance():
+def test_fitting_logg_teff_distance():
     """
     Fitting for logg, Teff and distance with 5 filters for both DA and DB
     """
@@ -266,7 +272,7 @@ def test_fitting_logg_Teff_distance():
     ).all()
 
 
-def test_fitting_logg_Teff_distance_nelder_mead():
+def test_fitting_logg_teff_distance_nelder_mead():
     """
     Fitting for logg, Teff and distance with 8 filters for both DA and DB with
     Nelder-Mead method
@@ -290,7 +296,7 @@ def test_fitting_logg_Teff_distance_nelder_mead():
     ).all()
 
 
-def test_fitting_Teff_red():
+def test_fitting_teff_red():
     """
     Fitting for Teff with 5 filters for both DA and DB with added extinction
     """
@@ -320,7 +326,7 @@ def test_fitting_Teff_red():
     ).all()
 
 
-def test_fitting_logg_and_Teff_red():
+def test_fitting_logg_and_teff_red():
     """
     Fitting for logg and Teff with 5 filters for both DA and DB with added
     extinction
@@ -352,7 +358,7 @@ def test_fitting_logg_and_Teff_red():
     ).all()
 
 
-def test_fitting_logg_Teff_distance_red():
+def test_fitting_logg_teff_distance_red():
     """
     Fitting for logg, Teff and distance with 5 filters for both DA and DB with
     added extinction
@@ -379,7 +385,7 @@ def test_fitting_logg_Teff_distance_red():
     ).all()
 
 
-def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
+def test_fitting_logg_teff_distance_red_best_fit_plot_colour():
     """
     Fitting for logg, Teff and distance with 5 filters for both DA and DB with
     added extinction
@@ -418,7 +424,7 @@ def test_fitting_logg_Teff_distance_red_best_fit_plot_colour():
 #
 #
 #
-def test_fitting_Teff_lsq():
+def test_fitting_teff_lsq():
     """
     Fitting for Teff with 5 filters for both DA and DB
     """
@@ -447,7 +453,7 @@ def test_fitting_Teff_lsq():
     ).all()
 
 
-def test_fitting_Teff_with_None_lsq():
+def test_fitting_teff_with_none_lsq():
     """
     Fitting for Teff with 5 filters for both DA and DB with alternating None
     """
@@ -504,7 +510,7 @@ def test_fitting_Teff_with_None_lsq():
     ).all()
 
 
-def test_fitting_logg_and_Teff_lsq():
+def test_fitting_logg_and_teff_lsq():
     """
     Fitting for logg and Teff with 5 filters for both DA and DB
     """
@@ -534,7 +540,7 @@ def test_fitting_logg_and_Teff_lsq():
     ).all()
 
 
-def test_fitting_logg_Teff_distance_lsq():
+def test_fitting_logg_teff_distance_lsq():
     """
     Fitting for logg, Teff and distance with 5 filters for both DA and DB
     """
@@ -557,7 +563,7 @@ def test_fitting_logg_Teff_distance_lsq():
     ).all()
 
 
-def test_fitting_logg_Teff_distance_nelder_mead_lsq():
+def test_fitting_logg_teff_distance_nelder_mead_lsq():
     """
     Fitting for logg, Teff and distance with 8 filters for both DA and DB with
     Nelder-Mead method
@@ -581,7 +587,7 @@ def test_fitting_logg_Teff_distance_nelder_mead_lsq():
     ).all()
 
 
-def test_fitting_Teff_red_lsq():
+def test_fitting_teff_red_lsq():
     """
     Fitting for Teff with 5 filters for both DA and DB with added extinction
     """
@@ -612,7 +618,7 @@ def test_fitting_Teff_red_lsq():
     ).all()
 
 
-def test_fitting_logg_and_Teff_red_lsq():
+def test_fitting_logg_and_teff_red_lsq():
     """
     Fitting for logg and Teff with 5 filters for both DA and DB with added
     extinction
@@ -645,7 +651,7 @@ def test_fitting_logg_and_Teff_red_lsq():
     ).all()
 
 
-def test_fitting_logg_Teff_distance_red_lsq():
+def test_fitting_logg_teff_distance_red_lsq():
     """
     Fitting for logg, Teff and distance with 5 filters for both DA and DB with
     added extinction
@@ -679,7 +685,7 @@ def test_fitting_logg_Teff_distance_red_lsq():
 #
 #
 #
-def test_fitting_Teff_emcee():
+def test_fitting_teff_emcee():
     """
     Fitting for logg and Teff with 5 filters for both DA and DB
     """
@@ -718,7 +724,7 @@ def test_fitting_Teff_emcee():
     ).all()
 
 
-def test_fitting_Teff_with_None_emcee():
+def test_fitting_teff_with_none_emcee():
     """
     Fitting for Teff with 5 filters for both DA and DB with alternating None
     """
@@ -794,7 +800,7 @@ def test_fitting_Teff_with_None_emcee():
     ).all()
 
 
-def test_fitting_Teff_red_emcee():
+def test_fitting_teff_red_emcee():
     """
     Fitting for Teff with 5 filters for both DA and DB with added extinction
     """

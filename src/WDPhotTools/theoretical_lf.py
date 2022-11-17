@@ -120,14 +120,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         self.set_ms_model(ms_model)
         self.set_sfr_model()
 
-        self.Mag = None
-        self.Mag_to_Mbol_itp = None
+        self.mag = None
+        self.mag_to_mbol_itp = None
         self.number_density = None
 
-    def _imf(self, M):
+    def _imf(self, mass_ms):
         """
-        Compute the initial mass function based on the pre-selected IMF model
-        and the given mass (M).
+        Compute the initial mass function based on the pre-selected initial
+        mass_function model and the given mass (mass_ms).
 
         See set_imf_model() for more details.
 
@@ -138,37 +138,40 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         Returns
         -------
-        MF: array
-            Array of MF, normalised to 1 at 1 M_sun.
+        mass_function: array
+            Array of mass_function, normalised to 1 at 1 M_sun.
 
         """
 
-        M = np.asarray(M).reshape(-1)
+        mass_ms = np.asarray(mass_ms).reshape(-1)
 
         if self.wdlf_params["imf_model"] == "K01":
 
-            MF = M**-2.3
+            mass_function = mass_ms**-2.3
 
             # mass lower than 0.08 is impossible, so that range is ignored.
-            if (M < 0.5).any():
+            if (mass_ms < 0.5).any():
 
-                M_mask = M < 0.5
+                m_mask = mass_ms < 0.5
                 # (0.5**-2.3) / (0.5**-1.3) = 2.0
-                MF[M_mask] = M[M_mask] ** -1.3 * 2.0
+                mass_function[m_mask] = mass_ms[m_mask] ** -1.3 * 2.0
 
         elif self.wdlf_params["imf_model"] == "C03":
 
-            MF = M**-2.3
-            if (M < 1).any():
-                M_mask = np.array(M < 1.0)
-                # 0.158 / (ln(10) * M) = 0.06861852814 / M
+            mass_function = mass_ms**-2.3
+            if (mass_ms < 1).any():
+                m_mask = np.array(mass_ms < 1.0)
+                # 0.158 / (ln(10) * mass_ms) = 0.06861852814 / mass_ms
                 # log(0.079) = -1.1023729087095586
                 # 2 * 0.69**2. = 0.9522
-                # Normalisation factor (at M=1) is 0.01915058
-                MF[M_mask] = (
-                    (0.06861852814 / M[M_mask])
+                # Normalisation factor (at mass_ms=1) is 0.01915058
+                mass_function[m_mask] = (
+                    (0.06861852814 / mass_ms[m_mask])
                     * np.exp(
-                        -((np.log10(M[M_mask]) + 1.1023729087095586) ** 2.0)
+                        -(
+                            (np.log10(mass_ms[m_mask]) + 1.1023729087095586)
+                            ** 2.0
+                        )
                         / 0.9522
                     )
                     / 0.01915058
@@ -176,18 +179,18 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         elif self.wdlf_params["imf_model"] == "C03b":
 
-            MF = M**-2.3
+            mass_function = mass_ms**-2.3
 
-            if (M <= 1).any():
-                M_mask = np.array(M <= 1.0)
+            if (mass_ms <= 1).any():
+                m_mask = np.array(mass_ms <= 1.0)
                 # 0.086 * 1. / (ln(10) * M) = 0.03734932544 / M
                 # log(0.22) = -0.65757731917
                 # 2 * 0.57**2. = 0.6498
                 # Normalisation factor (at M=1) is 0.01919917
-                MF[M_mask] = (
-                    (0.03734932544 / M[M_mask])
+                mass_function[m_mask] = (
+                    (0.03734932544 / mass_ms[m_mask])
                     * np.exp(
-                        -((np.log10(M[M_mask]) + 0.65757731917) ** 2.0)
+                        -((np.log10(mass_ms[m_mask]) + 0.65757731917) ** 2.0)
                         / 0.6498
                     )
                     / 0.01919917
@@ -195,14 +198,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         else:
 
-            MF = self.imf_function(M)
+            mass_function = self.imf_function(mass_ms)
 
-        return MF
+        return mass_function
 
-    def _ms_age(self, M):
+    def _ms_age(self, mass_ms):
         """
         Compute the main sequence lifetime based on the pre-selected MS model
-        and the given solar mass (M).
+        and the given solar mass (mass_ms).
 
         See set_ms_model() for more details.
 
@@ -218,7 +221,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         """
 
-        M = np.asarray(M).reshape(-1)
+        mass_ms = np.asarray(mass_ms).reshape(-1)
 
         if self.wdlf_params["ms_model"] == "PARSECz00001":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -234,7 +237,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz00002":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -250,7 +253,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz00005":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -266,7 +269,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0001":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -282,7 +285,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0002":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -298,7 +301,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0004":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -314,7 +317,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0006":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -330,7 +333,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0008":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -346,7 +349,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz001":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -362,7 +365,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0014":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -378,7 +381,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz0017":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -394,7 +397,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz002":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -410,7 +413,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz003":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -426,7 +429,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz004":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -442,7 +445,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "PARSECz006":
             # https://people.sissa.it/~sbressan/parsec.html
@@ -458,7 +461,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "GENEVAz014":
             # https://obswww.unige.ch/Research/evol/tables_grids2011/
@@ -474,7 +477,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "GENEVAz006":
             # https://obswww.unige.ch/Research/evol/tables_grids2011/
@@ -490,7 +493,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "GENEVAz002":
             # https://obswww.unige.ch/Research/evol/tables_grids2011/
@@ -506,7 +509,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFe050":
             # http://waps.cfa.harvard.edu/MIST/
@@ -522,7 +525,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFe025":
             # http://waps.cfa.harvard.edu/MIST/
@@ -538,7 +541,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFe000":
             # http://waps.cfa.harvard.edu/MIST/
@@ -554,7 +557,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem025":
             # http://waps.cfa.harvard.edu/MIST/
@@ -570,7 +573,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem050":
             # http://waps.cfa.harvard.edu/MIST/
@@ -586,7 +589,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem075":
             # http://waps.cfa.harvard.edu/MIST/
@@ -602,7 +605,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem100":
             # http://waps.cfa.harvard.edu/MIST/
@@ -618,7 +621,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem125":
             # http://waps.cfa.harvard.edu/MIST/
@@ -634,7 +637,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem150":
             # http://waps.cfa.harvard.edu/MIST/
@@ -650,7 +653,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem175":
             # http://waps.cfa.harvard.edu/MIST/
@@ -666,7 +669,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem200":
             # http://waps.cfa.harvard.edu/MIST/
@@ -682,7 +685,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem250":
             # http://waps.cfa.harvard.edu/MIST/
@@ -698,7 +701,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem300":
             # http://waps.cfa.harvard.edu/MIST/
@@ -714,7 +717,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem350":
             # http://waps.cfa.harvard.edu/MIST/
@@ -730,7 +733,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ms_model"] == "MISTFem400":
             # http://waps.cfa.harvard.edu/MIST/
@@ -746,15 +749,15 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
                 massi, time, kind="cubic", fill_value="extrapolate"
-            )(M)
+            )(mass_ms)
 
         else:
 
-            age = self.ms_function(M)
+            age = self.ms_function(mass_ms)
 
         return age
 
-    def _ifmr(self, M):
+    def _ifmr(self, mass_ms):
         """
         Compute the final mass (i.e. WD mass) based on the pre-selected IFMR
         model and the zero-age MS mass (M).
@@ -773,52 +776,52 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         """
 
-        M = np.asarray(M).reshape(-1)
+        mass_ms = np.asarray(mass_ms).reshape(-1)
 
         if self.wdlf_params["ifmr_model"] == "C08":
 
-            mass = 0.117 * M + 0.384
+            mass = 0.117 * mass_ms + 0.384
             if (mass < 0.4349).any():
                 mass[mass < 0.4349] = 0.4349
 
         elif self.wdlf_params["ifmr_model"] == "C08b":
 
-            mass = 0.096 * M + 0.429
-            if (M >= 2.7).any():
-                mass[M >= 2.7] = 0.137 * M[M >= 2.7] + 0.318
+            mass = 0.096 * mass_ms + 0.429
+            if (mass_ms >= 2.7).any():
+                mass[mass_ms >= 2.7] = 0.137 * mass_ms[mass_ms >= 2.7] + 0.318
             if (mass < 0.4746).any():
                 mass[mass < 0.4746] = 0.4746
 
         elif self.wdlf_params["ifmr_model"] == "S09":
 
-            mass = 0.084 * M + 0.466
+            mass = 0.084 * mass_ms + 0.466
             if (mass < 0.5088).any():
                 mass[mass < 0.5088] = 0.5088
 
         elif self.wdlf_params["ifmr_model"] == "S09b":
 
-            mass = 0.134 * M[M < 4.0] + 0.331
-            if (M >= 4.0).any():
-                mass = 0.047 * M[M >= 4.0] + 0.679
+            mass = 0.134 * mass_ms[mass_ms < 4.0] + 0.331
+            if (mass_ms >= 4.0).any():
+                mass = 0.047 * mass_ms[mass_ms >= 4.0] + 0.679
 
             if (mass < 0.3823).any():
                 mass[mass < 0.3823] = 0.3823
 
         elif self.wdlf_params["ifmr_model"] == "W09":
 
-            mass = 0.129 * M + 0.339
+            mass = 0.129 * mass_ms + 0.339
             if (mass < 0.3893).any():
                 mass[mass < 0.3893] = 0.3893
 
         elif self.wdlf_params["ifmr_model"] == "K09":
 
-            mass = 0.109 * M + 0.428
+            mass = 0.109 * mass_ms + 0.428
             if (mass < 0.4804).any():
                 mass[mass < 0.4804] = 0.4804
 
         elif self.wdlf_params["ifmr_model"] == "K09b":
 
-            mass = 0.101 * M + 0.463
+            mass = 0.101 * mass_ms + 0.463
             if (mass < 0.4804).any():
                 mass[mass < 0.4804] = 0.4804
 
@@ -829,7 +832,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 (0.5554, 0.71695, 0.8572, 1.2414),
                 fill_value="extrapolate",
                 bounds_error=False,
-            )(M)
+            )(mass_ms)
 
         elif self.wdlf_params["ifmr_model"] == "EB18":
 
@@ -838,15 +841,15 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 (0.5, 0.67, 0.81, 0.91, 1.37),
                 fill_value="extrapolate",
                 bounds_error=False,
-            )(M)
+            )(mass_ms)
 
         else:
 
-            mass = self.ifmr_function(M)
+            mass = self.ifmr_function(mass_ms)
 
         return mass
 
-    def _find_M_min(self, M, Mag):
+    def _find_mass_ms_min(self, mass_ms, mag):
         """
         A function to be minimised to find the minimum mass limit that a MS
         star could have turned into a WD in the given age of the
@@ -854,7 +857,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         Parameters
         ----------
-        M: float
+        mass_ms: float
             MS mass.
         logL: float
             log WD luminosity.
@@ -867,14 +870,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         # Get the WD mass
-        mass = self._ifmr(M)
+        mass = self._ifmr(mass_ms)
 
         # Get the bolometric magnitude
-        Mbol = self.Mag_to_Mbol_itp(mass, Mag)
-        if Mbol == -np.inf:
+        mbol = self.mag_to_mbol_itp(mass, mag)
+        if mbol == -np.inf:
             return np.inf
 
-        logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
+        logL = (4.75 - mbol) / 2.5 + 33.582744965691276
 
         # Get the cooling age from the WD mass and the luminosity
         t_cool = self.cooling_interpolator(logL, mass)
@@ -882,12 +885,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             return np.inf
 
         # Get the MS life time
-        t_ms = self._ms_age(M)
+        t_ms = self._ms_age(mass_ms)
         if t_ms <= 0.0:
             return np.inf
 
         # Time since star formation
-        time = self.T0 - t_cool - t_ms
+        time = self.t_start - t_cool - t_ms
 
         if time < 0.0:
 
@@ -895,9 +898,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         else:
 
-            return M**2.0
+            return mass_ms**2.0
 
-    def _integrand(self, M, Mag):
+    def _integrand(self, mass_ms, mag):
         """
         The integrand of the number density computation based on the
         pre-selected (1) MS lifetime model, (2) initial mass function,
@@ -907,11 +910,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         ----------
         M: float
             Main sequence stellar mass
-        Mag: float
+        mag: float
             Absolute magnitude in a given passband
         T0: float
             Look-back time
-        passband: str (Default: Mbol)
+        passband: str (Default: mbol)
             passband to be integrated in
 
         Return
@@ -920,18 +923,18 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         """
         # Get the WD mass
-        mass = self._ifmr(M)
+        mass = self._ifmr(mass_ms)
 
         # Get the mass function
-        MF = self._imf(M)
+        mass_function = self._imf(mass_ms)
 
-        Mbol = self.Mag_to_Mbol_itp(mass, Mag)
+        mbol = self.mag_to_mbol_itp(mass, mag)
 
-        if (Mbol < -2.0) or (Mbol > 20.0) or (not np.isfinite(Mbol)):
+        if (mbol < -2.0) or (mbol > 20.0) or (not np.isfinite(mbol)):
 
             return 0.0
 
-        logL = (4.75 - Mbol) / 2.5 + 33.582744965691276
+        logL = (4.75 - mbol) / 2.5 + 33.582744965691276
 
         # Get the WD cooling time
         t_cool = self.cooling_interpolator(logL, mass)
@@ -941,7 +944,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             return 0.0
 
         # Get the MS lifetime
-        t_ms = self._ms_age(M)
+        t_ms = self._ms_age(mass_ms)
 
         if t_ms < 0:
 
@@ -958,7 +961,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         # Get the cooling rate
         dLdt = self.cooling_rate_interpolator(logL, mass)
 
-        total_contribution = MF * sfr * dLdt
+        total_contribution = mass_function * sfr * dLdt
 
         if np.isfinite(total_contribution):
 
@@ -1071,12 +1074,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             else:
 
-                t = 10.0 ** np.linspace(0, np.log10(age), 10000)
-                sfr = np.exp((t - age) / mean_lifetime)
+                _t = 10.0 ** np.linspace(0, np.log10(age), 10000)
+                _sfr = np.exp((_t - age) / mean_lifetime)
 
-                self.sfr = interp1d(t, sfr, bounds_error=False, fill_value=0.0)
+                self.sfr = interp1d(
+                    _t, _sfr, bounds_error=False, fill_value=0.0
+                )
 
-        self.T0 = age
+        self.t_start = age
         self.wdlf_params["sfr_mode"] = mode
 
     def set_imf_model(self, model, imf_function=None):
@@ -1104,7 +1109,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         else:
 
-            raise ValueError("Please provide a valid IMF model.")
+            raise ValueError("Please provide a valid Imass_function model.")
 
         self.imf_function = imf_function
 
@@ -1205,11 +1210,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
     def compute_density(
         self,
-        Mag,
+        mag,
         passband="Mbol",
         atmosphere="H",
         interpolator="CT",
-        M_max=8.0,
+        mass_ms_max=8.0,
         limit=10000,
         n_points=100,
         epsabs=1e-6,
@@ -1226,15 +1231,15 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         Parameters
         ----------
-        Mag: float or array of float
+        mag: float or array of float
             Absolute magnitude in the given passband
-        passband: str (Default: Mbol)
+        passband: str (Default: "Mbol")
             The passband to be integrated in.
         atmosphere: str (Default: H)
             The atmosphere type.
         interpolator: str (Default: CT)
             Choose between 'CT' and 'RBF.'
-        M_max: float (Deafult: 8.0)
+        mass_ms_max: float (Deafult: 8.0)
             The upper limit of the main sequence stellar mass. This may not
             be used if it exceeds the upper bound of the IFMR model.
         limit: int (Default: 10000)
@@ -1268,7 +1273,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         Returns
         -------
-        Mag: array of float
+        mag: array of float
             The magnitude at which the number density is computed.
         number_density: array of float
             The (arbitrary) number density at that magnitude.
@@ -1279,48 +1284,48 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             self.compute_cooling_age_interpolator()
 
-        Mag = np.asarray(Mag).reshape(-1)
+        mag = np.asarray(mag).reshape(-1)
 
-        number_density = np.zeros_like(Mag)
+        number_density = np.zeros_like(mag)
 
-        self.Mag_to_Mbol_itp = self.interp_am(
+        self.mag_to_mbol_itp = self.interp_am(
             dependent="Mbol",
             atmosphere=atmosphere,
             independent=["mass", passband],
             interpolator=interpolator,
         )
 
-        M_upper_bound = M_max
+        mass_ms_upper_bound = mass_ms_max
 
-        for i, Mag_i in enumerate(Mag):
+        for i, mag_i in enumerate(mag):
 
-            M_min = optimize.fminbound(
-                self._find_M_min,
+            mass_ms_min = optimize.fminbound(
+                self._find_mass_ms_min,
                 0.5,
-                M_upper_bound,
-                args=[Mag_i],
+                mass_ms_upper_bound,
+                args=[mag_i],
                 xtol=1e-5,
                 maxfun=10000,
             )
 
             points = 10.0 ** np.linspace(
-                np.log10(M_min), np.log10(M_max), n_points
+                np.log10(mass_ms_min), np.log10(mass_ms_max), n_points
             )
 
             # Note that the points are needed because it can fail to
             # integrate if the star burst is too short
             number_density[i] = integrate.quad(
                 self._integrand,
-                M_min,
-                M_max,
-                args=[Mag_i],
+                mass_ms_min,
+                mass_ms_max,
+                args=[mag_i],
                 limit=limit,
                 points=points,
                 epsabs=epsabs,
                 epsrel=epsrel,
             )[0]
 
-            M_upper_bound = M_min
+            mass_ms_upper_bound = mass_ms_min
 
         # Normalise the WDLF
         if normed:
@@ -1342,7 +1347,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             if filename is None:
 
                 _filename = (
-                    "{0:.2f}Gyr_".format(self.T0 / 1e9)
+                    f"{self.t_start / 1e9:.2f}Gyr_"
                     + self.wdlf_params["sfr_mode"]
                     + "_"
                     + self.wdlf_params["ms_model"]
@@ -1363,14 +1368,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             np.savetxt(
                 os.path.join(_folder, _filename),
-                np.column_stack((Mag, number_density)),
+                np.column_stack((mag, number_density)),
                 delimiter=",",
             )
 
-        self.Mag = Mag
+        self.mag = mag
         self.number_density = number_density
 
-        return Mag, number_density
+        return mag, number_density
 
     def plot_input_models(
         self,
@@ -1415,7 +1420,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         sfh_log: bool (Default: False)
             Set to plot the SFH in logarithmic space
         imf_log: bool (Default: False)
-            Set to plot the IMF in logarithmic space
+            Set to plot the Imass_function in logarithmic space
         ms_time_log: bool (Default: True)
             Set to plot the MS lifetime in logarithmic space
         cooling_model_use_mag: bool (Default: True)
@@ -1446,12 +1451,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         if imf_log:
 
             ax1.plot(mass, np.log10(self._imf(mass)))
-            ax1.set_ylabel("log(IMF)")
+            ax1.set_ylabel("log(Imass_function)")
 
         else:
 
             ax1.plot(mass, self._imf(mass))
-            ax1.set_ylabel("IMF")
+            ax1.set_ylabel("Imass_function")
 
         ax1.set_xlabel(r"Mass / M$_\odot$")
         ax1.set_xlim(0.25, 8.25)
@@ -1462,8 +1467,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         # Star formation History
         #
-        t = np.linspace(0, self.T0, 1000)
-        ax2.plot(t / 1e9, self.sfr(t))
+        _t = np.linspace(0, self.t_start, 1000)
+        ax2.plot(_t / 1e9, self.sfr(_t))
 
         if sfh_log:
 
@@ -1549,7 +1554,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         ax5.set_title("Cooling Model")
 
         #
-        # Cooling Model: d(Mbol)/d(t) or d(L)/d(t)
+        # Cooling Model: d(mbol)/d(t) or d(L)/d(t)
         #
         if cooling_model_use_mag:
 
@@ -1559,7 +1564,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         else:
 
-            rate_of_change = -self.dLdt
+            rate_of_change = self.dLdt * -1.0
 
         rate_of_change[np.isnan(rate_of_change)] = 0.0
         rate_of_change[~np.isfinite(rate_of_change)] = 0.0
@@ -1693,7 +1698,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             _density = self.number_density
 
         plt.plot(
-            self.Mag, _density, label="{0:.2f}".format(self.T0 / 1e9) + " Gyr"
+            self.mag,
+            _density,
+            label=f"{self.t_start / 1e90:.2f} Gyr",
         )
         plt.xlim(0, 20)
         plt.xlabel(r"M$_{\mathrm{bol}}$ / mag")
@@ -1712,7 +1719,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         if title is None:
 
-            title = "WDLF: " + "{0:.2f} Gyr ".format(self.T0 / 1e9)
+            title = f"WDLF: {self.t_start / 1e9:.2f} Gyr"
 
         plt.title(title)
         plt.tight_layout()
@@ -1741,7 +1748,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 if filename is None:
 
                     _filename = (
-                        "{0:.2f}Gyr_".format(self.T0 / 1e9)
+                        f"{self.t_start / 1e9:.2f}Gyr_"
                         + self.wdlf_params["sfr_mode"]
                         + "_"
                         + self.wdlf_params["ms_model"]

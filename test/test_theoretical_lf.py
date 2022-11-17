@@ -14,14 +14,14 @@ from WDPhotTools import theoretical_lf
 
 wdlf = theoretical_lf.WDLF()
 
-Mag = np.arange(4.0, 18.0, 4.0)
+mag = np.arange(4.0, 18.0, 4.0)
 age = [3.0e9, 12.0e9]
-num = np.zeros((len(age), len(Mag)))
+num = np.zeros((len(age), len(mag)))
 
 
 def test_default():
     """Test default setup"""
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
 
 
 @pytest.mark.xfail
@@ -69,7 +69,7 @@ def test_changing_empty_high_mass_model_to_unknown_name():
 
 wdlf.set_sfr_model(mode="burst", age=age[0], duration=1e8)
 wdlf.compute_cooling_age_interpolator()
-wdlf.compute_density(Mag=Mag)
+wdlf.compute_density(mag=mag)
 
 
 @patch("matplotlib.pyplot.show")
@@ -121,10 +121,10 @@ def test_plotting_to_an_external_figure_object(mock_fig):
 def test_changing_sfr_model():
     """Test changing sfr models and then recompute the density"""
     wdlf.set_sfr_model(mode="constant", age=age[0])
-    wdlf.compute_density(Mag=Mag, save_csv=True, folder="test_output")
+    wdlf.compute_density(mag=mag, save_csv=True, folder="test_output")
     wdlf.set_sfr_model(mode="decay", age=age[0])
     wdlf.compute_density(
-        Mag=Mag,
+        mag=mag,
         save_csv=True,
         normed=False,
         folder="test_output",
@@ -135,26 +135,26 @@ def test_changing_sfr_model():
 
 def test_rbf_interpolator():
     """Test changing the interpolator and then recompute the density"""
-    wdlf.compute_density(Mag=Mag, interpolator="RBF")
+    wdlf.compute_density(mag=mag, interpolator="RBF")
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_ct_interpolator():
     """Test changing the interpolator and then recompute the density"""
-    wdlf.compute_density(Mag=Mag, interpolator="CT")
+    wdlf.compute_density(mag=mag, interpolator="CT")
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_changing_imf_model():
     """Test changing the imf model and then recompute the density"""
     wdlf.set_imf_model("K01")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_imf_model("C03")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_imf_model("C03b")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     wdlf.set_sfr_model(mode="decay", age=age[1])
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
@@ -162,138 +162,138 @@ def test_changing_imf_model():
 def test_changing_ms_model():
     """Test changing the ms model and then recompute the density"""
     wdlf.set_ms_model("PARSECz00001")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz00002")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz00005")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz0001")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz0002")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz0004")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz0006")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz0008")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz001")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz0014")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz0017")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz002")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz003")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz004")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("PARSECz006")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("GENEVAz002")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("GENEVAz006")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("GENEVAz014")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem400")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem400")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem350")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem300")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem250")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem200")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem175")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem150")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem125")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem100")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem075")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem050")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFem025")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFe000")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFe025")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ms_model("MISTFe050")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_changing_ifmr_model():
     """Test changing the ifmr model and then recompute the density"""
     wdlf.set_ifmr_model("C08")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ifmr_model("C08b")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ifmr_model("S09")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ifmr_model("S09b")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ifmr_model("W09")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ifmr_model("K09")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ifmr_model("K09b")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     wdlf.set_ifmr_model("C18")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
     # Testing set_ifmr_model with model = "EB18"
     wdlf.set_ifmr_model("EB18")
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
@@ -331,28 +331,28 @@ def manual_fn(some_input):
 def test_manual_imf_model():
     """Testing set_imf_model with model = 'manual'"""
     wdlf.set_imf_model(model="manual", imf_function=manual_fn)
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_manual_ms_model():
     """Testing set_ms_model with model = 'manual'"""
     wdlf.set_ms_model(model="manual", ms_function=manual_fn)
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_manual_sfr_model():
     """Testing set_sfr_model with model = 'manual'"""
     wdlf.set_sfr_model(mode="manual", sfr_model=manual_fn)
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
 def test_manual_ifmr_model():
     """Testing set_ifmr_model with model = 'manual'"""
     wdlf.set_ifmr_model(model="manual", ifmr_function=manual_fn)
-    wdlf.compute_density(Mag=Mag)
+    wdlf.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 
@@ -360,11 +360,11 @@ def test_compute_density_savefig_folder_none():
     """Testing set_imf_model with model = 'manual' and
     save_csv with folder = None"""
     wdlf.set_ifmr_model(model="manual", ifmr_function=manual_fn)
-    wdlf.compute_density(save_csv=True, folder=None, Mag=Mag)
+    wdlf.compute_density(save_csv=True, folder=None, mag=mag)
     # assert the file exists at where you intend to
     _folder = os.getcwd()
     _filename = (
-        "{:.2f}Gyr_".format(wdlf.T0 / 1e9)
+        f"{wdlf.T0 / 1e9:.2f}Gyr_"
         + wdlf.wdlf_params["sfr_mode"]
         + "_"
         + wdlf.wdlf_params["ms_model"]
@@ -399,7 +399,7 @@ def test_plotting_wdlf_savefig_path_not_exist():
     # assert the file exists at where you intend to
     for _e in ["png"]:
         _filename = (
-            "{:.2f}Gyr_".format(wdlf.T0 / 1e9)
+            f"{wdlf.T0 / 1e9:.2f}Gyr_"
             + wdlf.wdlf_params["sfr_mode"]
             + "_"
             + wdlf.wdlf_params["ms_model"]
@@ -422,7 +422,7 @@ def test_cooling_model_low_mass_lpcode_he_da_09():
     wdlf1 = theoretical_lf.WDLF()
     wdlf1.set_low_mass_cooling_model(model="lpcode_he_da_09")
     wdlf1.compute_cooling_age_interpolator()
-    wdlf1.compute_density(Mag=Mag)
+    wdlf1.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf1.number_density), 1.0)
 
 
@@ -433,7 +433,7 @@ def test_cooling_model_intermediate_mass_basti_co_da_10():
     wdlf2 = theoretical_lf.WDLF()
     wdlf2.set_intermediate_mass_cooling_model(model="basti_co_da_10")
     wdlf2.compute_cooling_age_interpolator()
-    wdlf2.compute_density(Mag=Mag)
+    wdlf2.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf2.number_density), 1.0)
 
 
@@ -442,7 +442,7 @@ def test_cooling_model_high_mass_basti_co_da_10():
     wdlf3 = theoretical_lf.WDLF()
     wdlf3.set_high_mass_cooling_model(model="basti_co_da_10")
     wdlf3.compute_cooling_age_interpolator()
-    wdlf3.compute_density(Mag=Mag)
+    wdlf3.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf3.number_density), 1.0)
 
 
@@ -453,7 +453,7 @@ def test_cooling_model_intermediate_mass_lpcode_co_db_17():
     wdlf4 = theoretical_lf.WDLF()
     wdlf4.set_intermediate_mass_cooling_model(model="lpcode_co_db_17")
     wdlf4.compute_cooling_age_interpolator()
-    wdlf4.compute_density(Mag=Mag)
+    wdlf4.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf4.number_density), 1.0)
 
 
@@ -465,7 +465,7 @@ def test_cooling_model_intermediate_mass_lpcode_co_db_17_z0001():
     wdlf5 = theoretical_lf.WDLF()
     wdlf5.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
     wdlf5.compute_cooling_age_interpolator()
-    wdlf5.compute_density(Mag=Mag)
+    wdlf5.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf5.number_density), 1.0)
 
 
@@ -476,7 +476,7 @@ def test_cooling_model_low_mass_lpcode_co_db_17_z0001():
     wdlf6 = theoretical_lf.WDLF()
     wdlf6.set_intermediate_mass_cooling_model(model="lpcode_co_db_17_z0001")
     wdlf6.compute_cooling_age_interpolator()
-    wdlf6.compute_density(Mag=Mag)
+    wdlf6.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf6.number_density), 1.0)
 
 
@@ -491,7 +491,7 @@ def test_cooling_model_intermediate_mass_lpcode_da_22():
     wdlf7.set_intermediate_mass_cooling_model(model="lpcode_da_22")
     wdlf7.set_high_mass_cooling_model(model="lpcode_da_22")
     wdlf7.compute_cooling_age_interpolator()
-    wdlf7.compute_density(Mag=Mag)
+    wdlf7.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf7.number_density), 1.0)
 
 
@@ -506,5 +506,5 @@ def test_cooling_model_intermediate_mass_lpcode_db_22():
     wdlf8.set_intermediate_mass_cooling_model(model="lpcode_db_22")
     wdlf8.set_high_mass_cooling_model(model="lpcode_db_22")
     wdlf8.compute_cooling_age_interpolator()
-    wdlf8.compute_density(Mag=Mag)
+    wdlf8.compute_density(mag=mag)
     assert np.isclose(np.sum(wdlf8.number_density), 1.0)

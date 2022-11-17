@@ -43,9 +43,7 @@ for i, age in enumerate(age_list):
         save_csv=True,
         folder=os.path.join(HERE, "example_output"),
     )
-    ax1.plot(
-        Mag, np.log10(burst_density), label="{:.2f} Gyr".format(age / 1e9)
-    )
+    ax1.plot(Mag, np.log10(burst_density), label=f"{age / 1e9:.2f} Gyr")
 
     # Exponential decay SFR
     wdlf.set_sfr_model(mode="decay", age=age)
@@ -57,9 +55,7 @@ for i, age in enumerate(age_list):
         save_csv=True,
         folder=os.path.join(HERE, "example_output"),
     )
-    ax2.plot(
-        Mag, np.log10(decay_density), label="{:.2f} Gyr".format(age / 1e9)
-    )
+    ax2.plot(Mag, np.log10(decay_density), label=f"{age / 1e9:.2f} Gyr")
 
 ax1.legend()
 ax1.grid()

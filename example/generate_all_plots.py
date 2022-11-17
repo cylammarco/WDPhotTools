@@ -1,8 +1,11 @@
-import numpy as np
-from WDPhotTools import theoretical_lf
-from matplotlib.pyplot import *
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-ion()
+"""Plot everything"""
+
+import numpy as np
+
+from WDPhotTools import theoretical_lf
 
 
 wdlf = theoretical_lf.WDLF()

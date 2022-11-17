@@ -15,26 +15,26 @@ wave_grizyJHK = np.array(
     (4849.0, 6201.0, 7535.0, 8674.0, 9628.0, 12350.00, 16460.00, 21600.00)
 )
 
-rv = 3.1
-ebv = 0.123
+RV = 3.1
+EBV = 0.123
 
 reddening = reddening_vector_interpolated(kind="cubic")
-extinction_interpolated = reddening(wave_GBRFN, rv) * ebv
-extinction_grizyJHK_interpolated = reddening(wave_grizyJHK, rv) * ebv
+extinction_interpolated = reddening(wave_GBRFN, RV) * EBV
+extinction_grizyJHK_interpolated = reddening(wave_grizyJHK, RV) * EBV
 
-A_G3 = reddening_vector_filter("G3")([7.5, 13000.0, rv]) * ebv
-A_G3_BP = reddening_vector_filter("G3_BP")([7.5, 13000.0, rv]) * ebv
-A_G3_RP = reddening_vector_filter("G3_RP")([7.5, 13000.0, rv]) * ebv
-A_FUV = reddening_vector_filter("FUV")([7.5, 13000.0, rv]) * ebv
-A_NUV = reddening_vector_filter("NUV")([7.5, 13000.0, rv]) * ebv
-A_g = reddening_vector_filter("g_ps1")([7.5, 13000.0, rv]) * ebv
-A_r = reddening_vector_filter("r_ps1")([7.5, 13000.0, rv]) * ebv
-A_i = reddening_vector_filter("i_ps1")([7.5, 13000.0, rv]) * ebv
-A_z = reddening_vector_filter("z_ps1")([7.5, 13000.0, rv]) * ebv
-A_y = reddening_vector_filter("y_ps1")([7.5, 13000.0, rv]) * ebv
-A_J = reddening_vector_filter("J")([7.5, 13000.0, rv]) * ebv
-A_H = reddening_vector_filter("H")([7.5, 13000.0, rv]) * ebv
-A_Ks = reddening_vector_filter("Ks")([7.5, 13000.0, rv]) * ebv
+A_G3 = reddening_vector_filter("G3")([7.5, 13000.0, RV]) * EBV
+A_G3_BP = reddening_vector_filter("G3_BP")([7.5, 13000.0, RV]) * EBV
+A_G3_RP = reddening_vector_filter("G3_RP")([7.5, 13000.0, RV]) * EBV
+A_FUV = reddening_vector_filter("FUV")([7.5, 13000.0, RV]) * EBV
+A_NUV = reddening_vector_filter("NUV")([7.5, 13000.0, RV]) * EBV
+A_g = reddening_vector_filter("g_ps1")([7.5, 13000.0, RV]) * EBV
+A_r = reddening_vector_filter("r_ps1")([7.5, 13000.0, RV]) * EBV
+A_i = reddening_vector_filter("i_ps1")([7.5, 13000.0, RV]) * EBV
+A_z = reddening_vector_filter("z_ps1")([7.5, 13000.0, RV]) * EBV
+A_y = reddening_vector_filter("y_ps1")([7.5, 13000.0, RV]) * EBV
+A_J = reddening_vector_filter("J")([7.5, 13000.0, RV]) * EBV
+A_H = reddening_vector_filter("H")([7.5, 13000.0, RV]) * EBV
+A_Ks = reddening_vector_filter("Ks")([7.5, 13000.0, RV]) * EBV
 
 mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
 extinction = np.array([A_G3, A_G3_BP, A_G3_RP, A_FUV, A_NUV]).reshape(-1)
@@ -140,8 +140,8 @@ def test_minimize_teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr3.best_fit_params["H"]["Teff"],
@@ -171,8 +171,8 @@ def test_minimize_teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr4.best_fit_params["H"]["Teff"],
@@ -200,8 +200,8 @@ def test_minimize_teff_logg_reddening():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr5.best_fit_params["H"]["Teff"],
@@ -230,8 +230,8 @@ def test_minimize_teff_logg_reddening_interpolated():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr6.best_fit_params["H"]["Teff"],
@@ -309,8 +309,8 @@ def test_minimize_teff_distance_reddening():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr9.best_fit_params["H"]["Teff"],
@@ -338,8 +338,8 @@ def test_minimize_teff_distance_reddening_interpolated():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr10.best_fit_params["H"]["Teff"],
@@ -365,8 +365,8 @@ def test_minimize_teff_logg_distance_reddening():
         method="minimize",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr11.best_fit_params["H"]["Teff"],
@@ -393,8 +393,8 @@ def test_minimize_teff_logg_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr12.best_fit_params["H"]["Teff"],
@@ -481,8 +481,8 @@ def test_lsq_teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr15.best_fit_params["H"]["Teff"],
@@ -512,8 +512,8 @@ def test_lsq_teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr16.best_fit_params["H"]["Teff"],
@@ -541,8 +541,8 @@ def test_lsq_teff_logg_reddening():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr17.best_fit_params["H"]["Teff"],
@@ -571,8 +571,8 @@ def test_lsq_teff_logg_reddening_interpolated():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr18.best_fit_params["H"]["Teff"],
@@ -650,8 +650,8 @@ def test_lsq_teff_distance_reddening():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr21.best_fit_params["H"]["Teff"],
@@ -679,8 +679,8 @@ def test_lsq_teff_distance_reddening_interpolated():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr22.best_fit_params["H"]["Teff"],
@@ -706,8 +706,8 @@ def test_lsq_teff_logg_distance_reddening():
         method="least_squares",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr23.best_fit_params["H"]["Teff"],
@@ -734,8 +734,8 @@ def test_lsq_teff_logg_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr24.best_fit_params["H"]["Teff"],
@@ -839,8 +839,8 @@ def test_emcee_teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr27.best_fit_params["H"]["Teff"],
@@ -875,8 +875,8 @@ def test_emcee_teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr28.best_fit_params["H"]["Teff"],
@@ -909,8 +909,8 @@ def test_emcee_teff_logg_reddening():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr29.best_fit_params["H"]["Teff"],
@@ -944,8 +944,8 @@ def test_emcee_teff_logg_reddening_interpolated():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr30.best_fit_params["H"]["Teff"],
@@ -1040,8 +1040,8 @@ def test_emcee_teff_distance_reddening():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr33.best_fit_params["H"]["Teff"],
@@ -1079,8 +1079,8 @@ def test_emcee_teff_distance_reddening_interpolated():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr34.best_fit_params["H"]["Teff"],
@@ -1113,8 +1113,8 @@ def test_emcee_teff_logg_distance_reddening():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr35.best_fit_params["H"]["Teff"],
@@ -1151,8 +1151,8 @@ def test_emcee_teff_logg_distance_reddening_interpolated():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=rv,
-        ebv=ebv,
+        Rv=RV,
+        ebv=EBV,
     )
     assert np.isclose(
         ftr36.best_fit_params["H"]["Teff"],

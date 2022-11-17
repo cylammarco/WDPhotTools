@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Plot the default cooling model"""
+
 from WDPhotTools import plotter
 
 plotter.plot_cooling_model(

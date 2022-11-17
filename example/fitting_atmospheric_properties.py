@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Fitting PSOJ1801p6254"""
+
 import os
 
 from WDPhotTools.fitter import WDfitter
@@ -5,8 +10,7 @@ from WDPhotTools.fitter import WDfitter
 
 try:
     HERE = os.path.dirname(os.path.realpath(__file__))
-except Exception as e:
-    print(e)
+except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
 
@@ -59,8 +63,8 @@ ftr.fit(
     initial_guess=[4000.0, 7.5],
     kwargs_for_minimize={"method": "Nelder-Mead"},
 )
-ftr.results["H"]
-ftr.results["He"]
+print(ftr.results["H"])
+print(ftr.results["He"])
 ftr.show_best_fit(
     display=False,
     savefig=True,
@@ -120,8 +124,8 @@ ftr.fit(
     initial_guess=[4000.0, 7.5],
     method="least_squares",
 )
-ftr.results["H"]
-ftr.results["He"]
+print(ftr.results["H"])
+print(ftr.results["He"])
 ftr.show_best_fit(
     display=False,
     savefig=True,
@@ -183,7 +187,7 @@ ftr.fit(
     nsteps=1000,
     nburns=100,
 )
-ftr.results["H"]
+print(ftr.results["H"])
 ftr.show_best_fit(
     atmosphere="H",
     display=False,

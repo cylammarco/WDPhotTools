@@ -1,7 +1,14 @@
-import extinction
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Precompute the extinction tables"""
+
+
 import glob
-import numpy as np
 import os
+
+import extinction
+import numpy as np
 from spectres import spectres
 from astropy.modeling import models
 from astropy import units as u
@@ -130,17 +137,17 @@ A_1um_41 = _fitzpatrick99(10000.0, 4.1)
 A_1um_46 = _fitzpatrick99(10000.0, 4.6)
 A_1um_51 = _fitzpatrick99(10000.0, 5.1)
 
-limit = 1e-3
+LIMIT = 1e-3
 
 # normalisation factor of the exponent
 # 0.78 comes from Shlafly et al. 2010
 # 1.32 also comes from them, it is the O'Donnell extinction at 1 micron
-norm = 0.78 * 1.32 / 2.5 * limit
+NORM = 0.78 * 1.32 / 2.5 * LIMIT
 
 # Get the temperature and logg
 teff = []
 logg = []
-filter = []
+filters = []
 rv21 = []
 rv26 = []
 rv31 = []
@@ -170,12 +177,12 @@ for j, model in enumerate(model_filelist):
         wave_bin[1:] += wave_diff
         wave_bin[0] += wave_diff[0]
         wave_bin[-1] += wave_diff[-1]
-        filter.append(filter_name_mapping[i.split("\\")[-1][:-4]])
+        filters.append(filter_name_mapping[i.split("\\")[-1][:-4]])
         teff.append(t)
         logg.append(g)
         # * 5.03411250E+07 / (3.08568e19)**2. for converting from flux to
         # photon is not needed because they cancel each other in the
-        # normalisation. The s_wave is the only non-linear multiplier
+        # NORMalisation. The s_wave is the only non-linear multiplier
         total_flux_resampled = spectres(
             f_wave,
             total_wave,
@@ -190,7 +197,7 @@ for j, model in enumerate(model_filelist):
             * np.log10(
                 np.sum(
                     SxW
-                    * 10.0 ** (-_fitzpatrick99(f_wave, 2.1) / A_1um_21 * norm)
+                    * 10.0 ** (-_fitzpatrick99(f_wave, 2.1) / A_1um_21 * NORM)
                 )
                 / np.sum(SxW)
             )
@@ -200,7 +207,7 @@ for j, model in enumerate(model_filelist):
             * np.log10(
                 np.sum(
                     SxW
-                    * 10.0 ** (-_fitzpatrick99(f_wave, 2.6) / A_1um_26 * norm)
+                    * 10.0 ** (-_fitzpatrick99(f_wave, 2.6) / A_1um_26 * NORM)
                 )
                 / np.sum(SxW)
             )
@@ -210,7 +217,7 @@ for j, model in enumerate(model_filelist):
             * np.log10(
                 np.sum(
                     SxW
-                    * 10.0 ** (-_fitzpatrick99(f_wave, 3.1) / A_1um_31 * norm)
+                    * 10.0 ** (-_fitzpatrick99(f_wave, 3.1) / A_1um_31 * NORM)
                 )
                 / np.sum(SxW)
             )
@@ -220,7 +227,7 @@ for j, model in enumerate(model_filelist):
             * np.log10(
                 np.sum(
                     SxW
-                    * 10.0 ** (-_fitzpatrick99(f_wave, 3.6) / A_1um_36 * norm)
+                    * 10.0 ** (-_fitzpatrick99(f_wave, 3.6) / A_1um_36 * NORM)
                 )
                 / np.sum(SxW)
             )
@@ -230,7 +237,7 @@ for j, model in enumerate(model_filelist):
             * np.log10(
                 np.sum(
                     SxW
-                    * 10.0 ** (-_fitzpatrick99(f_wave, 4.1) / A_1um_41 * norm)
+                    * 10.0 ** (-_fitzpatrick99(f_wave, 4.1) / A_1um_41 * NORM)
                 )
                 / np.sum(SxW)
             )
@@ -240,7 +247,7 @@ for j, model in enumerate(model_filelist):
             * np.log10(
                 np.sum(
                     SxW
-                    * 10.0 ** (-_fitzpatrick99(f_wave, 4.6) / A_1um_46 * norm)
+                    * 10.0 ** (-_fitzpatrick99(f_wave, 4.6) / A_1um_46 * NORM)
                 )
                 / np.sum(SxW)
             )
@@ -250,7 +257,7 @@ for j, model in enumerate(model_filelist):
             * np.log10(
                 np.sum(
                     SxW
-                    * 10.0 ** (-_fitzpatrick99(f_wave, 5.1) / A_1um_51 * norm)
+                    * 10.0 ** (-_fitzpatrick99(f_wave, 5.1) / A_1um_51 * NORM)
                 )
                 / np.sum(SxW)
             )
@@ -258,27 +265,27 @@ for j, model in enumerate(model_filelist):
 
 teff = np.array(teff)
 logg = np.array(logg)
-filter = np.array(filter)
+filters = np.array(filters)
 
 # np.lexsort can sort based on several columns simultaneously. The columns that
 # you want to sort by need to be passed in reverse. That means
 # np.lexsort((col_b,col_a)) first sorts by col_a, and then by col_b:
-mask_sort = np.lexsort((filter, teff, logg))
+mask_sort = np.lexsort((filters, teff, logg))
 
-rv21 = np.array(rv21)[mask_sort] / limit
-rv26 = np.array(rv26)[mask_sort] / limit
-rv31 = np.array(rv31)[mask_sort] / limit
-rv36 = np.array(rv36)[mask_sort] / limit
-rv41 = np.array(rv41)[mask_sort] / limit
-rv46 = np.array(rv46)[mask_sort] / limit
-rv51 = np.array(rv51)[mask_sort] / limit
+rv21 = np.array(rv21)[mask_sort] / LIMIT
+rv26 = np.array(rv26)[mask_sort] / LIMIT
+rv31 = np.array(rv31)[mask_sort] / LIMIT
+rv36 = np.array(rv36)[mask_sort] / LIMIT
+rv41 = np.array(rv41)[mask_sort] / LIMIT
+rv46 = np.array(rv46)[mask_sort] / LIMIT
+rv51 = np.array(rv51)[mask_sort] / LIMIT
 
 teff = teff[mask_sort]
 logg = logg[mask_sort]
-filter = filter[mask_sort]
+filters = filters[mask_sort]
 
 for i in atm_key:
-    mask = filter == i
+    mask = filters == i
     output = np.column_stack(
         (
             rv21[mask],
@@ -290,4 +297,4 @@ for i in atm_key:
             rv51[mask],
         )
     )
-    np.savetxt("{}.csv".format(i), output, delimiter=",")
+    np.savetxt(f"{i}.csv", output, delimiter=",")

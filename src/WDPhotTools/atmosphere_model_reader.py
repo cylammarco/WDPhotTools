@@ -282,11 +282,7 @@ class AtmosphereModelReader(object):
 
         for i, j in zip(self.column_names.items(), self.column_units.items()):
 
-            print(
-                "Parameter: {}, Column Name: {}, Unit: {}".format(
-                    i[1], i[0], j[1]
-                )
-            )
+            print(f"Parameter: {i[1]}, Column Name: {i[0]}, Unit: {j[1]}")
 
     def interp_am(
         self,
@@ -454,8 +450,8 @@ class AtmosphereModelReader(object):
             else:
 
                 raise ValueError(
-                    "Interpolator should be CT or RBF,"
-                    "{} is given.".format(interpolator)
+                    f"Interpolator should be CT or RBF,"
+                    f"{interpolator} is given."
                 )
 
         # If a 2D grid is to be interpolated, normally is the logg and another

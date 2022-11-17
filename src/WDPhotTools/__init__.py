@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""Initialise the import"""
+
 from pkg_resources import get_distribution, DistributionNotFound
 
 try:
@@ -8,8 +10,6 @@ try:
 except DistributionNotFound:
     pass  # package is not installed
 
-__credits__ = ["K W Yuen", "M Green", "W Li"]
-__status__ = "Production"
 
 from . import atmosphere_model_reader
 from . import cooling_model_reader
@@ -28,3 +28,5 @@ __all__ = [
     "theoretical_lf",
     "util",
 ]
+__credits__ = ["K W Yuen", "M Green", "W Li"]
+__status__ = "Production"

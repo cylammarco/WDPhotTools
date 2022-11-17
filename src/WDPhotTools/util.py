@@ -51,11 +51,11 @@ class GlobalSpline2D(interpolate.interp2d):
 
     @staticmethod
     def get_size_error(size, spline_kind):
-
+        """if not enough data points"""
         return ValueError(
-            "Length of x and y must be larger or at least equal "
-            "to {0} when applying {1} spline, assign array_s "
-            "with length no less than {0}.".format(size, spline_kind)
+            f"Length of x and y must be larger or at least equal "
+            f"to {size} when applying {spline_kind} spline, assign array_s "
+            f"with length no less than {size}."
         )
 
     @staticmethod

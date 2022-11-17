@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""Create the default cooling tracks"""
+
 import os
 
 from WDPhotTools import plotter
@@ -7,9 +12,8 @@ try:
 
     HERE = os.path.dirname(os.path.realpath(__file__))
 
-except Exception as e:
+except NameError:
 
-    print(e)
     HERE = os.path.dirname(os.path.realpath(__name__))
 
 plotter.plot_atmosphere_model(

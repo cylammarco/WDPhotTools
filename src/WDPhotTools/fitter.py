@@ -52,6 +52,23 @@ class WDfitter(AtmosphereModelReader):
         self.pivot_wavelengths = None
 
     def set_extinction_mode(self, mode="total", z_min=100.0, z_max=250.0):
+        """
+        Select the mode of extinction: "total" uses the extinction value as
+        given, "linear" interpolates between z_min and z_max to get the
+        extinction as a function of line of sight distance: zero exxtinction
+        at z_min, and the total extinction at z_max.
+
+        Parameters
+        ----------
+        mode : str (Default: "total")
+            Choose from "total" or "linear"
+        z_min : float (Default: 100.0)
+            The minimum distance from the galactic mid-plane to have any
+            extinction.
+        z_max : float (Default: 250.0)
+            The maximum distance from the galactic mid-plane to use the
+            total extinction.
+        """
 
         if mode == "total":
 
@@ -168,7 +185,7 @@ class WDfitter(AtmosphereModelReader):
 
         return _interpolator
 
-    def interp_reddening(
+    def _interp_reddening(
         self, filters, extinction_convolved=True, kind="cubic"
     ):
 
@@ -1597,7 +1614,7 @@ class WDfitter(AtmosphereModelReader):
             or (len(self.interpolator[atmosphere[0]]) - 4 != len(filters))
         ):
 
-            self.interp_reddening(
+            self._interp_reddening(
                 filters=filters,
                 extinction_convolved=extinction_convolved,
                 kind=kind,
@@ -2233,7 +2250,7 @@ class WDfitter(AtmosphereModelReader):
 
                     _stdev = get_uncertainty_emcee(self.samples[j])
                     self.best_fit_params[j][independent[0]] = np.percentile(
-                        self.samples[j][:, 0], 50.0
+                        self.samples[j].T[0], 50.0
                     )
                     self.best_fit_params[j][independent[0] + "_err"] = np.mean(
                         _stdev
@@ -2249,7 +2266,7 @@ class WDfitter(AtmosphereModelReader):
 
                         _stdev = get_uncertainty_emcee(self.samples[j][:, k])
                         self.best_fit_params[j][val] = np.percentile(
-                            self.samples[j][:, k], 50.0
+                            self.samples[j].T[k], 50.0
                         )
                         self.best_fit_params[j][val + "_err"] = np.mean(_stdev)
                         self.best_fit_params[j][val + "_16"] = _stdev[0]
@@ -2339,7 +2356,7 @@ class WDfitter(AtmosphereModelReader):
                     if distance is None:
 
                         self.best_fit_params[j]["distance"] = np.percentile(
-                            self.samples[j][:, -1], 50.0
+                            self.samples[j].T[-1], 50.0
                         )
 
                     else:
@@ -2540,17 +2557,17 @@ class WDfitter(AtmosphereModelReader):
                     if filename is None:
 
                         time_now = time.time()
-                        _filename = "corner_plot_{}_atmosphere_{}.{}".format(
-                            j, time_now, _e
+                        _filename = (
+                            f"corner_plot_{j}_atmosphere_{time_now}.{_e}"
                         )
 
                     elif isinstance(filename, (list, np.ndarray)):
 
-                        _filename = "{}.{}".format(filename[i], _e)
+                        _filename = f"{filename[i]}.{_e}"
 
                     elif isinstance(filename, str):
 
-                        _filename = "{}.{}".format(filename, _e)
+                        _filename = f"{filename}.{_e}"
 
                     else:
 
@@ -2678,15 +2695,11 @@ class WDfitter(AtmosphereModelReader):
             if len(self.fitting_params["atmosphere"]) == 1:
 
                 _atm = self.fitting_params["atmosphere"][0]
-                _ax.set_title(
-                    "Best-fit {} atmosphere with {}".format(_atm, _method)
-                )
+                _ax.set_title(f"Best-fit {_atm} atmosphere with {_method}")
 
             else:
 
-                _ax.set_title(
-                    "Best-fit H & He atmosphere with {}".format(_method)
-                )
+                _ax.set_title(f"Best-fit H & He atmosphere with {_method}")
 
         else:
 
@@ -2718,13 +2731,11 @@ class WDfitter(AtmosphereModelReader):
                 if filename is None:
 
                     time_now = time.time()
-                    _filename = "best_fit_wd_solution_{}.{}".format(
-                        time_now, _e
-                    )
+                    _filename = f"best_fit_wd_solution_{time_now}.{_e}"
 
                 else:
 
-                    _filename = "{}.{}".format(filename, _e)
+                    _filename = "{filename}.{_e}"
 
                 plt.savefig(os.path.join(_folder, _filename))
 
