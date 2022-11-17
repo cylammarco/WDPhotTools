@@ -355,26 +355,26 @@ The brackets denote the core type/atmosphere type/mass range/other special prope
 
 1.  Montreal models
 
-    - Bedard et al. 2020 - LIH \[CO/DA+DB/0.2-1.3\]
+    -   Bedard et al. 2020 - LIH \[CO/DA+DB/0.2-1.3\]
 
 2.  LaPlata models
 
-    - Panei et al. 2007 - L \[He+CO/DA/0.187-0.448\]
-    - Althaus et al. 2009 - L \[He/DA/0.220-0.521\]
-    - Renedo et al. 2010 - I \[CO/DA/0.505-0.934/Z=0.001-0.01\]
-    - Althaus et al. 2015 - I \[CO/DA/0.506-0.826/Z=0.0003-0.001\]
-    - Althaus et al. 2017 - LI \[CO/DA/0.434-0.838/Y=0.4\]
-    - Camisassa et al. 2017 - I \[CO/DB/0.51-1.0\]
-    - Althaus et al. 2007 - H \[ONe/DA/1.06-1.28\]
-    - Camisassa et al. 2019 - H \[ONe/DA+B/1.10-1.29\]
+    -   Panei et al. 2007 - L \[He+CO/DA/0.187-0.448\]
+    -   Althaus et al. 2009 - L \[He/DA/0.220-0.521\]
+    -   Renedo et al. 2010 - I \[CO/DA/0.505-0.934/Z=0.001-0.01\]
+    -   Althaus et al. 2015 - I \[CO/DA/0.506-0.826/Z=0.0003-0.001\]
+    -   Althaus et al. 2017 - LI \[CO/DA/0.434-0.838/Y=0.4\]
+    -   Camisassa et al. 2017 - I \[CO/DB/0.51-1.0\]
+    -   Althaus et al. 2007 - H \[ONe/DA/1.06-1.28\]
+    -   Camisassa et al. 2019 - H \[ONe/DA+B/1.10-1.29\]
 
 3.  BaSTI models
 
-    - Salaris et al. 2010 - IH \[CO/DA+B/0.54-1.2/ps+nps\]
+    -   Salaris et al. 2010 - IH \[CO/DA+B/0.54-1.2/ps+nps\]
 
 4.  MESA models
 
-    - Lauffer et al. 2018 - H \[CONe/DA+B/1.012-1.308\]
+    -   Lauffer et al. 2018 - H \[CONe/DA+B/1.012-1.308\]
 
 #### Example sets of WDLFs with different star formation scenario
 

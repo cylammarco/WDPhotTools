@@ -842,17 +842,6 @@ def test_fitting_teff_red_emcee():
     ).all()
 
 
-def test_interp_reddening():
-    """
-    Testing interp_reddening()
-    """
-    ftr = WDfitter()
-    ftr.interp_reddening(
-        filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        extinction_convolved=True,
-    )
-
-
 def test_chi2_minimization_red_interpolated():
     """
     Testing _chi2_minimization_red_interpolated()

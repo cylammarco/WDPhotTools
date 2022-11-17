@@ -1357,7 +1357,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
                 if filename is None:
 
-                    filename = (
+                    _filename = (
                         f"{self.t_start / 1e9:.2f}Gyr"
                         f"{self._filename_middle}{_e}"
                     )
