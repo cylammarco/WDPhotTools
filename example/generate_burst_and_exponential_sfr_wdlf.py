@@ -23,7 +23,7 @@ wdlf.set_ifmr_model("C08")
 
 wdlf.compute_cooling_age_interpolator()
 
-Mag = np.arange(0, 20.0, 0.2)
+mag = np.arange(0, 20.0, 0.2)
 
 age_list = 1e9 * np.arange(8, 15, 1)
 
@@ -38,24 +38,24 @@ for i, age in enumerate(age_list):
     # Burst SFR
     wdlf.set_sfr_model(mode="burst", age=age, duration=1e9)
     _, burst_density = wdlf.compute_density(
-        Mag=Mag,
+        mag=mag,
         passband="G3",
         save_csv=True,
         folder=os.path.join(HERE, "example_output"),
     )
-    ax1.plot(Mag, np.log10(burst_density), label=f"{age / 1e9:.2f} Gyr")
+    ax1.plot(mag, np.log10(burst_density), label=f"{age / 1e9:.2f} Gyr")
 
     # Exponential decay SFR
     wdlf.set_sfr_model(mode="decay", age=age)
     wdlf.compute_cooling_age_interpolator()
 
     _, decay_density = wdlf.compute_density(
-        Mag=Mag,
+        mag=mag,
         passband="G3",
         save_csv=True,
         folder=os.path.join(HERE, "example_output"),
     )
-    ax2.plot(Mag, np.log10(decay_density), label=f"{age / 1e9:.2f} Gyr")
+    ax2.plot(mag, np.log10(decay_density), label=f"{age / 1e9:.2f} Gyr")
 
 ax1.legend()
 ax1.grid()

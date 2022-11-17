@@ -20,7 +20,7 @@ except NameError:
 wdlf = theoretical_lf.WDLF()
 wdlf.compute_cooling_age_interpolator()
 
-Mag = np.arange(4, 20.0, 0.2)
+mag = np.arange(4, 20.0, 0.2)
 age_list = 1e9 * np.arange(8, 15, 1)
 
 fig1 = plt.figure(2, figsize=(12, 8))
@@ -30,9 +30,9 @@ for i, age in enumerate(age_list):
     # Constant SFR
     wdlf.set_sfr_model(age=age)
     _, constant_density = wdlf.compute_density(
-        Mag=Mag, save_csv=True, folder=os.path.join(HERE, "example_output")
+        mag=mag, save_csv=True, folder=os.path.join(HERE, "example_output")
     )
-    ax1.plot(Mag, np.log10(constant_density), label=f"{age / 1e9:.2f} Gyr")
+    ax1.plot(mag, np.log10(constant_density), label=f"{age / 1e9:.2f} Gyr")
 
 ax1.legend()
 ax1.grid()

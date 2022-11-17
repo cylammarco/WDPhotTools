@@ -364,7 +364,7 @@ def test_compute_density_savefig_folder_none():
     # assert the file exists at where you intend to
     _folder = os.getcwd()
     _filename = (
-        f"{wdlf.T0 / 1e9:.2f}Gyr_"
+        f"{wdlf.t_start / 1e9:.2f}Gyr_"
         + wdlf.wdlf_params["sfr_mode"]
         + "_"
         + wdlf.wdlf_params["ms_model"]
@@ -399,7 +399,7 @@ def test_plotting_wdlf_savefig_path_not_exist():
     # assert the file exists at where you intend to
     for _e in ["png"]:
         _filename = (
-            f"{wdlf.T0 / 1e9:.2f}Gyr_"
+            f"{wdlf.t_start / 1e9:.2f}Gyr_"
             + wdlf.wdlf_params["sfr_mode"]
             + "_"
             + wdlf.wdlf_params["ms_model"]

@@ -3,6 +3,9 @@
 
 """Some utility class/functions"""
 
+import glob
+import pkg_resources
+
 import numpy as np
 from scipy import interpolate
 
@@ -218,3 +221,19 @@ def get_uncertainty_emcee(samples):
     )
 
     return stdevs
+
+
+def load_ms_lifetime_datatable(filename):
+    """
+    Load the MS lifetime CSV files
+    """
+
+    datatable = np.loadtxt(
+        glob.glob(
+            pkg_resources.resource_filename(
+                "WDPhotTools", f"ms_lifetime/{filename}"
+            )
+        )[0],
+        delimiter=",",
+    )
+    return datatable

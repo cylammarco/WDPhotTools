@@ -2675,7 +2675,7 @@ class WDfitter(AtmosphereModelReader):
                 np.array(self.best_fit_mag[k])
                 + self.best_fit_params[k]["dist_mod"]
                 + np.array(reddening),
-                label="Best-fit {k}",
+                label=f"Best-fit {k}",
                 color=color[j],
                 zorder=15,
             )
@@ -2735,7 +2735,7 @@ class WDfitter(AtmosphereModelReader):
 
                 else:
 
-                    _filename = "{filename}.{_e}"
+                    _filename = f"{filename}.{_e}"
 
                 plt.savefig(os.path.join(_folder, _filename))
 
