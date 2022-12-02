@@ -1322,7 +1322,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         plt.ylabel(r"$\log{(N)}$")
 
         if log:
-            plt.yscale("log")
+
+            try:
+
+                plt.yscale("log")
+
+            except ValueError:
+
+                print(ValueError)
 
         plt.grid()
         plt.legend()
