@@ -133,15 +133,15 @@ def test_changing_sfr_model():
     assert np.sum(wdlf.number_density) != 1.0
 
 
-def test_rbf_interpolator():
-    """Test changing the interpolator and then recompute the density"""
-    wdlf.compute_density(mag=mag, interpolator="RBF")
-    assert np.isclose(np.sum(wdlf.number_density), 1.0)
-
-
 def test_ct_interpolator():
     """Test changing the interpolator and then recompute the density"""
     wdlf.compute_density(mag=mag, interpolator="CT")
+    assert np.isclose(np.sum(wdlf.number_density), 1.0)
+
+
+def test_rbf_interpolator():
+    """Test changing the interpolator and then recompute the density"""
+    wdlf.compute_density(mag=mag, interpolator="RBF")
     assert np.isclose(np.sum(wdlf.number_density), 1.0)
 
 

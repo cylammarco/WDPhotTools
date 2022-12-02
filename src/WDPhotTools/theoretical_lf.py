@@ -582,7 +582,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             return 0.0
 
         # Get the cooling rate
-        dLdt = self.cooling_rate_interpolator(logL, mass)
+        dLdt = -self.cooling_rate_interpolator(logL, mass)
 
         total_contribution = mass_function * sfr * dLdt
 
@@ -954,13 +954,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             mass_ms_upper_bound = mass_ms_min
 
-        # Normalise the WDLF
-        if normed:
+        number_density[
+            np.isnan(number_density) | (number_density <= 0.0)
+        ] = +0.0
+
+        # Normalise the WDLF only if the function returned is not all zero
+        if normed & (number_density > 0.0).any():
 
             number_density /= np.nansum(number_density)
-
-        number_density[np.isnan(number_density)] = +0.0
-        number_density[number_density <= 0.0] = +0.0
 
         if save_csv:
 
@@ -1313,7 +1314,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         plt.xlabel(r"M$_{\mathrm{bol}}$ / mag")
 
         _density_finite = _density[np.isfinite(_density)]
-        if len(_density_finite) == 0:
+
+        # If there is nothing to plot...
+        if (len(_density_finite) == 0) or (_density_finite == 0.0).all():
             return 0
 
         ymin = np.floor(np.nanmin(_density_finite))
@@ -1323,13 +1326,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         if log:
 
-            try:
-
-                plt.yscale("log")
-
-            except ValueError:
-
-                print(ValueError)
+            plt.yscale("log")
 
         plt.grid()
         plt.legend()
