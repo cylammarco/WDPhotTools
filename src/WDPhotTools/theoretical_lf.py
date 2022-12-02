@@ -154,7 +154,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         mass_ms = np.asarray(mass_ms).reshape(-1)
-        age = None
 
         if self.wdlf_params["imf_model"] == "K01":
 
@@ -785,7 +784,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 33. MISTFe050 - [Fe/H] = 0.5
 
         ms_function: callable function (Default: None)
-            A callable ifmr function, only used if model is 'manual'.
+            A callable MS lifetime function, only used if model is 'manual'.
 
         """
 
@@ -960,7 +959,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             number_density /= np.nansum(number_density)
 
-        number_density[np.isnan(number_density)] = 0.0
+        number_density[np.isnan(number_density)] = +0.0
+        number_density[number_density <= 0.0] = +0.0
 
         if save_csv:
 
