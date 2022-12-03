@@ -963,6 +963,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             number_density /= np.nansum(number_density)
 
+        self.mag = mag
+        self.number_density = number_density
+
         if save_csv:
 
             if folder is None:
@@ -989,9 +992,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 np.column_stack((mag, number_density)),
                 delimiter=",",
             )
-
-        self.mag = mag
-        self.number_density = number_density
 
         return mag, number_density
 
