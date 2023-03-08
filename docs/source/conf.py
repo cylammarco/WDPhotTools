@@ -62,7 +62,7 @@ apidoc_args = [
     "--output-dir=.",  # Directory to place all output
 ]
 
-autodoc_mock_imports = ["scipy", "matplotlib", "emcee", "corner"]
+autodoc_mock_imports = ["scipy", "numpy", "matplotlib", "emcee", "corner", "astropy"]
 
 autoclass_content = "both"
 
