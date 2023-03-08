@@ -18,27 +18,19 @@ class GlobalSpline2D(interpolate.interp2d):
     """
 
     def __init__(self, _x, _y, _z, kind="linear"):
-
         if kind == "linear":
-
             if len(_x) < 2 or len(_y) < 2:
-
                 raise self.get_size_error(2, kind)
 
         elif kind == "cubic":
-
             if len(_x) < 4 or len(_y) < 4:
-
                 raise self.get_size_error(4, kind)
 
         elif kind == "quintic":
-
             if len(_x) < 6 or len(_y) < 6:
-
                 raise self.get_size_error(6, kind)
 
         else:
-
             raise ValueError("unidentifiable kind of spline")
 
         super().__init__(_x, _y, _z, kind=kind)
@@ -63,13 +55,10 @@ class GlobalSpline2D(interpolate.interp2d):
 
     @staticmethod
     def _extrap_1d(x_s, y_s, tar_x):
-
         if isinstance(x_s, np.ndarray):
-
             x_s = np.ndarray.flatten(x_s)
 
         if isinstance(y_s, np.ndarray):
-
             y_s = np.ndarray.flatten(y_s)
 
         assert len(x_s) >= 4
@@ -81,15 +70,12 @@ class GlobalSpline2D(interpolate.interp2d):
 
     @staticmethod
     def _linspace_10(p_1, p_2, cut=None):
-
         _ls = list(np.linspace(p_1, p_2, 10))
 
         if cut is None:
-
             return _ls
 
         else:
-
             cut = int(cut)
 
             assert cut <= 10
@@ -97,9 +83,7 @@ class GlobalSpline2D(interpolate.interp2d):
             return _ls[-cut:] if cut < 0 else _ls[:cut]
 
     def _get_extrap_based_points(self, axis, extrap_p):
-
         if axis == "x":
-
             return (
                 self.extrap_fd_based_x_s
                 if extrap_p > self.x_max
@@ -109,7 +93,6 @@ class GlobalSpline2D(interpolate.interp2d):
             )
 
         elif axis == "y":
-
             return (
                 self.extrap_fd_based_y_s
                 if extrap_p > self.y_max
@@ -121,33 +104,27 @@ class GlobalSpline2D(interpolate.interp2d):
         assert False, "axis unknown"
 
     def __call__(self, _x, _y, **kwargs):
-
         x_s = np.atleast_1d(_x)
         y_s = np.atleast_1d(_y)
 
         if x_s.ndim != 1 or y_s.ndim != 1:
-
             raise ValueError("x and y should both be 1-D array_s")
 
         p_z_yqueue = []
 
         for y_i in y_s:
-
             extrap_based_y_s = self._get_extrap_based_points("y", y_i)
 
             p_z_xqueue = []
 
             for x_i in x_s:
-
                 extrap_based_x_s = self._get_extrap_based_points("x", x_i)
 
                 if not extrap_based_x_s and not extrap_based_y_s:
-
                     # inbounds
                     p_z = super().__call__(x_i, y_i, **kwargs)[0]
 
                 elif extrap_based_x_s and extrap_based_y_s:
-
                     # both x, y atr outbounds
                     # allocate based_z from x, based_y_s
                     extrap_based_zs = self.__call__(
@@ -160,7 +137,6 @@ class GlobalSpline2D(interpolate.interp2d):
                     )
 
                 elif extrap_based_x_s:
-
                     # only x outbounds
                     extrap_based_zs = super().__call__(
                         extrap_based_x_s, y_i, **kwargs
@@ -170,7 +146,6 @@ class GlobalSpline2D(interpolate.interp2d):
                     )
 
                 else:
-
                     # only y outbounds
                     extrap_based_zs = super().__call__(
                         x_i, extrap_based_y_s, **kwargs
@@ -186,7 +161,6 @@ class GlobalSpline2D(interpolate.interp2d):
         zss = p_z_yqueue
 
         if len(zss) == 1:
-
             zss = zss[0]
 
         return np.array(zss)

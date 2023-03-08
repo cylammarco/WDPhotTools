@@ -164,9 +164,9 @@ def test_fitting_teff(mock_show):
     assert np.isclose(
         ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_teff_with_none():
@@ -222,9 +222,9 @@ def test_fitting_teff_with_none():
     assert np.isclose(
         ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_logg_and_mbol():
@@ -254,10 +254,10 @@ def test_fitting_logg_and_mbol():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_logg_teff_distance():
@@ -280,10 +280,10 @@ def test_fitting_logg_teff_distance():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_logg_teff_distance_nelder_mead():
@@ -308,10 +308,10 @@ def test_fitting_logg_teff_distance_nelder_mead():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_teff_red():
@@ -342,9 +342,9 @@ def test_fitting_teff_red():
     assert np.isclose(
         ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_logg_and_teff_red():
@@ -377,10 +377,10 @@ def test_fitting_logg_and_teff_red():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_logg_teff_distance_red():
@@ -408,10 +408,10 @@ def test_fitting_logg_teff_distance_red():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_logg_teff_distance_red_best_fit_plot_colour():
@@ -443,10 +443,10 @@ def test_fitting_logg_teff_distance_red_best_fit_plot_colour():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 #
@@ -484,9 +484,9 @@ def test_fitting_teff_lsq():
     assert np.isclose(
         ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_teff_with_none_lsq():
@@ -544,9 +544,9 @@ def test_fitting_teff_with_none_lsq():
     assert np.isclose(
         ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_logg_and_teff_lsq():
@@ -577,10 +577,10 @@ def test_fitting_logg_and_teff_lsq():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_logg_teff_distance_lsq():
@@ -604,10 +604,10 @@ def test_fitting_logg_teff_distance_lsq():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_logg_teff_distance_nelder_mead_lsq():
@@ -632,10 +632,10 @@ def test_fitting_logg_teff_distance_nelder_mead_lsq():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_teff_red_lsq():
@@ -667,9 +667,9 @@ def test_fitting_teff_red_lsq():
     assert np.isclose(
         ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_logg_and_teff_red_lsq():
@@ -703,10 +703,10 @@ def test_fitting_logg_and_teff_red_lsq():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 def test_fitting_logg_teff_distance_red_lsq():
@@ -735,10 +735,10 @@ def test_fitting_logg_teff_distance_red_lsq():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)
 
 
 #
@@ -784,9 +784,9 @@ def test_fitting_teff_emcee():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_teff_with_none_emcee():
@@ -863,9 +863,9 @@ def test_fitting_teff_with_none_emcee():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_fitting_teff_red_emcee():
@@ -908,9 +908,9 @@ def test_fitting_teff_red_emcee():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
 
 
 def test_chi2_minimization_red_interpolated():
@@ -952,7 +952,7 @@ def test_chi2_minimization_red_interpolated():
         rtol=2.5e-02,
         atol=2.5e-02,
     ).all()
-    assert isinstance(ftr.best_fit_params["H"]['Teff'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Mbol'], float)
-    assert isinstance(ftr.best_fit_params["H"]['Teff_err'], float)
-    assert isinstance(ftr.best_fit_params["H"]['logg_err'], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
+    assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
+    assert isinstance(ftr.best_fit_params["H"]["logg_err"], float)

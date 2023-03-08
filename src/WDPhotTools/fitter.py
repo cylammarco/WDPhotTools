@@ -1833,15 +1833,23 @@ class WDfitter(AtmosphereModelReader):
                         self.results[j].x[0]
                     )
                     if distance is None:
-                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev[0])
+                        self.best_fit_params[j][
+                            independent[0] + "_err"
+                        ] = float(_stdev[0])
                     else:
-                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev)
+                        self.best_fit_params[j][
+                            independent[0] + "_err"
+                        ] = float(_stdev)
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
                     for k, val in enumerate(independent):
-                        self.best_fit_params[j][val] = float(self.results[j].x[k])
-                        self.best_fit_params[j][val + "_err"] = float(_stdev[k])
+                        self.best_fit_params[j][val] = float(
+                            self.results[j].x[k]
+                        )
+                        self.best_fit_params[j][val + "_err"] = float(
+                            _stdev[k]
+                        )
 
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.

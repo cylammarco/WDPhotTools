@@ -14,13 +14,14 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath("../../src"))
 
 # -- Project information -----------------------------------------------------
 
 project = "WDPhotTools"
-copyright = "2020-2022, Marco C Lam"
+copyright = "2020-2023, Marco C Lam"
 author = "Marco C Lam"
-__version__ = "0.1.0"
+__version__ = "0.0.8"
 
 # The full version, including alpha/beta/rc tags
 version = __version__

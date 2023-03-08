@@ -14,7 +14,6 @@ class AtmosphereModelReader(object):
     """Handling the formatting of different atmosphere models"""
 
     def __init__(self):
-
         super(AtmosphereModelReader, self).__init__()
 
         self.this_file = os.path.dirname(os.path.abspath(__file__))
@@ -281,7 +280,6 @@ class AtmosphereModelReader(object):
         """
 
         for i, j in zip(self.column_names.items(), self.column_units.items()):
-
             print(f"Parameter: {i[1]}, Column Name: {i[0]}, Unit: {j[1]}")
 
     def interp_am(
@@ -351,16 +349,13 @@ class AtmosphereModelReader(object):
 
         # DA atmosphere
         if atmosphere.lower() in ["h", "hydrogen", "da"]:
-
             model = self.model_da
 
         # DB atmosphere
         elif atmosphere.lower() in ["he", "helium", "db"]:
-
             model = self.model_db
 
         else:
-
             raise ValueError(
                 'Please choose from "h", "hydrogen", "da", "he", "helium" or '
                 '"db" as the atmophere type, you have provided '
@@ -371,13 +366,10 @@ class AtmosphereModelReader(object):
 
         # If only performing a 1D interpolation, the logg has to be assumed.
         if len(independent) == 1:
-
             if independent[0] in ["Teff", "mass", "Mbol", "age"]:
-
                 independent = np.concatenate((["logg"], independent))
 
             else:
-
                 raise ValueError(
                     "When ony interpolating in 1-dimension, the independent "
                     "variable has to be one of: Teff, mass, Mbol, or age."
@@ -390,11 +382,9 @@ class AtmosphereModelReader(object):
             arg_1_max = np.nanmax(arg_1)
 
             if independent[1] in ["Teff", "age"]:
-
                 arg_1 = np.log10(arg_1)
 
             if interpolator.lower() == "ct":
-
                 # Interpolate with the scipy CloughTocher2DInterpolator
                 _atmosphere_interpolator = CloughTocher2DInterpolator(
                     (arg_0, arg_1),
@@ -403,15 +393,12 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(_x):
-
                     if independent[1] in ["Teff", "age"]:
-
                         _x = np.log10(_x)
 
                     return _atmosphere_interpolator(logg, _x)
 
             elif interpolator.lower() == "rbf":
-
                 # Interpolate with the scipy RBFInterpolator
                 _atmosphere_interpolator = RBFInterpolator(
                     np.stack((arg_0, arg_1), -1),
@@ -420,14 +407,11 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(_x):
-
                     if isinstance(_x, (float, int)):
-
                         length = 1
                         _logg = logg
 
                     else:
-
                         length = len(_x)
                         _logg = [logg] * length
 
@@ -438,7 +422,6 @@ class AtmosphereModelReader(object):
                     _x[_x > arg_1_max] = arg_1_max
 
                     if independent[1] in ["Teff", "age"]:
-
                         _x = np.log10(_x)
 
                     return _atmosphere_interpolator(
@@ -448,7 +431,6 @@ class AtmosphereModelReader(object):
                     )
 
             else:
-
                 raise ValueError(
                     f"Interpolator should be CT or RBF,"
                     f"{interpolator} is given."
@@ -457,7 +439,6 @@ class AtmosphereModelReader(object):
         # If a 2D grid is to be interpolated, normally is the logg and another
         # parameter
         elif len(independent) == 2:
-
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
 
@@ -467,15 +448,12 @@ class AtmosphereModelReader(object):
             arg_1_max = np.nanmax(arg_1)
 
             if independent[0] in ["Teff", "age"]:
-
                 arg_0 = np.log10(arg_0)
 
             if independent[1] in ["Teff", "age"]:
-
                 arg_1 = np.log10(arg_1)
 
             if interpolator.lower() == "ct":
-
                 # Interpolate with the scipy CloughTocher2DInterpolator
                 _atmosphere_interpolator = CloughTocher2DInterpolator(
                     (arg_0, arg_1),
@@ -484,21 +462,17 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(*x):
-
                     x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
 
                     if independent[0] in ["Teff", "age"]:
-
                         x_0 = np.log10(x_0)
 
                     if independent[1] in ["Teff", "age"]:
-
                         x_1 = np.log10(x_1)
 
                     return _atmosphere_interpolator(x_0, x_1)
 
             elif interpolator.lower() == "rbf":
-
                 # Interpolate with the scipy RBFInterpolator
                 _atmosphere_interpolator = RBFInterpolator(
                     np.stack((arg_0, arg_1), -1),
@@ -507,7 +481,6 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(*x):
-
                     x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
 
                     if isinstance(x_0, (float, int, np.int32)):
@@ -521,21 +494,17 @@ class AtmosphereModelReader(object):
                         length1 = len(x_1)
 
                     if length0 == length1:
-
                         pass
 
                     elif (length0 == 1) & (length1 > 1):
-
                         x_0 = [x_0] * length1
                         length0 = length1
 
                     elif (length0 > 1) & (length1 == 1):
-
                         x_1 = [x_1] * length0
                         length1 = length0
 
                     else:
-
                         raise ValueError(
                             "Either one variable is a float, int or of size "
                             "1, or two variables should have the same size."
@@ -550,11 +519,9 @@ class AtmosphereModelReader(object):
                     _x_1[_x_1 > arg_1_max] = arg_1_max
 
                     if independent[0] in ["Teff", "age"]:
-
                         _x_0 = np.log10(_x_0)
 
                     if independent[1] in ["Teff", "age"]:
-
                         _x_1 = np.log10(_x_1)
 
                     return _atmosphere_interpolator(
@@ -564,11 +531,9 @@ class AtmosphereModelReader(object):
                     )
 
             else:
-
                 raise ValueError("This should never happen.")
 
         else:
-
             raise TypeError(
                 "Please provide ONE varaible name as a string or "
                 "list, or TWO varaible names in a list."
