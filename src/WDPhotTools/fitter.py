@@ -33,7 +33,6 @@ class WDfitter(AtmosphereModelReader):
     """
 
     def __init__(self):
-
         super(WDfitter, self).__init__()
         self.interpolator = {"H": {}, "He": {}}
         self.fitting_params = None
@@ -71,21 +70,17 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if mode == "total":
-
             self.extinction_mode = mode
             self.z_min = None
             self.z_max = None
 
         elif mode == "linear":
-
             if z_min < 0:
-
                 raise ValueError(
                     "z_min has to be non-negative. {z_min} is provided."
                 )
 
             if z_max < z_min:
-
                 raise ValueError(
                     "z_max ({z_max}) has to be larger than z_min ({z_min})."
                 )
@@ -95,7 +90,6 @@ class WDfitter(AtmosphereModelReader):
             self.z_max = z_max
 
         else:
-
             raise ValueError("Unknown extinction mode: {mode}.")
 
     def _get_extinction_fraction(self, distance, ra, dec):
@@ -131,30 +125,25 @@ class WDfitter(AtmosphereModelReader):
         c_gal_cen = _c.transform_to(coord.Galactocentric)
 
         if (self.z_min is None) or (self.z_max is None):
-
             raise ValueError(
                 "z_min and z_max cannot be None, please initialise with "
                 "set_extinction_mode()"
             )
 
         else:
-
             # Get the distance from the Galactic mid-plane
             _z = getattr(c_gal_cen, "z").value
 
             # if z is lower than the lower limit, assume no extinction
             if _z < self.z_min:
-
                 return 0.0
 
             # if z is higher than the upper limit, assume total extinction
             elif _z > self.z_max:
-
                 return 1.0
 
             # Otherwise, apply a linear approximation of the extinction
             else:
-
                 return (_z - self.z_min) / (self.z_max - self.z_min)
 
     def _interp_am(
@@ -188,14 +177,11 @@ class WDfitter(AtmosphereModelReader):
     def _interp_reddening(
         self, filters, extinction_convolved=True, kind="cubic"
     ):
-
         if extinction_convolved:
-
             self.extinction_convolved = True
             self.Rv = [reddening_vector_filter(i) for i in filters]
 
         else:
-
             self.extinction_convolved = False
             rv_itp = reddening_vector_interpolated(kind=kind)
             wavelength = np.array(
@@ -222,7 +208,6 @@ class WDfitter(AtmosphereModelReader):
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x))
 
         mag = np.asarray(mag).reshape(-1)
@@ -240,23 +225,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_red(
@@ -282,7 +261,6 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if not self.extinction_convolved:
-
             # Does not require _diff2_red_interpolated_fixed_logg because
             # it is already taken care of when generating the interpolators
             # as the extinction from SFD12 table 6 has no dependency on
@@ -302,9 +280,7 @@ class WDfitter(AtmosphereModelReader):
             )
 
         else:
-
             if "logg" in self.fitting_params["independent"]:
-
                 logg_pos = int(
                     np.argwhere(
                         np.array(self.fitting_params["independent"]) == "logg"
@@ -327,7 +303,6 @@ class WDfitter(AtmosphereModelReader):
                 )
 
             else:
-
                 diff2, err2 = self._diff2_red_filter_fixed_logg(
                     _x,
                     obs,
@@ -345,11 +320,9 @@ class WDfitter(AtmosphereModelReader):
                 )
 
         if return_err:
-
             return diff2, err2
 
         else:
-
             return diff2
 
     def _diff2_red_interpolated(
@@ -374,15 +347,12 @@ class WDfitter(AtmosphereModelReader):
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x))
 
         if self.extinction_mode == "total":
-
             self.extinction_fraction = 1.0
 
         else:
-
             self.extinction_fraction = self._get_extinction_fraction(
                 distance, ra, dec
             )
@@ -407,23 +377,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_red_filter(
@@ -450,27 +414,21 @@ class WDfitter(AtmosphereModelReader):
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x))
 
         teff = float(interpolator_teff(_x))
 
         if not np.isfinite(teff):
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
         if self.extinction_mode == "total":
-
             self.extinction_fraction = 1.0
 
         else:
-
             self.extinction_fraction = self._get_extinction_fraction(
                 distance, ra, dec
             )
@@ -496,23 +454,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_red_filter_fixed_logg(
@@ -539,15 +491,12 @@ class WDfitter(AtmosphereModelReader):
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x))
 
         if self.extinction_mode == "total":
-
             self.extinction_fraction = 1.0
 
         else:
-
             self.extinction_fraction = self._get_extinction_fraction(
                 distance, ra, dec
             )
@@ -573,23 +522,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs)
 
     def _diff2_distance_fixed_logg(
@@ -603,19 +546,15 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x[0]))
 
         mag = np.asarray(mag).reshape(-1)
@@ -627,23 +566,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance(
@@ -656,19 +589,15 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x[:-1]))
 
         mag = np.asarray(mag).reshape(-1)
@@ -680,23 +609,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance_red_interpolated(
@@ -718,27 +641,21 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x[:2]))
 
         if self.extinction_mode == "total":
-
             self.extinction_fraction = 1.0
 
         else:
-
             self.extinction_fraction = self._get_extinction_fraction(
                 _x[-1], ra, dec
             )
@@ -760,23 +677,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance_red_filter(
@@ -800,27 +711,21 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x[:2]))
 
         if self.extinction_mode == "total":
-
             self.extinction_fraction = 1.0
 
         else:
-
             self.extinction_fraction = self._get_extinction_fraction(
                 _x[-1], ra, dec
             )
@@ -844,23 +749,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance_red_interpolated_fixed_logg(
@@ -882,27 +781,21 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x[0]))
 
         if self.extinction_mode == "total":
-
             self.extinction_fraction = 1.0
 
         else:
-
             self.extinction_fraction = self._get_extinction_fraction(
                 _x[-1], ra, dec
             )
@@ -924,23 +817,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance_red_filter_fixed_logg(
@@ -964,27 +851,21 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
         mag = []
 
         for interp in interpolator_filter:
-
             mag.append(interp(_x[0]))
 
         if self.extinction_mode == "total":
-
             self.extinction_fraction = 1.0
 
         else:
-
             self.extinction_fraction = self._get_extinction_fraction(
                 _x[-1], ra, dec
             )
@@ -1007,23 +888,17 @@ class WDfitter(AtmosphereModelReader):
         ) / err2
 
         if np.isfinite(diff2).all():
-
             if return_err:
-
                 return diff2, err2
 
             else:
-
                 return diff2
 
         else:
-
             if return_err:
-
                 return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
 
             else:
-
                 return np.ones_like(obs) * np.inf
 
     def _diff2_distance_red(
@@ -1047,9 +922,7 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if not self.extinction_convolved:
-
             if logg is None:
-
                 diff2, err2 = self._diff2_distance_red_interpolated(
                     _x,
                     obs,
@@ -1063,7 +936,6 @@ class WDfitter(AtmosphereModelReader):
                 )
 
             else:
-
                 diff2, err2 = self._diff2_distance_red_interpolated_fixed_logg(
                     _x,
                     obs,
@@ -1077,9 +949,7 @@ class WDfitter(AtmosphereModelReader):
                 )
 
         else:
-
             if logg is None:
-
                 logg_pos = int(
                     np.argwhere(
                         np.array(self.fitting_params["independent"]) == "logg"
@@ -1100,7 +970,6 @@ class WDfitter(AtmosphereModelReader):
                 )
 
             else:
-
                 diff2, err2 = self._diff2_distance_red_filter_fixed_logg(
                     _x,
                     obs,
@@ -1116,11 +985,9 @@ class WDfitter(AtmosphereModelReader):
                 )
 
         if return_err:
-
             return diff2, err2
 
         else:
-
             return diff2
 
     def _diff2_summed(
@@ -1177,11 +1044,9 @@ class WDfitter(AtmosphereModelReader):
         )
 
         if return_err:
-
             return np.sum(diff2), 1.0 / np.sum(1.0 / err2)
 
         else:
-
             return np.sum(diff2)
 
     def _diff2_distance_summed(
@@ -1194,23 +1059,19 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if logg is None:
-
             diff2, err2 = self._diff2_distance(
                 _x, obs, errors, interpolator_filter, True
             )
 
         else:
-
             diff2, err2 = self._diff2_distance_fixed_logg(
                 _x, obs, errors, interpolator_filter, True
             )
 
         if return_error:
-
             return np.sum(diff2), 1.0 / np.sum(1.0 / err2)
 
         else:
-
             return np.sum(diff2)
 
     def _diff2_distance_red_summed(
@@ -1248,23 +1109,17 @@ class WDfitter(AtmosphereModelReader):
         )
 
         if return_err:
-
             if np.isfinite(diff2).all():
-
                 return np.sum(diff2), 1.0 / np.sum(1.0 / err2)
 
             else:
-
                 return np.inf, np.inf
 
         else:
-
             if np.isfinite(diff2).all():
-
                 return np.sum(diff2)
 
             else:
-
                 return np.inf
 
     def _log_likelihood(
@@ -1280,11 +1135,9 @@ class WDfitter(AtmosphereModelReader):
         )
 
         if np.isfinite(diff2).all():
-
             return -0.5 * np.sum(diff2 + np.log(2 * np.pi * err2))
 
         else:
-
             return -np.inf
 
     def _log_likelihood_red(
@@ -1324,11 +1177,9 @@ class WDfitter(AtmosphereModelReader):
         )
 
         if np.isfinite(diff2).all():
-
             return -0.5 * np.sum(diff2 + np.log(2.0 * np.pi * err2))
 
         else:
-
             return -np.inf
 
     def _log_likelihood_distance(
@@ -1341,23 +1192,19 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if logg is None:
-
             diff2, err2 = self._diff2_distance(
                 _x, obs, errors, interpolator_filter, True
             )
 
         else:
-
             diff2, err2 = self._diff2_distance_fixed_logg(
                 _x, obs, errors, interpolator_filter, True
             )
 
         if np.isfinite(diff2).all():
-
             return -0.5 * np.nansum(diff2 + np.log(2.0 * np.pi * err2))
 
         else:
-
             return -np.inf
 
     def _log_likelihood_distance_red(
@@ -1394,11 +1241,9 @@ class WDfitter(AtmosphereModelReader):
         )
 
         if np.isfinite(diff2).all():
-
             return -0.5 * np.sum(diff2 + np.log(2.0 * np.pi * err2))
 
         else:
-
             return -np.inf
 
     def fit(
@@ -1560,42 +1405,32 @@ class WDfitter(AtmosphereModelReader):
 
         # Put things into list if necessary
         if isinstance(atmosphere, str):
-
             atmosphere = [atmosphere]
 
         if isinstance(filters, str):
-
             filters = [filters]
 
         if isinstance(independent, str):
-
             independent = [independent]
 
         if isinstance(initial_guess, (float, int)):
-
             initial_guess = [initial_guess]
 
         if isinstance(initial_guess, np.ndarray):
-
             initial_guess = list(initial_guess.reshape(-1))
 
         if isinstance(distance, (float, int, np.float32, np.float64)):
-
             if not isinstance(
                 distance_err, (float, int, np.float32, np.float64)
             ):
-
                 distance_err = np.sqrt(distance)
 
         if distance is None:
-
             if len(initial_guess) == len(independent):
-
                 initial_guess = initial_guess + [50.0]
 
         # Mask the data and interpolator if set to detect None
         if allow_none:
-
             # element-wise comparison with None, so using !=
             mask = np.array(mags) != np.array([None])
             mags = np.array(mags, dtype=float)[mask]
@@ -1603,7 +1438,6 @@ class WDfitter(AtmosphereModelReader):
             filters = np.array(filters)[mask]
 
         else:
-
             mags = np.array(mags, dtype=float)
             mag_errors = np.array(mag_errors, dtype=float)
             filters = np.array(filters)
@@ -1613,7 +1447,6 @@ class WDfitter(AtmosphereModelReader):
             or (self.extinction_convolved != extinction_convolved)
             or (len(self.interpolator[atmosphere[0]]) - 4 != len(filters))
         ):
-
             self._interp_reddening(
                 filters=filters,
                 extinction_convolved=extinction_convolved,
@@ -1627,17 +1460,13 @@ class WDfitter(AtmosphereModelReader):
             & (self.interpolator[atmosphere[0]] != [])
             & (len(self.interpolator[atmosphere[0]]) == (len(filters) + 4))
         ):
-
             pass
 
         else:
-
             self.interpolator = {"H": {}, "He": {}}
 
             for j in atmosphere:
-
                 for i in list(filters) + ["Teff", "mass", "Mbol", "age"]:
-
                     # Organise the interpolators by atmosphere type
                     # and filter, note that the logg is not used
                     # if independent list contains 'logg'
@@ -1687,22 +1516,16 @@ class WDfitter(AtmosphereModelReader):
 
         # If using the scipy.optimize.minimize()
         if method == "minimize":
-
             # Iterative through the list of atmospheres
             for j in atmosphere:
-
                 if extinction_convolved:
-
                     interpolator_teff = self.interpolator[j]["Teff"]
 
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
-
                     if Rv <= 0.0:
-
                         if "logg" in independent:
-
                             self.results[j] = optimize.minimize(
                                 self._diff2_distance_summed,
                                 initial_guess,
@@ -1717,7 +1540,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             self.results[j] = optimize.minimize(
                                 self._diff2_distance_summed,
                                 initial_guess,
@@ -1732,7 +1554,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                     else:
-
                         if "logg" in independent:
                             self.results[j] = optimize.minimize(
                                 self._diff2_distance_red_summed,
@@ -1773,7 +1594,6 @@ class WDfitter(AtmosphereModelReader):
 
                 # If distance is provided, fit here.
                 else:
-
                     if Rv <= 0.0:
                         self.results[j] = optimize.minimize(
                             self._diff2_summed,
@@ -1789,7 +1609,6 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-
                         if "logg" in independent:
                             self.results[j] = optimize.minimize(
                                 self._diff2_red_summed,
@@ -1840,7 +1659,6 @@ class WDfitter(AtmosphereModelReader):
 
                 # Save the best fit results
                 if len(independent) == 1:
-
                     self.best_fit_params[j][independent[0]] = self.results[
                         j
                     ].x[0]
@@ -1848,38 +1666,31 @@ class WDfitter(AtmosphereModelReader):
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
-
                     for k, val in enumerate(independent):
-
                         self.best_fit_params[j][val] = self.results[j].x[k]
                         self.best_fit_params[j][val + "_err"] = np.nan
 
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
                 for i in filters:
-
                     if "logg" in independent:
-
                         # the [:2] is to separate the distance from the filters
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](self.results[j].x[:2])
                         )
 
                     else:
-
                         # the [:2] is to separate the distance from the filters
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](self.results[j].x[0])
                         )
 
                     if distance is None:
-
                         self.best_fit_params[j]["distance"] = self.results[
                             j
                         ].x[-1]
 
                     else:
-
                         self.best_fit_params[j]["distance"] = distance
 
                     self.best_fit_params[j]["dist_mod"] = 5.0 * (
@@ -1888,20 +1699,15 @@ class WDfitter(AtmosphereModelReader):
 
         # If using scipy.optimize.least_squares
         elif method == "least_squares":
-
             # Iterative through the list of atmospheres
             for j in atmosphere:
-
                 if extinction_convolved:
-
                     interpolator_teff = self.interpolator[j]["Teff"]
 
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
-
                     if Rv <= 0.0:
-
                         self.results[j] = optimize.least_squares(
                             self._diff2_distance,
                             initial_guess,
@@ -1915,9 +1721,7 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-
                         if "logg" in independent:
-
                             self.results[j] = optimize.least_squares(
                                 self._diff2_distance_red,
                                 initial_guess,
@@ -1937,7 +1741,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             self.results[j] = optimize.least_squares(
                                 self._diff2_distance_red,
                                 initial_guess,
@@ -1958,9 +1761,7 @@ class WDfitter(AtmosphereModelReader):
 
                 # If distance is provided, fit here.
                 else:
-
                     if Rv <= 0.0:
-
                         self.results[j] = optimize.least_squares(
                             self._diff2,
                             initial_guess,
@@ -1976,9 +1777,7 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-
                         if "logg" in independent:
-
                             self.results[j] = optimize.least_squares(
                                 self._diff2_red,
                                 initial_guess,
@@ -2000,7 +1799,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             self.results[j] = optimize.least_squares(
                                 self._diff2_red,
                                 initial_guess,
@@ -2031,46 +1829,41 @@ class WDfitter(AtmosphereModelReader):
 
                 # Save the best fit results
                 if len(independent) == 1:
-
-                    self.best_fit_params[j][independent[0]] = self.results[
-                        j
-                    ].x[0]
-                    self.best_fit_params[j][independent[0] + "_err"] = _stdev
+                    self.best_fit_params[j][independent[0]] = float(
+                        self.results[j].x[0]
+                    )
+                    if distance is None:
+                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev[0])
+                    else:
+                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev)
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
-
                     for k, val in enumerate(independent):
-
-                        self.best_fit_params[j][val] = self.results[j].x[k]
-                        self.best_fit_params[j][val + "_err"] = _stdev[k]
+                        self.best_fit_params[j][val] = float(self.results[j].x[k])
+                        self.best_fit_params[j][val + "_err"] = float(_stdev[k])
 
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
                 for i in filters:
-
                     if "logg" in independent:
-
                         # the [:2] is to separate the distance from the filters
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](self.results[j].x[:2])
                         )
 
                     else:
-
                         # the [:2] is to separate the distance from the filters
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](self.results[j].x[0])
                         )
 
                     if distance is None:
-
                         self.best_fit_params[j]["distance"] = self.results[
                             j
                         ].x[-1]
 
                     else:
-
                         self.best_fit_params[j]["distance"] = distance
 
                     self.best_fit_params[j]["dist_mod"] = 5.0 * (
@@ -2079,7 +1872,6 @@ class WDfitter(AtmosphereModelReader):
 
         # If using emcee
         elif method == "emcee":
-
             _initial_guess = np.array(initial_guess)
             ndim = len(_initial_guess)
             nwalkers = int(nwalkers)
@@ -2089,19 +1881,14 @@ class WDfitter(AtmosphereModelReader):
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
-
                 if extinction_convolved:
-
                     interpolator_teff = self.interpolator[j]["Teff"]
 
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
-
                     if Rv <= 0.0:
-
                         if "logg" in independent:
-
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
                                 ndim,
@@ -2116,7 +1903,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
                                 ndim,
@@ -2131,9 +1917,7 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                     else:
-
                         if "logg" in independent:
-
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
                                 ndim,
@@ -2153,7 +1937,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
                                 ndim,
@@ -2174,9 +1957,7 @@ class WDfitter(AtmosphereModelReader):
 
                 # If distance is provided, fit here.
                 else:
-
                     if Rv <= 0.0:
-
                         self.sampler[j] = emcee.EnsembleSampler(
                             nwalkers,
                             ndim,
@@ -2192,9 +1973,7 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-
                         if "logg" in independent:
-
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
                                 ndim,
@@ -2216,7 +1995,6 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-
                             # Fixed logg is handled in the _log_likelihood_red
                             # The logg provided here is a variable as passed
                             # from the function one layer above.
@@ -2247,7 +2025,6 @@ class WDfitter(AtmosphereModelReader):
 
                 # Save the best fit results
                 if len(independent) == 1:
-
                     _stdev = get_uncertainty_emcee(self.samples[j])
                     self.best_fit_params[j][independent[0]] = np.percentile(
                         self.samples[j].T[0], 50.0
@@ -2261,9 +2038,7 @@ class WDfitter(AtmosphereModelReader):
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
-
                     for k, val in enumerate(independent):
-
                         _stdev = get_uncertainty_emcee(self.samples[j][:, k])
                         self.best_fit_params[j][val] = np.percentile(
                             self.samples[j].T[k], 50.0
@@ -2273,7 +2048,6 @@ class WDfitter(AtmosphereModelReader):
                         self.best_fit_params[j][val + "_84"] = _stdev[1]
 
                 if refine:
-
                     kwargs = copy.deepcopy(_kwargs_for_minimize)
                     kwargs["bounds"] = np.percentile(
                         self.samples[j], refine_bounds, axis=0
@@ -2286,7 +2060,6 @@ class WDfitter(AtmosphereModelReader):
                     )
 
                     if distance is None:
-
                         # setting distance to infinity so that it will be
                         # turned back to None after the line appending to the
                         # intial_guess when distance has to be found
@@ -2311,7 +2084,6 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-
                         self.fit(
                             filters=filters,
                             mags=mags,
@@ -2335,9 +2107,7 @@ class WDfitter(AtmosphereModelReader):
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
                 for i in filters:
-
                     if len(independent) == 1:
-
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](
                                 self.best_fit_params[j][independent[0]]
@@ -2345,7 +2115,6 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](
                                 self.best_fit_params[j][independent[0]],
@@ -2354,13 +2123,11 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     if distance is None:
-
                         self.best_fit_params[j]["distance"] = np.percentile(
                             self.samples[j].T[-1], 50.0
                         )
 
                     else:
-
                         self.best_fit_params[j]["distance"] = distance
 
                     self.best_fit_params[j]["dist_mod"] = 5.0 * (
@@ -2368,7 +2135,6 @@ class WDfitter(AtmosphereModelReader):
                     )
 
         else:
-
             ValueError(
                 "Unknown method. Please choose from minimize, "
                 "least_squares and emcee."
@@ -2377,21 +2143,16 @@ class WDfitter(AtmosphereModelReader):
         # Save the pivot wavelength and magnitude for each filter
         self.pivot_wavelengths = []
         for i in self.fitting_params["filters"]:
-
             self.pivot_wavelengths.append(self.column_wavelengths[i])
 
         for j in atmosphere:
-
             self.best_fit_mag[j] = []
 
             for i in self.fitting_params["filters"]:
-
                 self.best_fit_mag[j].append(self.best_fit_params[j][i])
 
             for name in ["Teff", "mass", "Mbol", "age"]:
-
                 if len(independent) == 1:
-
                     self.best_fit_params[j][name] = float(
                         self.interpolator[j][name](
                             self.best_fit_params[j][independent[0]]
@@ -2399,7 +2160,6 @@ class WDfitter(AtmosphereModelReader):
                     )
 
                 else:
-
                     self.best_fit_params[j][name] = float(
                         self.interpolator[j][name](
                             self.best_fit_params[j][independent[0]],
@@ -2408,9 +2168,7 @@ class WDfitter(AtmosphereModelReader):
                     )
 
                 if Rv > 0.0:
-
                     if self.extinction_convolved:
-
                         Av = (
                             np.array(
                                 [
@@ -2430,7 +2188,6 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-
                         Av = (
                             np.array(
                                 [i(Rv) for i in self.Rv], dtype=np.float64
@@ -2442,11 +2199,9 @@ class WDfitter(AtmosphereModelReader):
                     Av[np.isnan(Av)] = 0.0
 
                 else:
-
                     Av = np.zeros(len(self.Rv)).reshape(-1)
 
                 for i, _f in enumerate(self.fitting_params["filters"]):
-
                     self.best_fit_params[j]["Av_" + _f] = Av[i]
 
     def show_corner_plot(
@@ -2504,22 +2259,17 @@ class WDfitter(AtmosphereModelReader):
         _kwarg.update(**kwarg)
 
         if "labels" in kwarg:
-
             labels = _kwarg["labels"]
 
         else:
-
             labels = self.fitting_params["independent"]
 
             if self.fitting_params["distance"] is None:
-
                 labels = labels + ["distance"]
 
         fig = []
         for i, j in enumerate(self.fitting_params["atmosphere"]):
-
             if self.best_fit_params[j] == {}:
-
                 continue
 
             fig.append(
@@ -2534,43 +2284,33 @@ class WDfitter(AtmosphereModelReader):
             plt.tight_layout()
 
             if savefig:
-
                 if isinstance(ext, str):
-
                     ext = [ext]
 
                 if folder is None:
-
                     _folder = os.getcwd()
 
                 else:
-
                     _folder = os.path.abspath(folder)
 
                     if not os.path.exists(_folder):
-
                         os.makedirs(_folder)
 
                 # Loop through the ext list to save figure into each image type
                 for _e in ext:
-
                     if filename is None:
-
                         time_now = time.time()
                         _filename = (
                             f"corner_plot_{j}_atmosphere_{time_now}.{_e}"
                         )
 
                     elif isinstance(filename, (list, np.ndarray)):
-
                         _filename = f"{filename[i]}.{_e}"
 
                     elif isinstance(filename, str):
-
                         _filename = f"{filename}.{_e}"
 
                     else:
-
                         raise TypeError(
                             "Please provide the filename as a "
                             "string or a list/array of string."
@@ -2579,11 +2319,9 @@ class WDfitter(AtmosphereModelReader):
                     plt.savefig(os.path.join(_folder, _filename))
 
         if display:
-
             plt.show()
 
         if return_fig:
-
             return fig
 
     def show_best_fit(
@@ -2636,11 +2374,9 @@ class WDfitter(AtmosphereModelReader):
         """
 
         if isinstance(color, str):
-
             color = [color]
 
         if isinstance(atmosphere, str):
-
             atmosphere = [atmosphere]
 
         fig = plt.figure(figsize=figsize)
@@ -2660,9 +2396,7 @@ class WDfitter(AtmosphereModelReader):
 
         # Plot the fitted photometry
         for j, k in enumerate(atmosphere):
-
             if self.best_fit_params[k] == {}:
-
                 continue
 
             reddening = [
@@ -2690,59 +2424,45 @@ class WDfitter(AtmosphereModelReader):
 
         # Configure the title
         if title is None:
-
             _method = self.fitting_params["method"]
             if len(self.fitting_params["atmosphere"]) == 1:
-
                 _atm = self.fitting_params["atmosphere"][0]
                 _ax.set_title(f"Best-fit {_atm} atmosphere with {_method}")
 
             else:
-
                 _ax.set_title(f"Best-fit H & He atmosphere with {_method}")
 
         else:
-
             _ax.set_title(title)
 
         plt.tight_layout()
 
         if savefig:
-
             if isinstance(ext, str):
-
                 ext = [ext]
 
             if folder is None:
-
                 _folder = os.getcwd()
 
             else:
-
                 _folder = os.path.abspath(folder)
 
                 if not os.path.exists(_folder):
-
                     os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for _e in ext:
-
                 if filename is None:
-
                     time_now = time.time()
                     _filename = f"best_fit_wd_solution_{time_now}.{_e}"
 
                 else:
-
                     _filename = f"{filename}.{_e}"
 
                 plt.savefig(os.path.join(_folder, _filename))
 
         if display:
-
             plt.show()
 
         if return_fig:
-
             return fig

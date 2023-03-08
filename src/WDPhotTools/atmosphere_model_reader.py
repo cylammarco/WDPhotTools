@@ -406,9 +406,9 @@ class AtmosphereModelReader(object):
 
                     if independent[1] in ["Teff", "age"]:
 
-                        _log_x = np.log10(_x)
+                        _x = np.log10(_x)
 
-                    return _atmosphere_interpolator(logg, _log_x)
+                    return _atmosphere_interpolator(logg, _x)
 
             elif interpolator.lower() == "rbf":
 

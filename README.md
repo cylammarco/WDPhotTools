@@ -14,7 +14,7 @@ This software can generate colour-colour diagram, colour-magnitude diagram in va
 
 the core parts of this work are three-fold: the first and the backbone of this work is the formatters that handle the output models from various works in the format as they are downloaded. This will allow the software to be updated with the newer models easily in the future. The second core part is the photometric fitter that solves for the WD parameters based on the photometry, with or without distance and reddening. The last part is to generate white dwarf luminosity function in bolometric magnitudes or in any of the photometric systems availalbe from the atmosphere model.
 
-When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9 which provides a speed gain of O(100) times.
+When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9+ which provides a speed gain of O(100) times.
 
 ## Documentation
 
@@ -25,30 +25,29 @@ Documentation and more examples can be found at [Read the Docs](https://wdphotto
 If you have made use of the WDPhotTools, we would appreciate if you can refernce the follow article and the software itself. The BibTex of the two items are::
 
 ```bash
-@ARTICLE{2022arXiv220515321L,
-        author = {{Lam}, M.~C. and {Yuen}, K.~W. and {Li}, W. and {Green}, M.~J.},
-        title = "{WDPhotTools -- A White Dwarf Photometric Toolkit in Python}",
-        journal = {arXiv e-prints},
-        keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - Solar and Stellar Astrophysics},
-            year = 2022,
-        month = may,
-            eid = {arXiv:2205.15321},
-        pages = {arXiv:2205.15321},
-archivePrefix = {arXiv},
-        eprint = {2205.15321},
-    primaryClass = {astro-ph.IM},
-        adsurl = {https://ui.adsabs.harvard.edu/abs/2022arXiv220515321L},
-        adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+@article{10.1093/rasti/rzac006,
+    author = {Lam, M C and Yuen, K W and Green, M J and Li, W},
+    title = "{WDPhotTools – a white dwarf photometric toolkit in Python}",
+    journal = {RAS Techniques and Instruments},
+    volume = {1},
+    number = {1},
+    pages = {81-98},
+    year = {2022},
+    month = {12},
+    issn = {2752-8200},
+    doi = {10.1093/rasti/rzac006},
+    url = {https://doi.org/10.1093/rasti/rzac006},
+    eprint = {https://academic.oup.com/rasti/article-pdf/1/1/81/48321979/rzac006.pdf},
 }
 ```
 
 and
 
 ```bash
-@software{marco_c_lam_2022_6595030,
+@software{marco_c_lam_2022_6595029,
     author       = {Marco C Lam and
                     K Yuen},
-    title        = {WDPhotTools: A White Dwarf Photometric Toolkit in Python},
+    title        = {WDPhotTools – a white dwarf photometric toolkit in Python},
     month        = may,
     year         = 2022,
     publisher    = {Zenodo},

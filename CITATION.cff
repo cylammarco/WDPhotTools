@@ -9,7 +9,7 @@ authors:
     family-names: Lam
     email: lam@mail.tau.ac.il
     affiliation: Tel Aviv University
-    orcid: 'https://orcid.org/0000-0002-9347-2298'
+    orcid: "https://orcid.org/0000-0002-9347-2298"
   - given-names: Ka Wai
     family-names: Yuen
     email: kawai.yuen@cuhk.edu.hk 
@@ -18,9 +18,38 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.6595029
     description: Zenodo
+references:
   - type: article
-    value: "arXiv:2205.15321"
-    description: The arXiv preprint of the article
+    authors:
+      - family-names: Lam
+        given-names: Marco C
+        affiliation: Tel Aviv University
+        orcid: "https://orcid.org/0000-0002-9347-2298"
+      - family-names: Yuen
+        given-names: Ka Wai
+        affiliation: The Chinese University of Hong Kong
+      - family-names: Green
+        given-names: Matthew J
+        affiliation: Tel Aviv University
+        orcid: "https://orcid.org/0000-0002-0948-4801"
+      - family-names: Li
+        given-names: Wenxiong
+        affiliation: Tel Aviv University
+        orcid: "https://orcid.org/0000-0002-0096-3523"
+    title: "WDPhotTools – a white dwarf photometric toolkit in Python"
+    year: 2022
+    journal: RAS Techniques and Instruments
+    volume: 1
+    issue: 1
+    doi: 10.1093/rasti/rzac006
 repository-code: 'https://github.com/cylammarco/WDPhotTools'
+repository: 'https://ascl.net/2206.012'
+keywords:
+  - 'methods: data analysis'
+  - 'software: data analysis'
+  - 'software: public release'
+  - 'stars: luminosity function'
+  - mass function
+  - '(stars:) white dwarfs'
 url: 'https://pypi.org/project/wdphottools/'
 license: BSD-3-Clause
