@@ -48,7 +48,6 @@ def list_cooling_model():
 
     """
     if __dummy_cm.reader is None:
-
         __dummy_cm.reader = CoolingModelReader()
 
     return __dummy_cm.reader.list_cooling_model()
@@ -66,7 +65,6 @@ def list_cooling_parameters(model):
 
     """
     if __dummy_cm.reader is None:
-
         __dummy_cm.reader = CoolingModelReader()
 
     return __dummy_cm.reader.list_cooling_parameters(model)
@@ -79,7 +77,6 @@ def list_atmosphere_parameters():
 
     """
     if __dummy_atm.reader is None:
-
         __dummy_atm.reader = AtmosphereModelReader()
 
     return __dummy_atm.reader.list_atmosphere_parameters()
@@ -92,7 +89,7 @@ def plot_atmosphere_model(
     independent=["logg", "Teff"],
     independent_values=[
         np.linspace(7.0, 9.0, 5),
-        10.0 ** np.linspace(3.185, 5.165, 100),
+        np.pow(10.0, np.linspace(3.185, 5.165, 100)),
     ],
     interpolator="CT",
     contour=True,
@@ -127,7 +124,7 @@ def plot_atmosphere_model(
     independent: list of str (Default: ['logg', 'Teff'])
         Independent variables to be interpolated in the atmosphere model.
     independent_values: list of list or list of arrays (Default:
-        [np.linspace(7.0, 9.0, 5), 10.**np.linspace(3.185, 5.165, 100)])
+        [np.linspace(7.0, 9.0, 5), np.pow(10., np.linspace(3.185, 5.165, 100))])
         The coordinates to be interpolated and plotted.
     interpolator: str (Default: 'CT')
         Choice of interpolator between CT and RBF.
@@ -166,14 +163,12 @@ def plot_atmosphere_model(
     """
 
     if __dummy_atm.reader is None:
-
         __dummy_atm.reader = AtmosphereModelReader()
 
     x = x.split("-")
     y = y.split("-")
 
     if len(x) == 2:
-
         x_name = (
             __dummy_atm.reader.column_names[x[0]]
             + r" $-$ "
@@ -183,7 +178,6 @@ def plot_atmosphere_model(
         )
 
     else:
-
         x_name = (
             __dummy_atm.reader.column_names[x[0]]
             + " / "
@@ -191,7 +185,6 @@ def plot_atmosphere_model(
         )
 
     if len(y) == 2:
-
         y_name = (
             __dummy_atm.reader.column_names[y[0]]
             + r" $-$ "
@@ -201,7 +194,6 @@ def plot_atmosphere_model(
         )
 
     else:
-
         y_name = (
             __dummy_atm.reader.column_names[y[0]]
             + " / "
@@ -209,22 +201,17 @@ def plot_atmosphere_model(
         )
 
     if title is None:
-
         if atmosphere in ["H", "h", "hydrogen", "Hydrogen", "da", "DA"]:
-
             title = "DA (Montreal)"
 
         if atmosphere in ["He", "he", "helium", "Helium", "db", "DB"]:
-
             title = "DB (Montreal)"
 
     x_out = []
     y_out = []
 
     for i_v in independent_values[0]:
-
         if len(x) == 2:
-
             x0_itp = __dummy_atm.reader.interp_am(
                 dependent=x[0],
                 atmosphere=atmosphere,
@@ -243,7 +230,6 @@ def plot_atmosphere_model(
             )
 
         else:
-
             x_itp = __dummy_atm.reader.interp_am(
                 dependent=x[0],
                 atmosphere=atmosphere,
@@ -253,7 +239,6 @@ def plot_atmosphere_model(
             x_out.append(x_itp(i_v, independent_values[1]))
 
         if len(y) == 2:
-
             y0_itp = __dummy_atm.reader.interp_am(
                 dependent=y[0],
                 atmosphere=atmosphere,
@@ -272,7 +257,6 @@ def plot_atmosphere_model(
             )
 
         else:
-
             y_itp = __dummy_atm.reader.interp_am(
                 dependent=y[0],
                 atmosphere=atmosphere,
@@ -282,15 +266,12 @@ def plot_atmosphere_model(
             y_out.append(y_itp(i_v, independent_values[1]))
 
     if fig is not None:
-
         axes = fig.gca()
 
     else:
-
         fig, axes = _preset_figure(x_name, y_name, title, figsize)
 
     for i, (x_i, y_i) in enumerate(zip(x_out, y_out)):
-
         label = (
             __dummy_atm.reader.column_names[independent[0]]
             + f" = {independent_values[0][i]:.2f}"
@@ -298,7 +279,6 @@ def plot_atmosphere_model(
         axes.plot(x_i, y_i, label=label, **kwargs_for_plot)
 
     if contour:
-
         contourf_ = axes.tricontourf(
             np.array(x_out).flatten(),
             np.array(y_out).flatten(),
@@ -313,48 +293,37 @@ def plot_atmosphere_model(
     plt.legend()
 
     if invert_xaxis:
-
         axes.invert_xaxis()
 
     if invert_yaxis:
-
         axes.invert_yaxis()
 
     plt.tight_layout()
 
     if savefig:
-
         if isinstance(ext, str):
-
             ext = [ext]
 
         if folder is None:
-
             _folder = os.getcwd()
 
         else:
-
             _folder = os.path.abspath(folder)
 
             if not os.path.exists(_folder):
-
                 os.makedirs(_folder)
 
         # Loop through the ext list to save figure into each image type
         for _e in ext:
-
             if filename is None:
-
                 _filename = title + "_" + y_name + "_" + x_name + "." + _e
 
             else:
-
                 _filename = filename + "." + _e
 
             plt.savefig(os.path.join(_folder, _filename))
 
     if display:
-
         plt.show()
 
     return fig
@@ -457,7 +426,6 @@ def plot_cooling_model(
     """
 
     if __dummy_cm.reader is None:
-
         __dummy_cm.reader = CoolingModelReader()
 
     (
@@ -470,40 +438,32 @@ def plot_cooling_model(
     x_name = column_names[x]
 
     if column_units[x] != "":
-
         x_name = x_name + " / " + column_units[x]
 
     y_name = column_names[y]
 
     if column_units[y] != "":
-
         y_name = y_name + " / " + column_units[y]
 
     if title is None:
-
         title = f"Cooling Model - {model}"
 
     if fig is not None:
-
         axes = fig.gca()
 
     else:
-
         fig, axes = _preset_figure(x_name, y_name, title, figsize)
 
     if mass == "all":
-
         mass_list = _mass_list
 
     else:
-
         mass_list = mass
 
     x_out = []
     y_out = []
 
     for i, mass in enumerate(mass_list):
-
         x_out.append(cooling_model[i][x])
         y_out.append(cooling_model[i][y])
 
@@ -511,19 +471,15 @@ def plot_cooling_model(
         axes.plot(x_out[i], y_out[i], label=label, **kwargs_for_plot)
 
     if log_x:
-
         axes.set_xscale("log")
 
     if log_y:
-
         axes.set_yscale("log")
 
     if invert_xaxis:
-
         axes.invert_xaxis()
 
     if invert_yaxis:
-
         axes.invert_yaxis()
 
     plt.grid()
@@ -531,38 +487,29 @@ def plot_cooling_model(
     plt.tight_layout()
 
     if savefig:
-
         if isinstance(ext, str):
-
             ext = [ext]
 
         if folder is None:
-
             _folder = os.getcwd()
 
         else:
-
             _folder = os.path.abspath(folder)
 
             if not os.path.exists(_folder):
-
                 os.makedirs(_folder)
 
         # Loop through the ext list to save figure into each image type
         for _e in ext:
-
             if filename is None:
-
                 _filename = title + "_" + y_name + "_" + x_name + "." + _e
 
             else:
-
                 _filename = filename + "." + _e
 
             plt.savefig(os.path.join(_folder, _filename))
 
     if display:
-
         plt.show()
 
     return fig
