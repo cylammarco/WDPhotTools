@@ -89,7 +89,7 @@ def plot_atmosphere_model(
     independent=["logg", "Teff"],
     independent_values=[
         np.linspace(7.0, 9.0, 5),
-        np.pow(10.0, np.linspace(3.185, 5.165, 100)),
+        np.power(10.0, np.linspace(3.185, 5.165, 100)),
     ],
     interpolator="CT",
     contour=True,
@@ -124,7 +124,7 @@ def plot_atmosphere_model(
     independent: list of str (Default: ['logg', 'Teff'])
         Independent variables to be interpolated in the atmosphere model.
     independent_values: list of list or list of arrays (Default:
-        [np.linspace(7.0, 9.0, 5), np.pow(10., np.linspace(3.185, 5.165, 100))])
+        [np.linspace(7.0, 9.0, 5), np.power(10., np.linspace(3.185, 5.165, 100))])
         The coordinates to be interpolated and plotted.
     interpolator: str (Default: 'CT')
         Choice of interpolator between CT and RBF.
