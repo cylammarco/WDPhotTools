@@ -27,7 +27,6 @@ fig1, (ax1, ax2, ax3) = plt.subplots(
 )
 
 for i, age in enumerate(age_list):
-
     # Constant SFR
     wdlf.set_sfr_model(mode="constant", age=age)
     _, constant_density = wdlf.compute_density(mag=mag)

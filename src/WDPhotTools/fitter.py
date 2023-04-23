@@ -175,7 +175,7 @@ class WDfitter(AtmosphereModelReader):
         return _interpolator
 
     def _interp_reddening(
-        self, filters, extinction_convolved=True, kind="cubic"
+        self, filters, extinction_convolved=True, kernel="cubic"
     ):
         if extinction_convolved:
             self.extinction_convolved = True
@@ -183,7 +183,7 @@ class WDfitter(AtmosphereModelReader):
 
         else:
             self.extinction_convolved = False
-            rv_itp = reddening_vector_interpolated(kind=kind)
+            rv_itp = reddening_vector_interpolated(kernel=kernel)
             wavelength = np.array(
                 [self.column_wavelengths[i] for i in filters]
             )
@@ -1256,7 +1256,7 @@ class WDfitter(AtmosphereModelReader):
         distance=None,
         distance_err=None,
         extinction_convolved=True,
-        kind="cubic",
+        kernel="cubic",
         Rv=3.1,
         ebv=0.0,
         ra=None,
@@ -1320,8 +1320,8 @@ class WDfitter(AtmosphereModelReader):
             the convolution of the response function of the filters with
             the DA spectra from Koester et al. 2010 using the equation
             provided in Schlafly et al. 2011.
-        kind: str (Default: 'cubic')
-            The kind of interpolation of the extinction curve.
+        kernel: str (Default: 'cubic')
+            The kernel of interpolation of the extinction curve.
         Rv: float (Default: 3.1)
             The choice of Rv, only used if a numerical value is provided.
         ebv: float (Default: 0.0)
@@ -1450,7 +1450,7 @@ class WDfitter(AtmosphereModelReader):
             self._interp_reddening(
                 filters=filters,
                 extinction_convolved=extinction_convolved,
-                kind=kind,
+                kernel=kernel,
             )
 
         # Reuse the interpolator if instructed or possible
@@ -1492,7 +1492,7 @@ class WDfitter(AtmosphereModelReader):
             "initial_guess": initial_guess,
             "logg": logg,
             "extinction_convolved": extinction_convolved,
-            "kind": kind,
+            "kernel": kernel,
             "Rv": Rv,
             "ebv": ebv,
             "ra": ra,
@@ -2177,12 +2177,19 @@ class WDfitter(AtmosphereModelReader):
 
                 if Rv > 0.0:
                     if self.extinction_convolved:
+                        # trap logg here: if it is fitted, it appears as a
+                        # best_fit_params. Else, it should be taken from
+                        # input argument
+                        if "mass" in np.char.lower(independent):
+                            _logg = logg
+                        else:
+                            _logg = self.best_fit_params[j]["logg"]
                         Av = (
                             np.array(
                                 [
                                     i(
                                         [
-                                            self.best_fit_params[j]["logg"],
+                                            _logg,
                                             self.best_fit_params[j]["Teff"],
                                             Rv,
                                         ]

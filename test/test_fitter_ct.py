@@ -18,7 +18,7 @@ wave_grizyJHK = np.array(
 RV = 3.1
 EBV = 0.123
 
-reddening = reddening_vector_interpolated(kind="cubic")
+reddening = reddening_vector_interpolated(kernel="cubic")
 extinction_interpolated = reddening(wave_GBRFN, RV) * EBV
 extinction_grizyJHK_interpolated = reddening(wave_grizyJHK, RV) * EBV
 

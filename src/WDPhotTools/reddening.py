@@ -7,15 +7,14 @@ import itertools
 import os
 
 import numpy as np
-from scipy.interpolate import RegularGridInterpolator
+from scipy.interpolate import RBFInterpolator, RegularGridInterpolator
 
-from .util import GlobalSpline2D
 
 folder_path = os.path.dirname(os.path.abspath(__file__))
 
 
 # Interpolating with the custom-build (extra-)interpolator
-def reddening_vector_interpolated(kind="cubic"):
+def reddening_vector_interpolated(**kwargs):
     """
     This generates an interpolation using the pre-computed table from
     Schlafly et al. 2012 for a 7000K, log_Z = -1, and log_g = 4.5 source.
@@ -36,9 +35,22 @@ def reddening_vector_interpolated(kind="cubic"):
         ]
     )
     _z = data[:, 1:].flatten()
-    x_new, y_new, z_new = np.vstack((_xy.T, _z))
 
-    return GlobalSpline2D(x_new, y_new, z_new, kind=kind)
+    temp = RBFInterpolator(_xy, _z, **kwargs)
+
+    def _RBFInterpolator(*x):
+        _x = np.array(
+            [
+                i
+                for i in itertools.product(
+                    np.array(x[0]).reshape(-1), np.array(x[1]).reshape(-1)
+                )
+            ],
+            dtype="object",
+        )
+        return temp(_x.reshape(len(_x), 2))
+
+    return _RBFInterpolator
 
 
 def reddening_vector_filter(filter_name):

@@ -34,7 +34,6 @@ fig2 = plt.figure(2, figsize=(12, 8))
 ax2 = plt.gca()
 
 for i, age in enumerate(age_list):
-
     # Burst SFR
     wdlf.set_sfr_model(mode="burst", age=age, duration=1e9)
     _, burst_density = wdlf.compute_density(

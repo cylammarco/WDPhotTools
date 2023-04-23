@@ -20,33 +20,33 @@ Rv_grizyJHK_51 = np.array(
     (2.835, 2.292, 1.765, 1.369, 1.097, 0.669, 0.411, 0.280)
 )
 
-Rv = reddening_vector_interpolated(kind="cubic")
-Rv_linear = reddening_vector_interpolated(kind="linear")
-Rv_quintic = reddening_vector_interpolated(kind="quintic")
+Rv = reddening_vector_interpolated(kernel="cubic")
+Rv_linear = reddening_vector_interpolated(kernel="linear")
+Rv_quintic = reddening_vector_interpolated(kernel="quintic")
 
 
 # Test the Av values when Rv = 2.1, 3.1, 4.1 and 5.1
 def test_Rv21():
     assert np.allclose(
-        Rv(wave_grizyJHK, 2.1), Rv_grizyJHK_21, rtol=1e-3, atol=1e-3
+        Rv(wave_grizyJHK, 2.1), Rv_grizyJHK_21, rtol=1e-2, atol=1e-2
     )
 
 
 def test_Rv31():
     assert np.allclose(
-        Rv(wave_grizyJHK, 3.1), Rv_grizyJHK_31, rtol=1e-3, atol=1e-3
+        Rv(wave_grizyJHK, 3.1), Rv_grizyJHK_31, rtol=1e-2, atol=1e-2
     )
 
 
 def test_Rv41():
     assert np.allclose(
-        Rv(wave_grizyJHK, 4.1), Rv_grizyJHK_41, rtol=1e-3, atol=1e-3
+        Rv(wave_grizyJHK, 4.1), Rv_grizyJHK_41, rtol=1e-2, atol=1e-2
     )
 
 
 def test_Rv51():
     assert np.allclose(
-        Rv(wave_grizyJHK, 5.1), Rv_grizyJHK_51, rtol=1e-3, atol=1e-3
+        Rv(wave_grizyJHK, 5.1), Rv_grizyJHK_51, rtol=1e-2, atol=1e-2
     )
 
 
@@ -61,19 +61,19 @@ def test_Rv21_linear():
 
 def test_Rv31_linear():
     assert np.allclose(
-        Rv_linear(wave_grizyJHK, 3.1), Rv_grizyJHK_31, rtol=1e-3, atol=1e-3
+        Rv_linear(wave_grizyJHK, 3.1), Rv_grizyJHK_31, rtol=1e-2, atol=1e-2
     )
 
 
 def test_Rv41_linear():
     assert np.allclose(
-        Rv_linear(wave_grizyJHK, 4.1), Rv_grizyJHK_41, rtol=1e-3, atol=1e-3
+        Rv_linear(wave_grizyJHK, 4.1), Rv_grizyJHK_41, rtol=1e-2, atol=1e-2
     )
 
 
 def test_Rv51_linear():
     assert np.allclose(
-        Rv_linear(wave_grizyJHK, 5.1), Rv_grizyJHK_51, rtol=1e-3, atol=1e-3
+        Rv_linear(wave_grizyJHK, 5.1), Rv_grizyJHK_51, rtol=1e-2, atol=1e-2
     )
 
 

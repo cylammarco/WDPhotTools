@@ -4,8 +4,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/cylammarco/WDPhotTools/badge.svg?branch=main)](https://coveralls.io/github/cylammarco/WDPhotTools?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/wdphottools/badge/?version=latest)](https://wdphottools.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/wdphottools.svg)](https://badge.fury.io/py/wdphottools)
+[![Python version](https://img.shields.io/pypi/pyversions/WDPhotTools)](https://img.shields.io/pypi/pyversions/WDPhotTools)
 [![DOI](https://zenodo.org/badge/310723364.svg)](https://zenodo.org/badge/latestdoi/310723364)
 [![arXiv](https://img.shields.io/badge/arXiv-2205.15321-00ff00.svg)](https://arxiv.org/abs/2205.15321)
+[![RASTI](https://img.shields.io/badge/Journal-RASTI-blueviolet)](https://doi.org/10.1093/rasti/rzac006)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/wdphottools)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/0c8fae5312564fffb1aed3a862009fe5)](https://www.codacy.com/gh/cylammarco/WDPhotTools/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cylammarco/WDPhotTools&amp;utm_campaign=Badge_Grade)
@@ -113,9 +115,9 @@ plt.tight_layout()
 The cooling sequence above is mostly concerned with the synthetic photometry, in this example, it is mostly regarding the physical properties beneath the photosphere. To check what models are embedded, you can use:
 
 ```python
-from WDPhotTools.cooling_model_reader import cm_reader
+from WDPhotTools.cooling_model_reader import CoolingModelReader
 
-cr = cm_reader()
+cr = CoolingModelReader()
 cr.list_cooling_model()
 ```
 

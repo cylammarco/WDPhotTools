@@ -364,16 +364,33 @@ class AtmosphereModelReader(object):
 
         independent = np.asarray(independent).reshape(-1)
 
+        independent_list = ["Teff", "mass", "Mbol", "age", "logg"]
+        independent_list_lower_cases = np.char.lower(independent_list)
+
         # If only performing a 1D interpolation, the logg has to be assumed.
         if len(independent) == 1:
-            if independent[0] in ["Teff", "mass", "Mbol", "age"]:
-                independent = np.concatenate((["logg"], independent))
+            if independent[0].lower() in independent_list_lower_cases:
+                independent = np.array(("logg", independent[0]))
 
             else:
                 raise ValueError(
                     "When ony interpolating in 1-dimension, the independent "
                     "variable has to be one of: Teff, mass, Mbol, or age."
                 )
+
+            _independent_arg_0 = np.where(
+                independent[0].lower() == independent_list_lower_cases
+            )[0][0]
+            _independent_arg_1 = np.where(
+                independent[1].lower() == independent_list_lower_cases
+            )[0][0]
+
+            independent = np.array(
+                [
+                    independent_list[_independent_arg_0],
+                    independent_list[_independent_arg_1],
+                ]
+            )
 
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
@@ -432,13 +449,27 @@ class AtmosphereModelReader(object):
 
             else:
                 raise ValueError(
-                    f"Interpolator should be CT or RBF,"
+                    "Interpolator should be CT or RBF,"
                     f"{interpolator} is given."
                 )
 
         # If a 2D grid is to be interpolated, normally is the logg and another
         # parameter
         elif len(independent) == 2:
+            _independent_arg_0 = np.where(
+                independent[0].lower() == independent_list_lower_cases
+            )[0][0]
+            _independent_arg_1 = np.where(
+                independent[1].lower() == independent_list_lower_cases
+            )[0][0]
+
+            independent = np.array(
+                [
+                    independent_list[_independent_arg_0],
+                    independent_list[_independent_arg_1],
+                ]
+            )
+
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
 

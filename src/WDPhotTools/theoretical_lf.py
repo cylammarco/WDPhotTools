@@ -41,7 +41,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         high_mass_cooling_model="montreal_co_da_20",
         ms_model="PARSECz0017",
     ):
-
         super(WDLF, self).__init__()
 
         self.cooling_interpolator = None
@@ -124,7 +123,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         self.number_density = None
 
     def _update_filename(self):
-
         self._filename_middle = (
             f"_{self.wdlf_params['sfr_mode']}"
             f"_{self.wdlf_params['ms_model']}"
@@ -156,18 +154,15 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         mass_ms = np.asarray(mass_ms).reshape(-1)
 
         if self.wdlf_params["imf_model"] == "K01":
-
             mass_function = mass_ms**-2.3
 
             # mass lower than 0.08 is impossible, so that range is ignored.
             if (mass_ms < 0.5).any():
-
                 m_mask = mass_ms < 0.5
                 # (0.5**-2.3) / (0.5**-1.3) = 2.0
                 mass_function[m_mask] = mass_ms[m_mask] ** -1.3 * 2.0
 
         elif self.wdlf_params["imf_model"] == "C03":
-
             mass_function = mass_ms**-2.3
             if (mass_ms < 1).any():
                 m_mask = np.array(mass_ms < 1.0)
@@ -188,7 +183,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 )
 
         elif self.wdlf_params["imf_model"] == "C03b":
-
             mass_function = mass_ms**-2.3
 
             if (mass_ms <= 1).any():
@@ -207,7 +201,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 )
 
         else:
-
             mass_function = self.imf_function(mass_ms)
 
         return mass_function
@@ -367,11 +360,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             datatable = load_ms_lifetime_datatable("MISTv1p2Fem400.csv")
 
         else:
-
             age = self.ms_function(mass_ms)
 
         if age is None:
-
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
             age = interp1d(
@@ -402,13 +393,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         mass_ms = np.asarray(mass_ms).reshape(-1)
 
         if self.wdlf_params["ifmr_model"] == "C08":
-
             mass = 0.117 * mass_ms + 0.384
             if (mass < 0.4349).any():
                 mass[mass < 0.4349] = 0.4349
 
         elif self.wdlf_params["ifmr_model"] == "C08b":
-
             mass = 0.096 * mass_ms + 0.429
             if (mass_ms >= 2.7).any():
                 mass[mass_ms >= 2.7] = 0.137 * mass_ms[mass_ms >= 2.7] + 0.318
@@ -416,13 +405,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 mass[mass < 0.4746] = 0.4746
 
         elif self.wdlf_params["ifmr_model"] == "S09":
-
             mass = 0.084 * mass_ms + 0.466
             if (mass < 0.5088).any():
                 mass[mass < 0.5088] = 0.5088
 
         elif self.wdlf_params["ifmr_model"] == "S09b":
-
             mass = 0.134 * mass_ms[mass_ms < 4.0] + 0.331
             if (mass_ms >= 4.0).any():
                 mass = 0.047 * mass_ms[mass_ms >= 4.0] + 0.679
@@ -431,25 +418,21 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 mass[mass < 0.3823] = 0.3823
 
         elif self.wdlf_params["ifmr_model"] == "W09":
-
             mass = 0.129 * mass_ms + 0.339
             if (mass < 0.3893).any():
                 mass[mass < 0.3893] = 0.3893
 
         elif self.wdlf_params["ifmr_model"] == "K09":
-
             mass = 0.109 * mass_ms + 0.428
             if (mass < 0.4804).any():
                 mass[mass < 0.4804] = 0.4804
 
         elif self.wdlf_params["ifmr_model"] == "K09b":
-
             mass = 0.101 * mass_ms + 0.463
             if (mass < 0.4804).any():
                 mass[mass < 0.4804] = 0.4804
 
         elif self.wdlf_params["ifmr_model"] == "C18":
-
             mass = interp1d(
                 (0.83, 2.85, 3.60, 7.20),
                 (0.5554, 0.71695, 0.8572, 1.2414),
@@ -458,7 +441,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )(mass_ms)
 
         elif self.wdlf_params["ifmr_model"] == "EB18":
-
             mass = interp1d(
                 (0.95, 2.75, 3.54, 5.21, 8.0),
                 (0.5, 0.67, 0.81, 0.91, 1.37),
@@ -467,7 +449,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             )(mass_ms)
 
         else:
-
             mass = self.ifmr_function(mass_ms)
 
         return mass
@@ -516,11 +497,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         time = self.t_start - t_cool - t_ms
 
         if time < 0.0:
-
             return np.inf
 
         else:
-
             return mass_ms**2.0
 
     def _integrand(self, mass_ms, mag):
@@ -554,7 +533,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         mbol = self.mag_to_mbol_itp(mass, mag)
 
         if (mbol < -2.0) or (mbol > 20.0) or (not np.isfinite(mbol)):
-
             return 0.0
 
         logL = (4.75 - mbol) / 2.5 + 33.582744965691276
@@ -563,14 +541,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         t_cool = self.cooling_interpolator(logL, mass)
 
         if t_cool < 0.0:
-
             return 0.0
 
         # Get the MS lifetime
         t_ms = self._ms_age(mass_ms)
 
         if t_ms < 0:
-
             return 0.0
 
         # Get the time since star formation
@@ -578,7 +554,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         sfr = self.sfr(t_cool + t_ms)
 
         if sfr < 0.0:
-
             return 0.0
 
         # Get the cooling rate
@@ -587,11 +562,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         total_contribution = mass_function * sfr * dLdt
 
         if np.isfinite(total_contribution):
-
             return total_contribution
 
         else:
-
             return 0.0
 
     def set_sfr_model(
@@ -649,19 +622,14 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         if mode not in self.sfr_mode_list:
-
             raise ValueError("Please provide a valid SFR mode.")
 
         else:
-
             if mode == "manual":
-
                 if callable(sfr_model):
-
                     self.sfr = sfr_model
 
                 else:
-
                     warnings.warn(
                         "The sfr_model provided is not callable, "
                         "None is applied, i.e. constant star fomration."
@@ -669,7 +637,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                     mode = "constant"
 
             elif mode == "constant":
-
                 t_1 = age
                 t_0 = t_1 * 1.00001
                 # current time = 0.
@@ -683,7 +650,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 )
 
             elif mode == "burst":
-
                 t_1 = age
                 t_0 = t_1 * 1.00001
                 t_2 = t_1 - duration
@@ -696,7 +662,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 )
 
             else:
-
                 _t = 10.0 ** np.linspace(0, np.log10(age), 10000)
                 _sfr = np.exp((_t - age) / mean_lifetime)
 
@@ -728,11 +693,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         if model in self.imf_model_list:
-
             self.wdlf_params["imf_model"] = model
 
         else:
-
             raise ValueError("Please provide a valid Imass_function model.")
 
         self.imf_function = imf_function
@@ -789,11 +752,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         if model in self.ms_model_list:
-
             self.wdlf_params["ms_model"] = model
 
         else:
-
             raise ValueError("Please provide a valid MS model.")
 
         self.ms_function = ms_function
@@ -825,11 +786,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         if model in self.ifmr_model_list:
-
             self.wdlf_params["ifmr_model"] = model
 
         else:
-
             raise ValueError("Please provide a valid IFMR mode.")
 
         self.ifmr_function = ifmr_function
@@ -908,7 +867,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         if self.cooling_interpolator is None:
-
             self.compute_cooling_age_interpolator()
 
         mag = np.asarray(mag).reshape(-1)
@@ -925,7 +883,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         mass_ms_upper_bound = mass_ms_max
 
         for i, mag_i in enumerate(mag):
-
             mass_ms_min = optimize.fminbound(
                 self._find_mass_ms_min,
                 0.5,
@@ -960,31 +917,25 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         # Normalise the WDLF only if the function returned is not all zero
         if normed & (number_density > 0.0).any():
-
             number_density /= np.nansum(number_density)
 
         self.mag = mag
         self.number_density = number_density
 
         if save_csv:
-
             if folder is None:
-
                 _folder = os.getcwd()
 
             else:
-
                 _folder = os.path.abspath(folder)
 
             if filename is None:
-
                 _filename = (
                     f"{self.t_start / 1e9:.2f}Gyr"
                     f"{self._filename_middle}csv"
                 )
 
             else:
-
                 _filename = filename
 
             np.savetxt(
@@ -1010,7 +961,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         cooling_model_use_mag=True,
         **kwargs,
     ):
-
         """
         Plot the input cooling model.
 
@@ -1067,12 +1017,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         mass = np.linspace(0.25, 8.25, 1000)
 
         if imf_log:
-
             ax1.plot(mass, np.log10(self._imf(mass)))
             ax1.set_ylabel("log(Imass_function)")
 
         else:
-
             ax1.plot(mass, self._imf(mass))
             ax1.set_ylabel("Imass_function")
 
@@ -1089,12 +1037,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         ax2.plot(_t / 1e9, self.sfr(_t))
 
         if sfh_log:
-
             ax2.set_yscale("log")
             ax2.set_ylabel("log(Relative SFR)")
 
         else:
-
             ax2.set_ylabel("Relative SFR")
 
         ax2.set_xlabel("Look-back Time / Gyr")
@@ -1107,12 +1053,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         ax3.plot(mass, self._ms_age(mass))
 
         if ms_time_log:
-
             ax3.set_yscale("log")
             ax3.set_ylabel("log(MS Lifetime / yr)")
 
         else:
-
             ax3.set_ylabel("MS Lifetime / yr")
 
         ax3.set_xlabel(r"ZAMS Mass / M$_\odot$")
@@ -1134,14 +1078,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         # Cooling Model : Mobl(t) or L(t)
         #
         if cooling_model_use_mag:
-
             # Get absolute magnitude from the bolometric luminosity
             brightness = (
                 4.75 - (np.log10(self.luminosity) - 33.582744965691276) * 2.5
             )
 
         else:
-
             brightness = self.luminosity
 
         sc5 = ax5.scatter(self.age / 1e9, brightness, c=self.mass, s=5)
@@ -1152,11 +1094,9 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         # y axis
         if cooling_model_use_mag:
-
             ax5.set_ylabel(r"M$_{\mathrm{bol}}$ / mag")
 
         else:
-
             ax5.set_ylabel(r"L$_{\mathrm{bol}}$")
             ax5.set_yscale("log")
 
@@ -1173,13 +1113,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         # Cooling Model: d(mbol)/d(t) or d(L)/d(t)
         #
         if cooling_model_use_mag:
-
             # 2.5 * 1e9 * (365.25 * 24. * 60. * 60.) / np.log(10) =
             # 3.426322886e16
             rate_of_change = -3.426322886e16 / self.luminosity * self.dLdt
 
         else:
-
             rate_of_change = self.dLdt * -1.0
 
         rate_of_change[np.isnan(rate_of_change)] = 0.0
@@ -1191,12 +1129,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         # y axis
         if cooling_model_use_mag:
-
             ax6.set_ylabel(r"d(M$_{\mathrm{bol}})/dt (Gyr)$")
             ax6.set_ylim(-0.005, np.nanmax(rate_of_change) * 0.6)
 
         else:
-
             ax6.set_ylabel(r"-d(L$_{\mathrm{bol}})/dt (s)$")
             ax6.set_yscale("log")
             ax6.set_ylim(np.nanmin(rate_of_change), np.nanmax(rate_of_change))
@@ -1218,42 +1154,32 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         )
 
         if title is not None:
-
             plt.suptitle(title)
 
         if savefig:
-
             if isinstance(ext, str):
-
                 ext = [ext]
 
             if folder is None:
-
                 _folder = os.getcwd()
 
             else:
-
                 _folder = os.path.abspath(folder)
 
                 if not os.path.exists(_folder):
-
                     os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for _e in ext:
-
                 if filename is None:
-
                     _filename = "input_model." + _e
 
                 else:
-
                     _filename = filename + "." + _e
 
                 plt.savefig(os.path.join(_folder, _filename))
 
         if display:
-
             plt.show()
 
         return fig
@@ -1300,7 +1226,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         if fig is None:
-
             fig = plt.figure(figsize=figsize)
 
         _density = self.number_density
@@ -1325,55 +1250,44 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         plt.ylabel(r"$\log{(N)}$")
 
         if log:
-
             plt.yscale("log")
 
         plt.grid()
         plt.legend()
 
         if title is None:
-
             title = f"WDLF: {self.t_start / 1e9:.2f} Gyr"
 
         plt.title(title)
         plt.tight_layout()
 
         if savefig:
-
             if isinstance(ext, str):
-
                 ext = [ext]
 
             if folder is None:
-
                 _folder = os.getcwd()
 
             else:
-
                 _folder = os.path.abspath(folder)
 
                 if not os.path.exists(_folder):
-
                     os.makedirs(_folder)
 
             # Loop through the ext list to save figure into each image type
             for _e in ext:
-
                 if filename is None:
-
                     _filename = (
                         f"{self.t_start / 1e9:.2f}Gyr"
                         f"{self._filename_middle}{_e}"
                     )
 
                 else:
-
                     _filename = filename + "." + _e
 
                 plt.savefig(os.path.join(_folder, _filename))
 
         if display:
-
             plt.show()
 
         return fig

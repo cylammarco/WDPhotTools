@@ -19,7 +19,7 @@ wave_GBRFN = np.array((6218.0, 5110.0, 7769.0, 1535.0, 2301.0))
 rv = 3.1
 ebv = 0.123
 
-reddening = reddening_vector_interpolated(kind="cubic")
+reddening = reddening_vector_interpolated(kernel="cubic")
 extinction_interpolated = reddening(wave_GBRFN, rv) * ebv
 
 A_G3 = reddening_vector_filter("G3")([7.5, 13000.0, rv]) * ebv

@@ -16,7 +16,6 @@ class CoolingModelReader(object):
     """A reader object to handle the input of different cooling models"""
 
     def __init__(self):
-
         super(CoolingModelReader, self).__init__()
 
         self.this_file = os.path.dirname(os.path.abspath(__file__))
@@ -132,9 +131,7 @@ class CoolingModelReader(object):
         """
 
         if print_to_screen:
-
             for i in self.model_list.items():
-
                 print(f"Model: {i[0]}, Reference: {i[1]}")
 
         return self.model_list.items()
@@ -165,11 +162,9 @@ class CoolingModelReader(object):
         mass, _, column_names, column_units = self.get_cooling_model(model)
 
         if print_to_screen:
-
             print("Available WD mass: {mass}")
 
             for i, j in zip(column_names.items(), column_units.items()):
-
                 print(f"Parameter: {i[1]}, Column Name: {i[0]}, Unit: {j[1]}")
 
         return mass, column_names.items(), column_units.items()
@@ -189,7 +184,6 @@ class CoolingModelReader(object):
         """
 
         if model in ["montreal_co_da_20", "montreal_co_db_20"]:
-
             (
                 mass,
                 cooling_model,
@@ -198,7 +192,6 @@ class CoolingModelReader(object):
             ) = self._bedard20_formatter(model, mass_range)
 
         elif model in ["lpcode_he_da_07", "lpcode_co_da_07"]:
-
             (
                 mass,
                 cooling_model,
@@ -207,7 +200,6 @@ class CoolingModelReader(object):
             ) = self._panei07_formatter(model)
 
         elif model == "lpcode_he_da_09":
-
             (
                 mass,
                 cooling_model,
@@ -216,7 +208,6 @@ class CoolingModelReader(object):
             ) = self._althaus09_formatter(mass_range)
 
         elif model in ["lpcode_co_db_17_z00005", "lpcode_co_db_17_z0001"]:
-
             (
                 mass,
                 cooling_model,
@@ -225,7 +216,6 @@ class CoolingModelReader(object):
             ) = self._althaus17_formatter(model, mass_range)
 
         elif model in ["lpcode_co_da_10_z001", "lpcode_co_da_10_z0001"]:
-
             (
                 mass,
                 cooling_model,
@@ -238,7 +228,6 @@ class CoolingModelReader(object):
             "lpcode_co_da_15_z0001",
             "lpcode_co_da_15_z0005",
         ]:
-
             (
                 mass,
                 cooling_model,
@@ -247,7 +236,6 @@ class CoolingModelReader(object):
             ) = self._althaus15_formatter(model)
 
         elif model == "lpcode_co_db_17":
-
             (
                 mass,
                 cooling_model,
@@ -261,7 +249,6 @@ class CoolingModelReader(object):
             "basti_co_da_10_nps",
             "basti_co_db_10_nps",
         ]:
-
             (
                 mass,
                 cooling_model,
@@ -270,7 +257,6 @@ class CoolingModelReader(object):
             ) = self._salaris10_formatter(model, mass_range)
 
         elif model == "lpcode_one_da_07":
-
             (
                 mass,
                 cooling_model,
@@ -279,7 +265,6 @@ class CoolingModelReader(object):
             ) = self._althaus07_formatter()
 
         elif model in ["lpcode_one_da_19", "lpcode_one_db_19"]:
-
             (
                 mass,
                 cooling_model,
@@ -288,7 +273,6 @@ class CoolingModelReader(object):
             ) = self._camisassa19_formatter(model)
 
         elif model in ["mesa_one_da_18", "mesa_one_db_18"]:
-
             (
                 mass,
                 cooling_model,
@@ -297,7 +281,6 @@ class CoolingModelReader(object):
             ) = self._lauffer18_formatter(model)
 
         elif model == "lpcode_da_22":
-
             (
                 mass,
                 cooling_model,
@@ -306,7 +289,6 @@ class CoolingModelReader(object):
             ) = self._lpcode22_da_formatter()
 
         elif model == "lpcode_db_22":
-
             (
                 mass,
                 cooling_model,
@@ -315,14 +297,12 @@ class CoolingModelReader(object):
             ) = self._lpcode22_db_formatter()
 
         elif model is None:
-
             mass = np.array(())
             cooling_model = np.array(())
             column_names = {}
             column_units = {}
 
         else:
-
             raise ValueError("Invalid model name.")
 
         return mass, cooling_model, column_names, column_units
@@ -396,7 +376,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -516,7 +495,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -667,7 +645,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -808,7 +785,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -964,13 +940,10 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             with open(filepath, encoding="ascii") as infile:
-
                 count = -5
                 cooling_model_text = ""
                 for line_i in infile:
-
                     count += 1
 
                     if count <= 0:
@@ -1094,7 +1067,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1216,7 +1188,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1296,7 +1267,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1468,7 +1438,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1548,7 +1517,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1625,7 +1593,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1725,7 +1692,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1841,7 +1807,6 @@ class CoolingModelReader(object):
         cooling_model = np.array(([""] * len(mass)), dtype="object")
 
         for i, filepath in enumerate(filelist):
-
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
@@ -1881,11 +1846,9 @@ class CoolingModelReader(object):
         """
 
         if model in self.low_mass_cooling_model_list:
-
             self.cooling_models["low_mass_cooling_model"] = model
 
         else:
-
             raise ValueError("Please provide a valid model.")
 
     def set_intermediate_mass_cooling_model(self, model):
@@ -1926,11 +1889,9 @@ class CoolingModelReader(object):
         """
 
         if model in self.intermediate_mass_cooling_model_list:
-
             self.cooling_models["intermediate_mass_cooling_model"] = model
 
         else:
-
             raise ValueError("Please provide a valid model.")
 
     def set_high_mass_cooling_model(self, model):
@@ -1969,11 +1930,9 @@ class CoolingModelReader(object):
         """
 
         if model in self.high_mass_cooling_model_list:
-
             self.cooling_models["high_mass_cooling_model"] = model
 
         else:
-
             raise ValueError("Please provide a valid model.")
 
     def _itp2d_gradient(self, _f, val1, val2, frac=1e-6):
@@ -2065,12 +2024,10 @@ class CoolingModelReader(object):
         # Gather all the models in different mass ranges
 
         if mass_low.size == 0:
-
             luminosity_low = np.array(())
             age_low = np.array(())
 
         else:
-
             # Reshaping the WD mass array to match the shape of the other two.
             mass_low = (
                 np.concatenate(
@@ -2101,12 +2058,10 @@ class CoolingModelReader(object):
             )
 
         if mass_intermediate.size == 0:
-
             luminosity_intermediate = np.array(())
             age_intermediate = np.array(())
 
         else:
-
             # Reshaping the WD mass array to match the shape of the other two.
             mass_intermediate = (
                 np.concatenate(
@@ -2139,12 +2094,10 @@ class CoolingModelReader(object):
             )
 
         if mass_high.size == 0:
-
             luminosity_high = np.array(())
             age_high = np.array(())
 
         else:
-
             # Reshaping the WD mass array to match the shape of the other two.
             mass_high = (
                 np.concatenate(
@@ -2203,7 +2156,6 @@ class CoolingModelReader(object):
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
         if interpolator.lower() == "ct":
-
             # Interpolate with the scipy CloughTocher2DInterpolator
             self.cooling_interpolator = CloughTocher2DInterpolator(
                 (np.log10(self.luminosity), self.mass),
@@ -2212,7 +2164,6 @@ class CoolingModelReader(object):
             )
 
         elif interpolator.lower() == "rbf":
-
             # Interpolate with the scipy RBFInterpolator
             _cooling_interpolator = RBFInterpolator(
                 np.stack((np.log10(self.luminosity), self.mass), -1),
@@ -2226,16 +2177,13 @@ class CoolingModelReader(object):
             mass_max = np.nanmax(self.mass)
 
             def cooling_interpolator(x_0, x_1):
-
                 _x_0 = np.array(x_0)
                 _x_1 = np.array(x_1)
 
                 if (_x_0.size == 1) & (_x_1.size > 1):
-
                     _x_0 = np.repeat(_x_0, _x_1.size)
 
                 if (_x_1.size == 1) & (_x_0.size > 1):
-
                     _x_0 = np.repeat(_x_1, _x_0.size)
 
                 _x_0[_x_0 < lum_min] = lum_min
@@ -2254,7 +2202,6 @@ class CoolingModelReader(object):
             self.cooling_interpolator = cooling_interpolator
 
         else:
-
             raise ValueError(
                 f"Interpolator should be CT or RBF, {interpolator} is given."
             )
@@ -2266,7 +2213,6 @@ class CoolingModelReader(object):
         finite_mask = np.isfinite(self.dLdt)
 
         if interpolator.lower() == "ct":
-
             self.cooling_rate_interpolator = CloughTocher2DInterpolator(
                 (
                     np.log10(self.luminosity)[finite_mask],
@@ -2277,7 +2223,6 @@ class CoolingModelReader(object):
             )
 
         elif interpolator.lower() == "rbf":
-
             # Interpolate with the scipy RBFInterpolator
             _cooling_rate_interpolator = RBFInterpolator(
                 np.stack(
@@ -2297,16 +2242,13 @@ class CoolingModelReader(object):
             mass_max = np.nanmax(self.mass)
 
             def cooling_rate_interpolator(x_0, x_1):
-
                 _x_0 = np.asarray(x_0)
                 _x_1 = np.asarray(x_1)
 
                 if (_x_0.size == 1) & (_x_1.size > 1):
-
                     _x_0 = np.repeat(_x_0, _x_1.size)
 
                 if (_x_1.size == 1) & (_x_0.size > 1):
-
                     _x_0 = np.repeat(_x_1, _x_0.size)
 
                 _x_0[_x_0 < lum_min] = lum_min
@@ -2325,7 +2267,6 @@ class CoolingModelReader(object):
             self.cooling_rate_interpolator = cooling_rate_interpolator
 
         else:
-
             raise ValueError(
                 "Interpolator should be CT or RBF, {interpolator} is given."
             )

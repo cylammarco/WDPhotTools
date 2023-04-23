@@ -31,7 +31,6 @@ def _fitzpatrick99(wavelength, Rv):
     """
 
     if isinstance(wavelength, (float, int)):
-
         wavelength = np.array([wavelength])
 
     return extinction.fitzpatrick99(wavelength, 1.0, Rv) * Rv
