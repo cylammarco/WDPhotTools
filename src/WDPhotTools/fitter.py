@@ -555,7 +555,7 @@ class WDfitter(AtmosphereModelReader):
         mag = []
 
         for interp in interpolator_filter:
-            mag.append(interp(_x[0]))
+            mag.append(interp(_x[:-1]))
 
         mag = np.asarray(mag).reshape(-1)
         err2 = errors**2.0
@@ -790,7 +790,7 @@ class WDfitter(AtmosphereModelReader):
         mag = []
 
         for interp in interpolator_filter:
-            mag.append(interp(_x[0]))
+            mag.append(interp(_x[:-1]))
 
         if self.extinction_mode == "total":
             self.extinction_fraction = 1.0
@@ -860,7 +860,7 @@ class WDfitter(AtmosphereModelReader):
         mag = []
 
         for interp in interpolator_filter:
-            mag.append(interp(_x[0]))
+            mag.append(interp(_x[:-1]))
 
         if self.extinction_mode == "total":
             self.extinction_fraction = 1.0
@@ -870,7 +870,7 @@ class WDfitter(AtmosphereModelReader):
                 _x[-1], ra, dec
             )
 
-        teff = float(interpolator_teff(_x[0]))
+        teff = float(interpolator_teff(_x[:-1]))
         Av = (
             np.array([i([logg, teff, Rv]) for i in self.Rv]).reshape(-1)
             * ebv
@@ -1524,7 +1524,7 @@ class WDfitter(AtmosphereModelReader):
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
-                    if Rv <= 0.0:
+                    if ebv <= 0.0:
                         if "logg" in independent:
                             self.results[j] = optimize.minimize(
                                 self._diff2_distance_summed,
@@ -1594,7 +1594,7 @@ class WDfitter(AtmosphereModelReader):
 
                 # If distance is provided, fit here.
                 else:
-                    if Rv <= 0.0:
+                    if ebv <= 0.0:
                         self.results[j] = optimize.minimize(
                             self._diff2_summed,
                             initial_guess,
@@ -1673,16 +1673,14 @@ class WDfitter(AtmosphereModelReader):
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
                 for i in filters:
-                    if "logg" in independent:
-                        # the [:2] is to separate the distance from the filters
-                        self.best_fit_params[j][i] = float(
-                            self.interpolator[j][i](self.results[j].x[:2])
-                        )
-
-                    else:
-                        # the [:2] is to separate the distance from the filters
+                    # the [:2] is to separate the distance from the filters
+                    if len(independent) == 1:
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](self.results[j].x[0])
+                        )
+                    else:
+                        self.best_fit_params[j][i] = float(
+                            self.interpolator[j][i](self.results[j].x[:2])
                         )
 
                     if distance is None:
@@ -1707,7 +1705,7 @@ class WDfitter(AtmosphereModelReader):
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
-                    if Rv <= 0.0:
+                    if ebv <= 0.0:
                         self.results[j] = optimize.least_squares(
                             self._diff2_distance,
                             initial_guess,
@@ -1761,7 +1759,7 @@ class WDfitter(AtmosphereModelReader):
 
                 # If distance is provided, fit here.
                 else:
-                    if Rv <= 0.0:
+                    if ebv <= 0.0:
                         self.results[j] = optimize.least_squares(
                             self._diff2,
                             initial_guess,
@@ -1854,16 +1852,14 @@ class WDfitter(AtmosphereModelReader):
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
                 for i in filters:
-                    if "logg" in independent:
-                        # the [:2] is to separate the distance from the filters
-                        self.best_fit_params[j][i] = float(
-                            self.interpolator[j][i](self.results[j].x[:2])
-                        )
-
-                    else:
-                        # the [:2] is to separate the distance from the filters
+                    # the [:2] is to separate the distance from the filters
+                    if len(independent) == 1:
                         self.best_fit_params[j][i] = float(
                             self.interpolator[j][i](self.results[j].x[0])
+                        )
+                    else:
+                        self.best_fit_params[j][i] = float(
+                            self.interpolator[j][i](self.results[j].x[:2])
                         )
 
                     if distance is None:
@@ -1895,7 +1891,7 @@ class WDfitter(AtmosphereModelReader):
                 # If distance is not provided, fit for the photometric
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
-                    if Rv <= 0.0:
+                    if ebv <= 0.0:
                         if "logg" in independent:
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
@@ -1965,7 +1961,7 @@ class WDfitter(AtmosphereModelReader):
 
                 # If distance is provided, fit here.
                 else:
-                    if Rv <= 0.0:
+                    if ebv <= 0.0:
                         self.sampler[j] = emcee.EnsembleSampler(
                             nwalkers,
                             ndim,
