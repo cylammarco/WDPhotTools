@@ -454,7 +454,7 @@ def plot_cooling_model(
     else:
         fig, axes = _preset_figure(x_name, y_name, title, figsize)
 
-    if mass == "all":
+    if mass is "all":
         mass_list = _mass_list
 
     else:
