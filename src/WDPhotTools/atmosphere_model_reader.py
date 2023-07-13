@@ -364,7 +364,7 @@ class AtmosphereModelReader(object):
 
         independent = np.asarray(independent).reshape(-1)
 
-        independent_list = ["Teff", "mass", "Mbol", "age", "logg"]
+        independent_list = self.column_key
         independent_list_lower_cases = np.char.lower(independent_list)
 
         # If only performing a 1D interpolation, the logg has to be assumed.
