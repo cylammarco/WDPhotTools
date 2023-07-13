@@ -454,11 +454,13 @@ def plot_cooling_model(
     else:
         fig, axes = _preset_figure(x_name, y_name, title, figsize)
 
-    if mass is "all":
-        mass_list = _mass_list
-
-    else:
+    if isinstance(mass, str):
+        if mass == "all":
+            mass_list = _mass_list
+    elif isinstance(mass, (list, np.ndarray)):
         mass_list = mass
+    else:
+        raise TypeError("Please provide a string, a list of a numpy array.")
 
     x_out = []
     y_out = []
