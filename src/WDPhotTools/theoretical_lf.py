@@ -562,6 +562,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         total_contribution = mass_function * sfr * dLdt
 
         if np.isfinite(total_contribution):
+
+            if total_contribution < 0.0:
+
+                return 0.0
+
             return total_contribution
 
         else:
@@ -888,7 +893,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 0.5,
                 mass_ms_upper_bound,
                 args=[mag_i],
-                xtol=1e-5,
+                xtol=1e-8,
                 maxfun=10000,
             )
 
