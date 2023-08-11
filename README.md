@@ -78,24 +78,23 @@ or with finer control by using the interpolators
 from matplotlib import pyplot as plt
 import numpy as np
 
-from WDPhotTools.atmosphere_model_reader import atm_reader
+from WDPhotTools.atmosphere_model_reader import AtmosphereModelReader
 
-atm = atm_reader()
+atm = AtmosphereModelReader()
 
 # Default passband is G3
-G = atm.interp_atm()
-BP = atm.interp_atm(dependent="G3_BP")
-RP = atm.interp_atm(dependent="G3_RP")
+G = atm.interp_am()
+BP = atm.interp_am(dependent="G3_BP")
+RP = atm.interp_am(dependent="G3_RP")
 
 logg = np.arange(7.0, 9.5, 0.5)
 Mbol = np.arange(0.0, 20.0, 0.1)
 
 plt.figure(1, figsize=(8, 8))
 for i in logg:
-    logg_i = np.ones_like(Mbol) * i
     plt.plot(
-        BP(logg_i, Mbol) - RP(logg_i, Mbol),
-        G(logg_i, Mbol),
+        BP(i, Mbol) - RP(i, Mbol),
+        G(i, Mbol),
         label=r"$\log(g) = {}$".format(i),
     )
 
@@ -224,7 +223,6 @@ ftr.show_corner_plot(
 The default setup assumes the provided reddening is the total amount at the given distance.  Hence, it is the mode `total` in the `set_extinction_mode`. However, if the reddening at the distance is not known, a fractional value as a linear function of distance from the galactic plane can be used with model `linear`, with the `z_min` and `z_max` provided as the range in which the reddening is linearly interpolated such at E(B-V) = 0.0 at a z(distance, ra, dec) smaller than or equal to `z_min`, and E(B-V) equals the total reddening at z(distance, ra, dec) greater than or equal to `z_min`. The conversion from (distance, ra, dec) to Galactic (x, y, z) cartesian coordinate makes use of the Astropy Coordinate pacakge and their default values for the geometry of the Galaxy and the Sun. This is adapted from [Harris et al. (2006)](https://arxiv.org/pdf/astro-ph/0510820.pdf) (footnote on page 5).
 
 ```python
-ftr = WDfitter()
 # the fitter will be using this configuration after setting it in the beginning
 ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
 # Calling the private function as an example
@@ -400,7 +398,7 @@ wdlf = theoretical_lf.WDLF()
 wdlf.set_ifmr_model("C08")
 wdlf.compute_cooling_age_interpolator()
 
-Mag = np.arange(0, 20.0, 0.1)
+mag = np.arange(0, 20.0, 0.1)
 age_list = 1e9 * np.arange(2, 15, 2)
 
 constant_density = []
@@ -411,15 +409,15 @@ for i, age in enumerate(age_list):
 
     # Constant SFR
     wdlf.set_sfr_model(mode="constant", age=age)
-    constant_density.append(wdlf.compute_density(Mag=Mag)[1])
+    constant_density.append(wdlf.compute_density(mag=mag)[1])
 
     # Burst SFR
     wdlf.set_sfr_model(mode="burst", age=age, duration=1e8)
-    burst_density.append(wdlf.compute_density(Mag=Mag)[1])
+    burst_density.append(wdlf.compute_density(mag=mag)[1])
 
     # Exponential decay SFR
     wdlf.set_sfr_model(mode="decay", age=age)
-    decay_density.append(wdlf.compute_density(Mag=Mag)[1])
+    decay_density.append(wdlf.compute_density(mag=mag)[1])
 
 # normalise the WDLFs relative to the density at 10 mag
 constant_density = [constant_density[i]/constant_density[i][Mag==10.0] for i in range(len(constant_density))]
@@ -430,13 +428,13 @@ fig1, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, sharey=True, figsize=(10
 
 for i, age in enumerate(age_list):
     ax1.plot(
-        Mag, np.log10(constant_density[i]), label="{0:.2f} Gyr".format(age / 1e9)
+        mag, np.log10(constant_density[i]), label="{0:.2f} Gyr".format(age / 1e9)
     )
     ax2.plot(
-        Mag, np.log10(burst_density[i])
+        mag, np.log10(burst_density[i])
     )
     ax3.plot(
-        Mag, np.log10(decay_density[i])
+        mag, np.log10(decay_density[i])
     )
 
 ax1.legend()
