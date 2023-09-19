@@ -269,8 +269,8 @@ class AtmosphereModelReader(object):
         self.model_da = np.loadtxt(filepath_da, skiprows=2, dtype=self.dtype)
         self.model_db = np.loadtxt(filepath_db, skiprows=2, dtype=self.dtype)
 
-        self.model_da["age"] = self.model_da["age"]
-        self.model_db["age"] = self.model_db["age"]
+        self.model_da["age"][self.model_da["age"] <= 1.0] += 1.0
+        self.model_db["age"][self.model_db["age"] <= 1.0] += 1.0
 
     def list_atmosphere_parameters(self):
         """
