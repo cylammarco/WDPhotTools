@@ -142,7 +142,7 @@ class AtmosphereModelReader(object):
                 r"$G_{\mathrm{DR2}}$",
                 r"$G_{\mathrm{BP, DR2}}$",
                 r"$G_{\mathrm{RP, DR2}}$",
-                r"$G{_{\mathrm{DR3}}$",
+                r"$G_{\mathrm{DR3}}$",
                 r"$G_{\mathrm{BP, DR3}}$",
                 r"$G_{\mathrm{RP, DR3}}$",
                 "FUV",
