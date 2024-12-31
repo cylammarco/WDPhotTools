@@ -13,6 +13,8 @@ except DistributionNotFound:
 
 from . import atmosphere_model_reader
 from . import cooling_model_reader
+from . import diff2_functions_least_square
+from . import diff2_functions_minimize
 from . import fitter
 from . import plotter
 from . import reddening
@@ -22,6 +24,8 @@ from . import util
 __all__ = [
     "atmosphere_model_reader",
     "cooling_model_reader",
+    "diff2_functions_least_square",
+    "diff2_functions_minimize",
     "fitter",
     "plotter",
     "reddening",

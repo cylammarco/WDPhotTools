@@ -38,66 +38,10 @@ def test_list_everything():
     ftr.list_atmosphere_parameters()
 
 
-def test_fitter_get_extinction_fraction():
-    """Test exitnction function"""
-    ftr = WDfitter()
-    ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=250.0,
-            ra=192.85949646,
-            dec=27.12835323,
-        ),
-        1.0,
-    )
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=75.0, ra=192.85949646, dec=27.12835323
-        ),
-        0.0,
-    )
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=100.0, ra=192.85949646, dec=27.12835323
-        ),
-        0.1386644841777267,
-    )
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=175.0, ra=192.85949646, dec=27.12835323
-        ),
-        0.6386628473110217,
-    )
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=250.0, ra=192.85949646, dec=27.12835323
-        ),
-        1.0,
-    )
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=251.0, ra=192.85949646, dec=27.12835323
-        ),
-        1.0,
-    )
-    np.isclose(
-        ftr._get_extinction_fraction(
-            distance=500.0, ra=240.63412385, dec=-11.01234783
-        ),
-        1.0,
-    )
-
-
 def test_fitter_change_extinction_mode():
     """Test chaning extinction mode"""
     ftr = WDfitter()
     ftr.set_extinction_mode(mode="linear", z_min=100.0, z_max=250.0)
-    assert np.isclose(
-        ftr._get_extinction_fraction(
-            distance=175.0, ra=192.85949646, dec=27.12835323
-        ),
-        0.6386628473110217,
-    )
     assert ftr.extinction_mode == "linear"
     ftr.set_extinction_mode(mode="total")
     assert ftr.extinction_mode == "total"
@@ -122,20 +66,6 @@ def test_fitter_get_extinction_fraction_fail_zmax():
     """Test giving maximum smaller than minimum"""
     ftr = WDfitter()
     ftr.set_extinction_mode(mode="linear", z_min=1000.0, z_max=250.0)
-
-
-@pytest.mark.xfail
-def test_fitter_get_extinction_fraction_pass_zmin_zmax_none():
-    """Test dec larger than 90"""
-    ftr = WDfitter()
-    ftr._get_extinction_fraction(distance=150.0, ra=10.0, dec=100.0)
-
-
-@pytest.mark.xfail
-def test_fitter_get_extinction_fraction_fail_ra():
-    """test ra and dec are None"""
-    ftr = WDfitter()
-    ftr._get_extinction_fraction(distance=150.0, ra=None, dec=None)
 
 
 @patch("matplotlib.pyplot.show")

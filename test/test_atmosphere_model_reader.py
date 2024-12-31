@@ -15,7 +15,6 @@ def test_unknown_atm_type():
     amr.interp_am(atmosphere="DC")
 
 
-@pytest.mark.xfail(raises=ValueError)
 def test_unsupported_independent_variables():
     """test unknown independent variable"""
     amr = AtmosphereModelReader()
