@@ -4,22 +4,52 @@
 """Core of the WD photometry fitter"""
 
 import copy
-from functools import partial
 import os
 import time
+from functools import partial
 
-import astropy.units as u
-import astropy.coordinates as coord
 import corner
 import emcee
-from matplotlib import pyplot as plt
 import numpy as np
+from matplotlib import pyplot as plt
 from scipy import optimize
 
 from .atmosphere_model_reader import AtmosphereModelReader
+from .diff2_functions_least_square import (
+    diff2,
+    diff2_distance,
+    diff2_distance_red_filter,
+    diff2_distance_red_filter_fixed_logg,
+    diff2_distance_red_interpolated,
+    diff2_distance_red_interpolated_fixed_logg,
+    diff2_red_filter,
+    diff2_red_filter_fixed_logg,
+    diff2_red_interpolated,
+)
+from .diff2_functions_minimize import (
+    diff2_distance_red_interpolated_summed,
+    diff2_distance_red_interpolated_fixed_logg_summed,
+    diff2_distance_red_filter_summed,
+    diff2_distance_red_filter_fixed_logg_summed,
+    diff2_distance_summed,
+    diff2_red_filter_fixed_logg_summed,
+    diff2_red_filter_summed,
+    diff2_red_interpolated_summed,
+    diff2_summed,
+)
+from .likelihood_functions import (
+    log_likelihood,
+    log_likelihood_distance,
+    log_likelihood_distance_red_filter,
+    log_likelihood_distance_red_filter_fixed_logg,
+    log_likelihood_distance_red_interpolated,
+    log_likelihood_distance_red_interpolated_fixed_logg,
+    log_likelihood_red_filter,
+    log_likelihood_red_filter_fixed_logg,
+    log_likelihood_red_interpolated,
+)
 from .reddening import reddening_vector_filter, reddening_vector_interpolated
-from .util import get_uncertainty_least_squares, get_uncertainty_emcee
-
+from .util import get_uncertainty_emcee, get_uncertainty_least_squares
 
 plt.rc("font", size=18)
 plt.rc("legend", fontsize=12)
@@ -47,7 +77,7 @@ class WDfitter(AtmosphereModelReader):
         self.extinction_fraction = 1.0
         self.set_extinction_mode()
         # Note this is the extinction Rv, not radial velocity RV.
-        self.Rv = None
+        self.reddening_vector = None
         self.pivot_wavelengths = None
 
     def set_extinction_mode(self, mode="total", z_min=100.0, z_max=250.0):
@@ -92,60 +122,6 @@ class WDfitter(AtmosphereModelReader):
         else:
             raise ValueError("Unknown extinction mode: {mode}.")
 
-    def _get_extinction_fraction(self, distance, ra, dec):
-        """
-        The linear mode follows the scheme on page 5 of Harris et al. (2006)
-        in https://arxiv.org/pdf/astro-ph/0510820.pdf.
-
-        The conversion from distance, ra and dec to z is powered by AstroPy
-        coordinate transformation.
-
-        Parameters
-        ----------
-        distance : float
-            Distance to the target (in unit of pc)
-        ra : float
-            Right Ascension in unit of degree.
-        dec : float
-            Declination in unit of degree.
-
-        Returns
-        -------
-        The fraction (of extinction) should be used, in the range of
-        [0.0, 1.0].
-
-        """
-
-        _c = coord.SkyCoord(
-            ra=ra * u.degree,
-            dec=dec * u.degree,
-            distance=distance * u.pc,
-            frame="icrs",
-        )
-        c_gal_cen = _c.transform_to(coord.Galactocentric)
-
-        if (self.z_min is None) or (self.z_max is None):
-            raise ValueError(
-                "z_min and z_max cannot be None, please initialise with "
-                "set_extinction_mode()"
-            )
-
-        else:
-            # Get the distance from the Galactic mid-plane
-            _z = getattr(c_gal_cen, "z").value
-
-            # if z is lower than the lower limit, assume no extinction
-            if _z < self.z_min:
-                return 0.0
-
-            # if z is higher than the upper limit, assume total extinction
-            elif _z > self.z_max:
-                return 1.0
-
-            # Otherwise, apply a linear approximation of the extinction
-            else:
-                return (_z - self.z_min) / (self.z_max - self.z_min)
-
     def _interp_am(
         self,
         dependent,
@@ -179,7 +155,9 @@ class WDfitter(AtmosphereModelReader):
     ):
         if extinction_convolved:
             self.extinction_convolved = True
-            self.Rv = [reddening_vector_filter(i) for i in filters]
+            self.reddening_vector = [
+                reddening_vector_filter(i) for i in filters
+            ]
 
         else:
             self.extinction_convolved = False
@@ -187,1064 +165,7 @@ class WDfitter(AtmosphereModelReader):
             wavelength = np.array(
                 [self.column_wavelengths[i] for i in filters]
             )
-            self.Rv = [partial(rv_itp, w) for w in wavelength]
-
-    def _diff2(
-        self,
-        _x,
-        obs,
-        errors,
-        distance,
-        distance_err,
-        interpolator_filter,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value
-        (for scipy.optimize.least_squares).
-
-        """
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x))
-
-        mag = np.asarray(mag).reshape(-1)
-
-        err2 = (
-            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
-        ) * 1.1788231063225867
-
-        diff2 = (
-            (
-                10.0 ** ((obs - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_red(
-        self,
-        _x,
-        obs,
-        errors,
-        distance,
-        distance_err,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value
-        (for scipy.optimize.least_squares).
-
-        """
-
-        if not self.extinction_convolved:
-            # Does not require _diff2_red_interpolated_fixed_logg because
-            # it is already taken care of when generating the interpolators
-            # as the extinction from SFD12 table 6 has no dependency on
-            # temperature and logg
-            diff2, err2 = self._diff2_red_interpolated(
-                _x,
-                obs,
-                errors,
-                distance,
-                distance_err,
-                interpolator_filter,
-                Rv,
-                ebv,
-                ra,
-                dec,
-                True,
-            )
-
-        else:
-            if "logg" in self.fitting_params["independent"]:
-                logg_pos = int(
-                    np.argwhere(
-                        np.array(self.fitting_params["independent"]) == "logg"
-                    )
-                )
-                diff2, err2 = self._diff2_red_filter(
-                    _x,
-                    obs,
-                    errors,
-                    distance,
-                    distance_err,
-                    interpolator_filter,
-                    interpolator_teff,
-                    logg_pos,
-                    Rv,
-                    ebv,
-                    ra,
-                    dec,
-                    True,
-                )
-
-            else:
-                diff2, err2 = self._diff2_red_filter_fixed_logg(
-                    _x,
-                    obs,
-                    errors,
-                    distance,
-                    distance_err,
-                    interpolator_filter,
-                    interpolator_teff,
-                    logg,
-                    Rv,
-                    ebv,
-                    ra,
-                    dec,
-                    True,
-                )
-
-        if return_err:
-            return diff2, err2
-
-        else:
-            return diff2
-
-    def _diff2_red_interpolated(
-        self,
-        _x,
-        obs,
-        errors,
-        distance,
-        distance_err,
-        interpolator_filter,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value.
-
-        """
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x))
-
-        if self.extinction_mode == "total":
-            self.extinction_fraction = 1.0
-
-        else:
-            self.extinction_fraction = self._get_extinction_fraction(
-                distance, ra, dec
-            )
-
-        Av = (
-            np.array([i(Rv) for i in self.Rv]).reshape(-1)
-            * ebv
-            * self.extinction_fraction
-        )
-        mag = np.asarray(mag).reshape(-1)
-        err2 = (
-            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
-        ) * 1.1788231063225867
-
-        diff2 = (
-            (
-                10.0
-                ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_red_filter(
-        self,
-        _x,
-        obs,
-        errors,
-        distance,
-        distance_err,
-        interpolator_filter,
-        interpolator_teff,
-        logg_pos,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value.
-
-        """
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x))
-
-        teff = float(interpolator_teff(_x))
-
-        if not np.isfinite(teff):
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-        if self.extinction_mode == "total":
-            self.extinction_fraction = 1.0
-
-        else:
-            self.extinction_fraction = self._get_extinction_fraction(
-                distance, ra, dec
-            )
-
-        logg = _x[logg_pos]
-        Av = (
-            np.array([i([logg, teff, Rv]) for i in self.Rv]).reshape(-1)
-            * ebv
-            * self.extinction_fraction
-        )
-        mag = np.asarray(mag).reshape(-1)
-        err2 = (
-            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
-        ) * 1.1788231063225867
-
-        diff2 = (
-            (
-                10.0
-                ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_red_filter_fixed_logg(
-        self,
-        _x,
-        obs,
-        errors,
-        distance,
-        distance_err,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value.
-
-        """
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x))
-
-        if self.extinction_mode == "total":
-            self.extinction_fraction = 1.0
-
-        else:
-            self.extinction_fraction = self._get_extinction_fraction(
-                distance, ra, dec
-            )
-
-        teff = float(interpolator_teff(_x))
-        Av = (
-            np.array([i([logg, teff, Rv]) for i in self.Rv]).reshape(-1)
-            * ebv
-            * self.extinction_fraction
-        )
-        mag = np.asarray(mag).reshape(-1)
-        err2 = (
-            errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0
-        ) * 1.1788231063225867
-
-        diff2 = (
-            (
-                10.0
-                ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs)
-
-    def _diff2_distance_fixed_logg(
-        self, _x, obs, errors, interpolator_filter, return_err
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.least_squares). And
-        when log(g) is fixed.
-
-        """
-
-        if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x[:-1]))
-
-        mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0
-
-        diff2 = (
-            (10.0 ** ((obs - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0)
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_distance(
-        self, _x, obs, errors, interpolator_filter, return_err
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.least_squares).
-
-        """
-
-        if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x[:-1]))
-
-        mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0
-
-        diff2 = (
-            (10.0 ** ((obs - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0)
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_distance_red_interpolated(
-        self,
-        _x,
-        obs,
-        errors,
-        interpolator_filter,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
-
-        """
-
-        if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x[:2]))
-
-        if self.extinction_mode == "total":
-            self.extinction_fraction = 1.0
-
-        else:
-            self.extinction_fraction = self._get_extinction_fraction(
-                _x[-1], ra, dec
-            )
-
-        Av = (
-            np.array([i(Rv) for i in self.Rv]).reshape(-1)
-            * ebv
-            * self.extinction_fraction
-        )
-        mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0
-
-        diff2 = (
-            (
-                10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_distance_red_filter(
-        self,
-        _x,
-        obs,
-        errors,
-        interpolator_filter,
-        interpolator_teff,
-        logg_pos,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
-
-        """
-
-        if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x[:2]))
-
-        if self.extinction_mode == "total":
-            self.extinction_fraction = 1.0
-
-        else:
-            self.extinction_fraction = self._get_extinction_fraction(
-                _x[-1], ra, dec
-            )
-
-        teff = float(interpolator_teff(_x[:2]))
-        logg = _x[logg_pos]
-        Av = (
-            np.array([i([logg, teff, Rv]) for i in self.Rv]).reshape(-1)
-            * ebv
-            * self.extinction_fraction
-        )
-        mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0
-
-        diff2 = (
-            (
-                10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_distance_red_interpolated_fixed_logg(
-        self,
-        _x,
-        obs,
-        errors,
-        interpolator_filter,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
-
-        """
-
-        if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x[:-1]))
-
-        if self.extinction_mode == "total":
-            self.extinction_fraction = 1.0
-
-        else:
-            self.extinction_fraction = self._get_extinction_fraction(
-                _x[-1], ra, dec
-            )
-
-        Av = (
-            np.array([i(Rv) for i in self.Rv]).reshape(-1)
-            * ebv
-            * self.extinction_fraction
-        )
-        mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0
-
-        diff2 = (
-            (
-                10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_distance_red_filter_fixed_logg(
-        self,
-        _x,
-        obs,
-        errors,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided.
-
-        """
-
-        if (_x[-1] <= 0.0) or (_x[-1] > 10000.0):
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-        mag = []
-
-        for interp in interpolator_filter:
-            mag.append(interp(_x[:-1]))
-
-        if self.extinction_mode == "total":
-            self.extinction_fraction = 1.0
-
-        else:
-            self.extinction_fraction = self._get_extinction_fraction(
-                _x[-1], ra, dec
-            )
-
-        teff = float(interpolator_teff(_x[:-1]))
-        Av = (
-            np.array([i([logg, teff, Rv]) for i in self.Rv]).reshape(-1)
-            * ebv
-            * self.extinction_fraction
-        )
-        mag = np.asarray(mag).reshape(-1)
-        err2 = errors**2.0
-
-        diff2 = (
-            (
-                10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5)
-                - 1.0
-            )
-            ** 2.0
-        ) / err2
-
-        if np.isfinite(diff2).all():
-            if return_err:
-                return diff2, err2
-
-            else:
-                return diff2
-
-        else:
-            if return_err:
-                return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
-            else:
-                return np.ones_like(obs) * np.inf
-
-    def _diff2_distance_red(
-        self,
-        _x,
-        obs,
-        errors,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.least_squares).
-
-        """
-
-        if not self.extinction_convolved:
-            if logg is None:
-                diff2, err2 = self._diff2_distance_red_interpolated(
-                    _x,
-                    obs,
-                    errors,
-                    interpolator_filter,
-                    Rv,
-                    ebv,
-                    ra,
-                    dec,
-                    True,
-                )
-
-            else:
-                diff2, err2 = self._diff2_distance_red_interpolated_fixed_logg(
-                    _x,
-                    obs,
-                    errors,
-                    interpolator_filter,
-                    Rv,
-                    ebv,
-                    ra,
-                    dec,
-                    True,
-                )
-
-        else:
-            if logg is None:
-                logg_pos = int(
-                    np.argwhere(
-                        np.array(self.fitting_params["independent"]) == "logg"
-                    )
-                )
-                diff2, err2 = self._diff2_distance_red_filter(
-                    _x,
-                    obs,
-                    errors,
-                    interpolator_filter,
-                    interpolator_teff,
-                    logg_pos,
-                    Rv,
-                    ebv,
-                    ra,
-                    dec,
-                    True,
-                )
-
-            else:
-                diff2, err2 = self._diff2_distance_red_filter_fixed_logg(
-                    _x,
-                    obs,
-                    errors,
-                    interpolator_filter,
-                    interpolator_teff,
-                    logg,
-                    Rv,
-                    ebv,
-                    ra,
-                    dec,
-                    True,
-                )
-
-        if return_err:
-            return diff2, err2
-
-        else:
-            return diff2
-
-    def _diff2_summed(
-        self, _x, obs, errors, distance, distance_err, interpolator_filter
-    ):
-        """
-        Internal method for computing the ch2-squared value
-        (for scipy.optimize.minimize).
-
-        """
-
-        diff2 = self._diff2(
-            _x, obs, errors, distance, distance_err, interpolator_filter, False
-        )
-
-        return np.sum(diff2)
-
-    def _diff2_red_summed(
-        self,
-        _x,
-        obs,
-        errors,
-        distance,
-        distance_err,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value
-        (for scipy.optimize.minimize).
-
-        """
-
-        diff2, err2 = self._diff2_red(
-            _x,
-            obs,
-            errors,
-            distance,
-            distance_err,
-            interpolator_filter,
-            interpolator_teff,
-            logg,
-            Rv,
-            ebv,
-            ra,
-            dec,
-            True,
-        )
-
-        if return_err:
-            return np.sum(diff2), 1.0 / np.sum(1.0 / err2)
-
-        else:
-            return np.sum(diff2)
-
-    def _diff2_distance_summed(
-        self, _x, obs, errors, interpolator_filter, logg, return_error
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.minimize).
-
-        """
-
-        if logg is None:
-            diff2, err2 = self._diff2_distance(
-                _x, obs, errors, interpolator_filter, True
-            )
-
-        else:
-            diff2, err2 = self._diff2_distance_fixed_logg(
-                _x, obs, errors, interpolator_filter, True
-            )
-
-        if return_error:
-            return np.sum(diff2), 1.0 / np.sum(1.0 / err2)
-
-        else:
-            return np.sum(diff2)
-
-    def _diff2_distance_red_summed(
-        self,
-        _x,
-        obs,
-        errors,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-        return_err,
-    ):
-        """
-        Internal method for computing the ch2-squared value in cases when
-        the distance is not provided (for scipy.optimize.minimize).
-
-        """
-
-        diff2, err2 = self._diff2_distance_red(
-            _x,
-            obs,
-            errors,
-            interpolator_filter,
-            interpolator_teff,
-            logg,
-            Rv,
-            ebv,
-            ra,
-            dec,
-            True,
-        )
-
-        if return_err:
-            if np.isfinite(diff2).all():
-                return np.sum(diff2), 1.0 / np.sum(1.0 / err2)
-
-            else:
-                return np.inf, np.inf
-
-        else:
-            if np.isfinite(diff2).all():
-                return np.sum(diff2)
-
-            else:
-                return np.inf
-
-    def _log_likelihood(
-        self, _x, obs, errors, distance, distance_err, interpolator_filter
-    ):
-        """
-        Internal method for computing the ch2-squared value (for emcee).
-
-        """
-
-        diff2, err2 = self._diff2(
-            _x, obs, errors, distance, distance_err, interpolator_filter, True
-        )
-
-        if np.isfinite(diff2).all():
-            return -0.5 * np.sum(diff2 + np.log(2 * np.pi * err2))
-
-        else:
-            return -np.inf
-
-    def _log_likelihood_red(
-        self,
-        _x,
-        obs,
-        errors,
-        distance,
-        distance_err,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-    ):
-        """
-        Internal method for computing the log-likelihood value (for emcee).
-
-        """
-
-        diff2, err2 = self._diff2_red(
-            _x,
-            obs,
-            errors,
-            distance,
-            distance_err,
-            interpolator_filter,
-            interpolator_teff,
-            logg,
-            Rv,
-            ebv,
-            ra,
-            dec,
-            True,
-        )
-
-        if np.isfinite(diff2).all():
-            return -0.5 * np.sum(diff2 + np.log(2.0 * np.pi * err2))
-
-        else:
-            return -np.inf
-
-    def _log_likelihood_distance(
-        self, _x, obs, errors, interpolator_filter, logg
-    ):
-        """
-        Internal method for computing the log-likelihood value in cases when
-        the distance is not provided (for emcee).
-
-        """
-
-        if logg is None:
-            diff2, err2 = self._diff2_distance(
-                _x, obs, errors, interpolator_filter, True
-            )
-
-        else:
-            diff2, err2 = self._diff2_distance_fixed_logg(
-                _x, obs, errors, interpolator_filter, True
-            )
-
-        if np.isfinite(diff2).all():
-            return -0.5 * np.nansum(diff2 + np.log(2.0 * np.pi * err2))
-
-        else:
-            return -np.inf
-
-    def _log_likelihood_distance_red(
-        self,
-        _x,
-        obs,
-        errors,
-        interpolator_filter,
-        interpolator_teff,
-        logg,
-        Rv,
-        ebv,
-        ra,
-        dec,
-    ):
-        """
-        Internal method for computing the log-likelihood value in cases when
-        the distance is not provided (for emcee).
-
-        """
-
-        diff2, err2 = self._diff2_distance_red(
-            _x,
-            obs,
-            errors,
-            interpolator_filter,
-            interpolator_teff,
-            logg,
-            Rv,
-            ebv,
-            ra,
-            dec,
-            True,
-        )
-
-        if np.isfinite(diff2).all():
-            return -0.5 * np.sum(diff2 + np.log(2.0 * np.pi * err2))
-
-        else:
-            return -np.inf
+            self.reddening_vector = [partial(rv_itp, w) for w in wavelength]
 
     def fit(
         self,
@@ -1443,7 +364,7 @@ class WDfitter(AtmosphereModelReader):
             filters = np.array(filters)
 
         if (
-            ((Rv >= 0.0) and (self.Rv is None))
+            ((Rv >= 0.0) and (self.reddening_vector is None))
             or (self.extinction_convolved != extinction_convolved)
             or (len(self.interpolator[atmosphere[0]]) - 4 != len(filters))
         ):
@@ -1512,7 +433,12 @@ class WDfitter(AtmosphereModelReader):
             "kwargs_for_emcee": _kwargs_for_emcee,
         }
 
-        interpolator_teff = None
+        if "logg" in independent:
+            logg_pos = int(
+                np.argwhere(
+                    np.array(self.fitting_params["independent"]) == "logg"
+                )
+            )
 
         # If using the scipy.optimize.minimize()
         if method == "minimize":
@@ -1525,78 +451,118 @@ class WDfitter(AtmosphereModelReader):
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
                     if ebv <= 0.0:
-                        if "logg" in independent:
-                            self.results[j] = optimize.minimize(
-                                self._diff2_distance_summed,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    None,
-                                    False,
-                                ),
-                                **_kwargs_for_minimize,
-                            )
-
-                        else:
-                            self.results[j] = optimize.minimize(
-                                self._diff2_distance_summed,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    logg,
-                                    False,
-                                ),
-                                **_kwargs_for_minimize,
-                            )
+                        # with or without logg takes the same for, it is handled in the interpolator
+                        self.results[j] = optimize.minimize(
+                            diff2_distance_summed,
+                            initial_guess,
+                            args=(
+                                mags,
+                                mag_errors,
+                                [self.interpolator[j][i] for i in filters],
+                                False,
+                            ),
+                            **_kwargs_for_minimize,
+                        )
 
                     else:
-                        if "logg" in independent:
-                            self.results[j] = optimize.minimize(
-                                self._diff2_distance_red_summed,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    None,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                    False,
-                                ),
-                                **_kwargs_for_minimize,
-                            )
+                        if not extinction_convolved:
+                            if "logg" in independent:
+                                self.results[j] = optimize.minimize(
+                                    diff2_distance_red_interpolated_summed,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_minimize,
+                                )
 
+                            else:
+                                self.results[j] = optimize.minimize(
+                                    diff2_distance_red_interpolated_fixed_logg_summed,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_minimize,
+                                )
                         else:
-                            self.results[j] = optimize.minimize(
-                                self._diff2_distance_red_summed,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    logg,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                    False,
-                                ),
-                                **_kwargs_for_minimize,
-                            )
+                            if "logg" in independent:
+                                self.results[j] = optimize.minimize(
+                                    diff2_distance_red_filter_summed,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        self.interpolator[j]["Teff"],
+                                        logg_pos,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_minimize,
+                                )
+
+                            else:
+                                self.results[j] = optimize.minimize(
+                                    diff2_distance_red_filter_fixed_logg_summed,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        self.interpolator[j]["Teff"],
+                                        logg,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_minimize,
+                                )
 
                 # If distance is provided, fit here.
                 else:
                     if ebv <= 0.0:
                         self.results[j] = optimize.minimize(
-                            self._diff2_summed,
+                            diff2_summed,
                             initial_guess,
                             args=(
                                 mags,
@@ -1604,14 +570,15 @@ class WDfitter(AtmosphereModelReader):
                                 distance,
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
+                                False,
                             ),
                             **_kwargs_for_minimize,
                         )
 
                     else:
-                        if "logg" in independent:
+                        if not extinction_convolved:
                             self.results[j] = optimize.minimize(
-                                self._diff2_red_summed,
+                                diff2_red_interpolated_summed,
                                 initial_guess,
                                 args=(
                                     mags,
@@ -1619,9 +586,9 @@ class WDfitter(AtmosphereModelReader):
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    None,
                                     Rv,
+                                    self.extinction_mode,
+                                    self.reddening_vector,
                                     ebv,
                                     ra,
                                     dec,
@@ -1631,25 +598,65 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-                            self.results[j] = optimize.minimize(
-                                self._diff2_red_summed,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    distance,
-                                    distance_err,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    logg,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                    False,
-                                ),
-                                **_kwargs_for_minimize,
-                            )
+                            if "logg" in independent:
+                                logg_pos = int(
+                                    np.argwhere(
+                                        np.array(
+                                            self.fitting_params["independent"]
+                                        )
+                                        == "logg"
+                                    )
+                                )
+                                self.results[j] = optimize.minimize(
+                                    diff2_red_filter_summed,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        distance,
+                                        distance_err,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        interpolator_teff,
+                                        logg_pos,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_minimize,
+                                )
+
+                            else:
+                                self.results[j] = optimize.minimize(
+                                    diff2_red_filter_fixed_logg_summed,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        distance,
+                                        distance_err,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        interpolator_teff,
+                                        logg,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_minimize,
+                                )
 
                 # Store the chi2
                 self.best_fit_params[j]["chi2"] = self.results[j].fun
@@ -1706,8 +713,9 @@ class WDfitter(AtmosphereModelReader):
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
                     if ebv <= 0.0:
+                        # with or without logg takes the same for, it is handled in the interpolator
                         self.results[j] = optimize.least_squares(
-                            self._diff2_distance,
+                            diff2_distance,
                             initial_guess,
                             args=(
                                 mags,
@@ -1719,49 +727,104 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-                        if "logg" in independent:
-                            self.results[j] = optimize.least_squares(
-                                self._diff2_distance_red,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    None,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                    False,
-                                ),
-                                **_kwargs_for_least_squares,
-                            )
+                        if not extinction_convolved:
+                            if "logg" in independent:
+                                self.results[j] = optimize.least_squares(
+                                    diff2_distance_red_interpolated,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_least_squares,
+                                )
 
+                            else:
+                                self.results[j] = optimize.least_squares(
+                                    diff2_distance_red_interpolated_fixed_logg,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_least_squares,
+                                )
                         else:
-                            self.results[j] = optimize.least_squares(
-                                self._diff2_distance_red,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    logg,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                    False,
-                                ),
-                                **_kwargs_for_least_squares,
-                            )
+                            if "logg" in independent:
+                                self.results[j] = optimize.least_squares(
+                                    diff2_distance_red_filter,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        self.interpolator[j]["Teff"],
+                                        logg_pos,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_least_squares,
+                                )
+
+                            else:
+                                self.results[j] = optimize.least_squares(
+                                    diff2_distance_red_filter_fixed_logg,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        self.interpolator[j]["Teff"],
+                                        logg,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_least_squares,
+                                )
 
                 # If distance is provided, fit here.
                 else:
                     if ebv <= 0.0:
                         self.results[j] = optimize.least_squares(
-                            self._diff2,
+                            diff2,
                             initial_guess,
                             args=(
                                 mags,
@@ -1775,9 +838,13 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-                        if "logg" in independent:
+                        if not extinction_convolved:
+                            # Does not require _diff2_red_interpolated_fixed_logg because
+                            # it is already taken care of when generating the interpolators
+                            # as the extinction from SFD12 table 6 has no dependency on
+                            # temperature and logg
                             self.results[j] = optimize.least_squares(
-                                self._diff2_red,
+                                diff2_red_interpolated,
                                 initial_guess,
                                 args=(
                                     mags,
@@ -1785,37 +852,68 @@ class WDfitter(AtmosphereModelReader):
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    None,
                                     Rv,
+                                    self.extinction_mode,
+                                    self.reddening_vector,
                                     ebv,
                                     ra,
                                     dec,
                                     False,
                                 ),
-                                **_kwargs_for_least_squares,
                             )
 
                         else:
-                            self.results[j] = optimize.least_squares(
-                                self._diff2_red,
-                                initial_guess,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    distance,
-                                    distance_err,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    logg,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                    False,
-                                ),
-                                **_kwargs_for_least_squares,
-                            )
+                            if "logg" in independent:
+                                self.results[j] = optimize.least_squares(
+                                    diff2_red_filter,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        distance,
+                                        distance_err,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        interpolator_teff,
+                                        logg_pos,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_least_squares,
+                                )
+
+                            else:
+                                self.results[j] = optimize.least_squares(
+                                    diff2_red_filter_fixed_logg,
+                                    initial_guess,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        distance,
+                                        distance_err,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        interpolator_teff,
+                                        logg,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                        False,
+                                    ),
+                                    **_kwargs_for_least_squares,
+                                )
 
                 # Store the chi2
                 self.best_fit_params[j]["chi2"] = np.sum(self.results[j].fun)
@@ -1892,72 +990,111 @@ class WDfitter(AtmosphereModelReader):
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
                     if ebv <= 0.0:
-                        if "logg" in independent:
-                            self.sampler[j] = emcee.EnsembleSampler(
-                                nwalkers,
-                                ndim,
-                                self._log_likelihood_distance,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    None,
-                                ),
-                                **_kwargs_for_emcee,
-                            )
-
-                        else:
-                            self.sampler[j] = emcee.EnsembleSampler(
-                                nwalkers,
-                                ndim,
-                                self._log_likelihood_distance,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    logg,
-                                ),
-                                **_kwargs_for_emcee,
-                            )
+                        self.sampler[j] = emcee.EnsembleSampler(
+                            nwalkers,
+                            ndim,
+                            log_likelihood_distance,
+                            args=(
+                                mags,
+                                mag_errors,
+                                [self.interpolator[j][i] for i in filters],
+                            ),
+                            **_kwargs_for_emcee,
+                        )
 
                     else:
-                        if "logg" in independent:
-                            self.sampler[j] = emcee.EnsembleSampler(
-                                nwalkers,
-                                ndim,
-                                self._log_likelihood_distance_red,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    None,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                ),
-                                **_kwargs_for_emcee,
-                            )
+                        if not extinction_convolved:
+                            if "logg" in independent:
+                                self.sampler[j] = emcee.EnsembleSampler(
+                                    nwalkers,
+                                    ndim,
+                                    log_likelihood_distance_red_interpolated,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                    ),
+                                    **_kwargs_for_emcee,
+                                )
 
+                            else:
+                                self.sampler[j] = emcee.EnsembleSampler(
+                                    nwalkers,
+                                    ndim,
+                                    log_likelihood_distance_red_interpolated_fixed_logg,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                    ),
+                                    **_kwargs_for_emcee,
+                                )
                         else:
-                            self.sampler[j] = emcee.EnsembleSampler(
-                                nwalkers,
-                                ndim,
-                                self._log_likelihood_distance_red,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    logg,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                ),
-                                **_kwargs_for_emcee,
-                            )
+                            if "logg" in independent:
+                                self.sampler[j] = emcee.EnsembleSampler(
+                                    nwalkers,
+                                    ndim,
+                                    log_likelihood_distance_red_filter,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        interpolator_teff,
+                                        logg_pos,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                    ),
+                                    **_kwargs_for_emcee,
+                                )
+
+                            else:
+                                self.sampler[j] = emcee.EnsembleSampler(
+                                    nwalkers,
+                                    ndim,
+                                    log_likelihood_distance_red_filter_fixed_logg,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        interpolator_teff,
+                                        logg,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                    ),
+                                    **_kwargs_for_emcee,
+                                )
 
                 # If distance is provided, fit here.
                 else:
@@ -1965,7 +1102,7 @@ class WDfitter(AtmosphereModelReader):
                         self.sampler[j] = emcee.EnsembleSampler(
                             nwalkers,
                             ndim,
-                            self._log_likelihood,
+                            log_likelihood,
                             args=(
                                 mags,
                                 mag_errors,
@@ -1977,20 +1114,20 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     else:
-                        if "logg" in independent:
+                        if not extinction_convolved:
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
                                 ndim,
-                                self._log_likelihood_red,
+                                log_likelihood_red_interpolated,
                                 args=(
                                     mags,
                                     mag_errors,
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    None,
                                     Rv,
+                                    self.extinction_mode,
+                                    self.reddening_vector,
                                     ebv,
                                     ra,
                                     dec,
@@ -1999,28 +1136,60 @@ class WDfitter(AtmosphereModelReader):
                             )
 
                         else:
-                            # Fixed logg is handled in the _log_likelihood_red
-                            # The logg provided here is a variable as passed
-                            # from the function one layer above.
-                            self.sampler[j] = emcee.EnsembleSampler(
-                                nwalkers,
-                                ndim,
-                                self._log_likelihood_red,
-                                args=(
-                                    mags,
-                                    mag_errors,
-                                    distance,
-                                    distance_err,
-                                    [self.interpolator[j][i] for i in filters],
-                                    interpolator_teff,
-                                    logg,
-                                    Rv,
-                                    ebv,
-                                    ra,
-                                    dec,
-                                ),
-                                **_kwargs_for_emcee,
-                            )
+                            if "logg" in independent:
+                                self.sampler[j] = emcee.EnsembleSampler(
+                                    nwalkers,
+                                    ndim,
+                                    log_likelihood_red_filter,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        distance,
+                                        distance_err,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        interpolator_teff,
+                                        logg_pos,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                    ),
+                                    **_kwargs_for_emcee,
+                                )
+
+                            else:
+                                # Fixed logg is handled in the log_likelihood_red
+                                # The logg provided here is a variable as passed
+                                # from the function one layer above.
+                                self.sampler[j] = emcee.EnsembleSampler(
+                                    nwalkers,
+                                    ndim,
+                                    log_likelihood_red_filter_fixed_logg,
+                                    args=(
+                                        mags,
+                                        mag_errors,
+                                        distance,
+                                        distance_err,
+                                        [
+                                            self.interpolator[j][i]
+                                            for i in filters
+                                        ],
+                                        self.interpolator[j]["Teff"],
+                                        logg,
+                                        Rv,
+                                        self.extinction_mode,
+                                        self.reddening_vector,
+                                        ebv,
+                                        ra,
+                                        dec,
+                                    ),
+                                    **_kwargs_for_emcee,
+                                )
 
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
                 self.samples[j] = self.sampler[j].get_chain(
@@ -2190,7 +1359,7 @@ class WDfitter(AtmosphereModelReader):
                                             Rv,
                                         ]
                                     )
-                                    for i in self.Rv
+                                    for i in self.reddening_vector
                                 ],
                                 dtype=np.float64,
                             ).reshape(-1)
@@ -2201,7 +1370,8 @@ class WDfitter(AtmosphereModelReader):
                     else:
                         Av = (
                             np.array(
-                                [i(Rv) for i in self.Rv], dtype=np.float64
+                                [i(Rv) for i in self.reddening_vector],
+                                dtype=np.float64,
                             ).reshape(-1)
                             * ebv
                             * self.extinction_fraction
@@ -2210,7 +1380,7 @@ class WDfitter(AtmosphereModelReader):
                     Av[np.isnan(Av)] = 0.0
 
                 else:
-                    Av = np.zeros(len(self.Rv)).reshape(-1)
+                    Av = np.zeros(len(self.reddening_vector)).reshape(-1)
 
                 for i, _f in enumerate(self.fitting_params["filters"]):
                     self.best_fit_params[j]["Av_" + _f] = Av[i]

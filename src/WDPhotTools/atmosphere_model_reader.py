@@ -340,7 +340,7 @@ class AtmosphereModelReader(object):
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
         _kwargs_for_CT = {
-            "fill_value": -1e10,
+            "fill_value": -np.inf,
             "tol": 1e-10,
             "maxiter": 100000,
             "rescale": True,
