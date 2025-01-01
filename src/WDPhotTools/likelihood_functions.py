@@ -61,6 +61,8 @@ def log_likelihood_distance_red_filter(
     ebv,
     ra,
     dec,
+    z_min,
+    z_max,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -80,6 +82,8 @@ def log_likelihood_distance_red_filter(
         ebv,
         ra,
         dec,
+        z_min,
+        z_max,
         True,
     )
 
@@ -103,6 +107,8 @@ def log_likelihood_distance_red_filter_fixed_logg(
     ebv,
     ra,
     dec,
+    z_min,
+    z_max,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -122,6 +128,8 @@ def log_likelihood_distance_red_filter_fixed_logg(
         ebv,
         ra,
         dec,
+        z_min,
+        z_max,
         True,
     )
 
@@ -143,6 +151,8 @@ def log_likelihood_distance_red_interpolated(
     ebv,
     ra,
     dec,
+    z_min,
+    z_max,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -160,6 +170,8 @@ def log_likelihood_distance_red_interpolated(
         ebv,
         ra,
         dec,
+        z_min,
+        z_max,
         True,
     )
 
@@ -181,6 +193,8 @@ def log_likelihood_distance_red_interpolated_fixed_logg(
     ebv,
     ra,
     dec,
+    z_min,
+    z_max,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -198,6 +212,8 @@ def log_likelihood_distance_red_interpolated_fixed_logg(
         ebv,
         ra,
         dec,
+        z_min,
+        z_max,
         True,
     )
 
@@ -223,6 +239,8 @@ def log_likelihood_red_filter(
     ebv,
     ra,
     dec,
+    z_min,
+    z_max,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -244,6 +262,8 @@ def log_likelihood_red_filter(
         ebv,
         ra,
         dec,
+        z_min,
+        z_max,
         True,
     )
 
@@ -269,6 +289,8 @@ def log_likelihood_red_filter_fixed_logg(
     ebv,
     ra,
     dec,
+    z_min,
+    z_max,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -290,6 +312,8 @@ def log_likelihood_red_filter_fixed_logg(
         ebv,
         ra,
         dec,
+        z_min,
+        z_max,
         True,
     )
 
@@ -313,6 +337,8 @@ def log_likelihood_red_interpolated(
     ebv,
     ra,
     dec,
+    z_min,
+    z_max,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -332,6 +358,8 @@ def log_likelihood_red_interpolated(
         ebv,
         ra,
         dec,
+        z_min,
+        z_max,
         True,
     )
 
