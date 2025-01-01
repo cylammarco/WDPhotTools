@@ -102,6 +102,8 @@ def diff2_distance_red_interpolated(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -126,7 +128,9 @@ def diff2_distance_red_interpolated(
         extinction_fraction = 1.0
 
     else:
-        extinction_fraction = get_extinction_fraction(_x[-1], ra, dec)
+        extinction_fraction = get_extinction_fraction(
+            _x[-1], ra, dec, zmin, zmax
+        )
 
     Av = (
         np.array([i(Rv) for i in reddening_vector]).reshape(-1)
@@ -167,6 +171,8 @@ def diff2_distance_red_interpolated_fixed_logg(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -191,7 +197,9 @@ def diff2_distance_red_interpolated_fixed_logg(
         extinction_fraction = 1.0
 
     else:
-        extinction_fraction = get_extinction_fraction(_x[-1], ra, dec)
+        extinction_fraction = get_extinction_fraction(
+            _x[-1], ra, dec, zmin, zmax
+        )
 
     Av = (
         np.array([i(Rv) for i in reddening_vector]).reshape(-1)
@@ -234,6 +242,8 @@ def diff2_distance_red_filter(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -258,7 +268,9 @@ def diff2_distance_red_filter(
         extinction_fraction = 1.0
 
     else:
-        extinction_fraction = get_extinction_fraction(_x[-1], ra, dec)
+        extinction_fraction = get_extinction_fraction(
+            _x[-1], ra, dec, zmin, zmax
+        )
 
     teff = float(interpolator_teff(_x[:2]))
     logg = _x[logg_pos]
@@ -303,6 +315,8 @@ def diff2_distance_red_filter_fixed_logg(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -327,7 +341,9 @@ def diff2_distance_red_filter_fixed_logg(
         extinction_fraction = 1.0
 
     else:
-        extinction_fraction = get_extinction_fraction(_x[-1], ra, dec)
+        extinction_fraction = get_extinction_fraction(
+            _x[-1], ra, dec, zmin, zmax
+        )
 
     teff = float(interpolator_teff(_x[:-1]))
     Av = (
@@ -371,6 +387,8 @@ def diff2_red_interpolated(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -387,7 +405,9 @@ def diff2_red_interpolated(
         extinction_fraction = 1.0
 
     else:
-        extinction_fraction = get_extinction_fraction(distance, ra, dec)
+        extinction_fraction = get_extinction_fraction(
+            distance, ra, dec, zmin, zmax
+        )
 
     Av = (
         np.array([i(Rv) for i in reddening_vector]).reshape(-1)
@@ -437,6 +457,8 @@ def diff2_red_filter(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -462,7 +484,9 @@ def diff2_red_filter(
         extinction_fraction = 1.0
 
     else:
-        extinction_fraction = get_extinction_fraction(distance, ra, dec)
+        extinction_fraction = get_extinction_fraction(
+            distance, ra, dec, zmin, zmax
+        )
 
     logg = _x[logg_pos]
     Av = (
@@ -513,6 +537,8 @@ def diff2_red_filter_fixed_logg(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -529,7 +555,9 @@ def diff2_red_filter_fixed_logg(
         extinction_fraction = 1.0
 
     else:
-        extinction_fraction = get_extinction_fraction(distance, ra, dec)
+        extinction_fraction = get_extinction_fraction(
+            distance, ra, dec, zmin, zmax
+        )
 
     teff = float(interpolator_teff(_x))
     Av = (

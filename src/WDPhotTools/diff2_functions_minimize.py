@@ -48,6 +48,8 @@ def diff2_red_filter_summed(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -69,6 +71,8 @@ def diff2_red_filter_summed(
         ebv,
         ra,
         dec,
+        zmin,
+        zmax,
         True,
     )
 
@@ -94,6 +98,8 @@ def diff2_red_filter_fixed_logg_summed(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -115,6 +121,8 @@ def diff2_red_filter_fixed_logg_summed(
         ebv,
         ra,
         dec,
+        zmin,
+        zmax,
         True,
     )
 
@@ -138,6 +146,8 @@ def diff2_red_interpolated_summed(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -159,6 +169,8 @@ def diff2_red_interpolated_summed(
         ebv,
         ra,
         dec,
+        zmin,
+        zmax,
         True,
     )
     if return_err:
@@ -181,6 +193,8 @@ def diff2_distance_red_filter_summed(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -202,6 +216,8 @@ def diff2_distance_red_filter_summed(
         ebv,
         ra,
         dec,
+        zmin,
+        zmax,
         True,
     )
     if return_err:
@@ -224,6 +240,8 @@ def diff2_distance_red_filter_fixed_logg_summed(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -245,6 +263,8 @@ def diff2_distance_red_filter_fixed_logg_summed(
         ebv,
         ra,
         dec,
+        zmin,
+        zmax,
         True,
     )
     if return_err:
@@ -281,6 +301,8 @@ def diff2_distance_red_interpolated_summed(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -300,6 +322,8 @@ def diff2_distance_red_interpolated_summed(
         ebv,
         ra,
         dec,
+        zmin,
+        zmax,
         True,
     )
 
@@ -321,6 +345,8 @@ def diff2_distance_red_interpolated_fixed_logg_summed(
     ebv,
     ra,
     dec,
+    zmin,
+    zmax,
     return_err,
 ):
     """
@@ -340,6 +366,8 @@ def diff2_distance_red_interpolated_fixed_logg_summed(
         ebv,
         ra,
         dec,
+        zmin,
+        zmax,
         True,
     )
 
