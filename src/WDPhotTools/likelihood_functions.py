@@ -13,8 +13,23 @@ from .diff2_functions_least_square import (
 )
 
 
+def log_prior(*args):
+    """
+    Default log(prior) returns zero.
+
+    """
+
+    return 0.0
+
+
 def log_likelihood(
-    _x, obs, errors, distance, distance_err, interpolator_filter
+    _x,
+    obs,
+    errors,
+    distance,
+    distance_err,
+    interpolator_filter,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -24,15 +39,18 @@ def log_likelihood(
     d2, e2 = diff2(
         _x, obs, errors, distance, distance_err, interpolator_filter, True
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
 
 
-def log_likelihood_distance(_x, obs, errors, interpolator_filter):
+def log_likelihood_distance(
+    _x, obs, errors, interpolator_filter, prior=log_prior
+):
     """
     Internal method for computing the ch2-squared value in cases when
     the distance is not provided (for emcee).
@@ -40,9 +58,10 @@ def log_likelihood_distance(_x, obs, errors, interpolator_filter):
     """
 
     d2, e2 = diff2_distance(_x, obs, errors, interpolator_filter, True)
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
@@ -63,6 +82,7 @@ def log_likelihood_distance_red_filter(
     dec,
     z_min,
     z_max,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -86,9 +106,10 @@ def log_likelihood_distance_red_filter(
         z_max,
         True,
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
@@ -109,6 +130,7 @@ def log_likelihood_distance_red_filter_fixed_logg(
     dec,
     z_min,
     z_max,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -132,9 +154,10 @@ def log_likelihood_distance_red_filter_fixed_logg(
         z_max,
         True,
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
@@ -153,6 +176,7 @@ def log_likelihood_distance_red_interpolated(
     dec,
     z_min,
     z_max,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -174,9 +198,10 @@ def log_likelihood_distance_red_interpolated(
         z_max,
         True,
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
@@ -195,6 +220,7 @@ def log_likelihood_distance_red_interpolated_fixed_logg(
     dec,
     z_min,
     z_max,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -216,9 +242,10 @@ def log_likelihood_distance_red_interpolated_fixed_logg(
         z_max,
         True,
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
@@ -241,6 +268,7 @@ def log_likelihood_red_filter(
     dec,
     z_min,
     z_max,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -266,9 +294,10 @@ def log_likelihood_red_filter(
         z_max,
         True,
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
@@ -291,6 +320,7 @@ def log_likelihood_red_filter_fixed_logg(
     dec,
     z_min,
     z_max,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -316,9 +346,10 @@ def log_likelihood_red_filter_fixed_logg(
         z_max,
         True,
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf
@@ -339,6 +370,7 @@ def log_likelihood_red_interpolated(
     dec,
     z_min,
     z_max,
+    prior=log_prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -362,9 +394,10 @@ def log_likelihood_red_interpolated(
         z_max,
         True,
     )
+    p = prior(*_x)
 
     if np.isfinite(d2).all():
-        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2))
+        return -0.5 * np.sum(d2 + np.log(2 * np.pi * e2)) + p
 
     else:
         return -np.inf

@@ -7,7 +7,6 @@ import glob
 import pkg_resources
 
 import numpy as np
-from scipy import interpolate
 
 
 def get_uncertainty_least_squares(res):
