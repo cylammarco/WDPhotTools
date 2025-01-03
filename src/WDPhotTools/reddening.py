@@ -26,26 +26,14 @@ def reddening_vector_interpolated(**kwargs):
     # Load the reddening vectors from file
     data = np.loadtxt(filepath, delimiter=",")
 
-    _xy = np.array(
-        [
-            i
-            for i in itertools.product(
-                data[:, 0], np.array([2.1, 3.1, 4.1, 5.1])
-            )
-        ]
-    )
+    _xy = np.array([i for i in itertools.product(data[:, 0], np.array([2.1, 3.1, 4.1, 5.1]))])
     _z = data[:, 1:].flatten()
 
     temp = RBFInterpolator(_xy, _z, **kwargs)
 
     def _RBFInterpolator(*x):
         _x = np.array(
-            [
-                i
-                for i in itertools.product(
-                    np.array(x[0]).reshape(-1), np.array(x[1]).reshape(-1)
-                )
-            ],
+            [i for i in itertools.product(np.array(x[0]).reshape(-1), np.array(x[1]).reshape(-1))],
             dtype="object",
         )
         return temp(_x.reshape(len(_x), 2))
@@ -156,9 +144,7 @@ def reddening_vector_filter(filter_name):
             80000.0,
         ]
     )
-    logg = np.array(
-        [6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0, 9.25, 9.5]
-    )
+    logg = np.array([6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0, 9.25, 9.5])
     Rv = np.array([2.1, 2.6, 3.1, 3.6, 4.1, 4.6, 5.1])
 
     data = data.reshape(len(logg), len(Teff), len(Rv))
