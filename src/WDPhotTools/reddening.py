@@ -55,15 +55,13 @@ def reddening_vector_interpolated(**kwargs):
 
 def reddening_vector_filter(filter_name):
     """
-    This generate an interpolation over the parameter space where the models
-    from Koester, D. 2010; MSAI 81, 921 and Trembley & Bergeron 2010;
-    ApJ696, 1755 cover. The extinction is computed for each filter available
-    from the Montreal photometry grid by convolving their filter profile with
-    the publicly available spectra at each temperature from the Koester models.
+    This generate an interpolation over the parameter space where the models from Koester, D. 2010; MSAI 81, 921 and
+    Trembley & Bergeron 2010; ApJ696, 1755 cover. The extinction is computed for each filter available from the
+    Montreal photometry grid by convolving their filter profile with the publicly available spectra at each temperature
+    from the Koester models.
 
     See http://svo2.cab.inta-csic.es/theory/newov2/index.php?models=koester2,
-    WDPhotTools/extinction/generate_extinction_table.py and
-    WDPhotTools/filter_response/
+    WDPhotTools/extinction/generate_extinction_table.py and WDPhotTools/filter_response/
 
     """
 

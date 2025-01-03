@@ -47,6 +47,7 @@ from .likelihood_functions import (
     log_likelihood_red_filter,
     log_likelihood_red_filter_fixed_logg,
     log_likelihood_red_interpolated,
+    log_dummy_prior,
 )
 from .reddening import reddening_vector_filter, reddening_vector_interpolated
 from .util import get_uncertainty_emcee, get_uncertainty_least_squares
@@ -82,21 +83,18 @@ class WDfitter(AtmosphereModelReader):
 
     def set_extinction_mode(self, mode="total", z_min=100.0, z_max=250.0):
         """
-        Select the mode of extinction: "total" uses the extinction value as
-        given, "linear" interpolates between z_min and z_max to get the
-        extinction as a function of line of sight distance: zero exxtinction
-        at z_min, and the total extinction at z_max.
+        Select the mode of extinction: "total" uses the extinction value as given, "linear" interpolates between z_min
+        and z_max to get the extinction as a function of line of sight distance: zero exxtinction at z_min, and the
+        total extinction at z_max.
 
         Parameters
         ----------
         mode : str (Default: "total")
             Choose from "total" or "linear"
         z_min : float (Default: 100.0)
-            The minimum distance from the galactic mid-plane to have any
-            extinction.
+            The minimum distance from the galactic mid-plane to have any extinction.
         z_max : float (Default: 250.0)
-            The maximum distance from the galactic mid-plane to use the
-            total extinction.
+            The maximum distance from the galactic mid-plane to use the total extinction.
         """
 
         if mode == "total":
@@ -133,8 +131,7 @@ class WDfitter(AtmosphereModelReader):
         kwargs_for_CT,
     ):
         """
-        Internal method to interpolate the atmosphere grid models using
-        the atmosphere_model_reader.
+        Internal method to interpolate the atmosphere grid models using the atmosphere_model_reader.
 
         """
 
@@ -194,6 +191,7 @@ class WDfitter(AtmosphereModelReader):
         progress=True,
         refine=False,
         refine_bounds=[5.0, 95.0],
+        prior=log_dummy_prior,
         kwargs_for_RBF={},
         kwargs_for_CT={},
         kwargs_for_minimize={},
@@ -201,46 +199,36 @@ class WDfitter(AtmosphereModelReader):
         kwargs_for_emcee={},
     ):
         """
-        The method to execute a photometric fit. Pure hydrogen and helium
-        atmospheres fitting are supported. See `atmosphere_model_reader` for
-        more information. Set allow_none to True so that `mags` can be
-        provided in None to Default non-detection, it is not used in the fit
-        but it allows the fitter to be reused over a large dataset where
-        non-detections occur occasionally. In practice, one can add the full
-        list of filters and set None for all the non-detections, however this
-        is highly inefficent in memory usage: most of the interpolated grid is
-        not used, and masking takes time.
+        The method to execute a photometric fit. Pure hydrogen and helium atmospheres fitting are supported. See
+        `atmosphere_model_reader` for more information. Set allow_none to True so that `mags` can be provided in None
+        to Default non-detection, it is not used in the fit but it allows the fitter to be reused over a large dataset
+        where non-detections occur occasionally. In practice, one can add the full list of filters and set None for all
+        the non-detections, however this is highly inefficent in memory usage: most of the interpolated grid is not
+        used, and masking takes time.
 
         Parameters
         ----------
         atmosphere: list of str (Default: ['H', 'He'])
-            Choose to fit with pure hydrogen atmosphere model and/or pure
-            helium atmosphere model.
+            Choose to fit with pure hydrogen atmosphere model and/or pure helium atmosphere model.
         filters: list/array of str (Default: ['G3', 'G3_BP', 'G3_RP'])
             Choose the filters to be fitted with.
         mags: list/array of float (Default: [None, None, None])
-            The magnitudes in the chosen filters, in their respective
-            magnitude system. None can be provided as non-detection, it does
-            not contribute to the fitting.
+            The magnitudes in the chosen filters, in their respective magnitude system. None can be provided as
+            non-detection, it does not contribute to the fitting.
         mag_errors: list/array of float (Default: [1., 1., 1.])
             The uncertainties in the magnitudes provided.
         allow_none: bool (Default: False)
-            Set to True to detect None in the `mags` list to create a mask,
-            this check requires extra run-time.
+            Set to True to detect None in the `mags` list to create a mask, this check requires extra run-time.
         distance: float (Default: None)
-            The distance to the source, in parsec. Set to None if the
-            distance is to be fitted simultanenous. Provide an initial
-            guess in the `initial_guess`, or it will be initialised at
-            10.0 pc.
+            The distance to the source, in parsec. Set to None if the distance is to be fitted simultanenous. Provide
+            an initial guess in the `initial_guess`, or it will be initialised at 10.0 pc.
         distance_err: float (Default: None)
             The uncertainty of the distance.
         extinction_convolved: bool (Default: True)
-            When False, the A_b/E(B-V) values for filter b from Table 6 of
-            Schlafly et al. 2011 are interpolated over the broadband filters.
-            When False, the the A_b/E(B-V) values are from integrating
-            the convolution of the response function of the filters with
-            the DA spectra from Koester et al. 2010 using the equation
-            provided in Schlafly et al. 2011.
+            When False, the A_b/E(B-V) values for filter b from Table 6 of Schlafly et al. 2011 are interpolated over
+            the broadband filters. When False, the the A_b/E(B-V) values are from integrating the convolution of the
+            response function of the filters with the DA spectra from Koester et al. 2010 using the equation provided
+            in Schlafly et al. 2011.
         kernel: str (Default: 'cubic')
             The kernel of interpolation of the extinction curve.
         Rv: float (Default: 3.1)
@@ -252,24 +240,20 @@ class WDfitter(AtmosphereModelReader):
         dec : float (Default: None)
             Declination in unit of degree.
         independent: list of str (Default: ['Mbol', 'logg']
-            Independent variables to be interpolated in the atmosphere model,
-            these are parameters to be fitted for.
+            Independent variables to be interpolated in the atmosphere model, these are parameters to be fitted for.
         initial_guess: list of float (Default: [10.0, 8.0])
-            Starting coordinates of the minimisation. Provide an additional
-            value if distance is to be fitted, it would be initialise as
-            50.0 pc if not provided.
+            Starting coordinates of the minimisation. Provide an additional value if distance is to be fitted, it would
+            be initialise as 50.0 pc if not provided.
         logg: float (Default: 8.0)
             Only used if 'logg' is not included in the `independent` argument.
         atmosphere_interpolator: str (Default: 'RBF')
             Choose between 'RBF' and 'CT'.
         reuse_interpolator: bool (Default: False)
-            Set to use the existing interpolated grid, it should be set to
-            True if the same collection of data is fitted in the same set of
-            filters with occasional non-detection (with allow_none=False).
+            Set to use the existing interpolated grid, it should be set to True if the same collection of data is
+            fitted in the same set of filters with occasional non-detection (with allow_none=False).
         method: str (Default: 'minimize')
-            Choose from 'minimize', 'least_squares' and 'emcee' for using the
-            `scipy.optimize.minimize`, `scipy.optimize.least_squares` or the
-            `emcee` respectively.
+            Choose from 'minimize', 'least_squares' and 'emcee' for using the `scipy.optimize.minimize`,
+            `scipy.optimize.least_squares` or the `emcee` respectively.
         nwalkers: int (Default: 100)
             Number of walkers (emcee method only).
         nsteps: int (Default: 500)
@@ -281,20 +265,17 @@ class WDfitter(AtmosphereModelReader):
         refine: cool (Default: True)
             Set to True to refine the minimum with `scipy.optimize.minimize`.
         refine_bounds: str (Default: [5, 95])
-            The bounds of the minimizer are definited by the percentiles of
-            the samples.
+            The bounds of the minimizer are definited by the percentiles ofthe samples.
+        prior: function (Default: log_dummy_prior)
+            The prior function for the emcee method. Default is a dummy prior that always return 0.
         kwargs_for_RBF: dict (Default: {})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.RBFInterpolator`.
+            Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
         kwargs_for_CT: dict (Default: {})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.CloughTocher2DInterpolator`.
-        kwargs_for_minimize: dict (Default:
-            {'method': 'Powell', 'options': {'xtol': 0.001}})
+            Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
+        kwargs_for_minimize: dict (Default: {'method': 'Powell', 'options': {'xtol': 0.001}})
             Keyword argument for the minimizer, see `scipy.optimize.minimize`.
         kwargs_for_least_squares: dict (Default: {})
-            keywprd argument for the minimizer,
-            see `scipy.optimize.least_squares`.
+            keywprd argument for the minimizer, see `scipy.optimize.least_squares`.
         kwargs_for_emcee: dict (Default: {})
             Keyword argument for the emcee walker.
 
@@ -313,9 +294,7 @@ class WDfitter(AtmosphereModelReader):
             "rescale": True,
         }
         _kwargs_for_minimize = {"method": "Powell", "options": {"tol": 0.001}}
-        _kwargs_for_least_squares = {
-            "method": "lm",
-        }
+        _kwargs_for_least_squares = {"method": "lm"}
         _kwargs_for_emcee = {}
 
         _kwargs_for_RBF.update(**kwargs_for_RBF)
@@ -388,8 +367,7 @@ class WDfitter(AtmosphereModelReader):
 
             for j in atmosphere:
                 for i in list(filters) + ["Teff", "mass", "Mbol", "age"]:
-                    # Organise the interpolators by atmosphere type
-                    # and filter, note that the logg is not used
+                    # Organise the interpolators by atmosphere type and filter, note that the logg is not used
                     # if independent list contains 'logg'
                     self.interpolator[j][i] = self._interp_am(
                         dependent=i,
@@ -1026,6 +1004,7 @@ class WDfitter(AtmosphereModelReader):
                                 mags,
                                 mag_errors,
                                 [self.interpolator[j][i] for i in filters],
+                                prior,
                             ),
                             **_kwargs_for_emcee,
                         )
@@ -1052,6 +1031,7 @@ class WDfitter(AtmosphereModelReader):
                                         dec,
                                         self.z_min,
                                         self.z_max,
+                                        prior,
                                     ),
                                     **_kwargs_for_emcee,
                                 )
@@ -1076,6 +1056,7 @@ class WDfitter(AtmosphereModelReader):
                                         dec,
                                         self.z_min,
                                         self.z_max,
+                                        prior,
                                     ),
                                     **_kwargs_for_emcee,
                                 )
@@ -1102,6 +1083,7 @@ class WDfitter(AtmosphereModelReader):
                                         dec,
                                         self.z_min,
                                         self.z_max,
+                                        prior,
                                     ),
                                     **_kwargs_for_emcee,
                                 )
@@ -1128,6 +1110,7 @@ class WDfitter(AtmosphereModelReader):
                                         dec,
                                         self.z_min,
                                         self.z_max,
+                                        prior,
                                     ),
                                     **_kwargs_for_emcee,
                                 )
@@ -1145,6 +1128,7 @@ class WDfitter(AtmosphereModelReader):
                                 distance,
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
+                                prior,
                             ),
                             **_kwargs_for_emcee,
                         )
@@ -1169,6 +1153,7 @@ class WDfitter(AtmosphereModelReader):
                                     dec,
                                     self.z_min,
                                     self.z_max,
+                                    prior,
                                 ),
                                 **_kwargs_for_emcee,
                             )
@@ -1198,6 +1183,7 @@ class WDfitter(AtmosphereModelReader):
                                         dec,
                                         self.z_min,
                                         self.z_max,
+                                        prior,
                                     ),
                                     **_kwargs_for_emcee,
                                 )
@@ -1229,6 +1215,7 @@ class WDfitter(AtmosphereModelReader):
                                         dec,
                                         self.z_min,
                                         self.z_max,
+                                        prior,
                                     ),
                                     **_kwargs_for_emcee,
                                 )
@@ -1351,8 +1338,7 @@ class WDfitter(AtmosphereModelReader):
 
         else:
             ValueError(
-                "Unknown method. Please choose from minimize, "
-                "least_squares and emcee."
+                "Unknown method. Please choose from minimize, least_squares and emcee."
             )
 
         # Save the pivot wavelength and magnitude for each filter
@@ -1450,14 +1436,12 @@ class WDfitter(AtmosphereModelReader):
         savefig: bool (Default: False)
             Set to save the figure.
         folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
+            The relative or absolute path to destination, the current working directory will be used if None.
         filename: str (Default: None)
-            The filename of the figure. The Default filename will be used
-            if None.
+            The filename of the figure. The Default filename will be used if None.
         ext: str (Default: ['png'])
-            Image type to be saved, multiple extensions can be provided. The
-            supported types are those available in `matplotlib.pyplot.savefig`.
+            Image type to be saved, multiple extensions can be provided. The supported types are those available in
+            `matplotlib.pyplot.savefig`.
         return_fig: bool (Default: True)
             Set to return the Figure object.
         **kwarg: dict (Default: {
@@ -1535,8 +1519,7 @@ class WDfitter(AtmosphereModelReader):
 
                     else:
                         raise TypeError(
-                            "Please provide the filename as a "
-                            "string or a list/array of string."
+                            "Please provide the filename as a string or a list/array of string."
                         )
 
                     plt.savefig(os.path.join(_folder, _filename))
@@ -1578,14 +1561,12 @@ class WDfitter(AtmosphereModelReader):
         savefig: bool (Default: False)
             Set to save the figure.
         folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
+            The relative or absolute path to destination, the current working directory will be used if None.
         filename: str (Default: None)
-            The filename of the figure. The Default filename will be used
-            if None.
+            The filename of the figure. The Default filename will be used if None.
         ext: str (Default: ['png'])
-            Image type to be saved, multiple extensions can be provided. The
-            supported types are those available in `matplotlib.pyplot.savefig`.
+            Image type to be saved, multiple extensions can be provided. The supported types are those available in
+            `matplotlib.pyplot.savefig`.
         return_fig: bool (Default: True)
             Set to return the Figure object.
 

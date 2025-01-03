@@ -301,12 +301,10 @@ class AtmosphereModelReader(object):
         ----------
         dependent: str (Default: 'G3')
             The value to be interpolated over. Choose from:
-            'Teff', 'logg', 'mass', 'Mbol', 'BC', 'U', 'B', 'V', 'R', 'I', 'J',
-            'H', 'Ks', 'Y_mko', 'J_mko', 'H_mko', 'K_mko', 'W1',
-            'W2', 'W3', 'W4', 'S36', 'S45', 'S58', 'S80', 'u_sdss', 'g_sdss',
-            'r_sdss', 'i_sdss', 'z_sdss', 'g_ps1', 'r_ps1', 'i_ps1', 'z_ps1',
-            'y_ps1', 'G2', 'G2_BP', 'G2_RP', 'G3', 'G3_BP', 'G3_RP', 'FUV',
-            'NUV', 'age'.
+            'Teff', 'logg', 'mass', 'Mbol', 'BC', 'U', 'B', 'V', 'R', 'I', 'J', 'H', 'Ks', 'Y_mko', 'J_mko', 'H_mko',
+            'K_mko', 'W1', 'W2', 'W3', 'W4', 'S36', 'S45', 'S58', 'S80', 'u_sdss', 'g_sdss', 'r_sdss', 'i_sdss',
+            'z_sdss', 'g_ps1', 'r_ps1', 'i_ps1', 'z_ps1', 'y_ps1', 'G2', 'G2_BP', 'G2_RP', 'G3', 'G3_BP', 'G3_RP',
+            'FUV', 'NUV', 'age'.
         atmosphere: str (Default: 'H')
             The atmosphere type, 'H' or 'He'.
         independent: list (Default: ['logg', 'Mbol'])
@@ -315,15 +313,11 @@ class AtmosphereModelReader(object):
             Only used if independent is of length 1.
         interpolator: str (Default: 'RBF')
             Choose between 'RBF' and 'CT'.
-        kwargs_for_RBF: dict (Default: {"neighbors": None,
-            "smoothing": 0.0, "kernel": "thin_plate_spline",
+        kwargs_for_RBF: dict (Default: {"neighbors": None, "smoothing": 0.0, "kernel": "thin_plate_spline",
             "epsilon": None, "degree": None,})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.RBFInterpolator`.
-        kwargs_for_CT: dict (Default: {'fill_value': -np.inf,
-            'tol': 1e-10, 'maxiter': 100000})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.CloughTocher2DInterpolator`.
+            Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
+        kwargs_for_CT: dict (Default: {'fill_value': -np.inf, 'tol': 1e-10, 'maxiter': 100000})
+            Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
 
         Returns
         -------
@@ -357,9 +351,8 @@ class AtmosphereModelReader(object):
 
         else:
             raise ValueError(
-                'Please choose from "h", "hydrogen", "da", "he", "helium" or '
-                '"db" as the atmophere type, you have provided '
-                "{}.format(atmosphere.lower())"
+                'Please choose from "h", "hydrogen", "da", "he", "helium" or "db" as the atmophere type, you have '
+                "provided {}.format(atmosphere.lower())"
             )
 
         independent = np.asarray(independent).reshape(-1)
@@ -374,8 +367,8 @@ class AtmosphereModelReader(object):
 
             else:
                 raise ValueError(
-                    "When ony interpolating in 1-dimension, the independent "
-                    "variable has to be one of: Teff, mass, Mbol, or age."
+                    "When ony interpolating in 1-dimension, the independent variable has to be one of: Teff, mass, "
+                    "Mbol, or age."
                 )
 
             _independent_arg_0 = np.where(
@@ -449,8 +442,7 @@ class AtmosphereModelReader(object):
 
             else:
                 raise ValueError(
-                    "Interpolator should be CT or RBF,"
-                    f"{interpolator} is given."
+                    "Interpolator should be CT or RBF, {interpolator} is given."
                 )
 
         # If a 2D grid is to be interpolated, normally is the logg and another
@@ -537,8 +529,8 @@ class AtmosphereModelReader(object):
 
                     else:
                         raise ValueError(
-                            "Either one variable is a float, int or of size "
-                            "1, or two variables should have the same size."
+                            "Either one variable is a float, int or of size 1, or two variables should have the same "
+                            "size."
                         )
 
                     _x_0 = np.asarray(x_0)
@@ -566,8 +558,7 @@ class AtmosphereModelReader(object):
 
         else:
             raise TypeError(
-                "Please provide ONE varaible name as a string or "
-                "list, or TWO varaible names in a list."
+                "Please provide ONE varaible name as a string or list, or TWO varaible names in a list."
             )
 
         return atmosphere_interpolator

@@ -13,7 +13,7 @@ from .diff2_functions_least_square import (
 )
 
 
-def log_prior(*args):
+def log_dummy_prior(*args):
     """
     Default log(prior) returns zero.
 
@@ -29,7 +29,7 @@ def log_likelihood(
     distance,
     distance_err,
     interpolator_filter,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -48,9 +48,7 @@ def log_likelihood(
         return -np.inf
 
 
-def log_likelihood_distance(
-    _x, obs, errors, interpolator_filter, prior=log_prior
-):
+def log_likelihood_distance(_x, obs, errors, interpolator_filter, prior):
     """
     Internal method for computing the ch2-squared value in cases when
     the distance is not provided (for emcee).
@@ -82,7 +80,7 @@ def log_likelihood_distance_red_filter(
     dec,
     z_min,
     z_max,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -130,7 +128,7 @@ def log_likelihood_distance_red_filter_fixed_logg(
     dec,
     z_min,
     z_max,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -176,7 +174,7 @@ def log_likelihood_distance_red_interpolated(
     dec,
     z_min,
     z_max,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -220,7 +218,7 @@ def log_likelihood_distance_red_interpolated_fixed_logg(
     dec,
     z_min,
     z_max,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -268,7 +266,7 @@ def log_likelihood_red_filter(
     dec,
     z_min,
     z_max,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -320,7 +318,7 @@ def log_likelihood_red_filter_fixed_logg(
     dec,
     z_min,
     z_max,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -370,7 +368,7 @@ def log_likelihood_red_interpolated(
     dec,
     z_min,
     z_max,
-    prior=log_prior,
+    prior,
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).

@@ -37,16 +37,12 @@ class CoolingModelReader(object):
             "lpcode_one_da_07": "Althaus et al. 2007 ONe DA",
             "lpcode_one_da_19": "Camisassa et al. 2019 ONe DA",
             "lpcode_one_db_19": "Camisassa et al. 2019 ONe DB",
-            "lpcode_da_22": "Althaus et al. 2013 He DA, "
-            + "Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
-            "lpcode_db_22": "Camisassa et al. 2017 CO DB, "
-            + "Camisassa et al. 2019 ONe DB",
+            "lpcode_da_22": "Althaus et al. 2013 He DA, Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
+            "lpcode_db_22": "Camisassa et al. 2017 CO DB, Camisassa et al. 2019 ONe DB",
             "basti_co_da_10": "Salaris et al. 2010 CO DA",
             "basti_co_db_10": "Salaris et al. 2010 CO DB",
-            "basti_co_da_10_nps": "Salaris et al. 2010 CO DA, "
-            + "no phase separation",
-            "basti_co_db_10_nps": "Salaris et al. 2010 CO DB, "
-            + "no phase separation",
+            "basti_co_da_10_nps": "Salaris et al. 2010 CO DA, no phase separation",
+            "basti_co_db_10_nps": "Salaris et al. 2010 CO DB, no phase separation",
             "mesa_one_da_18": "Lauffer et al. 2018 ONe DA",
             "mesa_one_db_18": "Lauffer et al. 2018 ONe DB",
         }
@@ -138,8 +134,7 @@ class CoolingModelReader(object):
 
     def list_cooling_parameters(self, model, print_to_screen=True):
         """
-        Print the formatted list of parameters available for the specified
-        cooling models.
+        Print the formatted list of parameters available for the specified cooling models.
 
         Parameters
         ----------
@@ -178,8 +173,8 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
@@ -319,21 +314,19 @@ class CoolingModelReader(object):
 
         # Prepare the array column dtype
         column_key = np.array(
-            (
-                "lum",
-                "logg",
-                "B-V",
-                "V-R",
-                "V-K",
-                "R-I",
-                "J-H",
-                "H-K",
-                "V-I",
-                "U-V",
-                "BC",
-                "dmag_v",
-                "age",
-            )
+            "lum",
+            "logg",
+            "B-V",
+            "V-R",
+            "V-K",
+            "R-I",
+            "J-H",
+            "H-K",
+            "V-I",
+            "U-V",
+            "BC",
+            "dmag_v",
+            "age",
         )
         column_key_formatted = np.array(
             (
@@ -395,8 +388,8 @@ class CoolingModelReader(object):
         Parameters
         ----------
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
@@ -667,8 +660,8 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
@@ -827,8 +820,8 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
@@ -932,8 +925,8 @@ class CoolingModelReader(object):
             filelist = np.array(filelist)[mask_high]
         else:
             raise ValueError(
-                "Unknown mass range requested. Please choose from"
-                "'all', 'low', 'intermediate' or 'high' for bedard20 models."
+                "Unknown mass range requested. Please choose from 'all', 'low', 'intermediate' or 'high' for "
+                "bedard20 models."
             )
 
         # Create an empty array for holding the cooling models
@@ -964,8 +957,7 @@ class CoolingModelReader(object):
         """
         A formatter to load the Camisassa et al. 2017 WD cooling model
 
-        The progenitor lifetime is taken off based on the extrapolation from
-        Table 1
+        The progenitor lifetime is taken off based on the extrapolation from Table 1
         https://iopscience.iop.org/article/10.3847/0004-637X/823/2/158
 
         """
@@ -1082,8 +1074,7 @@ class CoolingModelReader(object):
 
     def _camisassa19_formatter(self, model):
         """
-        A formatter to load the Camisassa et al. 2019 ultramassive WD cooling
-        model.
+        A formatter to load the Camisassa et al. 2019 ultramassive WD cooling model.
 
         Some columns populated with 'I' are replaced with the nearest values.
 
@@ -1464,17 +1455,7 @@ class CoolingModelReader(object):
 
         # Prepare the array column dtype
         column_key = np.array(
-            (
-                "Teff",
-                "lum",
-                "logg",
-                "age",
-                "Rsun",
-                "Mbol",
-                "G",
-                "BP",
-                "RP",
-            )
+            ("Teff", "lum", "logg", "age", "Rsun", "Mbol", "G", "BP", "RP")
         )
         column_key_formatted = np.array(
             (
@@ -1713,8 +1694,8 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
@@ -1799,8 +1780,7 @@ class CoolingModelReader(object):
             filelist = np.array(filelist)[mask_high]
         else:
             raise ValueError(
-                "Unknown mass range requested. Please choose from"
-                "'all', 'intermediate' or 'high' for bedard20 models."
+                "Unknown mass range requested. Please choose from 'all', 'intermediate' or 'high' for bedard20 models."
             )
 
         # Create an empty array for holding the cooling models
@@ -1833,15 +1813,12 @@ class CoolingModelReader(object):
             3. 'lpcode_he_da_07' - Panei et al. 2007 He DA
             4. 'lpcode_co_da_07' - Panei et al. 2007 CO DA
             5. 'lpcode_he_da_09' - Althaus et al. 2009 He DA
-            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
-               Camisassa et al. 2019
+            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016, Camisassa et al. 2019
 
             The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
+            [model]_[core composition]_[atmosphere]_[publication year] where a few models continue to have extra
+            property description terms trailing after the year, currently they are either the progenitor metallicity or
+            the (lack of) phase separation in the evolution model.
 
         """
 
@@ -1869,22 +1846,17 @@ class CoolingModelReader(object):
             7. 'lpcode_co_da_15_z0005' - Althaus et al. 2015 DA Z=0.0005
             8. 'lpcode_co_da_17_y04' - Althaus et al. 2017 DB Y=0.4
             9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
-            10. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
-                Camisassa et al. 2019
+            10. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016, Camisassa et al. 2019
             11. 'lpcode_db_20' - Camisassa et al. 2017, Camisassa et al. 2019
             12. 'basti_co_da_10' - Salaris et al. 2010 CO DA
             13. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            14. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
-                no phase separation
-            15. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
-                no phase separation
+            14. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+            15. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
 
             The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
+            [model]_[core composition]_[atmosphere]_[publication year] where a few models continue to have extra
+            property description terms trailing after the year, currently they are either the progenitor metallicity or
+            the (lack of) phase separation in the evolution model.
 
         """
 
@@ -1908,24 +1880,19 @@ class CoolingModelReader(object):
             3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
             4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
             5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
-            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
-                Camisassa et al. 2019
+            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016, Camisassa et al. 2019
             7. 'lpcode_db_20' - Camisassa et al. 2017, Camisassa et al. 2019
             8. 'basti_co_da_10' - Salaris et al. 2010 CO DA
             9. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            10. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
-                 no phase separation
-            11. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
-                 no phase separation
+            10. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+            11. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
             12. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
             13. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 
             The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
+            [model]_[core composition]_[atmosphere]_[publication year] where a few models continue to have extra
+            property description terms trailing after the year, currently they are either the progenitor metallicity or
+            the (lack of) phase separation in the evolution model.
 
         """
 
@@ -1937,16 +1904,14 @@ class CoolingModelReader(object):
 
     def _itp2d_gradient(self, _f, val1, val2, frac=1e-6):
         """
-        A function to find the gradient in the direction in the first dimension
-        of a 2D function at a given coordinate.
+        A function to find the gradient in the direction in the first dimension of a 2D function at a given coordinate.
 
         Parameters
         ----------
         f: callable function
             A 2D function
         val1: float
-            The first input value accepted by f. The gradient is computed in
-            this direction.
+            The first input value accepted by f. The gradient is computed in this direction.
         val2: float
             The first input value accepted by f.
         frac: float (Default: 1e-6)
@@ -1980,23 +1945,18 @@ class CoolingModelReader(object):
         kwargs_for_CT={},
     ):
         """
-        Compute the callable CloughTocher2DInterpolator taking (logL, m) and
-        returning the cooling time of the WDs. It needs to use float64 or it
-        runs into float-point error at very faint lumnosity.
+        Compute the callable CloughTocher2DInterpolator taking (logL, m) and returning the cooling time of the WDs. It
+        needs to use float64 or it runs into float-point error at very faint lumnosity.
 
         Parameters
         ----------
         interpolator: str (Default: 'CT')
             Choose between 'RBF' and 'CT'.
-        kwargs_for_RBF: dict (Default: {"neighbors": None,
-            "smoothing": 0.0, "kernel": "thin_plate_spline",
+        kwargs_for_RBF: dict (Default: {"neighbors": None, "smoothing": 0.0, "kernel": "thin_plate_spline",
             "epsilon": None, "degree": None,})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.RBFInterpolator`.
-        kwargs_for_CT: dict (Default: {'fill_value': -np.inf,
-            'tol': 1e-10, 'maxiter': 100000})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.CloughTocher2DInterpolator`.
+            Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
+        kwargs_for_CT: dict (Default: {'fill_value': -np.inf, 'tol': 1e-10, 'maxiter': 100000})
+            Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
 
         """
 

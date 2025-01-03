@@ -13,8 +13,7 @@ def diff2(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value
-    (for scipy.optimize.least_squares).
+    Internal method for computing the ch2-squared value (for scipy.optimize.least_squares).
 
     """
 
@@ -51,8 +50,8 @@ def diff2(
 
 def diff2_distance(_x, obs, errors, interpolator_filter, return_err):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided (for scipy.optimize.least_squares).
+    Internal method for computing the ch2-squared value in cases when the distance is not provided (for
+    scipy.optimize.least_squares).
 
     """
 
@@ -107,8 +106,7 @@ def diff2_distance_red_interpolated(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided.
+    Internal method for computing the ch2-squared value in cases when the distance is not provided.
 
     """
 
@@ -176,8 +174,7 @@ def diff2_distance_red_interpolated_fixed_logg(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided.
+    Internal method for computing the ch2-squared value in cases when the distance is not provided.
 
     """
 
@@ -320,8 +317,7 @@ def diff2_distance_red_filter_fixed_logg(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided.
+    Internal method for computing the ch2-squared value in cases when the distance is not provided.
 
     """
 
