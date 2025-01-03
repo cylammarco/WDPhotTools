@@ -7,8 +7,7 @@ def get_extinction_fraction(distance, ra, dec, z_min, z_max):
     The linear mode follows the scheme on page 5 of Harris et al. (2006)
     in https://arxiv.org/pdf/astro-ph/0510820.pdf.
 
-    The conversion from distance, ra and dec to z is powered by AstroPy
-    coordinate transformation.
+    The conversion from distance, ra and dec to z is powered by AstroPy coordinate transformation.
 
     Parameters
     ----------
@@ -21,8 +20,7 @@ def get_extinction_fraction(distance, ra, dec, z_min, z_max):
 
     Returns
     -------
-    The fraction (of extinction) should be used, in the range of
-    [0.0, 1.0].
+    The fraction (of extinction) should be used, in the range of [0.0, 1.0].
 
     """
 
@@ -36,8 +34,7 @@ def get_extinction_fraction(distance, ra, dec, z_min, z_max):
 
     if (z_min is None) or (z_max is None):
         raise ValueError(
-            "z_min and z_max cannot be None, please initialise with "
-            "set_extinction_mode()"
+            "z_min and z_max cannot be None, please initialise with set_extinction_mode()"
         )
 
     else:

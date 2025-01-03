@@ -55,8 +55,7 @@ def list_cooling_model():
 
 def list_cooling_parameters(model):
     """
-    Print the formatted list of parameters available for the specified cooling
-    models.
+    Print the formatted list of parameters available for the specified cooling models.
 
     Parameters
     ----------
@@ -72,8 +71,7 @@ def list_cooling_parameters(model):
 
 def list_atmosphere_parameters():
     """
-    Print the formatted list of parameters available from the atmophere
-    models.
+    Print the formatted list of parameters available from the atmophere models.
 
     """
     if __dummy_atm.reader is None:
@@ -112,15 +110,12 @@ def plot_atmosphere_model(
     ----------
     x: str (Default: 'G3_BP-G3_RP')
         Model parameter(s) of the abscissa. Two formats are supported:
-        (1) single parameter (2) two parameters delimited with a '-' for the
-        colour in those filters.
+        (1) single parameter (2) two parameters delimited with a '-' for the colour in those filters.
     y: str (Default: 'G3')
         Model parameter of the ordinate. Same as x.
     atmosphere: list of str (Default: 'H')
-        Choose to plot from the pure hydrogen atmosphere model or pure
-        helium atmosphere model. Only 1 atmosphere model can be plotted
-        at a time, if both models are to be plotted, reuse the Figure object
-        returned and overplot on it.
+        Choose to plot from the pure hydrogen atmosphere model or pure helium atmosphere model. Only 1 atmosphere model
+        can be plotted at a time, if both models are to be plotted, reuse the Figure object returned and overplot on it.
     independent: list of str (Default: ['logg', 'Teff'])
         Independent variables to be interpolated in the atmosphere model.
     independent_values: list of list or list of arrays (Default:
@@ -143,14 +138,12 @@ def plot_atmosphere_model(
     savefig: bool (Default: False)
         Set to save the figure.
     folder: str (Default: None)
-        The relative or absolute path to destination, the current working
-        directory will be used if None.
+        The relative or absolute path to destination, the current working directory will be used if None.
     filename: str (Default: None)
-        The filename of the figure. The Default filename will be used
-        if None.
+        The filename of the figure. The Default filename will be used if None.
     ext: str (Default: ['png'])
-        Image type to be saved, multiple extensions can be provided. The
-        supported types are those available in `matplotlib.pyplot.savefig`.
+        Image type to be saved, multiple extensions can be provided. The supported types are those available in
+        `matplotlib.pyplot.savefig`.
     fig: matplotlib.figure.Figure (Default: None)
         Overplotting on an existing Figure.
     kwargs_for_plot: dict (Default: {'marker': '+'})

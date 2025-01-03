@@ -17,8 +17,7 @@ def diff2_summed(
     _x, obs, errors, distance, distance_err, interpolator_filter, return_err
 ):
     """
-    Internal method for computing the ch2-squared value
-    (for scipy.optimize.minimize).
+    Internal method for computing the ch2-squared value (for scipy.optimize.minimize).
 
     """
 
@@ -151,8 +150,8 @@ def diff2_red_interpolated_summed(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided (for scipy.optimize.minimize).
+    Internal method for computing the ch2-squared value in cases when the distance is not provided (for
+    scipy.optimize.minimize).
 
     """
 
@@ -198,8 +197,8 @@ def diff2_distance_red_filter_summed(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided (for scipy.optimize.minimize).
+    Internal method for computing the ch2-squared value in cases when the distance is not provided (for
+    scipy.optimize.minimize).
 
     """
 
@@ -245,8 +244,8 @@ def diff2_distance_red_filter_fixed_logg_summed(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided (for scipy.optimize.minimize).
+    Internal method for computing the ch2-squared value in cases when the distance is not provided (for
+    scipy.optimize.minimize).
 
     """
 
@@ -276,8 +275,8 @@ def diff2_distance_red_filter_fixed_logg_summed(
 
 def diff2_distance_summed(_x, obs, errors, interpolator_filter, return_error):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided (for scipy.optimize.minimize).
+    Internal method for computing the ch2-squared value in cases when the distance is not provided (for
+    scipy.optimize.minimize).
 
     """
 
@@ -306,8 +305,8 @@ def diff2_distance_red_interpolated_summed(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided (for scipy.optimize.minimize).
+    Internal method for computing the ch2-squared value in cases when the distance is not provided (for
+    scipy.optimize.minimize).
 
     """
 
@@ -350,8 +349,8 @@ def diff2_distance_red_interpolated_fixed_logg_summed(
     return_err,
 ):
     """
-    Internal method for computing the ch2-squared value in cases when
-    the distance is not provided (for scipy.optimize.minimize).
+    Internal method for computing the ch2-squared value in cases when the distance is not provided (for
+    scipy.optimize.minimize).
 
     """
 

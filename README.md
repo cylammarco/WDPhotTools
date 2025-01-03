@@ -18,6 +18,8 @@ the core parts of this work are three-fold: the first and the backbone of this w
 
 When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9+ which provides a speed gain of O(100) times.
 
+Please be aware of some incompatible version combinations of Astropy with numpy>=2.0.
+
 ## Documentation
 
 Documentation and more examples can be found at [Read the Docs](https://wdphottools.readthedocs.io/en/latest/).
@@ -298,22 +300,22 @@ The options for the various models include:
 
 ### Initial Mass Function
 
-1.  Kroupa 2001
-2.  Charbrier 2003
-3.  Charbrier 2003 (including binary)
-4.  Manual
+1. Kroupa 2001
+2. Charbrier 2003
+3. Charbrier 2003 (including binary)
+4. Manual
 
 ### Total Stellar Evolution Lifetime
 
-1.  PARSECz00001 - Z = 0.0001, Y = 0.249
-2.  PARSECz00002 - Z = 0.0002, Y = 0.249
-3.  PARSECz00005 - Z = 0.0005, Y = 0.249
-4.  PARSECz0001 - Z = 0.001, Y = 0.25
-5.  PARSECz0002 - Z = 0.002, Y = 0.252
-6.  PARSECz0004 - Z = 0.004, Y = 0.256
-7.  PARSECz0006 - Z = 0.006, Y = 0.259
-8.  PARSECz0008 - Z = 0.008, Y = 0.263
-9.  PARSECz001 - Z = 0.01, Y = 0.267
+1. PARSECz00001 - Z = 0.0001, Y = 0.249
+2. PARSECz00002 - Z = 0.0002, Y = 0.249
+3. PARSECz00005 - Z = 0.0005, Y = 0.249
+4. PARSECz0001 - Z = 0.001, Y = 0.25
+5. PARSECz0002 - Z = 0.002, Y = 0.252
+6. PARSECz0004 - Z = 0.004, Y = 0.256
+7. PARSECz0006 - Z = 0.006, Y = 0.259
+8. PARSECz0008 - Z = 0.008, Y = 0.263
+9. PARSECz001 - Z = 0.01, Y = 0.267
 10. PARSECz0014 - Z = 0.014, Y = 0.273
 11. PARSECz0017 - Z = 0.017, Y = 0.279
 12. PARSECz002 - Z = 0.02, Y = 0.284
@@ -342,15 +344,15 @@ The options for the various models include:
 
 ### Initial-Final Mass Relation
 
-1.  C08 - Catalan et al. 2008
-2.  C08b - Catalan et al. 2008 (two-part)
-3.  S09 - Salaris et al. 2009
-4.  S09b - Salaris et al. 2009 (two-part)
-5.  W09 - Williams, Bolte & Koester 2009
-6.  K09 - Kalirai et al. 2009
-7.  K09b - Kalirai et al. 2009 (two-part)
-8.  C18 - Cummings et al. 2018
-9.  EB18 - El-Badry et al. 2018
+1. C08 - Catalan et al. 2008
+2. C08b - Catalan et al. 2008 (two-part)
+3. S09 - Salaris et al. 2009
+4. S09b - Salaris et al. 2009 (two-part)
+5. W09 - Williams, Bolte & Koester 2009
+6. K09 - Kalirai et al. 2009
+7. K09b - Kalirai et al. 2009 (two-part)
+8. C18 - Cummings et al. 2018
+9. EB18 - El-Badry et al. 2018
 10. Manual
 
 ### White Dwarf cooling time
@@ -359,28 +361,28 @@ L/I/H are used to denote the availability in the low, intermediate and high mass
 
 The brackets denote the core type/atmosphere type/mass range/other special properties.
 
-1.  Montreal models
+1. Montreal models
 
-    -   Bedard et al. 2020 - LIH \[CO/DA+DB/0.2-1.3\]
+    - Bedard et al. 2020 - LIH \[CO/DA+DB/0.2-1.3\]
 
-2.  LaPlata models
+2. LaPlata models
 
-    -   Panei et al. 2007 - L \[He+CO/DA/0.187-0.448\]
-    -   Althaus et al. 2009 - L \[He/DA/0.220-0.521\]
-    -   Renedo et al. 2010 - I \[CO/DA/0.505-0.934/Z=0.001-0.01\]
-    -   Althaus et al. 2015 - I \[CO/DA/0.506-0.826/Z=0.0003-0.001\]
-    -   Althaus et al. 2017 - LI \[CO/DA/0.434-0.838/Y=0.4\]
-    -   Camisassa et al. 2017 - I \[CO/DB/0.51-1.0\]
-    -   Althaus et al. 2007 - H \[ONe/DA/1.06-1.28\]
-    -   Camisassa et al. 2019 - H \[ONe/DA+B/1.10-1.29\]
+    - Panei et al. 2007 - L \[He+CO/DA/0.187-0.448\]
+    - Althaus et al. 2009 - L \[He/DA/0.220-0.521\]
+    - Renedo et al. 2010 - I \[CO/DA/0.505-0.934/Z=0.001-0.01\]
+    - Althaus et al. 2015 - I \[CO/DA/0.506-0.826/Z=0.0003-0.001\]
+    - Althaus et al. 2017 - LI \[CO/DA/0.434-0.838/Y=0.4\]
+    - Camisassa et al. 2017 - I \[CO/DB/0.51-1.0\]
+    - Althaus et al. 2007 - H \[ONe/DA/1.06-1.28\]
+    - Camisassa et al. 2019 - H \[ONe/DA+B/1.10-1.29\]
 
-3.  BaSTI models
+3. BaSTI models
 
-    -   Salaris et al. 2010 - IH \[CO/DA+B/0.54-1.2/ps+nps\]
+    - Salaris et al. 2010 - IH \[CO/DA+B/0.54-1.2/ps+nps\]
 
-4.  MESA models
+4. MESA models
 
-    -   Lauffer et al. 2018 - H \[CONe/DA+B/1.012-1.308\]
+    - Lauffer et al. 2018 - H \[CONe/DA+B/1.012-1.308\]
 
 #### Example sets of WDLFs with different star formation scenario
 
