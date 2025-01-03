@@ -31,9 +31,7 @@ def get_uncertainty_emcee(samples):
     """
 
     percentiles = np.percentile(samples, [0.158655, 0.5, 0.841345])
-    stdevs = np.array(
-        [percentiles[1] - percentiles[0], percentiles[2] - percentiles[1]]
-    )
+    stdevs = np.array([percentiles[1] - percentiles[0], percentiles[2] - percentiles[1]])
 
     return stdevs
 
@@ -44,11 +42,7 @@ def load_ms_lifetime_datatable(filename):
     """
 
     datatable = np.loadtxt(
-        glob.glob(
-            pkg_resources.resource_filename(
-                "WDPhotTools", f"ms_lifetime/{filename}"
-            )
-        )[0],
+        glob.glob(pkg_resources.resource_filename("WDPhotTools", f"ms_lifetime/{filename}"))[0],
         delimiter=",",
     )
     return datatable

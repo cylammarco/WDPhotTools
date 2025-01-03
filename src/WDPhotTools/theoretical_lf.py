@@ -110,9 +110,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         self.set_imf_model(imf_model)
         self.set_ifmr_model(ifmr_model)
         self.set_low_mass_cooling_model(low_mass_cooling_model)
-        self.set_intermediate_mass_cooling_model(
-            intermediate_mass_cooling_model
-        )
+        self.set_intermediate_mass_cooling_model(intermediate_mass_cooling_model)
         self.set_high_mass_cooling_model(high_mass_cooling_model)
         self.set_ms_model(ms_model)
         self.set_sfr_model()
@@ -172,13 +170,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 # Normalisation factor (at mass_ms=1) is 0.01915058
                 mass_function[m_mask] = (
                     (0.06861852814 / mass_ms[m_mask])
-                    * np.exp(
-                        -(
-                            (np.log10(mass_ms[m_mask]) + 1.1023729087095586)
-                            ** 2.0
-                        )
-                        / 0.9522
-                    )
+                    * np.exp(-((np.log10(mass_ms[m_mask]) + 1.1023729087095586) ** 2.0) / 0.9522)
                     / 0.01915058
                 )
 
@@ -193,10 +185,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 # Normalisation factor (at M=1) is 0.01919917
                 mass_function[m_mask] = (
                     (0.03734932544 / mass_ms[m_mask])
-                    * np.exp(
-                        -((np.log10(mass_ms[m_mask]) + 0.65757731917) ** 2.0)
-                        / 0.6498
-                    )
+                    * np.exp(-((np.log10(mass_ms[m_mask]) + 0.65757731917) ** 2.0) / 0.6498)
                     / 0.01919917
                 )
 
@@ -364,9 +353,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         if age is None:
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(
-                massi, time, kind="cubic", fill_value="extrapolate"
-            )(mass_ms)
+            age = interp1d(massi, time, kind="cubic", fill_value="extrapolate")(mass_ms)
 
         return age
 
@@ -661,9 +648,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 _t = 10.0 ** np.linspace(0, np.log10(age), 10000)
                 _sfr = np.exp((_t - age) / mean_lifetime)
 
-                self.sfr = interp1d(
-                    _t, _sfr, bounds_error=False, fill_value=0.0
-                )
+                self.sfr = interp1d(_t, _sfr, bounds_error=False, fill_value=0.0)
 
         self.t_start = age
         self.wdlf_params["sfr_mode"] = mode
@@ -879,9 +864,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 maxfun=10000,
             )
 
-            points = 10.0 ** np.linspace(
-                np.log10(mass_ms_min), np.log10(mass_ms_max), n_points
-            )
+            points = 10.0 ** np.linspace(np.log10(mass_ms_min), np.log10(mass_ms_max), n_points)
 
             # Note that the points are needed because it can fail to
             # integrate if the star burst is too short
@@ -898,9 +881,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             mass_ms_upper_bound = mass_ms_min
 
-        number_density[
-            np.isnan(number_density) | (number_density <= 0.0)
-        ] = +0.0
+        number_density[np.isnan(number_density) | (number_density <= 0.0)] = +0.0
 
         # Normalise the WDLF only if the function returned is not all zero
         if normed & (number_density > 0.0).any():
@@ -917,10 +898,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 _folder = os.path.abspath(folder)
 
             if filename is None:
-                _filename = (
-                    f"{self.t_start / 1e9:.2f}Gyr"
-                    f"{self._filename_middle}csv"
-                )
+                _filename = f"{self.t_start / 1e9:.2f}Gyr" f"{self._filename_middle}csv"
 
             else:
                 _filename = filename
@@ -1064,9 +1042,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         if cooling_model_use_mag:
             # Get absolute magnitude from the bolometric luminosity
-            brightness = (
-                4.75 - (np.log10(self.luminosity) - 33.582744965691276) * 2.5
-            )
+            brightness = 4.75 - (np.log10(self.luminosity) - 33.582744965691276) * 2.5
 
         else:
             brightness = self.luminosity

@@ -104,14 +104,10 @@ class WDfitter(AtmosphereModelReader):
 
         elif mode == "linear":
             if z_min < 0:
-                raise ValueError(
-                    "z_min has to be non-negative. {z_min} is provided."
-                )
+                raise ValueError("z_min has to be non-negative. {z_min} is provided.")
 
             if z_max < z_min:
-                raise ValueError(
-                    "z_max ({z_max}) has to be larger than z_min ({z_min})."
-                )
+                raise ValueError("z_max ({z_max}) has to be larger than z_min ({z_min}).")
 
             self.extinction_mode = mode
             self.z_min = z_min
@@ -147,21 +143,15 @@ class WDfitter(AtmosphereModelReader):
 
         return _interpolator
 
-    def _interp_reddening(
-        self, filters, extinction_convolved=True, kernel="cubic"
-    ):
+    def _interp_reddening(self, filters, extinction_convolved=True, kernel="cubic"):
         if extinction_convolved:
             self.extinction_convolved = True
-            self.reddening_vector = [
-                reddening_vector_filter(i) for i in filters
-            ]
+            self.reddening_vector = [reddening_vector_filter(i) for i in filters]
 
         else:
             self.extinction_convolved = False
             rv_itp = reddening_vector_interpolated(kernel=kernel)
-            wavelength = np.array(
-                [self.column_wavelengths[i] for i in filters]
-            )
+            wavelength = np.array([self.column_wavelengths[i] for i in filters])
             self.reddening_vector = [partial(rv_itp, w) for w in wavelength]
 
     def fit(
@@ -320,9 +310,7 @@ class WDfitter(AtmosphereModelReader):
             initial_guess = list(initial_guess.reshape(-1))
 
         if isinstance(distance, (float, int, np.float32, np.float64)):
-            if not isinstance(
-                distance_err, (float, int, np.float32, np.float64)
-            ):
+            if not isinstance(distance_err, (float, int, np.float32, np.float64)):
                 distance_err = np.sqrt(distance)
 
         if distance is None:
@@ -412,11 +400,7 @@ class WDfitter(AtmosphereModelReader):
         }
 
         if "logg" in independent:
-            logg_pos = int(
-                np.argwhere(
-                    np.array(self.fitting_params["independent"]) == "logg"
-                )
-            )
+            logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
 
         # If using the scipy.optimize.minimize()
         if method == "minimize":
@@ -451,10 +435,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         Rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
@@ -475,10 +456,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         Rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
@@ -499,10 +477,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg_pos,
                                         Rv,
@@ -525,10 +500,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
                                         Rv,
@@ -587,14 +559,7 @@ class WDfitter(AtmosphereModelReader):
 
                         else:
                             if "logg" in independent:
-                                logg_pos = int(
-                                    np.argwhere(
-                                        np.array(
-                                            self.fitting_params["independent"]
-                                        )
-                                        == "logg"
-                                    )
-                                )
+                                logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
                                 self.results[j] = optimize.minimize(
                                     diff2_red_filter_summed,
                                     initial_guess,
@@ -603,10 +568,7 @@ class WDfitter(AtmosphereModelReader):
                                         mag_errors,
                                         distance,
                                         distance_err,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
                                         Rv,
@@ -631,10 +593,7 @@ class WDfitter(AtmosphereModelReader):
                                         mag_errors,
                                         distance,
                                         distance_err,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg,
                                         Rv,
@@ -652,15 +611,11 @@ class WDfitter(AtmosphereModelReader):
 
                 # Store the chi2
                 self.best_fit_params[j]["chi2"] = self.results[j].fun
-                self.best_fit_params[j]["chi2dof"] = (
-                    self.results[j].fun.size - self.results[j].x.size
-                )
+                self.best_fit_params[j]["chi2dof"] = self.results[j].fun.size - self.results[j].x.size
 
                 # Save the best fit results
                 if len(independent) == 1:
-                    self.best_fit_params[j][independent[0]] = self.results[
-                        j
-                    ].x[0]
+                    self.best_fit_params[j][independent[0]] = self.results[j].x[0]
                     self.best_fit_params[j][independent[0] + "_err"] = np.nan
                     self.best_fit_params[j]["logg"] = logg
 
@@ -674,25 +629,17 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(
-                            self.interpolator[j][i](self.results[j].x[0])
-                        )
+                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
                     else:
-                        self.best_fit_params[j][i] = float(
-                            self.interpolator[j][i](self.results[j].x[:2])
-                        )
+                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
 
                     if distance is None:
-                        self.best_fit_params[j]["distance"] = self.results[
-                            j
-                        ].x[-1]
+                        self.best_fit_params[j]["distance"] = self.results[j].x[-1]
 
                     else:
                         self.best_fit_params[j]["distance"] = distance
 
-                    self.best_fit_params[j]["dist_mod"] = 5.0 * (
-                        np.log10(self.best_fit_params[j]["distance"]) - 1
-                    )
+                    self.best_fit_params[j]["dist_mod"] = 5.0 * (np.log10(self.best_fit_params[j]["distance"]) - 1)
 
         # If using scipy.optimize.least_squares
         elif method == "least_squares":
@@ -727,10 +674,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         Rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
@@ -751,10 +695,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         Rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
@@ -775,10 +716,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg_pos,
                                         Rv,
@@ -801,10 +739,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
                                         Rv,
@@ -874,10 +809,7 @@ class WDfitter(AtmosphereModelReader):
                                         mag_errors,
                                         distance,
                                         distance_err,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
                                         Rv,
@@ -902,10 +834,7 @@ class WDfitter(AtmosphereModelReader):
                                         mag_errors,
                                         distance,
                                         distance_err,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg,
                                         Rv,
@@ -923,69 +852,47 @@ class WDfitter(AtmosphereModelReader):
 
                 # Store the chi2
                 self.best_fit_params[j]["chi2"] = np.sum(self.results[j].fun)
-                self.best_fit_params[j]["chi2dof"] = (
-                    self.results[j].fun.size - self.results[j].x.size
-                )
+                self.best_fit_params[j]["chi2dof"] = self.results[j].fun.size - self.results[j].x.size
                 # rescaled the uncertainty by the reduced_chi2
                 _stdev = get_uncertainty_least_squares(self.results[j])
 
                 # Save the best fit results
                 if len(independent) == 1:
-                    self.best_fit_params[j][independent[0]] = float(
-                        self.results[j].x[0]
-                    )
+                    self.best_fit_params[j][independent[0]] = float(self.results[j].x[0])
                     if distance is None:
-                        self.best_fit_params[j][
-                            independent[0] + "_err"
-                        ] = float(_stdev[0])
+                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev[0])
                     else:
-                        self.best_fit_params[j][
-                            independent[0] + "_err"
-                        ] = float(_stdev)
+                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev)
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
                     for k, val in enumerate(independent):
-                        self.best_fit_params[j][val] = float(
-                            self.results[j].x[k]
-                        )
-                        self.best_fit_params[j][val + "_err"] = float(
-                            _stdev[k]
-                        )
+                        self.best_fit_params[j][val] = float(self.results[j].x[k])
+                        self.best_fit_params[j][val + "_err"] = float(_stdev[k])
 
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(
-                            self.interpolator[j][i](self.results[j].x[0])
-                        )
+                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
                     else:
-                        self.best_fit_params[j][i] = float(
-                            self.interpolator[j][i](self.results[j].x[:2])
-                        )
+                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
 
                     if distance is None:
-                        self.best_fit_params[j]["distance"] = self.results[
-                            j
-                        ].x[-1]
+                        self.best_fit_params[j]["distance"] = self.results[j].x[-1]
 
                     else:
                         self.best_fit_params[j]["distance"] = distance
 
-                    self.best_fit_params[j]["dist_mod"] = 5.0 * (
-                        np.log10(self.best_fit_params[j]["distance"]) - 1
-                    )
+                    self.best_fit_params[j]["dist_mod"] = 5.0 * (np.log10(self.best_fit_params[j]["distance"]) - 1)
 
         # If using emcee
         elif method == "emcee":
             _initial_guess = np.array(initial_guess)
             ndim = len(_initial_guess)
             nwalkers = int(nwalkers)
-            pos = (np.random.random((nwalkers, ndim)) - 0.5) * np.sqrt(
-                _initial_guess
-            ) + _initial_guess
+            pos = (np.random.random((nwalkers, ndim)) - 0.5) * np.sqrt(_initial_guess) + _initial_guess
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
@@ -1019,10 +926,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         Rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
@@ -1044,10 +948,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         Rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
@@ -1069,10 +970,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
                                         Rv,
@@ -1096,10 +994,7 @@ class WDfitter(AtmosphereModelReader):
                                     args=(
                                         mags,
                                         mag_errors,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg,
                                         Rv,
@@ -1169,10 +1064,7 @@ class WDfitter(AtmosphereModelReader):
                                         mag_errors,
                                         distance,
                                         distance_err,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
                                         Rv,
@@ -1201,10 +1093,7 @@ class WDfitter(AtmosphereModelReader):
                                         mag_errors,
                                         distance,
                                         distance_err,
-                                        [
-                                            self.interpolator[j][i]
-                                            for i in filters
-                                        ],
+                                        [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
                                         Rv,
@@ -1221,19 +1110,13 @@ class WDfitter(AtmosphereModelReader):
                                 )
 
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
-                self.samples[j] = self.sampler[j].get_chain(
-                    discard=nburns, flat=True
-                )
+                self.samples[j] = self.sampler[j].get_chain(discard=nburns, flat=True)
 
                 # Save the best fit results
                 if len(independent) == 1:
                     _stdev = get_uncertainty_emcee(self.samples[j])
-                    self.best_fit_params[j][independent[0]] = np.percentile(
-                        self.samples[j].T[0], 50.0
-                    )
-                    self.best_fit_params[j][independent[0] + "_err"] = np.mean(
-                        _stdev
-                    )
+                    self.best_fit_params[j][independent[0]] = np.percentile(self.samples[j].T[0], 50.0)
+                    self.best_fit_params[j][independent[0] + "_err"] = np.mean(_stdev)
                     self.best_fit_params[j][independent[0] + "_16"] = _stdev[0]
                     self.best_fit_params[j][independent[0] + "_84"] = _stdev[1]
 
@@ -1242,24 +1125,18 @@ class WDfitter(AtmosphereModelReader):
                 else:
                     for k, val in enumerate(independent):
                         _stdev = get_uncertainty_emcee(self.samples[j][:, k])
-                        self.best_fit_params[j][val] = np.percentile(
-                            self.samples[j].T[k], 50.0
-                        )
+                        self.best_fit_params[j][val] = np.percentile(self.samples[j].T[k], 50.0)
                         self.best_fit_params[j][val + "_err"] = np.mean(_stdev)
                         self.best_fit_params[j][val + "_16"] = _stdev[0]
                         self.best_fit_params[j][val + "_84"] = _stdev[1]
 
                 if refine:
                     kwargs = copy.deepcopy(_kwargs_for_minimize)
-                    kwargs["bounds"] = np.percentile(
-                        self.samples[j], refine_bounds, axis=0
-                    ).T
+                    kwargs["bounds"] = np.percentile(self.samples[j], refine_bounds, axis=0).T
 
                     print("Refining")
 
-                    _initial_guess = np.percentile(
-                        self.samples[j], 50.0, axis=0
-                    )
+                    _initial_guess = np.percentile(self.samples[j], 50.0, axis=0)
 
                     if distance is None:
                         # setting distance to infinity so that it will be
@@ -1311,9 +1188,7 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     if len(independent) == 1:
                         self.best_fit_params[j][i] = float(
-                            self.interpolator[j][i](
-                                self.best_fit_params[j][independent[0]]
-                            )
+                            self.interpolator[j][i](self.best_fit_params[j][independent[0]])
                         )
 
                     else:
@@ -1325,21 +1200,15 @@ class WDfitter(AtmosphereModelReader):
                         )
 
                     if distance is None:
-                        self.best_fit_params[j]["distance"] = np.percentile(
-                            self.samples[j].T[-1], 50.0
-                        )
+                        self.best_fit_params[j]["distance"] = np.percentile(self.samples[j].T[-1], 50.0)
 
                     else:
                         self.best_fit_params[j]["distance"] = distance
 
-                    self.best_fit_params[j]["dist_mod"] = 5.0 * (
-                        np.log10(self.best_fit_params[j]["distance"]) - 1
-                    )
+                    self.best_fit_params[j]["dist_mod"] = 5.0 * (np.log10(self.best_fit_params[j]["distance"]) - 1)
 
         else:
-            ValueError(
-                "Unknown method. Please choose from minimize, least_squares and emcee."
-            )
+            ValueError("Unknown method. Please choose from minimize, least_squares and emcee.")
 
         # Save the pivot wavelength and magnitude for each filter
         self.pivot_wavelengths = []
@@ -1355,9 +1224,7 @@ class WDfitter(AtmosphereModelReader):
             for name in ["Teff", "mass", "Mbol", "age"]:
                 if len(independent) == 1:
                     self.best_fit_params[j][name] = float(
-                        self.interpolator[j][name](
-                            self.best_fit_params[j][independent[0]]
-                        )
+                        self.interpolator[j][name](self.best_fit_params[j][independent[0]])
                     )
 
                 else:
@@ -1379,16 +1246,7 @@ class WDfitter(AtmosphereModelReader):
                             _logg = self.best_fit_params[j]["logg"]
                         Av = (
                             np.array(
-                                [
-                                    i(
-                                        [
-                                            _logg,
-                                            self.best_fit_params[j]["Teff"],
-                                            Rv,
-                                        ]
-                                    )
-                                    for i in self.reddening_vector
-                                ],
+                                [i([_logg, self.best_fit_params[j]["Teff"], Rv]) for i in self.reddening_vector],
                                 dtype=np.float64,
                             ).reshape(-1)
                             * ebv
@@ -1507,9 +1365,7 @@ class WDfitter(AtmosphereModelReader):
                 for _e in ext:
                     if filename is None:
                         time_now = time.time()
-                        _filename = (
-                            f"corner_plot_{j}_atmosphere_{time_now}.{_e}"
-                        )
+                        _filename = f"corner_plot_{j}_atmosphere_{time_now}.{_e}"
 
                     elif isinstance(filename, (list, np.ndarray)):
                         _filename = f"{filename[i]}.{_e}"
@@ -1518,9 +1374,7 @@ class WDfitter(AtmosphereModelReader):
                         _filename = f"{filename}.{_e}"
 
                     else:
-                        raise TypeError(
-                            "Please provide the filename as a string or a list/array of string."
-                        )
+                        raise TypeError("Please provide the filename as a string or a list/array of string.")
 
                     plt.savefig(os.path.join(_folder, _filename))
 
@@ -1603,16 +1457,11 @@ class WDfitter(AtmosphereModelReader):
             if self.best_fit_params[k] == {}:
                 continue
 
-            reddening = [
-                self.best_fit_params[k]["Av_" + f]
-                for f in self.fitting_params["filters"]
-            ]
+            reddening = [self.best_fit_params[k]["Av_" + f] for f in self.fitting_params["filters"]]
 
             _ax.scatter(
                 np.array(self.pivot_wavelengths),
-                np.array(self.best_fit_mag[k])
-                + self.best_fit_params[k]["dist_mod"]
-                + np.array(reddening),
+                np.array(self.best_fit_mag[k]) + self.best_fit_params[k]["dist_mod"] + np.array(reddening),
                 label=f"Best-fit {k}",
                 color=color[j],
                 zorder=15,

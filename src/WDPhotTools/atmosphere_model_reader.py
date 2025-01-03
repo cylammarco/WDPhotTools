@@ -35,10 +35,8 @@ class AtmosphereModelReader(object):
             "lpcode_one_da_07": "Althaus et al. 2007 ONe DA",
             "lpcode_one_da_19": "Camisassa et al. 2019 ONe DA",
             "lpcode_one_db_19": "Camisassa et al. 2019 ONe DB",
-            "lpcode_da_22": "Althaus et al. 2013 He DA, "
-            + "Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
-            "lpcode_db_22": "Camisassa et al. 2017 CO DB, "
-            + "Camisassa et al. 2019 ONe DB",
+            "lpcode_da_22": "Althaus et al. 2013 He DA, Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
+            "lpcode_db_22": "Camisassa et al. 2017 CO DB, " + "Camisassa et al. 2019 ONe DB",
         }
 
         # DA atmosphere
@@ -261,9 +259,7 @@ class AtmosphereModelReader(object):
             self.column_wavelengths[i] = _l
 
         self.column_type = np.array(([np.float64] * len(self.column_key)))
-        self.dtype = [
-            (i, j) for i, j in zip(self.column_key, self.column_type)
-        ]
+        self.dtype = [(i, j) for i, j in zip(self.column_key, self.column_type)]
 
         # Load the synthetic photometry file in a recarray
         self.model_da = np.loadtxt(filepath_da, skiprows=2, dtype=self.dtype)
@@ -371,19 +367,10 @@ class AtmosphereModelReader(object):
                     "Mbol, or age."
                 )
 
-            _independent_arg_0 = np.where(
-                independent[0].lower() == independent_list_lower_cases
-            )[0][0]
-            _independent_arg_1 = np.where(
-                independent[1].lower() == independent_list_lower_cases
-            )[0][0]
+            _independent_arg_0 = np.where(independent[0].lower() == independent_list_lower_cases)[0][0]
+            _independent_arg_1 = np.where(independent[1].lower() == independent_list_lower_cases)[0][0]
 
-            independent = np.array(
-                [
-                    independent_list[_independent_arg_0],
-                    independent_list[_independent_arg_1],
-                ]
-            )
+            independent = np.array([independent_list[_independent_arg_0], independent_list[_independent_arg_1]])
 
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
@@ -434,33 +421,18 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x = np.log10(_x)
 
-                    return _atmosphere_interpolator(
-                        np.array([_logg, _x], dtype="object").T.reshape(
-                            length, 2
-                        )
-                    )
+                    return _atmosphere_interpolator(np.array([_logg, _x], dtype="object").T.reshape(length, 2))
 
             else:
-                raise ValueError(
-                    "Interpolator should be CT or RBF, {interpolator} is given."
-                )
+                raise ValueError("Interpolator should be CT or RBF, {interpolator} is given.")
 
         # If a 2D grid is to be interpolated, normally is the logg and another
         # parameter
         elif len(independent) == 2:
-            _independent_arg_0 = np.where(
-                independent[0].lower() == independent_list_lower_cases
-            )[0][0]
-            _independent_arg_1 = np.where(
-                independent[1].lower() == independent_list_lower_cases
-            )[0][0]
+            _independent_arg_0 = np.where(independent[0].lower() == independent_list_lower_cases)[0][0]
+            _independent_arg_1 = np.where(independent[1].lower() == independent_list_lower_cases)[0][0]
 
-            independent = np.array(
-                [
-                    independent_list[_independent_arg_0],
-                    independent_list[_independent_arg_1],
-                ]
-            )
+            independent = np.array([independent_list[_independent_arg_0], independent_list[_independent_arg_1]])
 
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
@@ -547,18 +519,12 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(
-                        np.array([_x_0, _x_1], dtype="object").T.reshape(
-                            length0, 2
-                        )
-                    )
+                    return _atmosphere_interpolator(np.array([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
 
             else:
                 raise ValueError("This should never happen.")
 
         else:
-            raise TypeError(
-                "Please provide ONE varaible name as a string or list, or TWO varaible names in a list."
-            )
+            raise TypeError("Please provide ONE varaible name as a string or list, or TWO varaible names in a list.")
 
         return atmosphere_interpolator
