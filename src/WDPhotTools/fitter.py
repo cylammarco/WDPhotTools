@@ -1208,7 +1208,7 @@ class WDfitter(AtmosphereModelReader):
                     self.best_fit_params[j]["dist_mod"] = 5.0 * (np.log10(self.best_fit_params[j]["distance"]) - 1)
 
         else:
-            ValueError("Unknown method. Please choose from minimize, least_squares and emcee.")
+            raise ValueError("Unknown method. Please choose from minimize, least_squares and emcee.")
 
         # Save the pivot wavelength and magnitude for each filter
         self.pivot_wavelengths = []

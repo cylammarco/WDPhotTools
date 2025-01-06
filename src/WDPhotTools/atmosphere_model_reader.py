@@ -259,7 +259,7 @@ class AtmosphereModelReader(object):
             self.column_wavelengths[i] = _l
 
         self.column_type = np.array(([np.float64] * len(self.column_key)))
-        self.dtype = [(i, j) for i, j in zip(self.column_key, self.column_type)]
+        self.dtype = list(zip(self.column_key, self.column_type))
 
         # Load the synthetic photometry file in a recarray
         self.model_da = np.loadtxt(filepath_da, skiprows=2, dtype=self.dtype)
