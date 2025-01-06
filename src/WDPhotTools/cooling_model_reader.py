@@ -273,7 +273,7 @@ class CoolingModelReader(object):
         )
         column_key_unit = np.array([r"L$_{\odot}$", "(cgs)"] + ["mag"] * 10 + ["(yr)"])
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -371,7 +371,7 @@ class CoolingModelReader(object):
         )
         column_key_unit = np.array(["K", r"(cm/s$^2$)", r"L$_{\odot}$", "(yr)"] + ["mag"] * 20)
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -389,7 +389,7 @@ class CoolingModelReader(object):
             mass = mass[mask_low]
             filelist = np.array(filelist)[mask_low]
         else:
-            raise ValueError("Unknown mass range requested. Please choose " "from 'all' or 'low' for althaus09 models.")
+            raise ValueError("Unknown mass range requested. Please choose from 'all' or 'low' for althaus09 models.")
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -511,7 +511,7 @@ class CoolingModelReader(object):
             + ["erg/s"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -642,7 +642,7 @@ class CoolingModelReader(object):
             + ["erg/s"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -769,7 +769,7 @@ class CoolingModelReader(object):
             + [""] * 4
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -906,7 +906,7 @@ class CoolingModelReader(object):
             + ["erg/s"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1011,7 +1011,7 @@ class CoolingModelReader(object):
             + ["erg/s"]
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1080,7 +1080,7 @@ class CoolingModelReader(object):
             + [r"(Gyr)"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1243,7 +1243,7 @@ class CoolingModelReader(object):
             + ["mag"] * 50
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1302,7 +1302,7 @@ class CoolingModelReader(object):
             + ["mag"] * 4
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1363,7 +1363,7 @@ class CoolingModelReader(object):
         )
         column_key_unit = np.array(["(K)", r"(cm/s$^2$)", r"L$_{\odot}$", r"(Gyr)"] + ["mag"] * 5)
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1451,7 +1451,7 @@ class CoolingModelReader(object):
             + [r"M$_{\odot}$", r"(cm/s$^2$)", r"E$_{\odot}$"]
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1523,7 +1523,7 @@ class CoolingModelReader(object):
         )
         column_key_unit = np.array(["(Gyr)", r"M$_{\odot}$", "(K)", r"L$_{\odot}$"] + ["mag"] * 5)
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
