@@ -335,9 +335,10 @@ the entries. However, `least_squares` does provide error estimations natively:
 #### `emcee`
 
 After using `emcee` for sampling, the sampler and samples can be found in
-` ftr.sampler`` and `ftr.samples``respectively. The median of the samples of each parameter is stored in`ftr.best_fit_params`, while `ftr.results`
-would be empty. In this case, if we are fitting for the DA solutions only, we
-should have, for example,
+`ftr.sampler` and `ftr.samples` respectively. The median of the samples of each
+parameter is stored in`ftr.best_fit_params`, while `ftr.results` would be empty.
+In this case, if we are fitting for the DA solutions only, we should have, for
+example,
 
 ```python
 >>> ftr.results
