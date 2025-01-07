@@ -85,7 +85,7 @@ def diff2_distance_red_interpolated(
     obs,
     errors,
     interpolator_filter,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -118,10 +118,10 @@ def diff2_distance_red_interpolated(
     else:
         extinction_fraction = get_extinction_fraction(_x[-1], ra, dec, zmin, zmax)
 
-    Av = np.array([i(Rv) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
+    av = np.array([i(rv) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = errors**2.0
-    d2 = ((10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
+    d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
@@ -143,7 +143,7 @@ def diff2_distance_red_interpolated_fixed_logg(
     obs,
     errors,
     interpolator_filter,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -176,11 +176,11 @@ def diff2_distance_red_interpolated_fixed_logg(
     else:
         extinction_fraction = get_extinction_fraction(_x[-1], ra, dec, zmin, zmax)
 
-    Av = np.array([i(Rv) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
+    av = np.array([i(rv) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = errors**2.0
 
-    d2 = ((10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
+    d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
@@ -204,7 +204,7 @@ def diff2_distance_red_filter(
     interpolator_filter,
     interpolator_teff,
     logg_pos,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -240,10 +240,10 @@ def diff2_distance_red_filter(
 
     teff = float(interpolator_teff(_x[:2]))
     logg = _x[logg_pos]
-    Av = np.array([i([logg, teff, Rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
+    av = np.array([i([logg, teff, rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = errors**2.0
-    d2 = ((10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
+    d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
@@ -267,7 +267,7 @@ def diff2_distance_red_filter_fixed_logg(
     interpolator_filter,
     interpolator_teff,
     logg,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -301,11 +301,11 @@ def diff2_distance_red_filter_fixed_logg(
         extinction_fraction = get_extinction_fraction(_x[-1], ra, dec, zmin, zmax)
 
     teff = float(interpolator_teff(_x[:-1]))
-    Av = np.array([i([logg, teff, Rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
+    av = np.array([i([logg, teff, rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = errors**2.0
 
-    d2 = ((10.0 ** ((obs - Av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
+    d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(_x[-1]) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
@@ -329,7 +329,7 @@ def diff2_red_interpolated(
     distance,
     distance_err,
     interpolator_filter,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -355,10 +355,10 @@ def diff2_red_interpolated(
     else:
         extinction_fraction = get_extinction_fraction(distance, ra, dec, zmin, zmax)
 
-    Av = np.array([i(Rv) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
+    av = np.array([i(rv) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 1.1788231063225867
-    d2 = ((10.0 ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
+    d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
@@ -384,7 +384,7 @@ def diff2_red_filter(
     interpolator_filter,
     interpolator_teff,
     logg_pos,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -420,10 +420,10 @@ def diff2_red_filter(
         extinction_fraction = get_extinction_fraction(distance, ra, dec, zmin, zmax)
 
     logg = _x[logg_pos]
-    Av = np.array([i([logg, teff, Rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
+    av = np.array([i([logg, teff, rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 1.1788231063225867
-    d2 = ((10.0 ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
+    d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
@@ -449,7 +449,7 @@ def diff2_red_filter_fixed_logg(
     interpolator_filter,
     interpolator_teff,
     logg,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -476,10 +476,10 @@ def diff2_red_filter_fixed_logg(
         extinction_fraction = get_extinction_fraction(distance, ra, dec, zmin, zmax)
 
     teff = float(interpolator_teff(_x))
-    Av = np.array([i([logg, teff, Rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
+    av = np.array([i([logg, teff, rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 1.1788231063225867
-    d2 = ((10.0 ** ((obs - Av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
+    d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
