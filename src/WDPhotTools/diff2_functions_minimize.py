@@ -13,17 +13,13 @@ from .diff2_functions_least_square import (
 )
 
 
-def diff2_summed(
-    _x, obs, errors, distance, distance_err, interpolator_filter, return_err
-):
+def diff2_summed(_x, obs, errors, distance, distance_err, interpolator_filter, return_err):
     """
     Internal method for computing the ch2-squared value (for scipy.optimize.minimize).
 
     """
 
-    d2, e2 = diff2(
-        _x, obs, errors, distance, distance_err, interpolator_filter, True
-    )
+    d2, e2 = diff2(_x, obs, errors, distance, distance_err, interpolator_filter, True)
 
     if return_err:
         return np.sum(d2), 1.0 / np.sum(1.0 / e2)
@@ -41,7 +37,7 @@ def diff2_red_filter_summed(
     interpolator_filter,
     interpolator_teff,
     logg_pos,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -64,7 +60,7 @@ def diff2_red_filter_summed(
         interpolator_filter,
         interpolator_teff,
         logg_pos,
-        Rv,
+        rv,
         extinction_mode,
         reddening_vector,
         ebv,
@@ -91,7 +87,7 @@ def diff2_red_filter_fixed_logg_summed(
     interpolator_filter,
     interpolator_teff,
     logg_pos,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -114,7 +110,7 @@ def diff2_red_filter_fixed_logg_summed(
         interpolator_filter,
         interpolator_teff,
         logg_pos,
-        Rv,
+        rv,
         extinction_mode,
         reddening_vector,
         ebv,
@@ -139,7 +135,7 @@ def diff2_red_interpolated_summed(
     distance,
     distance_err,
     interpolator_filter,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -162,7 +158,7 @@ def diff2_red_interpolated_summed(
         distance,
         distance_err,
         interpolator_filter,
-        Rv,
+        rv,
         extinction_mode,
         reddening_vector,
         ebv,
@@ -186,7 +182,7 @@ def diff2_distance_red_filter_summed(
     interpolator_filter,
     interpolator_teff,
     logg_pos,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -209,7 +205,7 @@ def diff2_distance_red_filter_summed(
         interpolator_filter,
         interpolator_teff,
         logg_pos,
-        Rv,
+        rv,
         extinction_mode,
         reddening_vector,
         ebv,
@@ -233,7 +229,7 @@ def diff2_distance_red_filter_fixed_logg_summed(
     interpolator_filter,
     interpolator_teff,
     logg,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -256,7 +252,7 @@ def diff2_distance_red_filter_fixed_logg_summed(
         interpolator_filter,
         interpolator_teff,
         logg,
-        Rv,
+        rv,
         extinction_mode,
         reddening_vector,
         ebv,
@@ -294,7 +290,7 @@ def diff2_distance_red_interpolated_summed(
     obs,
     errors,
     interpolator_filter,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -315,7 +311,7 @@ def diff2_distance_red_interpolated_summed(
         obs,
         errors,
         interpolator_filter,
-        Rv,
+        rv,
         extinction_mode,
         reddening_vector,
         ebv,
@@ -338,7 +334,7 @@ def diff2_distance_red_interpolated_fixed_logg_summed(
     obs,
     errors,
     interpolator_filter,
-    Rv,
+    rv,
     extinction_mode,
     reddening_vector,
     ebv,
@@ -359,7 +355,7 @@ def diff2_distance_red_interpolated_fixed_logg_summed(
         obs,
         errors,
         interpolator_filter,
-        Rv,
+        rv,
         extinction_mode,
         reddening_vector,
         ebv,

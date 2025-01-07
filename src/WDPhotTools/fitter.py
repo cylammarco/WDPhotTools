@@ -77,7 +77,7 @@ class WDfitter(AtmosphereModelReader):
         self.extinction_convolved = None
         self.extinction_fraction = 1.0
         self.set_extinction_mode()
-        # Note this is the extinction Rv, not radial velocity RV.
+        # Note this is the extinction rv, not radial velocity RV.
         self.reddening_vector = None
         self.pivot_wavelengths = None
 
@@ -165,7 +165,7 @@ class WDfitter(AtmosphereModelReader):
         distance_err=None,
         extinction_convolved=True,
         kernel="cubic",
-        Rv=3.1,
+        rv=3.1,
         ebv=0.0,
         ra=None,
         dec=None,
@@ -221,8 +221,8 @@ class WDfitter(AtmosphereModelReader):
             in Schlafly et al. 2011.
         kernel: str (Default: 'cubic')
             The kernel of interpolation of the extinction curve.
-        Rv: float (Default: 3.1)
-            The choice of Rv, only used if a numerical value is provided.
+        rv: float (Default: 3.1)
+            The choice of rv, only used if a numerical value is provided.
         ebv: float (Default: 0.0)
             The magnitude of the E(B-V).
         ra : float (Default: None)
@@ -331,7 +331,7 @@ class WDfitter(AtmosphereModelReader):
             filters = np.array(filters)
 
         if (
-            ((Rv >= 0.0) and (self.reddening_vector is None))
+            ((rv >= 0.0) and (self.reddening_vector is None))
             or (self.extinction_convolved != extinction_convolved)
             or (len(self.interpolator[atmosphere[0]]) - 4 != len(filters))
         ):
@@ -380,7 +380,7 @@ class WDfitter(AtmosphereModelReader):
             "logg": logg,
             "extinction_convolved": extinction_convolved,
             "kernel": kernel,
-            "Rv": Rv,
+            "rv": rv,
             "ebv": ebv,
             "ra": ra,
             "dec": dec,
@@ -436,7 +436,7 @@ class WDfitter(AtmosphereModelReader):
                                         mags,
                                         mag_errors,
                                         [self.interpolator[j][i] for i in filters],
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -457,7 +457,7 @@ class WDfitter(AtmosphereModelReader):
                                         mags,
                                         mag_errors,
                                         [self.interpolator[j][i] for i in filters],
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -480,7 +480,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg_pos,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -503,7 +503,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -544,7 +544,7 @@ class WDfitter(AtmosphereModelReader):
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
-                                    Rv,
+                                    rv,
                                     self.extinction_mode,
                                     self.reddening_vector,
                                     ebv,
@@ -571,7 +571,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -596,7 +596,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -675,7 +675,7 @@ class WDfitter(AtmosphereModelReader):
                                         mags,
                                         mag_errors,
                                         [self.interpolator[j][i] for i in filters],
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -696,7 +696,7 @@ class WDfitter(AtmosphereModelReader):
                                         mags,
                                         mag_errors,
                                         [self.interpolator[j][i] for i in filters],
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -719,7 +719,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg_pos,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -742,7 +742,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -787,7 +787,7 @@ class WDfitter(AtmosphereModelReader):
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
-                                    Rv,
+                                    rv,
                                     self.extinction_mode,
                                     self.reddening_vector,
                                     ebv,
@@ -812,7 +812,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -837,7 +837,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -927,7 +927,7 @@ class WDfitter(AtmosphereModelReader):
                                         mags,
                                         mag_errors,
                                         [self.interpolator[j][i] for i in filters],
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -949,7 +949,7 @@ class WDfitter(AtmosphereModelReader):
                                         mags,
                                         mag_errors,
                                         [self.interpolator[j][i] for i in filters],
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -973,7 +973,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -997,7 +997,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -1040,7 +1040,7 @@ class WDfitter(AtmosphereModelReader):
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
-                                    Rv,
+                                    rv,
                                     self.extinction_mode,
                                     self.reddening_vector,
                                     ebv,
@@ -1067,7 +1067,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -1096,7 +1096,7 @@ class WDfitter(AtmosphereModelReader):
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
-                                        Rv,
+                                        rv,
                                         self.extinction_mode,
                                         self.reddening_vector,
                                         ebv,
@@ -1155,7 +1155,7 @@ class WDfitter(AtmosphereModelReader):
                             distance=None,
                             distance_err=None,
                             initial_guess=_initial_guess,
-                            Rv=Rv,
+                            rv=rv,
                             ebv=ebv,
                             ra=ra,
                             dec=dec,
@@ -1176,7 +1176,7 @@ class WDfitter(AtmosphereModelReader):
                             distance=distance,
                             distance_err=distance_err,
                             initial_guess=_initial_guess,
-                            Rv=Rv,
+                            rv=rv,
                             ebv=ebv,
                             ra=ra,
                             dec=dec,
@@ -1235,7 +1235,7 @@ class WDfitter(AtmosphereModelReader):
                         )
                     )
 
-                if Rv > 0.0:
+                if rv > 0.0:
                     if self.extinction_convolved:
                         # trap logg here: if it is fitted, it appears as a
                         # best_fit_params. Else, it should be taken from
@@ -1246,7 +1246,7 @@ class WDfitter(AtmosphereModelReader):
                             _logg = self.best_fit_params[j]["logg"]
                         Av = (
                             np.array(
-                                [i([_logg, self.best_fit_params[j]["Teff"], Rv]) for i in self.reddening_vector],
+                                [i([_logg, self.best_fit_params[j]["Teff"], rv]) for i in self.reddening_vector],
                                 dtype=np.float64,
                             ).reshape(-1)
                             * ebv
@@ -1256,7 +1256,7 @@ class WDfitter(AtmosphereModelReader):
                     else:
                         Av = (
                             np.array(
-                                [i(Rv) for i in self.reddening_vector],
+                                [i(rv) for i in self.reddening_vector],
                                 dtype=np.float64,
                             ).reshape(-1)
                             * ebv

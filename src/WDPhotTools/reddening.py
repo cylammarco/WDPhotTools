@@ -55,7 +55,7 @@ def reddening_vector_filter(filter_name):
     # Load the reddening vectors from file
     data = np.loadtxt(filepath, delimiter=",")
 
-    Teff = np.array(
+    teff = np.array(
         [
             5000.0,
             5250.0,
@@ -142,14 +142,14 @@ def reddening_vector_filter(filter_name):
         ]
     )
     logg = np.array([6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0, 9.25, 9.5])
-    Rv = np.array([2.1, 2.6, 3.1, 3.6, 4.1, 4.6, 5.1])
+    rv = np.array([2.1, 2.6, 3.1, 3.6, 4.1, 4.6, 5.1])
 
-    data = data.reshape(len(logg), len(Teff), len(Rv))
+    data = data.reshape(len(logg), len(teff), len(rv))
 
     # fill_value is set to None to allow extrapolation.
     # The scipy default is Nan the otherwise.
     return RegularGridInterpolator(
-        (logg, Teff, Rv),
+        (logg, teff, rv),
         data,
         method="linear",
         bounds_error=False,
