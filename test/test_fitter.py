@@ -91,9 +91,7 @@ def test_fitting_teff(mock_show):
         ext=["png", "pdf"],
         return_fig=True,
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
     assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
     assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
@@ -117,9 +115,7 @@ def test_fitting_teff_with_none():
         distance_err=0.1,
         initial_guess=[13000.0],
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
@@ -133,9 +129,7 @@ def test_fitting_teff_with_none():
         distance_err=0.1,
         initial_guess=[13000.0],
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
@@ -149,9 +143,7 @@ def test_fitting_teff_with_none():
         distance_err=0.1,
         initial_guess=[13000.0],
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
     assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
     assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
@@ -259,7 +251,7 @@ def test_fitting_teff_red():
         distance=10.0,
         distance_err=0.1,
         initial_guess=[13000.0],
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
     ftr.show_best_fit(
@@ -269,9 +261,7 @@ def test_fitting_teff_red():
         ext=["png", "pdf"],
         return_fig=True,
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
     assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
     assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
@@ -292,7 +282,7 @@ def test_fitting_logg_and_teff_red():
         distance=10.0,
         distance_err=0.1,
         initial_guess=[13000.0, 7.5],
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
     ftr.show_best_fit(
@@ -326,12 +316,10 @@ def test_fitting_logg_teff_distance_red():
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
-    ftr.show_best_fit(
-        display=False, title="fitted (logg, Mbol, distance) and dereddend"
-    )
+    ftr.show_best_fit(display=False, title="fitted (logg, Mbol, distance) and dereddend")
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
@@ -358,7 +346,7 @@ def test_fitting_logg_teff_distance_red_best_fit_plot_colour():
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
     ftr.show_best_fit(
@@ -411,9 +399,7 @@ def test_fitting_teff_lsq():
         ext=["png", "pdf"],
         return_fig=True,
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
     assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
     assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
@@ -438,9 +424,7 @@ def test_fitting_teff_with_none_lsq():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0],
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
@@ -454,9 +438,7 @@ def test_fitting_teff_with_none_lsq():
         method="least_squares",
         initial_guess=[13000.0],
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
         mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
@@ -471,9 +453,7 @@ def test_fitting_teff_with_none_lsq():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0],
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
     assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
     assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
@@ -584,7 +564,7 @@ def test_fitting_teff_red_lsq():
         method="least_squares",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0],
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
     ftr.show_best_fit(
@@ -594,9 +574,7 @@ def test_fitting_teff_red_lsq():
         ext=["png", "pdf"],
         return_fig=True,
     )
-    assert np.isclose(
-        ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02
-    ).all()
+    assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     assert isinstance(ftr.best_fit_params["H"]["Teff"], float)
     assert isinstance(ftr.best_fit_params["H"]["Mbol"], float)
     assert isinstance(ftr.best_fit_params["H"]["Teff_err"], float)
@@ -618,7 +596,7 @@ def test_fitting_logg_and_teff_red_lsq():
         initial_guess=[13000.0, 7.5],
         method="least_squares",
         atmosphere_interpolator="CT",
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
     ftr.show_best_fit(
@@ -653,12 +631,10 @@ def test_fitting_logg_teff_distance_red_lsq():
         initial_guess=[13000.0, 7.5, 10.0],
         method="least_squares",
         atmosphere_interpolator="CT",
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
-    ftr.show_best_fit(
-        display=False, title="fitted (logg, Mbol, distance) and dereddend"
-    )
+    ftr.show_best_fit(display=False, title="fitted (logg, Mbol, distance) and dereddend")
     assert np.isclose(
         ftr.results["H"].x,
         np.array([13000.0, 7.5, 10.0]),
@@ -740,9 +716,7 @@ def test_fitting_teff_with_none_emcee():
         refine_bounds=[0.1, 99.9],
         initial_guess=[13000.0],
     )
-    ftr.show_corner_plot(
-        display=False, folder="test_output", ext=["png", "pdf"]
-    )
+    ftr.show_corner_plot(display=False, folder="test_output", ext=["png", "pdf"])
     assert np.isclose(
         ftr.best_fit_params["H"]["Teff"],
         np.array([13000.0]),
@@ -816,7 +790,7 @@ def test_fitting_teff_red_emcee():
         initial_guess=[13000.0],
         refine=True,
         refine_bounds=[0.1, 99.9],
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
     ftr.show_best_fit(
@@ -861,7 +835,7 @@ def test_chi2_minimization_red_interpolated():
         refine=True,
         refine_bounds=[0.1, 99.9],
         extinction_convolved=False,
-        Rv=rv,
+        rv=rv,
         ebv=ebv,
     )
     ftr.show_best_fit(

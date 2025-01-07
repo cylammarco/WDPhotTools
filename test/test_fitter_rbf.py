@@ -11,9 +11,7 @@ from WDPhotTools.reddening import reddening_vector_interpolated
 
 # testing with logg=7.5 and Teff=13000.
 wave_GBRFN = np.array((6218.0, 5110.0, 7769.0, 1535.0, 2301.0))
-wave_grizyJHK = np.array(
-    (4849.0, 6201.0, 7535.0, 8674.0, 9628.0, 12350.00, 16460.00, 21600.00)
-)
+wave_grizyJHK = np.array((4849.0, 6201.0, 7535.0, 8674.0, 9628.0, 12350.00, 16460.00, 21600.00))
 
 RV = 3.1
 EBV = 0.123
@@ -39,12 +37,8 @@ A_Ks = reddening_vector_filter("Ks")([7.5, 13000.0, RV]) * EBV
 mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
 extinction = np.array([A_G3, A_G3_BP, A_G3_RP, A_FUV, A_NUV]).reshape(-1)
 
-mags_grizyJHK = np.array(
-    [10.764, 11.006, 11.262, 11.482, 11.633, 11.106, 11.139, 11.187]
-)
-extinction_grizyJHK = np.array(
-    [A_g, A_r, A_i, A_z, A_y, A_J, A_H, A_Ks]
-).reshape(-1)
+mags_grizyJHK = np.array([10.764, 11.006, 11.262, 11.482, 11.633, 11.106, 11.139, 11.187])
+extinction_grizyJHK = np.array([A_g, A_r, A_i, A_z, A_y, A_J, A_H, A_Ks]).reshape(-1)
 
 five_filters_name_list = np.array(["G3", "G3_BP", "G3_RP", "FUV", "NUV"])
 thirteen_filters_name_list = np.array(
@@ -132,7 +126,7 @@ def test_minimize_teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results3 = ftr3.best_fit_params["H"]["Teff"]
@@ -159,7 +153,7 @@ def test_minimize_teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results4 = ftr4.best_fit_params["H"]["Teff"]
@@ -184,7 +178,7 @@ def test_minimize_teff_logg_reddening():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results5 = ftr5.best_fit_params["H"]["Teff"]
@@ -210,7 +204,7 @@ def test_minimize_teff_logg_reddening_interpolated():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results6 = ftr6.best_fit_params["H"]["Teff"]
@@ -277,7 +271,7 @@ def test_minimize_teff_distance_reddening():
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results9 = ftr9.best_fit_params["H"]["Teff"]
@@ -302,7 +296,7 @@ def test_minimize_teff_distance_reddening_interpolated():
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results10 = ftr10.best_fit_params["H"]["Teff"]
@@ -325,7 +319,7 @@ def test_minimize_teff_logg_distance_reddening():
         method="minimize",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results11 = ftr11.best_fit_params["H"]["Teff"]
@@ -349,7 +343,7 @@ def test_minimize_teff_logg_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results12 = ftr12.best_fit_params["H"]["Teff"]
@@ -428,7 +422,7 @@ def test_lsq_teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results15 = ftr15.best_fit_params["H"]["Teff"]
@@ -455,7 +449,7 @@ def test_lsq_teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results16 = ftr16.best_fit_params["H"]["Teff"]
@@ -480,7 +474,7 @@ def test_lsq_teff_logg_reddening():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results17 = ftr17.best_fit_params["H"]["Teff"]
@@ -506,7 +500,7 @@ def test_lsq_teff_logg_reddening_interpolated():
         initial_guess=[13000.0, 7.5],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results18 = ftr18.best_fit_params["H"]["Teff"]
@@ -573,7 +567,7 @@ def test_lsq_teff_distance_reddening():
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results21 = ftr21.best_fit_params["H"]["Teff"]
@@ -598,7 +592,7 @@ def test_lsq_teff_distance_reddening_interpolated():
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results22 = ftr22.best_fit_params["H"]["Teff"]
@@ -621,7 +615,7 @@ def test_lsq_teff_logg_distance_reddening():
         method="least_squares",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results23 = ftr23.best_fit_params["H"]["Teff"]
@@ -645,7 +639,7 @@ def test_lsq_teff_logg_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results24 = ftr24.best_fit_params["H"]["Teff"]
@@ -736,7 +730,7 @@ def test_emcee_teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results27 = ftr27.best_fit_params["H"]["Teff"]
@@ -768,7 +762,7 @@ def test_emcee_teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results28 = ftr28.best_fit_params["H"]["Teff"]
@@ -798,7 +792,7 @@ def test_emcee_teff_logg_reddening():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results29 = ftr29.best_fit_params["H"]["Teff"]
@@ -829,7 +823,7 @@ def test_emcee_teff_logg_reddening_interpolated():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results30 = ftr30.best_fit_params["H"]["Teff"]
@@ -900,9 +894,7 @@ def test_emcee_teff_distance_reddening():
     ftr33.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate(
-            (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
-        ),
+        mags=np.concatenate((mags + extinction, mags_grizyJHK + extinction_grizyJHK)),
         mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
@@ -913,7 +905,7 @@ def test_emcee_teff_distance_reddening():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results33 = ftr33.best_fit_params["H"]["Teff"]
@@ -948,7 +940,7 @@ def test_emcee_teff_distance_reddening_interpolated():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results34 = ftr34.best_fit_params["H"]["Teff"]
@@ -966,9 +958,7 @@ def test_emcee_teff_logg_distance_reddening():
     ftr35.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate(
-            (mags + extinction, mags_grizyJHK + extinction_grizyJHK)
-        ),
+        mags=np.concatenate((mags + extinction, mags_grizyJHK + extinction_grizyJHK)),
         mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
@@ -978,7 +968,7 @@ def test_emcee_teff_logg_distance_reddening():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results35 = ftr35.best_fit_params["H"]["Teff"]
@@ -1012,7 +1002,7 @@ def test_emcee_teff_logg_distance_reddening_interpolated():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     results36 = ftr36.best_fit_params["H"]["Teff"]

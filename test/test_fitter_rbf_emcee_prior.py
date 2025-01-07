@@ -203,7 +203,7 @@ def test_emcee_teff_reddening():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff,
     )
@@ -246,7 +246,7 @@ def test_emcee_teff_reddening_interpolated():
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff,
     )
@@ -287,7 +287,7 @@ def test_emcee_teff_logg_reddening():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff_logg,
     )
@@ -329,7 +329,7 @@ def test_emcee_teff_logg_reddening_interpolated():
         nburns=100,
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff_logg,
     )
@@ -444,7 +444,7 @@ def test_emcee_teff_distance_reddening():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff_distance,
     )
@@ -490,7 +490,7 @@ def test_emcee_teff_distance_reddening_interpolated():
         nsteps=1000,
         nburns=100,
         logg=7.5,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff_distance,
     )
@@ -529,7 +529,7 @@ def test_emcee_teff_logg_distance_reddening():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff_logg_distance,
     )
@@ -574,7 +574,7 @@ def test_emcee_teff_logg_distance_reddening_interpolated():
         nwalkers=20,
         nsteps=1000,
         nburns=100,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
         prior=prior_teff_logg_distance,
     )
