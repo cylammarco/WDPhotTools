@@ -39,7 +39,7 @@ Below is the default setup of the `fit` method, we will go through the 8 cases o
         distance_err=None,
         extinction_convolved=True,
         kernel="cubic",
-        Rv=0.0,
+        rv=0.0,
         ebv=0.0,
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 8.0],
@@ -83,7 +83,7 @@ When a log(g) is not included in the `independent` list, it will assume a fixed 
             distance_err=0.1,
             extinction_convolved=True,
             kernel="cubic",
-            Rv=3.1,
+            rv=3.1,
             ebv=0.1,
             independent=["Mbol"],
             initial_guess=[10.0],
@@ -103,7 +103,7 @@ Compared to case 1, this fits for the logg, so we needs to add `"logg"` to the `
             distance_err=0.1,
             extinction_convolved=True,
             kernel="cubic",
-            Rv=3.1,
+            rv=3.1,
             ebv=0.1,
             independent=["Mbol", "logg"],
             initial_guess=[10.0, 8.0],
@@ -122,7 +122,7 @@ Compared to case 1, this fits for the distance, but we need to change two things
             distance=None,
             extinction_convolved=True,
             kernel="cubic",
-            Rv=3.1,
+            rv=3.1,
             ebv=0.1,
             independent=["Mbol"],
             initial_guess=[10.0, 30.7],
@@ -201,7 +201,7 @@ This is the setup that is the most likely to fail because it is fitting 3 unknow
             mags=[a, b, c],
             mag_errors=[a_err, b_err, c_err],
             distance=None,
-            Rv=3.1,
+            rv=3.1,
             ebv=0.1,
             independent=["Mbol", "logg"],
             initial_guess=[10.0, 8.0, 30.0],
@@ -281,3 +281,5 @@ After using `emcee` for sampling, the sampler and samples can be found in `ftr.s
 
 
 If you want to fully explore the infromation stored in the fitting object, use `ftr.__dict__`, or just the keys with `ftr.__dict__.keys()`.
+
+A callable function can be supplied as a prior, it should take the same number and order of argument as the fit is to perform on. See some examples in the test scripts.

@@ -60,6 +60,17 @@ and
 }
 ```
 
+## Contributor
+
+- @cylammarco
+- @KaWaiYuen
+
+## Contribution Guide
+
+- passes the default black formatter with the only exception of using a max line length of 120
+- please create an MR to merge onto the `dev` branch
+- please add your name to the contributor list in the MR
+
 ## Model Inspection
 
 ### Plotting the WD cooling sequence in Gaia filters
@@ -292,6 +303,8 @@ If you want to fully explore the infromation stored in the fitting object, use `
 And the associated corner plot where the blue line shows the true value. As we are not providing a distance in this case, as expected from the degeneracy between fitting distance and stellar radius (directly translate to logg in the fit), both truth values are well outside of the probability density maps in the corner plot:
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/PSOJ1801p6254_emcee_corner.png?raw=true)
+
+A callable function can be supplied as a prior, it should take the same number and order of argument as the fit is to perform on. See some examples in the test scripts.
 
 ## Theoretical White Dwarf Luminosity Function
 
