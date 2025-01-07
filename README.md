@@ -10,23 +10,38 @@
 [![RASTI](https://img.shields.io/badge/Journal-RASTI-blueviolet)](https://doi.org/10.1093/rasti/rzac006)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/wdphottools)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0c8fae5312564fffb1aed3a862009fe5)](https://www.codacy.com/gh/cylammarco/WDPhotTools/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cylammarco/WDPhotTools&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0c8fae5312564fffb1aed3a862009fe5)](https://www.codacy.com/gh/cylammarco/WDPhotTools/dashboard?utm_source=github.com&utm_medium=referral&utm_content=cylammarco/WDPhotTools&utm_campaign=Badge_Grade)
 
-This software can generate colour-colour diagram, colour-magnitude diagram in various photometric systems, plotting cooling profiles from different models, and compute theoretical white dwarf luminosity functions based on the built-in or supplied models of (1) initial mass function, (2) total stellar evolution lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
+This software can generate colour-colour diagram, colour-magnitude diagram in
+various photometric systems, plotting cooling profiles from different models,
+and compute theoretical white dwarf luminosity functions based on the built-in
+or supplied models of (1) initial mass function, (2) total stellar evolution
+lifetime, (3) initial-final mass relation, and (4) white dwarf cooling time.
 
-the core parts of this work are three-fold: the first and the backbone of this work is the formatters that handle the output models from various works in the format as they are downloaded. This will allow the software to be updated with the newer models easily in the future. The second core part is the photometric fitter that solves for the WD parameters based on the photometry, with or without distance and reddening. The last part is to generate white dwarf luminosity function in bolometric magnitudes or in any of the photometric systems availalbe from the atmosphere model.
+the core parts of this work are three-fold: the first and the backbone of this
+work is the formatters that handle the output models from various works in the
+format as they are downloaded. This will allow the software to be updated with
+the newer models easily in the future. The second core part is the photometric
+fitter that solves for the WD parameters based on the photometry, with or
+without distance and reddening. The last part is to generate white dwarf
+luminosity function in bolometric magnitudes or in any of the photometric
+systems availalbe from the atmosphere model.
 
-When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9+ which provides a speed gain of O(100) times.
+When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9+
+which provides a speed gain of O(100) times.
 
-Please be aware of some incompatible version combinations of Astropy with numpy>=2.0.
+Please be aware of some incompatible version combinations of Astropy with
+numpy>=2.0.
 
 ## Documentation
 
-Documentation and more examples can be found at [Read the Docs](https://wdphottools.readthedocs.io/en/latest/).
+Documentation and more examples can be found at
+[Read the Docs](https://wdphottools.readthedocs.io/en/latest/).
 
 ## Attribution
 
-If you have made use of the WDPhotTools, we would appreciate if you can refernce the follow article and the software itself. The BibTex of the two items are::
+If you have made use of the WDPhotTools, we would appreciate if you can refernce
+the follow article and the software itself. The BibTex of the two items are::
 
 ```bash
 @article{10.1093/rasti/rzac006,
@@ -67,7 +82,8 @@ and
 
 ## Contribution Guide
 
-- passes the default black formatter with the only exception of using a max line length of 120
+- passes the default black formatter with the only exception of using a max line
+  length of 120
 - please create an MR to merge onto the `dev` branch
 - please add your name to the contributor list in the MR
 
@@ -75,7 +91,12 @@ and
 
 ### Plotting the WD cooling sequence in Gaia filters
 
-The cooling models only include the modelling of the bolometric lumninosity, the synthetic photometry is not usually provided. We have included the synthetic colours computed by the [Montreal group](http://www.astro.umontreal.ca/~bergeron/CoolingModels/). By default, it maps the (logg, Mbol) to Gaia G band (DR3). The DA cooling tracks can be generated with
+The cooling models only include the modelling of the bolometric lumninosity, the
+synthetic photometry is not usually provided. We have included the synthetic
+colours computed by the
+[Montreal group](http://www.astro.umontreal.ca/~bergeron/CoolingModels/). By
+default, it maps the (logg, Mbol) to Gaia G band (DR3). The DA cooling tracks
+can be generated with
 
 ```python
 from WDPhotTools import plotter
@@ -124,7 +145,9 @@ plt.tight_layout()
 
 ### Plotting the cooling models
 
-The cooling sequence above is mostly concerned with the synthetic photometry, in this example, it is mostly regarding the physical properties beneath the photosphere. To check what models are embedded, you can use:
+The cooling sequence above is mostly concerned with the synthetic photometry, in
+this example, it is mostly regarding the physical properties beneath the
+photosphere. To check what models are embedded, you can use:
 
 ```python
 from WDPhotTools.cooling_model_reader import CoolingModelReader
@@ -160,7 +183,8 @@ Model: mesa_one_da_18, Reference: Lauffer et al. 2018 ONe DA
 Model: mesa_one_db_18, Reference: Lauffer et al. 2018 ONe DB
 ```
 
-And once you have picked a model, you can inspect what parameters are available with the model by supplying the model name, for example:
+And once you have picked a model, you can inspect what parameters are available
+with the model by supplying the model name, for example:
 
 ```python
 cr.list_cooling_parameters('basti_co_da_10')
@@ -181,7 +205,8 @@ Parameter: i, Column Name: i, Unit: mag
 Parameter: z, Column Name: z, Unit: mag
 ```
 
-Knowing which model and parameter you have access to, you can do basic visualisation using the default plotting funtion with the plotter again:
+Knowing which model and parameter you have access to, you can do basic
+visualisation using the default plotting funtion with the plotter again:
 
 ```python
 from WDPhotTools import plotter
@@ -191,13 +216,19 @@ plotter.plot_cooling_model(mass=[0.2, 0.4, 0.6, 0.8, 1.0])
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/DA_cooling_model_from_plotter.png?raw=true)
 
-With a finer control of the `cooling_model_reader`, it is easy to work with more advanced model usage and visulations, for example, we can compare the effect of phase separation in Salaris et al. 2010, see [this example script](https://github.com/cylammarco/WDPhotTools/blob/main/example/compare_ps_cooling_rates.py).
+With a finer control of the `cooling_model_reader`, it is easy to work with more
+advanced model usage and visulations, for example, we can compare the effect of
+phase separation in Salaris et al. 2010, see
+[this example script](https://github.com/cylammarco/WDPhotTools/blob/main/example/compare_ps_cooling_rates.py).
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/compare_ps_cooling_rates.png?raw=true)
 
 ## Photometric fitting
 
-We provide 3 minimisers for fitting with synthetic photometry: `scipy.optimize.minimize`, `scipy.optimize.least_squares` and `emcee` (with the option to refine with a `scipy.optimize.minimize` in a bounded region). The second and third ones come with error estimations.
+We provide 3 minimisers for fitting with synthetic photometry:
+`scipy.optimize.minimize`, `scipy.optimize.least_squares` and `emcee` (with the
+option to refine with a `scipy.optimize.minimize` in a bounded region). The
+second and third ones come with error estimations.
 
 ### An example photometric fit of PSO J1801+6254 in 3 Gaia, 5 Pan-STARRS and 3 NIR filters without providing a distance
 
@@ -233,7 +264,19 @@ ftr.show_corner_plot(
 
 ### Reddening model
 
-The default setup assumes the provided reddening is the total amount at the given distance.  Hence, it is the mode `total` in the `set_extinction_mode`. However, if the reddening at the distance is not known, a fractional value as a linear function of distance from the galactic plane can be used with model `linear`, with the `z_min` and `z_max` provided as the range in which the reddening is linearly interpolated such at E(B-V) = 0.0 at a z(distance, ra, dec) smaller than or equal to `z_min`, and E(B-V) equals the total reddening at z(distance, ra, dec) greater than or equal to `z_min`. The conversion from (distance, ra, dec) to Galactic (x, y, z) cartesian coordinate makes use of the Astropy Coordinate pacakge and their default values for the geometry of the Galaxy and the Sun. This is adapted from [Harris et al. (2006)](https://arxiv.org/pdf/astro-ph/0510820.pdf) (footnote on page 5).
+The default setup assumes the provided reddening is the total amount at the
+given distance. Hence, it is the mode `total` in the `set_extinction_mode`.
+However, if the reddening at the distance is not known, a fractional value as a
+linear function of distance from the galactic plane can be used with model
+`linear`, with the `z_min` and `z_max` provided as the range in which the
+reddening is linearly interpolated such at E(B-V) = 0.0 at a z(distance, ra,
+dec) smaller than or equal to `z_min`, and E(B-V) equals the total reddening at
+z(distance, ra, dec) greater than or equal to `z_min`. The conversion from
+(distance, ra, dec) to Galactic (x, y, z) cartesian coordinate makes use of the
+Astropy Coordinate pacakge and their default values for the geometry of the
+Galaxy and the Sun. This is adapted from
+[Harris et al. (2006)](https://arxiv.org/pdf/astro-ph/0510820.pdf) (footnote on
+page 5).
 
 ```python
 # the fitter will be using this configuration after setting it in the beginning
@@ -251,7 +294,11 @@ ftr._get_extinction_fraction(
 
 #### `scipy.optimize`
 
-After using `minimize` or `least_squares` as the fitting method, the fitted solution natively returned from the respective minimizer will be stored in `ftr.results`. The best fit parameters can be retrieved from `self.best_fit_params`. For example, if `minimize` is used for fitting both DA and DB, the solutions should be populated like this:
+After using `minimize` or `least_squares` as the fitting method, the fitted
+solution natively returned from the respective minimizer will be stored in
+`ftr.results`. The best fit parameters can be retrieved from
+`self.best_fit_params`. For example, if `minimize` is used for fitting both DA
+and DB, the solutions should be populated like this:
 
 ```python
 >>> ftr.results
@@ -278,15 +325,19 @@ After using `minimize` or `least_squares` as the fitting method, the fitted solu
 {'H': {'chi2': 16.331071596034946, 'chi2dof': -1, 'Teff': 3945.5931387718992, 'Teff_err': nan, 'logg': 7.883606976283595, 'logg_err': nan, 'g_ps1': 16.69712684278966, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.704034694889183, 'i_ps1': 15.283477107938552, 'z_ps1': 15.095069184688736, 'y_ps1': 15.027153529904982, 'G3': 15.715138717830666, 'G3_BP': 16.412011674291037, 'G3_RP': 14.912256142772883, 'J_mko': 14.184129344073243, 'H_mko': 14.349943690969402, 'K_mko': 14.462301268674423, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.506789576678794, 'Mbol': 15.751993832322924, 'age': 8412712336.806402}, 'He': {'chi2': 75.8052680625422, 'chi2dof': -1, 'Teff': 4076.465537192801, 'Teff_err': nan, 'logg': 8.010280533194848, 'logg_err': nan, 'g_ps1': 16.651799655189226, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.865175902642834, 'i_ps1': 15.475428665678795, 'z_ps1': 15.298474684843848, 'y_ps1': 15.219156145386872, 'G3': 15.850655379868732, 'G3_BP': 16.450733760160897, 'G3_RP': 15.104976599249024, 'J_mko': 14.25711164011887, 'H_mko': 14.00191185593229, 'K_mko': 14.065524105238422, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5744639170135237, 'Mbol': 15.793462337016509, 'age': 7699932412.531036}}
 ```
 
-The  `minimize` method does **not** come with error estimations, hence the nan in the entries. However, `least_squares` does provide error estimations natively:
+The `minimize` method does **not** come with error estimations, hence the nan in
+the entries. However, `least_squares` does provide error estimations natively:
 
 ```python
-{'H': {'chi2': 16.52680031325726, 'chi2dof': 9, 'Teff': 3934.219671470367, 'Teff_err': 28.648180206953782, 'logg': 7.881944093560716, 'logg_err': 0.02940730383374193, 'g_ps1': 16.70888624682886, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.711652542307078, 'i_ps1': 15.289897484103534, 'z_ps1': 15.100896653873047, 'y_ps1': 15.033682278021793, 'G3': 15.722769962685309, 'G3_BP': 16.421765886432173, 'G3_RP': 14.918583927468394, 'J_mko': 14.195885928621847, 'H_mko': 14.369728253162275, 'K_mko': 14.485824544732441, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5058299512803053, 'Mbol': 15.762438457025754, 'age': 8427793337.953575}, 'He': {'chi2': 76.35827997891005, 'chi2dof': 9, 'Teff': 4105.24361245898, 'Teff_err': 12.182092418109297, 'logg': 8.046206645238266, 'logg_err': 0.009590963590389428, 'g_ps1': 16.653178582729726, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.877209171932067, 'i_ps1': 15.493990720076352, 'z_ps1': 15.32115313413484, 'y_ps1': 15.24413213187482, 'G3': 15.864169045133979, 'G3_BP': 16.456298830618113, 'G3_RP': 15.124501125674778, 'J_mko': 14.286884579041375, 'H_mko': 14.03113767716474, 'K_mko': 14.08401755028258, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5971444628635761, 'Mbol': 15.81143239002258, 'age': 7860897887.069938}}  
+{'H': {'chi2': 16.52680031325726, 'chi2dof': 9, 'Teff': 3934.219671470367, 'Teff_err': 28.648180206953782, 'logg': 7.881944093560716, 'logg_err': 0.02940730383374193, 'g_ps1': 16.70888624682886, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.711652542307078, 'i_ps1': 15.289897484103534, 'z_ps1': 15.100896653873047, 'y_ps1': 15.033682278021793, 'G3': 15.722769962685309, 'G3_BP': 16.421765886432173, 'G3_RP': 14.918583927468394, 'J_mko': 14.195885928621847, 'H_mko': 14.369728253162275, 'K_mko': 14.485824544732441, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5058299512803053, 'Mbol': 15.762438457025754, 'age': 8427793337.953575}, 'He': {'chi2': 76.35827997891005, 'chi2dof': 9, 'Teff': 4105.24361245898, 'Teff_err': 12.182092418109297, 'logg': 8.046206645238266, 'logg_err': 0.009590963590389428, 'g_ps1': 16.653178582729726, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.877209171932067, 'i_ps1': 15.493990720076352, 'z_ps1': 15.32115313413484, 'y_ps1': 15.24413213187482, 'G3': 15.864169045133979, 'G3_BP': 16.456298830618113, 'G3_RP': 15.124501125674778, 'J_mko': 14.286884579041375, 'H_mko': 14.03113767716474, 'K_mko': 14.08401755028258, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5971444628635761, 'Mbol': 15.81143239002258, 'age': 7860897887.069938}}
 ```
 
 #### `emcee`
 
-After using `emcee` for sampling, the sampler and samples can be found in `ftr.sampler`` and`ftr.samples`` respectively. The median of the samples of each parameter is stored in `ftr.best_fit_params`, while `ftr.results` would be empty. In this case, if we are fitting for the DA solutions only, we should have, for example,
+After using `emcee` for sampling, the sampler and samples can be found in
+` ftr.sampler`` and `ftr.samples``respectively. The median of the samples of each parameter is stored in`ftr.best_fit_params`, while `ftr.results`
+would be empty. In this case, if we are fitting for the DA solutions only, we
+should have, for example,
 
 ```python
 >>> ftr.results
@@ -296,15 +347,22 @@ After using `emcee` for sampling, the sampler and samples can be found in `ftr.s
 {'H': {'Teff': 3945.625635361961, 'logg': 7.883639838582892, 'g_ps1': 16.697125671252905, 'distance': 71.231, 'dist_mod': 4.263345206871898, 'r_ps1': 15.704045244111995, 'i_ps1': 15.283491818672182, 'z_ps1': 15.09508631221802, 'y_ps1': 15.027169564857946, 'G3': 15.715149775870088, 'G3_BP': 16.41201611210156, 'G3_RP': 14.912271357471289, 'J_mko': 14.18413410444271, 'H_mko': 14.34993093524838, 'K_mko': 14.462282105594221, 'Av_g_ps1': 0.0, 'Av_r_ps1': 0.0, 'Av_i_ps1': 0.0, 'Av_z_ps1': 0.0, 'Av_y_ps1': 0.0, 'Av_G3': 0.0, 'Av_G3_BP': 0.0, 'Av_G3_RP': 0.0, 'Av_J_mko': 0.0, 'Av_H_mko': 0.0, 'Av_K_mko': 0.0, 'mass': 0.5068082166552429, 'Mbol': 15.752000094345544, 'age': 8412958994.73455}, 'He': {}}
 ```
 
-If you want to fully explore the infromation stored in the fitting object, use `ftr.__dict__`, or just the keys with `ftr.__dict__.keys()`.
+If you want to fully explore the infromation stored in the fitting object, use
+`ftr.__dict__`, or just the keys with `ftr.__dict__.keys()`.
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/PSOJ1801p6254_emcee.png?raw=true)
 
-And the associated corner plot where the blue line shows the true value. As we are not providing a distance in this case, as expected from the degeneracy between fitting distance and stellar radius (directly translate to logg in the fit), both truth values are well outside of the probability density maps in the corner plot:
+And the associated corner plot where the blue line shows the true value. As we
+are not providing a distance in this case, as expected from the degeneracy
+between fitting distance and stellar radius (directly translate to logg in the
+fit), both truth values are well outside of the probability density maps in the
+corner plot:
 
 ![alt text](https://github.com/cylammarco/WDPhotTools/blob/main/example/example_output/PSOJ1801p6254_emcee_corner.png?raw=true)
 
-A callable function can be supplied as a prior, it should take the same number and order of argument as the fit is to perform on. See some examples in the test scripts.
+A callable function can be supplied as a prior, it should take the same number
+and order of argument as the fit is to perform on. See some examples in the test
+scripts.
 
 ## Theoretical White Dwarf Luminosity Function
 
@@ -369,36 +427,39 @@ The options for the various models include:
 
 ### White Dwarf cooling time
 
-L/I/H are used to denote the availability in the low, intermediate and high mass models, where the dividing points are at 0.5 and 1.0 solar masses.
+L/I/H are used to denote the availability in the low, intermediate and high mass
+models, where the dividing points are at 0.5 and 1.0 solar masses.
 
-The brackets denote the core type/atmosphere type/mass range/other special properties.
+The brackets denote the core type/atmosphere type/mass range/other special
+properties.
 
 1. Montreal models
 
-    - Bedard et al. 2020 - LIH \[CO/DA+DB/0.2-1.3\]
+   - Bedard et al. 2020 - LIH \[CO/DA+DB/0.2-1.3\]
 
 2. LaPlata models
 
-    - Panei et al. 2007 - L \[He+CO/DA/0.187-0.448\]
-    - Althaus et al. 2009 - L \[He/DA/0.220-0.521\]
-    - Renedo et al. 2010 - I \[CO/DA/0.505-0.934/Z=0.001-0.01\]
-    - Althaus et al. 2015 - I \[CO/DA/0.506-0.826/Z=0.0003-0.001\]
-    - Althaus et al. 2017 - LI \[CO/DA/0.434-0.838/Y=0.4\]
-    - Camisassa et al. 2017 - I \[CO/DB/0.51-1.0\]
-    - Althaus et al. 2007 - H \[ONe/DA/1.06-1.28\]
-    - Camisassa et al. 2019 - H \[ONe/DA+B/1.10-1.29\]
+   - Panei et al. 2007 - L \[He+CO/DA/0.187-0.448\]
+   - Althaus et al. 2009 - L \[He/DA/0.220-0.521\]
+   - Renedo et al. 2010 - I \[CO/DA/0.505-0.934/Z=0.001-0.01\]
+   - Althaus et al. 2015 - I \[CO/DA/0.506-0.826/Z=0.0003-0.001\]
+   - Althaus et al. 2017 - LI \[CO/DA/0.434-0.838/Y=0.4\]
+   - Camisassa et al. 2017 - I \[CO/DB/0.51-1.0\]
+   - Althaus et al. 2007 - H \[ONe/DA/1.06-1.28\]
+   - Camisassa et al. 2019 - H \[ONe/DA+B/1.10-1.29\]
 
 3. BaSTI models
 
-    - Salaris et al. 2010 - IH \[CO/DA+B/0.54-1.2/ps+nps\]
+   - Salaris et al. 2010 - IH \[CO/DA+B/0.54-1.2/ps+nps\]
 
 4. MESA models
 
-    - Lauffer et al. 2018 - H \[CONe/DA+B/1.012-1.308\]
+   - Lauffer et al. 2018 - H \[CONe/DA+B/1.012-1.308\]
 
 #### Example sets of WDLFs with different star formation scenario
 
-The following excerpt demonstrate how to generate luminosity functions with constant, burst and exponentially decaying
+The following excerpt demonstrate how to generate luminosity functions with
+constant, burst and exponentially decaying
 
 ```python
 import os
