@@ -122,7 +122,7 @@ class AtmosphereModelReader(object):
                 r"$H_{\mathrm{MKO}}$",
                 r"$K_{\mathrm{MKO}}$",
                 r"$W_{1}$",
-                r"$W_{2}}$",
+                r"$W_{2}$",
                 r"$W_{3}$",
                 r"$W_{4}$",
                 r"$S_{36}$",
@@ -571,3 +571,4 @@ class AtmosphereModelReader(object):
             )
 
         return atmosphere_interpolator
+
