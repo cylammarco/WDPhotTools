@@ -80,7 +80,7 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.test_pypi_password }}
-          repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
           skip-existing: true
 
   coveralls_finish:
