@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.abspath("../../src"))
 # -- Project information -----------------------------------------------------
 
 project = "WDPhotTools"
-copyright = "2020-2023, Marco C Lam"
+copyright = "2020-2025, Marco C Lam"
 author = "Marco C Lam"
-__version__ = "0.0.8"
+__version__ = "0.0.10"
 
 # The full version, including alpha/beta/rc tags
 version = __version__
@@ -66,10 +66,7 @@ autodoc_mock_imports = ["scipy", "matplotlib", "emcee", "corner", "astropy"]
 
 autoclass_content = "both"
 
-mathjax_path = (
-    "https://cdn.mathjax.org/mathjax/latest/MathJax.js?"
-    + "config=TeX-AMS-MML_HTMLorMML"
-)
+mathjax_path = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?" + "config=TeX-AMS-MML_HTMLorMML"
 
 # -- Options for HTML output -------------------------------------------------
 

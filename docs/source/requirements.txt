@@ -1,3 +1,4 @@
 docutils>=0.19
 numpy>=1.18
 pillow>=6.2.0
+sphinx-rtd-theme
