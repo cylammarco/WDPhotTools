@@ -110,9 +110,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         self.set_imf_model(imf_model)
         self.set_ifmr_model(ifmr_model)
         self.set_low_mass_cooling_model(low_mass_cooling_model)
-        self.set_intermediate_mass_cooling_model(
-            intermediate_mass_cooling_model
-        )
+        self.set_intermediate_mass_cooling_model(intermediate_mass_cooling_model)
         self.set_high_mass_cooling_model(high_mass_cooling_model)
         self.set_ms_model(ms_model)
         self.set_sfr_model()
@@ -134,8 +132,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
     def _imf(self, mass_ms):
         """
-        Compute the initial mass function based on the pre-selected initial
-        mass_function model and the given mass (mass_ms).
+        Compute the initial mass function based on the pre-selected initial mass_function model and the given
+        mass (mass_ms).
 
         See set_imf_model() for more details.
 
@@ -172,13 +170,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 # Normalisation factor (at mass_ms=1) is 0.01915058
                 mass_function[m_mask] = (
                     (0.06861852814 / mass_ms[m_mask])
-                    * np.exp(
-                        -(
-                            (np.log10(mass_ms[m_mask]) + 1.1023729087095586)
-                            ** 2.0
-                        )
-                        / 0.9522
-                    )
+                    * np.exp(-((np.log10(mass_ms[m_mask]) + 1.1023729087095586) ** 2.0) / 0.9522)
                     / 0.01915058
                 )
 
@@ -193,10 +185,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 # Normalisation factor (at M=1) is 0.01919917
                 mass_function[m_mask] = (
                     (0.03734932544 / mass_ms[m_mask])
-                    * np.exp(
-                        -((np.log10(mass_ms[m_mask]) + 0.65757731917) ** 2.0)
-                        / 0.6498
-                    )
+                    * np.exp(-((np.log10(mass_ms[m_mask]) + 0.65757731917) ** 2.0) / 0.6498)
                     / 0.01919917
                 )
 
@@ -207,8 +196,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
     def _ms_age(self, mass_ms):
         """
-        Compute the main sequence lifetime based on the pre-selected MS model
-        and the given solar mass (mass_ms).
+        Compute the main sequence lifetime based on the pre-selected MS model and the given solar mass (mass_ms).
 
         See set_ms_model() for more details.
 
@@ -365,16 +353,13 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         if age is None:
             massi = np.array(datatable[:, 0]).astype(np.float64)
             time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(
-                massi, time, kind="cubic", fill_value="extrapolate"
-            )(mass_ms)
+            age = interp1d(massi, time, kind="cubic", fill_value="extrapolate")(mass_ms)
 
         return age
 
     def _ifmr(self, mass_ms):
         """
-        Compute the final mass (i.e. WD mass) based on the pre-selected IFMR
-        model and the zero-age MS mass (M).
+        Compute the final mass (i.e. WD mass) based on the pre-selected IFMR model and the zero-age MS mass (M).
 
         See set_ifmr_model() for more details.
 
@@ -455,9 +440,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
     def _find_mass_ms_min(self, mass_ms, mag):
         """
-        A function to be minimised to find the minimum mass limit that a MS
-        star could have turned into a WD in the given age of the
-        population (which is given by the SFR).
+        A function to be minimised to find the minimum mass limit that a MS star could have turned into a WD in the
+        given age of the population (which is given by the SFR).
 
         Parameters
         ----------
@@ -468,8 +452,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         Return
         ------
-        The difference between the total time and the sum of the cooling time
-        and main sequence lifetime.
+        The difference between the total time and the sum of the cooling time and main sequence lifetime.
 
         """
 
@@ -504,9 +487,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
     def _integrand(self, mass_ms, mag):
         """
-        The integrand of the number density computation based on the
-        pre-selected (1) MS lifetime model, (2) initial mass function,
-        (3) initial-final mass relation, and (4) WD cooling model.
+        The integrand of the number density computation based on the pre-selected (1) MS lifetime model, (2) initial
+        mass function, (3) initial-final mass relation, and (4) WD cooling model.
 
         Parameters
         ----------
@@ -562,9 +544,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         total_contribution = mass_function * sfr * dLdt
 
         if np.isfinite(total_contribution):
-
             if total_contribution < 0.0:
-
                 return 0.0
 
             return total_contribution
@@ -581,11 +561,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         sfr_model=None,
     ):
         """
-        Set the SFR scenario, we only provide a few basic forms, free format
-        can be supplied as a callable function through sfr_model.
+        Set the SFR scenario, we only provide a few basic forms, free format can be supplied as a callable function
+        through sfr_model.
 
-        The SFR function accepts the time in unit of year, which is the
-        lookback time (i.e. today is 0, age of the university is ~13.8E9).
+        The SFR function accepts the time in unit of year, which is the lookback time (i.e. today is 0, age of the
+        universe is ~13.8E9).
 
         For burst and constant SFH, tophat functions are used:
 
@@ -617,12 +597,11 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         duration: float (Default: 1E9)
             Duration of the starburst, only used if mode is 'burst'.
         mean_lifetime: float (Default: 3E9)
-            Only used if mode is 'decay'. The default value has a SFR mean
-            lifetime of 3 Gyr (SFR dropped by a factor of e after 3 Gyr).
+            Only used if mode is 'decay'. The default value has a SFR mean lifetime of 3 Gyr (SFR dropped by a factor
+            of e after 3 Gyr).
         sfr_model: callable function (Default: None)
-            The free-form star formation rate, in unit of years. If not
-            callable, it reverts to using a constant star formation rate.
-            It is necessary to fill in the age argument.
+            The free-form star formation rate, in unit of years. If not callable, it reverts to using a constant star
+            formation rate. It is necessary to fill in the age argument.
 
         """
 
@@ -636,8 +615,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
                 else:
                     warnings.warn(
-                        "The sfr_model provided is not callable, "
-                        "None is applied, i.e. constant star fomration."
+                        "The sfr_model provided is not callable, None is applied, i.e. constant star fomration."
                     )
                     mode = "constant"
 
@@ -670,9 +648,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 _t = 10.0 ** np.linspace(0, np.log10(age), 10000)
                 _sfr = np.exp((_t - age) / mean_lifetime)
 
-                self.sfr = interp1d(
-                    _t, _sfr, bounds_error=False, fill_value=0.0
-                )
+                self.sfr = interp1d(_t, _sfr, bounds_error=False, fill_value=0.0)
 
         self.t_start = age
         self.wdlf_params["sfr_mode"] = mode
@@ -713,9 +689,8 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         Parameters
         ----------
         model: str (Default: 'PARSECz0017')
-            Choice of MS model are from the PARSEC, Geneva and MIST stellar
-            evolution models. The complete list of available models is as
-            follow:
+            Choice of MS model are from the PARSEC, Geneva and MIST stellar evolution models. The complete list of
+            available models is as follow:
 
                 1. PARSECz00001 - Z = 0.0001, Y = 0.249
                 2. PARSECz00002 - Z = 0.0002, Y = 0.249
@@ -831,36 +806,28 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         interpolator: str (Default: CT)
             Choose between 'CT' and 'RBF.'
         mass_ms_max: float (Deafult: 8.0)
-            The upper limit of the main sequence stellar mass. This may not
-            be used if it exceeds the upper bound of the IFMR model.
+            The upper limit of the main sequence stellar mass. This may not be used if it exceeds the upper bound of
+            the IFMR model.
         limit: int (Default: 10000)
             The maximum number of steps of integration
         n_points: int (Default: 100)
-            The number of points for initial integration sampling,
-            too small a value will lead to failed integration because the
-            integrato can underestimate the density if the star formation
-            periods are short. While too large a value will lead to
-            low performance due to oversampling, though the accuracy is
-            guaranteed. The default value is sufficient to compute WDLF
-            for star burst as short as 1E8 years. For burst as short as
-            1E7, we recommand an n_points of 1000 or larger.
+            The number of points for initial integration sampling, too small a value will lead to failed integration
+            because it can underestimate the density if the star formation periods are short. While too large a value
+            will lead to low performance due to oversampling, though the accuracy is guaranteed. The default value is
+            sufficient to compute WDLF for star burst as short as 1E8 years. For burst as short as 1E7, we recommand
+            an n_points of 1000 or larger.
         epsabs: float (Default: 1e-6)
-            The absolute tolerance of the integration step. For star burst,
-            we recommend a step smaller than 1e-8.
+            The absolute tolerance of the integration step. For star burst, we recommend a step smaller than 1e-8.
         epsrel: float (Default: 1e-6)
-            The relative tolerance of the integration step. For star burst,
-            we recommend a step smaller than 1e-8.
+            The relative tolerance of the integration step. For star burst, we recommend a step smaller than 1e-8.
         normed: boolean (Default: True)
-            Set to True to return a WDLF sum to 1. Otherwise, it is arbitrary
-            to the integrator.
+            Set to True to return a WDLF sum to 1. Otherwise, it is arbitrary to the integrator.
         save_csv: boolean (Default: False)
             Set to True to save the WDLF as CSV files. One CSV per T0.
         folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
+            The relative or absolute path to destination, the current working directory will be used if None.
         filename: str (Default: None)
-            The filename of the csv. The default filename will be used
-            if None.
+            The filename of the csv. The default filename will be used if None.
 
         Returns
         -------
@@ -897,9 +864,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 maxfun=10000,
             )
 
-            points = 10.0 ** np.linspace(
-                np.log10(mass_ms_min), np.log10(mass_ms_max), n_points
-            )
+            points = 10.0 ** np.linspace(np.log10(mass_ms_min), np.log10(mass_ms_max), n_points)
 
             # Note that the points are needed because it can fail to
             # integrate if the star burst is too short
@@ -916,9 +881,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
             mass_ms_upper_bound = mass_ms_min
 
-        number_density[
-            np.isnan(number_density) | (number_density <= 0.0)
-        ] = +0.0
+        number_density[np.isnan(number_density) | (number_density <= 0.0)] = +0.0
 
         # Normalise the WDLF only if the function returned is not all zero
         if normed & (number_density > 0.0).any():
@@ -935,10 +898,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 _folder = os.path.abspath(folder)
 
             if filename is None:
-                _filename = (
-                    f"{self.t_start / 1e9:.2f}Gyr"
-                    f"{self._filename_middle}csv"
-                )
+                _filename = f"{self.t_start / 1e9:.2f}Gyr" f"{self._filename_middle}csv"
 
             else:
                 _filename = filename
@@ -982,14 +942,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         savefig: bool (Default: False)
             Set to save the figure.
         folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
+            The relative or absolute path to destination, the current working directory will be used if None.
         filename: str (Default: None)
-            The filename of the figure. The default filename will be used
-            if None.
+            The filename of the figure. The default filename will be used if None.
         ext: str (Default: ['png'])
-            Image type to be saved, multiple extensions can be provided. The
-            supported types are those available in `matplotlib.pyplot.savefig`.
+            Image type to be saved, multiple extensions can be provided. The supported types are those available in
+            `matplotlib.pyplot.savefig`.
         sfh_log: bool (Default: False)
             Set to plot the SFH in logarithmic space
         imf_log: bool (Default: False)
@@ -1084,9 +1042,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         if cooling_model_use_mag:
             # Get absolute magnitude from the bolometric luminosity
-            brightness = (
-                4.75 - (np.log10(self.luminosity) - 33.582744965691276) * 2.5
-            )
+            brightness = 4.75 - (np.log10(self.luminosity) - 33.582744965691276) * 2.5
 
         else:
             brightness = self.luminosity
@@ -1217,14 +1173,12 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         savefig: bool (Default: False)
             Set to save the figure.
         folder: str (Default: None)
-            The relative or absolute path to destination, the current working
-            directory will be used if None.
+            The relative or absolute path to destination, the current working directory will be used if None.
         filename: str (Default: None)
-            The filename of the figure. The default filename will be used
-            if None.
+            The filename of the figure. The default filename will be used if None.
         ext: str (Default: ['png'])
-            Image type to be saved, multiple extensions can be provided. The
-            supported types are those available in `matplotlib.pyplot.savefig`.
+            Image type to be saved, multiple extensions can be provided. The supported types are those available in
+            `matplotlib.pyplot.savefig`.
         fig: matplotlib.figure.Figure (Default: None)
             Overplotting on an existing Figure.
 
@@ -1235,11 +1189,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         _density = self.number_density
 
-        plt.plot(
-            self.mag,
-            _density,
-            label=f"{self.t_start / 1e90:.2f} Gyr",
-        )
+        plt.plot(self.mag, _density, label=f"{self.t_start / 1e90:.2f} Gyr")
         plt.xlim(0, 20)
         plt.xlabel(r"M$_{\mathrm{bol}}$ / mag")
 
@@ -1282,10 +1232,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             # Loop through the ext list to save figure into each image type
             for _e in ext:
                 if filename is None:
-                    _filename = (
-                        f"{self.t_start / 1e9:.2f}Gyr"
-                        f"{self._filename_middle}{_e}"
-                    )
+                    _filename = f"{self.t_start / 1e9:.2f}Gyr{self._filename_middle}{_e}"
 
                 else:
                     _filename = filename + "." + _e

@@ -26,28 +26,13 @@ def reddening_vector_interpolated(**kwargs):
     # Load the reddening vectors from file
     data = np.loadtxt(filepath, delimiter=",")
 
-    _xy = np.array(
-        [
-            i
-            for i in itertools.product(
-                data[:, 0], np.array([2.1, 3.1, 4.1, 5.1])
-            )
-        ]
-    )
+    _xy = np.array(list(itertools.product(data[:, 0], np.array([2.1, 3.1, 4.1, 5.1]))))
     _z = data[:, 1:].flatten()
 
     temp = RBFInterpolator(_xy, _z, **kwargs)
 
     def _RBFInterpolator(*x):
-        _x = np.array(
-            [
-                i
-                for i in itertools.product(
-                    np.array(x[0]).reshape(-1), np.array(x[1]).reshape(-1)
-                )
-            ],
-            dtype="object",
-        )
+        _x = np.array(list(itertools.product(np.array(x[0]).reshape(-1), np.array(x[1]).reshape(-1))), dtype="object")
         return temp(_x.reshape(len(_x), 2))
 
     return _RBFInterpolator
@@ -55,15 +40,13 @@ def reddening_vector_interpolated(**kwargs):
 
 def reddening_vector_filter(filter_name):
     """
-    This generate an interpolation over the parameter space where the models
-    from Koester, D. 2010; MSAI 81, 921 and Trembley & Bergeron 2010;
-    ApJ696, 1755 cover. The extinction is computed for each filter available
-    from the Montreal photometry grid by convolving their filter profile with
-    the publicly available spectra at each temperature from the Koester models.
+    This generate an interpolation over the parameter space where the models from Koester, D. 2010; MSAI 81, 921 and
+    Trembley & Bergeron 2010; ApJ696, 1755 cover. The extinction is computed for each filter available from the
+    Montreal photometry grid by convolving their filter profile with the publicly available spectra at each temperature
+    from the Koester models.
 
     See http://svo2.cab.inta-csic.es/theory/newov2/index.php?models=koester2,
-    WDPhotTools/extinction/generate_extinction_table.py and
-    WDPhotTools/filter_response/
+    WDPhotTools/extinction/generate_extinction_table.py and WDPhotTools/filter_response/
 
     """
 
@@ -72,7 +55,7 @@ def reddening_vector_filter(filter_name):
     # Load the reddening vectors from file
     data = np.loadtxt(filepath, delimiter=",")
 
-    Teff = np.array(
+    teff = np.array(
         [
             5000.0,
             5250.0,
@@ -158,17 +141,15 @@ def reddening_vector_filter(filter_name):
             80000.0,
         ]
     )
-    logg = np.array(
-        [6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0, 9.25, 9.5]
-    )
-    Rv = np.array([2.1, 2.6, 3.1, 3.6, 4.1, 4.6, 5.1])
+    logg = np.array([6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25, 8.5, 8.75, 9.0, 9.25, 9.5])
+    rv = np.array([2.1, 2.6, 3.1, 3.6, 4.1, 4.6, 5.1])
 
-    data = data.reshape(len(logg), len(Teff), len(Rv))
+    data = data.reshape(len(logg), len(teff), len(rv))
 
     # fill_value is set to None to allow extrapolation.
     # The scipy default is Nan the otherwise.
     return RegularGridInterpolator(
-        (logg, Teff, Rv),
+        (logg, teff, rv),
         data,
         method="linear",
         bounds_error=False,

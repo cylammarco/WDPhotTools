@@ -11,9 +11,7 @@ from WDPhotTools.reddening import reddening_vector_interpolated
 
 # testing with logg=7.5 and Teff=13000. (=> M = 0.368)
 wave_GBRFN = np.array((6218.0, 5110.0, 7769.0, 1535.0, 2301.0))
-wave_grizyJHK = np.array(
-    (4849.0, 6201.0, 7535.0, 8674.0, 9628.0, 12350.00, 16460.00, 21600.00)
-)
+wave_grizyJHK = np.array((4849.0, 6201.0, 7535.0, 8674.0, 9628.0, 12350.00, 16460.00, 21600.00))
 
 RV = 3.1
 EBV = 0.123
@@ -39,12 +37,8 @@ A_Ks = reddening_vector_filter("Ks")([7.5, 13000.0, RV]) * EBV
 mags = np.array([10.882, 10.853, 10.946, 11.301, 11.183])
 extinction = np.array([A_G3, A_G3_BP, A_G3_RP, A_FUV, A_NUV]).reshape(-1)
 
-mags_grizyJHK = np.array(
-    [10.764, 11.006, 11.262, 11.482, 11.633, 11.106, 11.139, 11.187]
-)
-extinction_grizyJHK = np.array(
-    [A_g, A_r, A_i, A_z, A_y, A_J, A_H, A_Ks]
-).reshape(-1)
+mags_grizyJHK = np.array([10.764, 11.006, 11.262, 11.482, 11.633, 11.106, 11.139, 11.187])
+extinction_grizyJHK = np.array([A_g, A_r, A_i, A_z, A_y, A_J, A_H, A_Ks]).reshape(-1)
 
 five_filters_name_list = np.array(["G3", "G3_BP", "G3_RP", "FUV", "NUV"])
 thirteen_filters_name_list = np.array(
@@ -84,7 +78,7 @@ def test_minimize_teff_mass_reddening():
         initial_guess=[13000.0, 0.6],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(
@@ -120,7 +114,7 @@ def test_minimize_teff_mass_reddening_interpolated():
         initial_guess=[13000.0, 0.6],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(
@@ -184,7 +178,7 @@ def test_minimize_teff_mass_distance_reddening():
         method="minimize",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 0.4, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(
@@ -218,7 +212,7 @@ def test_minimize_teff_mass_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 0.4, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(
@@ -289,7 +283,7 @@ def test_lsq_teff_mass_reddening():
         initial_guess=[13000.0, 0.6],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(
@@ -325,7 +319,7 @@ def test_lsq_teff_mass_reddening_interpolated():
         initial_guess=[13000.0, 0.6],
         distance=10.0,
         distance_err=0.1,
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(
@@ -389,7 +383,7 @@ def test_lsq_teff_mass_distance_reddening():
         method="least_squares",
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 0.4, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(
@@ -423,7 +417,7 @@ def test_lsq_teff_mass_distance_reddening_interpolated():
         extinction_convolved=False,
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 0.4, 10.0],
-        Rv=RV,
+        rv=RV,
         ebv=EBV,
     )
     assert np.isclose(

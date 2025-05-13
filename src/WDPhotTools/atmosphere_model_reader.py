@@ -35,10 +35,8 @@ class AtmosphereModelReader(object):
             "lpcode_one_da_07": "Althaus et al. 2007 ONe DA",
             "lpcode_one_da_19": "Camisassa et al. 2019 ONe DA",
             "lpcode_one_db_19": "Camisassa et al. 2019 ONe DB",
-            "lpcode_da_22": "Althaus et al. 2013 He DA, "
-            + "Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
-            "lpcode_db_22": "Camisassa et al. 2017 CO DB, "
-            + "Camisassa et al. 2019 ONe DB",
+            "lpcode_da_22": "Althaus et al. 2013 He DA, Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
+            "lpcode_db_22": "Camisassa et al. 2017 CO DB, " + "Camisassa et al. 2019 ONe DB",
         }
 
         # DA atmosphere
@@ -122,7 +120,7 @@ class AtmosphereModelReader(object):
                 r"$H_{\mathrm{MKO}}$",
                 r"$K_{\mathrm{MKO}}$",
                 r"$W_{1}$",
-                r"$W_{2}}$",
+                r"$W_{2}$",
                 r"$W_{3}$",
                 r"$W_{4}$",
                 r"$S_{36}$",
@@ -261,9 +259,7 @@ class AtmosphereModelReader(object):
             self.column_wavelengths[i] = _l
 
         self.column_type = np.array(([np.float64] * len(self.column_key)))
-        self.dtype = [
-            (i, j) for i, j in zip(self.column_key, self.column_type)
-        ]
+        self.dtype = list(zip(self.column_key, self.column_type))
 
         # Load the synthetic photometry file in a recarray
         self.model_da = np.loadtxt(filepath_da, skiprows=2, dtype=self.dtype)
@@ -301,12 +297,10 @@ class AtmosphereModelReader(object):
         ----------
         dependent: str (Default: 'G3')
             The value to be interpolated over. Choose from:
-            'Teff', 'logg', 'mass', 'Mbol', 'BC', 'U', 'B', 'V', 'R', 'I', 'J',
-            'H', 'Ks', 'Y_mko', 'J_mko', 'H_mko', 'K_mko', 'W1',
-            'W2', 'W3', 'W4', 'S36', 'S45', 'S58', 'S80', 'u_sdss', 'g_sdss',
-            'r_sdss', 'i_sdss', 'z_sdss', 'g_ps1', 'r_ps1', 'i_ps1', 'z_ps1',
-            'y_ps1', 'G2', 'G2_BP', 'G2_RP', 'G3', 'G3_BP', 'G3_RP', 'FUV',
-            'NUV', 'age'.
+            'Teff', 'logg', 'mass', 'Mbol', 'BC', 'U', 'B', 'V', 'R', 'I', 'J', 'H', 'Ks', 'Y_mko', 'J_mko', 'H_mko',
+            'K_mko', 'W1', 'W2', 'W3', 'W4', 'S36', 'S45', 'S58', 'S80', 'u_sdss', 'g_sdss', 'r_sdss', 'i_sdss',
+            'z_sdss', 'g_ps1', 'r_ps1', 'i_ps1', 'z_ps1', 'y_ps1', 'G2', 'G2_BP', 'G2_RP', 'G3', 'G3_BP', 'G3_RP',
+            'FUV', 'NUV', 'age'.
         atmosphere: str (Default: 'H')
             The atmosphere type, 'H' or 'He'.
         independent: list (Default: ['logg', 'Mbol'])
@@ -315,15 +309,11 @@ class AtmosphereModelReader(object):
             Only used if independent is of length 1.
         interpolator: str (Default: 'RBF')
             Choose between 'RBF' and 'CT'.
-        kwargs_for_RBF: dict (Default: {"neighbors": None,
-            "smoothing": 0.0, "kernel": "thin_plate_spline",
+        kwargs_for_RBF: dict (Default: {"neighbors": None, "smoothing": 0.0, "kernel": "thin_plate_spline",
             "epsilon": None, "degree": None,})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.RBFInterpolator`.
-        kwargs_for_CT: dict (Default: {'fill_value': -np.inf,
-            'tol': 1e-10, 'maxiter': 100000})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.CloughTocher2DInterpolator`.
+            Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
+        kwargs_for_CT: dict (Default: {'fill_value': -np.inf, 'tol': 1e-10, 'maxiter': 100000})
+            Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
 
         Returns
         -------
@@ -340,7 +330,7 @@ class AtmosphereModelReader(object):
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
         _kwargs_for_CT = {
-            "fill_value": -1e10,
+            "fill_value": -np.inf,
             "tol": 1e-10,
             "maxiter": 100000,
             "rescale": True,
@@ -357,9 +347,8 @@ class AtmosphereModelReader(object):
 
         else:
             raise ValueError(
-                'Please choose from "h", "hydrogen", "da", "he", "helium" or '
-                '"db" as the atmophere type, you have provided '
-                "{}.format(atmosphere.lower())"
+                'Please choose from "h", "hydrogen", "da", "he", "helium" or "db" as the atmophere type, you have '
+                "provided {}.format(atmosphere.lower())"
             )
 
         independent = np.asarray(independent).reshape(-1)
@@ -374,23 +363,14 @@ class AtmosphereModelReader(object):
 
             else:
                 raise ValueError(
-                    "When ony interpolating in 1-dimension, the independent "
-                    "variable has to be one of: Teff, mass, Mbol, or age."
+                    "When ony interpolating in 1-dimension, the independent variable has to be one of: Teff, mass, "
+                    "Mbol, or age."
                 )
 
-            _independent_arg_0 = np.where(
-                independent[0].lower() == independent_list_lower_cases
-            )[0][0]
-            _independent_arg_1 = np.where(
-                independent[1].lower() == independent_list_lower_cases
-            )[0][0]
+            _independent_arg_0 = np.where(independent[0].lower() == independent_list_lower_cases)[0][0]
+            _independent_arg_1 = np.where(independent[1].lower() == independent_list_lower_cases)[0][0]
 
-            independent = np.array(
-                [
-                    independent_list[_independent_arg_0],
-                    independent_list[_independent_arg_1],
-                ]
-            )
+            independent = np.array([independent_list[_independent_arg_0], independent_list[_independent_arg_1]])
 
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
@@ -441,34 +421,18 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x = np.log10(_x)
 
-                    return _atmosphere_interpolator(
-                        np.array([_logg, _x], dtype="object").T.reshape(
-                            length, 2
-                        )
-                    )
+                    return _atmosphere_interpolator(np.array([_logg, _x], dtype="object").T.reshape(length, 2))
 
             else:
-                raise ValueError(
-                    "Interpolator should be CT or RBF,"
-                    f"{interpolator} is given."
-                )
+                raise ValueError("Interpolator should be CT or RBF, {interpolator} is given.")
 
         # If a 2D grid is to be interpolated, normally is the logg and another
         # parameter
         elif len(independent) == 2:
-            _independent_arg_0 = np.where(
-                independent[0].lower() == independent_list_lower_cases
-            )[0][0]
-            _independent_arg_1 = np.where(
-                independent[1].lower() == independent_list_lower_cases
-            )[0][0]
+            _independent_arg_0 = np.where(independent[0].lower() == independent_list_lower_cases)[0][0]
+            _independent_arg_1 = np.where(independent[1].lower() == independent_list_lower_cases)[0][0]
 
-            independent = np.array(
-                [
-                    independent_list[_independent_arg_0],
-                    independent_list[_independent_arg_1],
-                ]
-            )
+            independent = np.array([independent_list[_independent_arg_0], independent_list[_independent_arg_1]])
 
             arg_0 = model[independent[0]]
             arg_1 = model[independent[1]]
@@ -537,8 +501,8 @@ class AtmosphereModelReader(object):
 
                     else:
                         raise ValueError(
-                            "Either one variable is a float, int or of size "
-                            "1, or two variables should have the same size."
+                            "Either one variable is a float, int or of size 1, or two variables should have the same "
+                            "size."
                         )
 
                     _x_0 = np.asarray(x_0)
@@ -555,19 +519,12 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(
-                        np.array([_x_0, _x_1], dtype="object").T.reshape(
-                            length0, 2
-                        )
-                    )
+                    return _atmosphere_interpolator(np.array([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
 
             else:
                 raise ValueError("This should never happen.")
 
         else:
-            raise TypeError(
-                "Please provide ONE varaible name as a string or "
-                "list, or TWO varaible names in a list."
-            )
+            raise TypeError("Please provide ONE varaible name as a string or list, or TWO varaible names in a list.")
 
         return atmosphere_interpolator

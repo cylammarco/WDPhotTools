@@ -37,16 +37,12 @@ class CoolingModelReader(object):
             "lpcode_one_da_07": "Althaus et al. 2007 ONe DA",
             "lpcode_one_da_19": "Camisassa et al. 2019 ONe DA",
             "lpcode_one_db_19": "Camisassa et al. 2019 ONe DB",
-            "lpcode_da_22": "Althaus et al. 2013 He DA, "
-            + "Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
-            "lpcode_db_22": "Camisassa et al. 2017 CO DB, "
-            + "Camisassa et al. 2019 ONe DB",
+            "lpcode_da_22": "Althaus et al. 2013 He DA, Camisassa et al. 2016 CO DA,  Camisassa et al. 2019 ONe DA",
+            "lpcode_db_22": "Camisassa et al. 2017 CO DB, Camisassa et al. 2019 ONe DB",
             "basti_co_da_10": "Salaris et al. 2010 CO DA",
             "basti_co_db_10": "Salaris et al. 2010 CO DB",
-            "basti_co_da_10_nps": "Salaris et al. 2010 CO DA, "
-            + "no phase separation",
-            "basti_co_db_10_nps": "Salaris et al. 2010 CO DB, "
-            + "no phase separation",
+            "basti_co_da_10_nps": "Salaris et al. 2010 CO DA, no phase separation",
+            "basti_co_db_10_nps": "Salaris et al. 2010 CO DB, no phase separation",
             "mesa_one_da_18": "Lauffer et al. 2018 ONe DA",
             "mesa_one_db_18": "Lauffer et al. 2018 ONe DB",
         }
@@ -138,8 +134,7 @@ class CoolingModelReader(object):
 
     def list_cooling_parameters(self, model, print_to_screen=True):
         """
-        Print the formatted list of parameters available for the specified
-        cooling models.
+        Print the formatted list of parameters available for the specified cooling models.
 
         Parameters
         ----------
@@ -178,123 +173,49 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
         if model in ["montreal_co_da_20", "montreal_co_db_20"]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._bedard20_formatter(model, mass_range)
+            mass, cooling_model, column_names, column_units = self._bedard20_formatter(model, mass_range)
 
         elif model in ["lpcode_he_da_07", "lpcode_co_da_07"]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._panei07_formatter(model)
+            mass, cooling_model, column_names, column_units = self._panei07_formatter(model)
 
         elif model == "lpcode_he_da_09":
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._althaus09_formatter(mass_range)
+            mass, cooling_model, column_names, column_units = self._althaus09_formatter(mass_range)
 
         elif model in ["lpcode_co_db_17_z00005", "lpcode_co_db_17_z0001"]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._althaus17_formatter(model, mass_range)
+            mass, cooling_model, column_names, column_units = self._althaus17_formatter(model, mass_range)
 
         elif model in ["lpcode_co_da_10_z001", "lpcode_co_da_10_z0001"]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._renedo10_formatter(model)
+            mass, cooling_model, column_names, column_units = self._renedo10_formatter(model)
 
-        elif model in [
-            "lpcode_co_da_15_z00003",
-            "lpcode_co_da_15_z0001",
-            "lpcode_co_da_15_z0005",
-        ]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._althaus15_formatter(model)
+        elif model in ["lpcode_co_da_15_z00003", "lpcode_co_da_15_z0001", "lpcode_co_da_15_z0005"]:
+            mass, cooling_model, column_names, column_units = self._althaus15_formatter(model)
 
         elif model == "lpcode_co_db_17":
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._camisassa17_formatter()
+            mass, cooling_model, column_names, column_units = self._camisassa17_formatter()
 
-        elif model in [
-            "basti_co_da_10",
-            "basti_co_db_10",
-            "basti_co_da_10_nps",
-            "basti_co_db_10_nps",
-        ]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._salaris10_formatter(model, mass_range)
+        elif model in ["basti_co_da_10", "basti_co_db_10", "basti_co_da_10_nps", "basti_co_db_10_nps"]:
+            mass, cooling_model, column_names, column_units = self._salaris10_formatter(model, mass_range)
 
         elif model == "lpcode_one_da_07":
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._althaus07_formatter()
+            mass, cooling_model, column_names, column_units = self._althaus07_formatter()
 
         elif model in ["lpcode_one_da_19", "lpcode_one_db_19"]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._camisassa19_formatter(model)
+            mass, cooling_model, column_names, column_units = self._camisassa19_formatter(model)
 
         elif model in ["mesa_one_da_18", "mesa_one_db_18"]:
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._lauffer18_formatter(model)
+            mass, cooling_model, column_names, column_units = self._lauffer18_formatter(model)
 
         elif model == "lpcode_da_22":
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._lpcode22_da_formatter()
+            mass, cooling_model, column_names, column_units = self._lpcode22_da_formatter()
 
         elif model == "lpcode_db_22":
-            (
-                mass,
-                cooling_model,
-                column_names,
-                column_units,
-            ) = self._lpcode22_db_formatter()
+            mass, cooling_model, column_names, column_units = self._lpcode22_db_formatter()
 
         elif model is None:
             mass = np.array(())
@@ -313,9 +234,7 @@ class CoolingModelReader(object):
 
         """
 
-        filelist = glob.glob(
-            os.path.join(self.this_file, "wd_cooling/althaus07/*.dat")
-        )
+        filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/althaus07/*.dat"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -352,11 +271,9 @@ class CoolingModelReader(object):
                 "$log(Age)$",
             )
         )
-        column_key_unit = np.array(
-            [r"L$_{\odot}$", "(cgs)"] + ["mag"] * 10 + ["(yr)"]
-        )
+        column_key_unit = np.array([r"L$_{\odot}$", "(cgs)"] + ["mag"] * 10 + ["(yr)"])
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -365,12 +282,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split("_")[-1][:3] for i in filelist]).astype(
-                np.float64
-            )
-            / 100000.0
-        )
+        mass = np.array([i.split("_")[-1][:3] for i in filelist]).astype(np.float64) / 100000.0
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -379,9 +291,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] = 10.0 ** cooling_model[i]["age"]
@@ -395,14 +305,12 @@ class CoolingModelReader(object):
         Parameters
         ----------
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
-        filelist = glob.glob(
-            os.path.join(self.this_file, "wd_cooling/althaus09/z.*")
-        )
+        filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/althaus09/z.*"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -461,11 +369,9 @@ class CoolingModelReader(object):
                 r"$K-L$",
             )
         )
-        column_key_unit = np.array(
-            ["K", r"(cm/s$^2$)", r"L$_{\odot}$", "(yr)"] + ["mag"] * 20
-        )
+        column_key_unit = np.array(["K", r"(cm/s$^2$)", r"L$_{\odot}$", "(yr)"] + ["mag"] * 20)
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -474,10 +380,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split(".")[-2] for i in filelist]).astype(np.float64)
-            / 100000.0
-        )
+        mass = np.array([i.split(".")[-2] for i in filelist]).astype(np.float64) / 100000.0
 
         if mass_range == "all":
             pass
@@ -486,10 +389,7 @@ class CoolingModelReader(object):
             mass = mass[mask_low]
             filelist = np.array(filelist)[mask_low]
         else:
-            raise ValueError(
-                "Unknown mass range requested. Please choose "
-                "from 'all' or 'low' for althaus09 models."
-            )
+            raise ValueError("Unknown mass range requested. Please choose from 'all' or 'low' for althaus09 models.")
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -498,9 +398,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] *= 1e9
@@ -520,27 +418,15 @@ class CoolingModelReader(object):
 
         # Z=0.00003 models
         if model == "lpcode_co_da_15_z00003":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/althaus15/Z=3d-5/*.trk"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/althaus15/Z=3d-5/*.trk"))
 
         # Z=0.0001 models
         if model == "lpcode_co_da_15_z0001":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/althaus15/Z=1d-4/*.trk"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/althaus15/Z=1d-4/*.trk"))
 
         # Z=0.0005 models
         if model == "lpcode_co_da_15_z0005":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/althaus15/Z=5d-4/*.trk"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/althaus15/Z=5d-4/*.trk"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -625,7 +511,7 @@ class CoolingModelReader(object):
             + ["erg/s"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -634,12 +520,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split(".")[-2][-5:] for i in filelist]).astype(
-                np.float64
-            )
-            / 100000.0
-        )
+        mass = np.array([i.split(".")[-2][-5:] for i in filelist]).astype(np.float64) / 100000.0
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -648,9 +529,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] = 10.0 ** cooling_model[i]["age"] * 1e6
@@ -667,22 +546,18 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
         # Y=0.4, Z=0.001 models
         if model == "lpcode_co_db_17_z00005":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/althaus17/*d4.trk")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/althaus17/*d4.trk"))
 
         # Y=0.4, Z=0.0005 models
         if model == "lpcode_co_db_17_z0001":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/althaus17/*d3.trk")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/althaus17/*d3.trk"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -767,7 +642,7 @@ class CoolingModelReader(object):
             + ["erg/s"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -776,9 +651,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = np.array(
-            [i.split(os.sep)[-1].split("_")[0] for i in filelist]
-        ).astype(np.float64)
+        mass = np.array([i.split(os.sep)[-1].split("_")[0] for i in filelist]).astype(np.float64)
         wd_mass = np.zeros_like(mass)
 
         # Create an empty array for holding the cooling models
@@ -788,9 +661,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             wd_mass[i] = cooling_model[i]["mass"][0]
@@ -827,22 +698,18 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
         # DA models
         if model == "montreal_co_da_20":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/bedard20/*thick*")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/bedard20/*thick*"))
 
         # DB models
         if model == "montreal_co_db_20":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/bedard20/*thin*")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/bedard20/*thin*"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -902,7 +769,7 @@ class CoolingModelReader(object):
             + [""] * 4
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -911,10 +778,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split("_")[2] for i in filelist]).astype(np.float64)
-            / 100.0
-        )
+        mass = np.array([i.split("_")[2] for i in filelist]).astype(np.float64) / 100.0
 
         if mass_range == "all":
             pass
@@ -932,8 +796,8 @@ class CoolingModelReader(object):
             filelist = np.array(filelist)[mask_high]
         else:
             raise ValueError(
-                "Unknown mass range requested. Please choose from"
-                "'all', 'low', 'intermediate' or 'high' for bedard20 models."
+                "Unknown mass range requested. Please choose from 'all', 'low', 'intermediate' or 'high' for "
+                "bedard20 models."
             )
 
         # Create an empty array for holding the cooling models
@@ -954,9 +818,7 @@ class CoolingModelReader(object):
                     else:
                         cooling_model_text += line_i
 
-            cooling_model[i] = np.loadtxt(
-                io.StringIO(cooling_model_text), dtype=dtype
-            )
+            cooling_model[i] = np.loadtxt(io.StringIO(cooling_model_text), dtype=dtype)
 
         return mass, cooling_model, column_names, column_units
 
@@ -964,16 +826,13 @@ class CoolingModelReader(object):
         """
         A formatter to load the Camisassa et al. 2017 WD cooling model
 
-        The progenitor lifetime is taken off based on the extrapolation from
-        Table 1
+        The progenitor lifetime is taken off based on the extrapolation from Table 1
         https://iopscience.iop.org/article/10.3847/0004-637X/823/2/158
 
         """
 
         # Y=0.4, Z=0.0005 models
-        filelist = glob.glob(
-            os.path.join(self.this_file, "wd_cooling/camisassa17/*.trk")
-        )
+        filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/camisassa17/*.trk"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -1047,7 +906,7 @@ class CoolingModelReader(object):
             + ["erg/s"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1056,12 +915,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split(os.sep)[-1][:3] for i in filelist]).astype(
-                np.float64
-            )
-            / 100.0
-        )
+        mass = np.array([i.split(os.sep)[-1][:3] for i in filelist]).astype(np.float64) / 100.0
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1070,9 +924,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] = 10.0 ** cooling_model[i]["age"] * 1e6
@@ -1082,8 +934,7 @@ class CoolingModelReader(object):
 
     def _camisassa19_formatter(self, model):
         """
-        A formatter to load the Camisassa et al. 2019 ultramassive WD cooling
-        model.
+        A formatter to load the Camisassa et al. 2019 ultramassive WD cooling model.
 
         Some columns populated with 'I' are replaced with the nearest values.
 
@@ -1096,19 +947,11 @@ class CoolingModelReader(object):
 
         # DA model
         if model == "lpcode_one_da_19":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/camisassa19/*hrich.dat"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/camisassa19/*hrich.dat"))
 
         # DB model
         if model == "lpcode_one_db_19":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/camisassa19/*hdef.dat"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/camisassa19/*hdef.dat"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -1168,7 +1011,7 @@ class CoolingModelReader(object):
             + ["erg/s"]
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1177,12 +1020,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split(os.sep)[-1][:3] for i in filelist]).astype(
-                np.float64
-            )
-            / 100.0
-        )
+        mass = np.array([i.split(os.sep)[-1][:3] for i in filelist]).astype(np.float64) / 100.0
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1191,9 +1029,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] = 10.0 ** cooling_model[i]["age"] * 1e6
@@ -1214,20 +1050,14 @@ class CoolingModelReader(object):
 
         # H models
         if model == "mesa_one_da_18":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/lauffer18/H_*.dat")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/lauffer18/H_*.dat"))
 
         # He models
         if model == "mesa_one_db_18":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/lauffer18/He_*.dat")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/lauffer18/He_*.dat"))
 
         # Prepare the array column dtype
-        column_key = np.array(
-            ("Teff", "lum", "logg", "Rsun", "mass", "age", "total_age")
-        )
+        column_key = np.array(("Teff", "lum", "logg", "Rsun", "mass", "age", "total_age"))
         column_key_formatted = np.array(
             (
                 r"log(T$_{\mathrm{eff}})$",
@@ -1250,7 +1080,7 @@ class CoolingModelReader(object):
             + [r"(Gyr)"] * 2
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1259,9 +1089,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = np.array([i.split("-M")[-1][:-4] for i in filelist]).astype(
-            np.float64
-        )
+        mass = np.array([i.split("-M")[-1][:-4] for i in filelist]).astype(np.float64)
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1270,9 +1098,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] *= 1e9
@@ -1285,11 +1111,7 @@ class CoolingModelReader(object):
 
         """
 
-        filelist = glob.glob(
-            os.path.join(
-                self.this_file, "wd_cooling", "lpcode22", "DA", "*.trk"
-            )
-        )
+        filelist = glob.glob(os.path.join(self.this_file, "wd_cooling", "lpcode22", "DA", "*.trk"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -1421,7 +1243,7 @@ class CoolingModelReader(object):
             + ["mag"] * 50
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1430,9 +1252,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = np.array(
-            [i.split("Msun")[0].split(os.path.sep)[-1] for i in filelist]
-        ).astype(np.float64)
+        mass = np.array([i.split("Msun")[0].split(os.path.sep)[-1] for i in filelist]).astype(np.float64)
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1441,9 +1261,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] *= 1.0e9
@@ -1456,26 +1274,10 @@ class CoolingModelReader(object):
 
         """
 
-        filelist = glob.glob(
-            os.path.join(
-                self.this_file, "wd_cooling", "lpcode22", "DB", "*.trk"
-            )
-        )
+        filelist = glob.glob(os.path.join(self.this_file, "wd_cooling", "lpcode22", "DB", "*.trk"))
 
         # Prepare the array column dtype
-        column_key = np.array(
-            (
-                "Teff",
-                "lum",
-                "logg",
-                "age",
-                "Rsun",
-                "Mbol",
-                "G",
-                "BP",
-                "RP",
-            )
-        )
+        column_key = np.array(("Teff", "lum", "logg", "age", "Rsun", "Mbol", "G", "BP", "RP"))
         column_key_formatted = np.array(
             (
                 r"log(T$_{\mathrm{eff}})$",
@@ -1500,7 +1302,7 @@ class CoolingModelReader(object):
             + ["mag"] * 4
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1509,9 +1311,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = np.array(
-            [i.split("Msun")[0].split(os.path.sep)[-1] for i in filelist]
-        ).astype(np.float64)
+        mass = np.array([i.split("Msun")[0].split(os.path.sep)[-1] for i in filelist]).astype(np.float64)
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1520,9 +1320,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=2, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] *= 1.0e9
@@ -1542,20 +1340,14 @@ class CoolingModelReader(object):
 
         # He core models
         if model == "lpcode_he_da_07":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/panei07/*He.SDSS")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/panei07/*He.SDSS"))
 
         # CO core models
         if model == "lpcode_co_da_07":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/panei07/*CO.SDSS")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/panei07/*CO.SDSS"))
 
         # Prepare the array column dtype
-        column_key = np.array(
-            ("Teff", "logg", "lum", "age", "u", "g", "r", "i", "z")
-        )
+        column_key = np.array(("Teff", "logg", "lum", "age", "u", "g", "r", "i", "z"))
         column_key_formatted = np.array(
             (
                 r"log(T$_{\mathrm{eff}})$",
@@ -1569,11 +1361,9 @@ class CoolingModelReader(object):
                 "z",
             )
         )
-        column_key_unit = np.array(
-            ["(K)", r"(cm/s$^2$)", r"L$_{\odot}$", r"(Gyr)"] + ["mag"] * 5
-        )
+        column_key_unit = np.array(["(K)", r"(cm/s$^2$)", r"L$_{\odot}$", r"(Gyr)"] + ["mag"] * 5)
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1582,12 +1372,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split(".")[-2][:5] for i in filelist]).astype(
-                np.float64
-            )
-            / 100000.0
-        )
+        mass = np.array([i.split(".")[-2][:5] for i in filelist]).astype(np.float64) / 100000.0
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1596,9 +1381,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] *= 1e9
@@ -1621,15 +1404,11 @@ class CoolingModelReader(object):
 
         # Solar metallicity model
         if model == "lpcode_co_da_10_z001":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/renedo10/*z001.trk")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/renedo10/*z001.trk"))
 
         # Low metallicity model
         if model == "lpcode_co_da_10_z0001":
-            filelist = glob.glob(
-                os.path.join(self.this_file, "wd_cooling/renedo10/*z0001.trk")
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/renedo10/*z0001.trk"))
 
         # Prepare the array column dtype
         column_key = np.array(
@@ -1672,7 +1451,7 @@ class CoolingModelReader(object):
             + [r"M$_{\odot}$", r"(cm/s$^2$)", r"E$_{\odot}$"]
         )
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1681,12 +1460,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split("_")[1][-4:] for i in filelist]).astype(
-                np.float64
-            )
-            / 1000.0
-        )
+        mass = np.array([i.split("_")[1][-4:] for i in filelist]).astype(np.float64) / 1000.0
 
         # Create an empty array for holding the cooling models
         cooling_model = np.array(([""] * len(mass)), dtype="object")
@@ -1695,9 +1469,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] *= 1e6
@@ -1713,47 +1485,29 @@ class CoolingModelReader(object):
         model: str
             Name of the cooling model as in the `model_list`.
         mass_range: str (Default: 'all')
-            The mass range in which the cooling model should return.
-            The ranges are defined as <0.5, 0.5-1.0 and >1.0 solar masses.
+            The mass range in which the cooling model should return. The ranges are defined as <0.5, 0.5-1.0 and
+            >1.0 solar masses.
 
         """
 
         # DA model with phase separation
         if model == "basti_co_da_10":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/salaris10/*DAsep.sdss"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/salaris10/*DAsep.sdss"))
 
         # DB model with phase separation
         if model == "basti_co_db_10":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/salaris10/*DBsep.sdss"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/salaris10/*DBsep.sdss"))
 
         # DA model without phase separation
         if model == "basti_co_da_10_nps":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/salaris10/*DAnosep.sdss"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/salaris10/*DAnosep.sdss"))
 
         # DB model without phase separation
         if model == "basti_co_db_10_nps":
-            filelist = glob.glob(
-                os.path.join(
-                    self.this_file, "wd_cooling/salaris10/*DBnosep.sdss"
-                )
-            )
+            filelist = glob.glob(os.path.join(self.this_file, "wd_cooling/salaris10/*DBnosep.sdss"))
 
         # Prepare the array column dtype
-        column_key = np.array(
-            ("age", "mass", "Teff", "lum", "u", "g", "r", "i", "z")
-        )
+        column_key = np.array(("age", "mass", "Teff", "lum", "u", "g", "r", "i", "z"))
         column_key_formatted = np.array(
             (
                 "log(Age)",
@@ -1767,11 +1521,9 @@ class CoolingModelReader(object):
                 "z",
             )
         )
-        column_key_unit = np.array(
-            ["(Gyr)", r"M$_{\odot}$", "(K)", r"L$_{\odot}$"] + ["mag"] * 5
-        )
+        column_key_unit = np.array(["(Gyr)", r"M$_{\odot}$", "(K)", r"L$_{\odot}$"] + ["mag"] * 5)
         column_type = np.array(([np.float64] * len(column_key)))
-        dtype = [(i, j) for i, j in zip(column_key, column_type)]
+        dtype = list(zip(column_key, column_type))
 
         column_names = {}
         column_units = {}
@@ -1780,12 +1532,7 @@ class CoolingModelReader(object):
             column_units[i] = k
 
         # Get the mass from the file name
-        mass = (
-            np.array([i.split("COOL")[-1][:3] for i in filelist]).astype(
-                np.float64
-            )
-            / 100.0
-        )
+        mass = np.array([i.split("COOL")[-1][:3] for i in filelist]).astype(np.float64) / 100.0
 
         if mass_range == "all":
             pass
@@ -1799,8 +1546,7 @@ class CoolingModelReader(object):
             filelist = np.array(filelist)[mask_high]
         else:
             raise ValueError(
-                "Unknown mass range requested. Please choose from"
-                "'all', 'intermediate' or 'high' for bedard20 models."
+                "Unknown mass range requested. Please choose from 'all', 'intermediate' or 'high' for bedard20 models."
             )
 
         # Create an empty array for holding the cooling models
@@ -1810,9 +1556,7 @@ class CoolingModelReader(object):
             cooling_model[i] = np.loadtxt(filepath, skiprows=1, dtype=dtype)
 
             # Convert the luminosity into erg/s
-            cooling_model[i]["lum"] = (
-                10.0 ** cooling_model[i]["lum"] * 3.826e33
-            )
+            cooling_model[i]["lum"] = 10.0 ** cooling_model[i]["lum"] * 3.826e33
 
             # Convert the age to yr
             cooling_model[i]["age"] = 10.0 ** cooling_model[i]["age"]
@@ -1833,15 +1577,12 @@ class CoolingModelReader(object):
             3. 'lpcode_he_da_07' - Panei et al. 2007 He DA
             4. 'lpcode_co_da_07' - Panei et al. 2007 CO DA
             5. 'lpcode_he_da_09' - Althaus et al. 2009 He DA
-            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
-               Camisassa et al. 2019
+            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016, Camisassa et al. 2019
 
             The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
+            [model]_[core composition]_[atmosphere]_[publication year] where a few models continue to have extra
+            property description terms trailing after the year, currently they are either the progenitor metallicity or
+            the (lack of) phase separation in the evolution model.
 
         """
 
@@ -1869,22 +1610,17 @@ class CoolingModelReader(object):
             7. 'lpcode_co_da_15_z0005' - Althaus et al. 2015 DA Z=0.0005
             8. 'lpcode_co_da_17_y04' - Althaus et al. 2017 DB Y=0.4
             9. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
-            10. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
-                Camisassa et al. 2019
+            10. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016, Camisassa et al. 2019
             11. 'lpcode_db_20' - Camisassa et al. 2017, Camisassa et al. 2019
             12. 'basti_co_da_10' - Salaris et al. 2010 CO DA
             13. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            14. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
-                no phase separation
-            15. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
-                no phase separation
+            14. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+            15. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
 
             The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
+            [model]_[core composition]_[atmosphere]_[publication year] where a few models continue to have extra
+            property description terms trailing after the year, currently they are either the progenitor metallicity or
+            the (lack of) phase separation in the evolution model.
 
         """
 
@@ -1908,24 +1644,19 @@ class CoolingModelReader(object):
             3. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
             4. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
             5. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
-            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016,
-                Camisassa et al. 2019
+            6. 'lpcode_da_20' - Althaus et al. 2013, Camisassa et al. 2016, Camisassa et al. 2019
             7. 'lpcode_db_20' - Camisassa et al. 2017, Camisassa et al. 2019
             8. 'basti_co_da_10' - Salaris et al. 2010 CO DA
             9. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-            10. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
-                 no phase separation
-            11. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
-                 no phase separation
+            10. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+            11. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
             12. 'mesa_one_da_18' - Lauffer et al. 2018 ONe DA
             13. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 
             The naming convention follows this format:
-            [model]_[core composition]_[atmosphere]_[publication year]
-            where a few models continue to have extra property description
-            terms trailing after the year, currently they are either the
-            progenitor metallicity or the (lack of) phase separation in the
-            evolution model.
+            [model]_[core composition]_[atmosphere]_[publication year] where a few models continue to have extra
+            property description terms trailing after the year, currently they are either the progenitor metallicity or
+            the (lack of) phase separation in the evolution model.
 
         """
 
@@ -1937,16 +1668,14 @@ class CoolingModelReader(object):
 
     def _itp2d_gradient(self, _f, val1, val2, frac=1e-6):
         """
-        A function to find the gradient in the direction in the first dimension
-        of a 2D function at a given coordinate.
+        A function to find the gradient in the direction in the first dimension of a 2D function at a given coordinate.
 
         Parameters
         ----------
         f: callable function
             A 2D function
         val1: float
-            The first input value accepted by f. The gradient is computed in
-            this direction.
+            The first input value accepted by f. The gradient is computed in this direction.
         val2: float
             The first input value accepted by f.
         frac: float (Default: 1e-6)
@@ -1962,10 +1691,7 @@ class CoolingModelReader(object):
             raise TypeError("f has to be a callable function.")
 
         increment = val1 * frac / 2.0
-        grad = np.asarray(
-            (_f(val1 + increment, val2) - _f(val1 - increment, val2))
-            / (increment * 2.0)
-        ).reshape(-1)
+        grad = np.asarray((_f(val1 + increment, val2) - _f(val1 - increment, val2)) / (increment * 2.0)).reshape(-1)
 
         # cooling((L+1), m) - cooling(L, m) is always negative
         grad[grad > 0.0] = 0.0
@@ -1980,23 +1706,18 @@ class CoolingModelReader(object):
         kwargs_for_CT={},
     ):
         """
-        Compute the callable CloughTocher2DInterpolator taking (logL, m) and
-        returning the cooling time of the WDs. It needs to use float64 or it
-        runs into float-point error at very faint lumnosity.
+        Compute the callable CloughTocher2DInterpolator taking (logL, m) and returning the cooling time of the WDs. It
+        needs to use float64 or it runs into float-point error at very faint lumnosity.
 
         Parameters
         ----------
         interpolator: str (Default: 'CT')
             Choose between 'RBF' and 'CT'.
-        kwargs_for_RBF: dict (Default: {"neighbors": None,
-            "smoothing": 0.0, "kernel": "thin_plate_spline",
+        kwargs_for_RBF: dict (Default: {"neighbors": None, "smoothing": 0.0, "kernel": "thin_plate_spline",
             "epsilon": None, "degree": None,})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.RBFInterpolator`.
-        kwargs_for_CT: dict (Default: {'fill_value': -np.inf,
-            'tol': 1e-10, 'maxiter': 100000})
-            Keyword argument for the interpolator. See
-            `scipy.interpolate.CloughTocher2DInterpolator`.
+            Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
+        kwargs_for_CT: dict (Default: {'fill_value': -np.inf, 'tol': 1e-10, 'maxiter': 100000})
+            Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
 
         """
 
@@ -2006,12 +1727,7 @@ class CoolingModelReader(object):
         )
 
         # Set the intermediate mass cooling model, i.e. 0.5 < M < 1.0 M_sun
-        (
-            mass_intermediate,
-            cooling_model_intermediate,
-            _,
-            _,
-        ) = self.get_cooling_model(
+        mass_intermediate, cooling_model_intermediate, _, _ = self.get_cooling_model(
             self.cooling_models["intermediate_mass_cooling_model"],
             mass_range="intermediate",
         )
@@ -2032,10 +1748,7 @@ class CoolingModelReader(object):
             mass_low = (
                 np.concatenate(
                     np.array(
-                        [
-                            [mass_low[i]] * len(model["age"])
-                            for i, model in enumerate(cooling_model_low)
-                        ],
+                        [[mass_low[i]] * len(model["age"]) for i, model in enumerate(cooling_model_low)],
                         dtype=object,
                     )
                 )
@@ -2044,18 +1757,10 @@ class CoolingModelReader(object):
             )
 
             # The luminosity of the WD at the corresponding mass and age
-            luminosity_low = (
-                np.concatenate([i["lum"] for i in cooling_model_low])
-                .reshape(-1)
-                .astype(np.float64)
-            )
+            luminosity_low = np.concatenate([i["lum"] for i in cooling_model_low]).reshape(-1).astype(np.float64)
 
             # The luminosity of the WD at the corresponding mass and luminosity
-            age_low = (
-                np.concatenate([i["age"] for i in cooling_model_low])
-                .reshape(-1)
-                .astype(np.float64)
-            )
+            age_low = np.concatenate([i["age"] for i in cooling_model_low]).reshape(-1).astype(np.float64)
 
         if mass_intermediate.size == 0:
             luminosity_intermediate = np.array(())
@@ -2068,9 +1773,7 @@ class CoolingModelReader(object):
                     np.array(
                         [
                             [mass_intermediate[i]] * len(model["age"])
-                            for i, model in enumerate(
-                                cooling_model_intermediate
-                            )
+                            for i, model in enumerate(cooling_model_intermediate)
                         ],
                         dtype=object,
                     )
@@ -2081,16 +1784,12 @@ class CoolingModelReader(object):
 
             # The luminosity of the WD at the corresponding mass and age
             luminosity_intermediate = (
-                np.concatenate([i["lum"] for i in cooling_model_intermediate])
-                .reshape(-1)
-                .astype(np.float64)
+                np.concatenate([i["lum"] for i in cooling_model_intermediate]).reshape(-1).astype(np.float64)
             )
 
             # The luminosity of the WD at the corresponding mass and luminosity
             age_intermediate = (
-                np.concatenate([i["age"] for i in cooling_model_intermediate])
-                .reshape(-1)
-                .astype(np.float64)
+                np.concatenate([i["age"] for i in cooling_model_intermediate]).reshape(-1).astype(np.float64)
             )
 
         if mass_high.size == 0:
@@ -2102,10 +1801,7 @@ class CoolingModelReader(object):
             mass_high = (
                 np.concatenate(
                     np.array(
-                        [
-                            [mass_high[i]] * len(model["age"])
-                            for i, model in enumerate(cooling_model_high)
-                        ],
+                        [[mass_high[i]] * len(model["age"]) for i, model in enumerate(cooling_model_high)],
                         dtype=object,
                     )
                 )
@@ -2114,27 +1810,15 @@ class CoolingModelReader(object):
             )
 
             # The luminosity of the WD at the corresponding mass and age
-            luminosity_high = (
-                np.concatenate([i["lum"] for i in cooling_model_high])
-                .reshape(-1)
-                .astype(np.float64)
-            )
+            luminosity_high = np.concatenate([i["lum"] for i in cooling_model_high]).reshape(-1).astype(np.float64)
 
             # The luminosity of the WD at the corresponding mass and luminosity
-            age_high = (
-                np.concatenate([i["age"] for i in cooling_model_high])
-                .reshape(-1)
-                .astype(np.float64)
-            )
+            age_high = np.concatenate([i["age"] for i in cooling_model_high]).reshape(-1).astype(np.float64)
 
-        self.cooling_model_grid = np.concatenate(
-            (cooling_model_low, cooling_model_intermediate, cooling_model_high)
-        )
+        self.cooling_model_grid = np.concatenate((cooling_model_low, cooling_model_intermediate, cooling_model_high))
 
         self.mass = np.concatenate((mass_low, mass_intermediate, mass_high))
-        self.luminosity = np.concatenate(
-            (luminosity_low, luminosity_intermediate, luminosity_high)
-        )
+        self.luminosity = np.concatenate((luminosity_low, luminosity_intermediate, luminosity_high))
         self.age = np.concatenate((age_low, age_intermediate, age_high))
 
         # Configure interpolator for the cooling models
@@ -2193,22 +1877,14 @@ class CoolingModelReader(object):
 
                 length0 = _x_0.size
 
-                return _cooling_interpolator(
-                    np.array([_x_0, _x_1], dtype="object").T.reshape(
-                        length0, 2
-                    )
-                )
+                return _cooling_interpolator(np.array([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
 
             self.cooling_interpolator = cooling_interpolator
 
         else:
-            raise ValueError(
-                f"Interpolator should be CT or RBF, {interpolator} is given."
-            )
+            raise ValueError(f"Interpolator should be CT or RBF, {interpolator} is given.")
 
-        self.dLdt = self._itp2d_gradient(
-            self.cooling_interpolator, np.log10(self.luminosity), self.mass
-        )
+        self.dLdt = self._itp2d_gradient(self.cooling_interpolator, np.log10(self.luminosity), self.mass)
 
         finite_mask = np.isfinite(self.dLdt)
 
@@ -2225,13 +1901,7 @@ class CoolingModelReader(object):
         elif interpolator.lower() == "rbf":
             # Interpolate with the scipy RBFInterpolator
             _cooling_rate_interpolator = RBFInterpolator(
-                np.stack(
-                    (
-                        np.log10(self.luminosity)[finite_mask],
-                        self.mass[finite_mask],
-                    ),
-                    -1,
-                ),
+                np.stack((np.log10(self.luminosity)[finite_mask], self.mass[finite_mask]), -1),
                 self.dLdt[finite_mask],
                 **_kwargs_for_RBF,
             )
@@ -2258,15 +1928,9 @@ class CoolingModelReader(object):
 
                 length0 = _x_0.size
 
-                return _cooling_rate_interpolator(
-                    np.asarray([_x_0, _x_1], dtype="object").T.reshape(
-                        length0, 2
-                    )
-                )
+                return _cooling_rate_interpolator(np.asarray([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
 
             self.cooling_rate_interpolator = cooling_rate_interpolator
 
         else:
-            raise ValueError(
-                "Interpolator should be CT or RBF, {interpolator} is given."
-            )
+            raise ValueError("Interpolator should be CT or RBF, {interpolator} is given.")

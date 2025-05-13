@@ -55,8 +55,7 @@ def list_cooling_model():
 
 def list_cooling_parameters(model):
     """
-    Print the formatted list of parameters available for the specified cooling
-    models.
+    Print the formatted list of parameters available for the specified cooling models.
 
     Parameters
     ----------
@@ -72,8 +71,7 @@ def list_cooling_parameters(model):
 
 def list_atmosphere_parameters():
     """
-    Print the formatted list of parameters available from the atmophere
-    models.
+    Print the formatted list of parameters available from the atmophere models.
 
     """
     if __dummy_atm.reader is None:
@@ -112,15 +110,12 @@ def plot_atmosphere_model(
     ----------
     x: str (Default: 'G3_BP-G3_RP')
         Model parameter(s) of the abscissa. Two formats are supported:
-        (1) single parameter (2) two parameters delimited with a '-' for the
-        colour in those filters.
+        (1) single parameter (2) two parameters delimited with a '-' for the colour in those filters.
     y: str (Default: 'G3')
         Model parameter of the ordinate. Same as x.
     atmosphere: list of str (Default: 'H')
-        Choose to plot from the pure hydrogen atmosphere model or pure
-        helium atmosphere model. Only 1 atmosphere model can be plotted
-        at a time, if both models are to be plotted, reuse the Figure object
-        returned and overplot on it.
+        Choose to plot from the pure hydrogen atmosphere model or pure helium atmosphere model. Only 1 atmosphere model
+        can be plotted at a time, if both models are to be plotted, reuse the Figure object returned and overplot on it.
     independent: list of str (Default: ['logg', 'Teff'])
         Independent variables to be interpolated in the atmosphere model.
     independent_values: list of list or list of arrays (Default:
@@ -143,14 +138,12 @@ def plot_atmosphere_model(
     savefig: bool (Default: False)
         Set to save the figure.
     folder: str (Default: None)
-        The relative or absolute path to destination, the current working
-        directory will be used if None.
+        The relative or absolute path to destination, the current working directory will be used if None.
     filename: str (Default: None)
-        The filename of the figure. The Default filename will be used
-        if None.
+        The filename of the figure. The Default filename will be used if None.
     ext: str (Default: ['png'])
-        Image type to be saved, multiple extensions can be provided. The
-        supported types are those available in `matplotlib.pyplot.savefig`.
+        Image type to be saved, multiple extensions can be provided. The supported types are those available in
+        `matplotlib.pyplot.savefig`.
     fig: matplotlib.figure.Figure (Default: None)
         Overplotting on an existing Figure.
     kwargs_for_plot: dict (Default: {'marker': '+'})
@@ -178,11 +171,7 @@ def plot_atmosphere_model(
         )
 
     else:
-        x_name = (
-            __dummy_atm.reader.column_names[x[0]]
-            + " / "
-            + __dummy_atm.reader.column_units[x[0]]
-        )
+        x_name = __dummy_atm.reader.column_names[x[0]] + " / " + __dummy_atm.reader.column_units[x[0]]
 
     if len(y) == 2:
         y_name = (
@@ -194,11 +183,7 @@ def plot_atmosphere_model(
         )
 
     else:
-        y_name = (
-            __dummy_atm.reader.column_names[y[0]]
-            + " / "
-            + __dummy_atm.reader.column_units[y[0]]
-        )
+        y_name = __dummy_atm.reader.column_names[y[0]] + " / " + __dummy_atm.reader.column_units[y[0]]
 
     if title is None:
         if atmosphere in ["H", "h", "hydrogen", "Hydrogen", "da", "DA"]:
@@ -224,10 +209,7 @@ def plot_atmosphere_model(
                 independent=independent,
                 interpolator=interpolator,
             )
-            x_out.append(
-                x0_itp(i_v, independent_values[1])
-                - x1_itp(i_v, independent_values[1])
-            )
+            x_out.append(x0_itp(i_v, independent_values[1]) - x1_itp(i_v, independent_values[1]))
 
         else:
             x_itp = __dummy_atm.reader.interp_am(
@@ -251,10 +233,7 @@ def plot_atmosphere_model(
                 independent=independent,
                 interpolator=interpolator,
             )
-            y_out.append(
-                y0_itp(i_v, independent_values[1])
-                - y1_itp(i_v, independent_values[1])
-            )
+            y_out.append(y0_itp(i_v, independent_values[1]) - y1_itp(i_v, independent_values[1]))
 
         else:
             y_itp = __dummy_atm.reader.interp_am(
@@ -272,19 +251,14 @@ def plot_atmosphere_model(
         fig, axes = _preset_figure(x_name, y_name, title, figsize)
 
     for i, (x_i, y_i) in enumerate(zip(x_out, y_out)):
-        label = (
-            __dummy_atm.reader.column_names[independent[0]]
-            + f" = {independent_values[0][i]:.2f}"
-        )
+        label = __dummy_atm.reader.column_names[independent[0]] + f" = {independent_values[0][i]:.2f}"
         axes.plot(x_i, y_i, label=label, **kwargs_for_plot)
 
     if contour:
         contourf_ = axes.tricontourf(
             np.array(x_out).flatten(),
             np.array(y_out).flatten(),
-            np.array(
-                [independent_values[1]] * len(independent_values[0])
-            ).flatten(),
+            np.array([independent_values[1]] * len(independent_values[0])).flatten(),
             **kwargs_for_contour,
         )
         fig.colorbar(contourf_, **kwargs_for_colorbar)
@@ -370,10 +344,8 @@ def plot_cooling_model(
         12. 'lpcode_co_db_17' - Camisassa et al. 2017 DB
         13. 'basti_co_da_10' - Salaris et al. 2010 CO DA
         14. 'basti_co_db_10' - Salaris et al. 2010 CO DB
-        15. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA,
-            no phase separation
-        16. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB,
-            no phase separation
+        15. 'basti_co_da_10_nps' - Salaris et al. 2010 CO DA, no phase separation
+        16. 'basti_co_db_10_nps' - Salaris et al. 2010 CO DB, no phase separation
         17. 'lpcode_one_da_07' - Althaus et al. 2007 ONe DA
         18. 'lpcode_one_da_19' - Camisassa et al. 2019 ONe DA
         19. 'lpcode_one_db_19' - Camisassa et al. 2019 ONe DB
@@ -381,11 +353,9 @@ def plot_cooling_model(
         21. 'mesa_one_db_18' - Lauffer et al. 2018 ONe DB
 
         The naming convention follows this format:
-        [model]_[core composition]_[atmosphere]_[publication year]
-        where a few models continue to have extra property description
-        terms trailing after the year, currently they are either the
-        progenitor metallicity or the (lack of) phase separation in the
-        evolution model.
+        [model]_[core composition]_[atmosphere]_[publication year] where a few models continue to have extra property
+        description terms trailing after the year, currently they are either the progenitor metallicity or the (lack
+        of) phase separation in the evolution model.
     x: str (Default: 'age')
         Model parameter(s) of the abscissa.
     y: str (Default: 'lum')
@@ -410,14 +380,12 @@ def plot_cooling_model(
     savefig: bool (Default: False)
         Set to save the figure.
     folder: str (Default: None)
-        The relative or absolute path to destination, the current working
-        directory will be used if None.
+        The relative or absolute path to destination, the current working directory will be used if None.
     filename: str (Default: None)
-        The filename of the figure. The Default filename will be used
-        if None.
+        The filename of the figure. The Default filename will be used if None.
     ext: str (Default: ['png'])
-        Image type to be saved, multiple extensions can be provided. The
-        supported types are those available in `matplotlib.pyplot.savefig`.
+        Image type to be saved, multiple extensions can be provided. The supported types are those available in
+        `matplotlib.pyplot.savefig`.
     fig: matplotlib.figure.Figure (Default: None)
         Overplotting on an existing Figure.
     kwargs_for_plot={'marker': '+'}):
@@ -428,12 +396,7 @@ def plot_cooling_model(
     if __dummy_cm.reader is None:
         __dummy_cm.reader = CoolingModelReader()
 
-    (
-        _mass_list,
-        cooling_model,
-        column_names,
-        column_units,
-    ) = __dummy_cm.reader.get_cooling_model(model)
+    _mass_list, cooling_model, column_names, column_units = __dummy_cm.reader.get_cooling_model(model)
 
     x_name = column_names[x]
 

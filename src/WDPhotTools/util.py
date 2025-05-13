@@ -7,13 +7,11 @@ import glob
 import pkg_resources
 
 import numpy as np
-from scipy import interpolate
 
 
 def get_uncertainty_least_squares(res):
     """
-    Get the 1 standard deviation uncertainty of the results returned by
-    least_squares().
+    Get the 1 standard deviation uncertainty of the results returned by least_squares().
 
     """
 
@@ -28,15 +26,12 @@ def get_uncertainty_least_squares(res):
 
 def get_uncertainty_emcee(samples):
     """
-    Get the 15.8655 & 84.1345 percentile of the samples returned by
-    emcee.
+    Get the 15.8655 & 84.1345 percentile of the samples returned by emcee.
 
     """
 
     percentiles = np.percentile(samples, [0.158655, 0.5, 0.841345])
-    stdevs = np.array(
-        [percentiles[1] - percentiles[0], percentiles[2] - percentiles[1]]
-    )
+    stdevs = np.array([percentiles[1] - percentiles[0], percentiles[2] - percentiles[1]])
 
     return stdevs
 
@@ -47,11 +42,7 @@ def load_ms_lifetime_datatable(filename):
     """
 
     datatable = np.loadtxt(
-        glob.glob(
-            pkg_resources.resource_filename(
-                "WDPhotTools", f"ms_lifetime/{filename}"
-            )
-        )[0],
+        glob.glob(pkg_resources.resource_filename("WDPhotTools", f"ms_lifetime/{filename}"))[0],
         delimiter=",",
     )
     return datatable
