@@ -3,10 +3,9 @@
 
 """Some utility class/functions"""
 
-import glob
-import pkg_resources
-
 import numpy as np
+
+from importlib.resources import files
 
 
 def get_uncertainty_least_squares(res):
@@ -42,7 +41,8 @@ def load_ms_lifetime_datatable(filename):
     """
 
     datatable = np.loadtxt(
-        glob.glob(pkg_resources.resource_filename("WDPhotTools", f"ms_lifetime/{filename}"))[0],
-        delimiter=",",
+        str(files("WDPhotTools").joinpath("ms_lifetime", filename)),
+        delimiter=","
     )
     return datatable
+
