@@ -839,7 +839,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         """
 
         if self.cooling_interpolator is None:
-            self.compute_cooling_age_interpolator()
+            self.compute_cooling_age_interpolator(interpolator=interpolator)
 
         mag = np.asarray(mag).reshape(-1)
 
@@ -1193,10 +1193,10 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         plt.xlim(0, 20)
         plt.xlabel(r"M$_{\mathrm{bol}}$ / mag")
 
-        _density_finite = _density[np.isfinite(_density)]
+        _density_finite = _density[np.isfinite(_density) & (_density > 0.0)]
 
         # If there is nothing to plot...
-        if (len(_density_finite) == 0) or (_density_finite == 0.0).all():
+        if len(_density_finite) == 0:
             return 0
 
         ymin = np.floor(np.nanmin(_density_finite))

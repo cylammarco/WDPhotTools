@@ -1702,6 +1702,7 @@ class CoolingModelReader(object):
     def compute_cooling_age_interpolator(
         self,
         interpolator="CT",
+        scaling_factor=1.0,
         kwargs_for_RBF={},
         kwargs_for_CT={},
     ):
@@ -1713,6 +1714,9 @@ class CoolingModelReader(object):
         ----------
         interpolator: str (Default: 'CT')
             Choose between 'RBF' and 'CT'.
+        scaling_factor: float (Default: 1.0)
+            A scaling factor to scale the cooling time, >1 means takes more time to reach the same lumniosity. This
+            is useful for bootstrapping for uncertainties.
         kwargs_for_RBF: dict (Default: {"neighbors": None, "smoothing": 0.0, "kernel": "thin_plate_spline",
             "epsilon": None, "degree": None,})
             Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
@@ -1819,7 +1823,7 @@ class CoolingModelReader(object):
 
         self.mass = np.concatenate((mass_low, mass_intermediate, mass_high))
         self.luminosity = np.concatenate((luminosity_low, luminosity_intermediate, luminosity_high))
-        self.age = np.concatenate((age_low, age_intermediate, age_high))
+        self.age = np.concatenate((age_low, age_intermediate, age_high)) * scaling_factor
 
         # Configure interpolator for the cooling models
         _kwargs_for_CT = {
