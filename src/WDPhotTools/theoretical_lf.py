@@ -68,42 +68,45 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         self.sfr_mode_list = ["constant", "burst", "decay", "manual"]
 
-        self.ms_model_list = [
-            "PARSECz00001",
-            "PARSECz00002",
-            "PARSECz00005",
-            "PARSECz0001",
-            "PARSECz0002",
-            "PARSECz0004",
-            "PARSECz0006",
-            "PARSECz0008",
-            "PARSECz001",
-            "PARSECz0014",
-            "PARSECz0017",
-            "PARSECz002",
-            "PARSECz003",
-            "PARSECz004",
-            "PARSECz006",
-            "GENEVAz002",
-            "GENEVAz006",
-            "GENEVAz014",
-            "MISTFem400",
-            "MISTFem350",
-            "MISTFem300",
-            "MISTFem250",
-            "MISTFem200",
-            "MISTFem175",
-            "MISTFem150",
-            "MISTFem125",
-            "MISTFem100",
-            "MISTFem075",
-            "MISTFem050",
-            "MISTFem025",
-            "MISTFe000",
-            "MISTFe025",
-            "MISTFe050",
-            "manual",
-        ]
+        # Map ms_model values to CSV filenames
+        self.ms_model_to_file = {
+            # PARSEC - https://people.sissa.it/~sbressan/parsec.html
+            "PARSECz00001": "PARSECz00001.csv",
+            "PARSECz00002": "PARSECz00002.csv",
+            "PARSECz00005": "PARSECz00005.csv",
+            "PARSECz0001": "PARSECz0001.csv",
+            "PARSECz0002": "PARSECz0002.csv",
+            "PARSECz0004": "PARSECz0004.csv",
+            "PARSECz0006": "PARSECz0006.csv",
+            "PARSECz0008": "PARSECz0008.csv",
+            "PARSECz001": "PARSECz001.csv",
+            "PARSECz0014": "PARSECz0014.csv",
+            "PARSECz0017": "PARSECz0017.csv",
+            "PARSECz002": "PARSECz002.csv",
+            "PARSECz003": "PARSECz003.csv",
+            "PARSECz004": "PARSECz004.csv",
+            "PARSECz006": "PARSECz006.csv",
+            # GENEVA - https://obswww.unige.ch/Research/evol/tables_grids2011/
+            "GENEVAz014": "geneva2011z014.csv",
+            "GENEVAz006": "geneva2011z006.csv",
+            "GENEVAz002": "geneva2011z002.csv",
+            # MIST - http://waps.cfa.harvard.edu/MIST/
+            "MISTFe050": "MISTv1p2Fe050.csv",
+            "MISTFe025": "MISTv1p2Fe025.csv",
+            "MISTFe000": "MISTv1p2Fe000.csv",
+            "MISTFem025": "MISTv1p2Fem025.csv",
+            "MISTFem050": "MISTv1p2Fem050.csv",
+            "MISTFem075": "MISTv1p2Fem075.csv",
+            "MISTFem100": "MISTv1p2Fem100.csv",
+            "MISTFem125": "MISTv1p2Fem125.csv",
+            "MISTFem150": "MISTv1p2Fem150.csv",
+            "MISTFem175": "MISTv1p2Fem175.csv",
+            "MISTFem200": "MISTv1p2Fem200.csv",
+            "MISTFem250": "MISTv1p2Fem250.csv",
+            "MISTFem300": "MISTv1p2Fem300.csv",
+            "MISTFem350": "MISTv1p2Fem350.csv",
+            "MISTFem400": "MISTv1p2Fem400.csv",
+        }
 
         # The IFMR, WD cooling and MS lifetime models are required to
         # initialise the object.
@@ -129,314 +132,6 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             f"_{self.cooling_models['intermediate_mass_cooling_model']}"
             f"_{self.cooling_models['high_mass_cooling_model']}."
         )
-
-    def _imf(self, mass_ms):
-        """
-        Compute the initial mass function based on the pre-selected initial mass_function model and the given
-        mass (mass_ms).
-
-        See set_imf_model() for more details.
-
-        Parameters
-        ----------
-        M: float, list of float or array of float
-            Input MS mass
-
-        Returns
-        -------
-        mass_function: array
-            Array of mass_function, normalised to 1 at 1 M_sun.
-
-        """
-
-        mass_ms = np.asarray(mass_ms).reshape(-1)
-
-        if self.wdlf_params["imf_model"] == "K01":
-            mass_function = mass_ms**-2.3
-
-            # mass lower than 0.08 is impossible, so that range is ignored.
-            if (mass_ms < 0.5).any():
-                m_mask = mass_ms < 0.5
-                # (0.5**-2.3) / (0.5**-1.3) = 2.0
-                mass_function[m_mask] = mass_ms[m_mask] ** -1.3 * 2.0
-
-        elif self.wdlf_params["imf_model"] == "C03":
-            mass_function = mass_ms**-2.3
-            if (mass_ms < 1).any():
-                m_mask = np.array(mass_ms < 1.0)
-                # 0.158 / (ln(10) * mass_ms) = 0.06861852814 / mass_ms
-                # log(0.079) = -1.1023729087095586
-                # 2 * 0.69**2. = 0.9522
-                # Normalisation factor (at mass_ms=1) is 0.01915058
-                mass_function[m_mask] = (
-                    (0.06861852814 / mass_ms[m_mask])
-                    * np.exp(-((np.log10(mass_ms[m_mask]) + 1.1023729087095586) ** 2.0) / 0.9522)
-                    / 0.01915058
-                )
-
-        elif self.wdlf_params["imf_model"] == "C03b":
-            mass_function = mass_ms**-2.3
-
-            if (mass_ms <= 1).any():
-                m_mask = np.array(mass_ms <= 1.0)
-                # 0.086 * 1. / (ln(10) * M) = 0.03734932544 / M
-                # log(0.22) = -0.65757731917
-                # 2 * 0.57**2. = 0.6498
-                # Normalisation factor (at M=1) is 0.01919917
-                mass_function[m_mask] = (
-                    (0.03734932544 / mass_ms[m_mask])
-                    * np.exp(-((np.log10(mass_ms[m_mask]) + 0.65757731917) ** 2.0) / 0.6498)
-                    / 0.01919917
-                )
-
-        else:
-            mass_function = self.imf_function(mass_ms)
-
-        return mass_function
-
-    def _ms_age(self, mass_ms):
-        """
-        Compute the main sequence lifetime based on the pre-selected MS model and the given solar mass (mass_ms).
-
-        See set_ms_model() for more details.
-
-        Parameters
-        ----------
-        M: float, list of float or array of float
-            Input MS mass
-
-        Returns
-        -------
-        age: array
-            Array of total MS lifetime, same size as M.
-
-        """
-
-        mass_ms = np.asarray(mass_ms).reshape(-1)
-        age = None
-
-        if self.wdlf_params["ms_model"] == "PARSECz00001":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz00001.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz00002":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz00002.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz00005":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz00005.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz0001":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz0001.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz0002":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz0002.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz0004":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz0004.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz0006":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz0006.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz0008":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz0008.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz001":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz001.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz0014":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz0014.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz0017":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz0017.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz002":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz002.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz003":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz003.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz004":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz004.csv")
-
-        elif self.wdlf_params["ms_model"] == "PARSECz006":
-            # https://people.sissa.it/~sbressan/parsec.html
-            datatable = load_ms_lifetime_datatable("PARSECz006.csv")
-
-        elif self.wdlf_params["ms_model"] == "GENEVAz014":
-            # https://obswww.unige.ch/Research/evol/tables_grids2011/
-            datatable = load_ms_lifetime_datatable("geneva2011z014.csv")
-
-        elif self.wdlf_params["ms_model"] == "GENEVAz006":
-            # https://obswww.unige.ch/Research/evol/tables_grids2011/
-            datatable = load_ms_lifetime_datatable("geneva2011z006.csv")
-
-        elif self.wdlf_params["ms_model"] == "GENEVAz002":
-            # https://obswww.unige.ch/Research/evol/tables_grids2011/
-            datatable = load_ms_lifetime_datatable("geneva2011z002.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFe050":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fe050.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFe025":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fe025.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFe000":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fe000.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem025":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem025.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem050":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem050.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem075":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem075.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem100":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem100.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem125":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem125.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem150":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem150.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem175":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem175.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem200":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem200.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem250":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem250.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem300":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem300.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem350":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem350.csv")
-
-        elif self.wdlf_params["ms_model"] == "MISTFem400":
-            # http://waps.cfa.harvard.edu/MIST/
-            datatable = load_ms_lifetime_datatable("MISTv1p2Fem400.csv")
-
-        else:
-            age = self.ms_function(mass_ms)
-
-        if age is None:
-            massi = np.array(datatable[:, 0]).astype(np.float64)
-            time = np.array(datatable[:, 1]).astype(np.float64)
-            age = interp1d(massi, time, kind="cubic", fill_value="extrapolate")(mass_ms)
-
-        return age
-
-    def _ifmr(self, mass_ms):
-        """
-        Compute the final mass (i.e. WD mass) based on the pre-selected IFMR model and the zero-age MS mass (M).
-
-        See set_ifmr_model() for more details.
-
-        Parameters
-        ----------
-        M: float, list of float or array of float
-            Input MS mass
-
-        Returns
-        -------
-        mass: array
-            Array of WD mass, same size as M.
-
-        """
-
-        mass_ms = np.asarray(mass_ms).reshape(-1)
-
-        if self.wdlf_params["ifmr_model"] == "C08":
-            mass = 0.117 * mass_ms + 0.384
-            if (mass < 0.4349).any():
-                mass[mass < 0.4349] = 0.4349
-
-        elif self.wdlf_params["ifmr_model"] == "C08b":
-            mass = 0.096 * mass_ms + 0.429
-            if (mass_ms >= 2.7).any():
-                mass[mass_ms >= 2.7] = 0.137 * mass_ms[mass_ms >= 2.7] + 0.318
-            if (mass < 0.4746).any():
-                mass[mass < 0.4746] = 0.4746
-
-        elif self.wdlf_params["ifmr_model"] == "S09":
-            mass = 0.084 * mass_ms + 0.466
-            if (mass < 0.5088).any():
-                mass[mass < 0.5088] = 0.5088
-
-        elif self.wdlf_params["ifmr_model"] == "S09b":
-            mass = 0.134 * mass_ms[mass_ms < 4.0] + 0.331
-            if (mass_ms >= 4.0).any():
-                mass = 0.047 * mass_ms[mass_ms >= 4.0] + 0.679
-
-            if (mass < 0.3823).any():
-                mass[mass < 0.3823] = 0.3823
-
-        elif self.wdlf_params["ifmr_model"] == "W09":
-            mass = 0.129 * mass_ms + 0.339
-            if (mass < 0.3893).any():
-                mass[mass < 0.3893] = 0.3893
-
-        elif self.wdlf_params["ifmr_model"] == "K09":
-            mass = 0.109 * mass_ms + 0.428
-            if (mass < 0.4804).any():
-                mass[mass < 0.4804] = 0.4804
-
-        elif self.wdlf_params["ifmr_model"] == "K09b":
-            mass = 0.101 * mass_ms + 0.463
-            if (mass < 0.4804).any():
-                mass[mass < 0.4804] = 0.4804
-
-        elif self.wdlf_params["ifmr_model"] == "C18":
-            mass = interp1d(
-                (0.83, 2.85, 3.60, 7.20),
-                (0.5554, 0.71695, 0.8572, 1.2414),
-                fill_value="extrapolate",
-                bounds_error=False,
-            )(mass_ms)
-
-        elif self.wdlf_params["ifmr_model"] == "EB18":
-            mass = interp1d(
-                (0.95, 2.75, 3.54, 5.21, 8.0),
-                (0.5, 0.67, 0.81, 0.91, 1.37),
-                fill_value="extrapolate",
-                bounds_error=False,
-            )(mass_ms)
-
-        else:
-            mass = self.ifmr_function(mass_ms)
-
-        return mass
 
     def _find_mass_ms_min(self, mass_ms, mag):
         """
@@ -472,7 +167,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             return np.inf
 
         # Get the MS life time
-        t_ms = self._ms_age(mass_ms)
+        t_ms = self._ms_model(mass_ms)
         if t_ms <= 0.0:
             return np.inf
 
@@ -526,7 +221,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             return 0.0
 
         # Get the MS lifetime
-        t_ms = self._ms_age(mass_ms)
+        t_ms = self._ms_model(mass_ms)
 
         if t_ms < 0:
             return 0.0
@@ -679,7 +374,65 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         else:
             raise ValueError("Please provide a valid Imass_function model.")
 
-        self.imf_function = imf_function
+        if model == "K01":
+
+            # mass lower than 0.08 is impossible, so that range is ignored.
+            # (0.5**-2.3) / (0.5**-1.3) = 2.0
+            def imf_func(m):
+                m = np.ravel(m).astype(float)
+                mf = m**-2.3
+                mask = m < 0.5
+                if mask.any():
+                    mf[mask] = m[mask] ** -1.3 * 2.0  # normalization factor
+                return mf
+
+            self._imf = imf_func
+
+        elif model == "C03":
+
+            def imf_func(m):
+                m = np.ravel(m).astype(float)
+                mf = m**-2.3
+                mask = m < 1.0
+                if mask.any():
+                    # 0.158 / (ln(10) * mass_ms) = 0.06861852814 / mass_ms
+                    # log(0.079) = -1.1023729087095586
+                    # 2 * 0.69**2. = 0.9522
+                    # Normalisation factor (at mass_ms=1) is 0.01915058
+                    norm = 0.01915058
+                    factor = 0.06861852814
+                    logconst = 1.1023729087095586
+                    sigma_sq = 0.9522
+                    mf[mask] = (factor / m[mask]) * np.exp(-((np.log10(m[mask]) + logconst) ** 2) / sigma_sq) / norm
+                return mf
+
+            self._imf = imf_func
+
+        elif model == "C03b":
+
+            def imf_func(m):
+                m = np.ravel(m).astype(float)
+                mf = m**-2.3
+                mask = m <= 1.0
+                if mask.any():
+                    # 0.086 * 1. / (ln(10) * M) = 0.03734932544 / M
+                    # log(0.22) = -0.65757731917
+                    # 2 * 0.57**2. = 0.6498
+                    # Normalisation factor (at M=1) is 0.01919917
+                    norm = 0.01919917
+                    factor = 0.03734932544
+                    logconst = 0.65757731917
+                    sigma_sq = 0.6498
+                    mf[mask] = (factor / m[mask]) * np.exp(-((np.log10(m[mask]) + logconst) ** 2) / sigma_sq) / norm
+                return mf
+
+            self._imf = imf_func
+
+        else:
+            if not callable(imf_function):
+                raise RuntimeError("imf_function provided is not callable.")
+            self._imf = imf_function
+
         self._update_filename()
 
     def set_ms_model(self, model, ms_function=None):
@@ -731,13 +484,31 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         """
 
-        if model in self.ms_model_list:
+        if model in self.ms_model_to_file.keys():
+
             self.wdlf_params["ms_model"] = model
+            datatable = load_ms_lifetime_datatable(self.ms_model_to_file[model])
+            massi = np.array(datatable[:, 0]).astype(np.float64)
+            time = np.array(datatable[:, 1]).astype(np.float64)
+            self._ms_model = interp1d(massi, time, kind="cubic", fill_value="extrapolate")
+
+        elif model == "manual":
+
+            if callable(ms_function):
+
+                self.wdlf_params["ms_model"] = model
+                self._ms_model = ms_function
+
+            else:
+
+                raise RuntimeError(
+                    "The ms_function provided is not callable, None is applied, i.e. no MS lifetime model."
+                )
 
         else:
-            raise ValueError("Please provide a valid MS model.")
 
-        self.ms_function = ms_function
+            raise ValueError(f"Unknown ms_model: {model}")
+
         self._update_filename()
 
     def set_ifmr_model(self, model, ifmr_function=None):
@@ -765,13 +536,77 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         """
 
+        # Check if the model is in the list of available models
         if model in self.ifmr_model_list:
             self.wdlf_params["ifmr_model"] = model
 
         else:
             raise ValueError("Please provide a valid IFMR mode.")
 
-        self.ifmr_function = ifmr_function
+        # Set the IFMR function based on the model
+        if model == "C08":
+            self._ifmr = lambda m: np.maximum(0.117 * np.ravel(m) + 0.384, 0.4349)
+
+        elif model == "C08b":
+
+            def func(m):
+                m = np.ravel(m).astype(float)
+                mass = 0.096 * m + 0.429
+                mask = m >= 2.7
+                mass[mask] = 0.137 * m[mask] + 0.318
+                return np.maximum(mass, 0.4746)
+
+            self._ifmr = func
+
+        elif model == "S09":
+            self._ifmr = lambda m: np.maximum(0.084 * np.ravel(m) + 0.466, 0.5088)
+
+        elif model == "S09b":
+
+            def func(m):
+                m = np.ravel(m).astype(float)
+                mass = np.empty_like(m)
+                mask = m < 4.0
+                mass[mask] = 0.134 * m[mask] + 0.331
+                mass[~mask] = 0.047 * m[~mask] + 0.679
+                return np.maximum(mass, 0.3823)
+
+            self._ifmr = func
+
+        elif model == "W09":
+            self._ifmr = lambda m: np.maximum(0.129 * np.ravel(m) + 0.339, 0.3893)
+
+        elif model == "K09":
+            self._ifmr = lambda m: np.maximum(0.109 * np.ravel(m) + 0.428, 0.4804)
+
+        elif model == "K09b":
+            self._ifmr = lambda m: np.maximum(0.101 * np.ravel(m) + 0.463, 0.4804)
+
+        elif model == "C18":
+            f = interp1d(
+                (0.83, 2.85, 3.60, 7.20),
+                (0.5554, 0.71695, 0.8572, 1.2414),
+                fill_value="extrapolate",
+                bounds_error=False,
+            )
+            self._ifmr = lambda m: f(np.ravel(m))
+
+        elif model == "EB18":
+            f = interp1d(
+                (0.95, 2.75, 3.54, 5.21, 8.0),
+                (0.5, 0.67, 0.81, 0.91, 1.37),
+                fill_value="extrapolate",
+                bounds_error=False,
+            )
+            self._ifmr = lambda m: f(np.ravel(m))
+
+        else:
+            # Fall back to user-supplied callable
+            if not callable(ifmr_function):
+                raise RuntimeError("Please provide a valid callable function")
+
+            self._ifmr = ifmr_function
+
         self._update_filename()
 
     def compute_density(
@@ -1013,7 +848,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         #
         # Main Sequence Lifetime
         #
-        ax3.plot(mass, self._ms_age(mass))
+        ax3.plot(mass, self._ms_model(mass))
 
         if ms_time_log:
             ax3.set_yscale("log")
