@@ -1872,7 +1872,7 @@ class CoolingModelReader(object):
                     _x_0 = np.repeat(_x_0, _x_1.size)
 
                 if (_x_1.size == 1) & (_x_0.size > 1):
-                    _x_0 = np.repeat(_x_1, _x_0.size)
+                    _x_1 = np.repeat(_x_1, _x_0.size)
 
                 _x_0[_x_0 < lum_min] = lum_min
                 _x_0[_x_0 > lum_max] = lum_max
