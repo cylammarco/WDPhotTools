@@ -396,7 +396,7 @@ def test_plotting_wdlf_savefig_path_not_exist():
     # assert the file exists at where you intend to
     for _e in ["png"]:
         _filename = (
-            f"{wdlf.t_start / 1e9:.2f}Gyr_"
+            f"{wdlf.t_start / 1e9:.3f}Gyr_"
             + wdlf.wdlf_params["sfr_mode"]
             + "_"
             + wdlf.wdlf_params["ms_model"]
