@@ -5,6 +5,7 @@
 
 from unittest.mock import patch
 
+import matplotlib
 import numpy as np
 import pytest
 
@@ -12,6 +13,8 @@ from WDPhotTools.fitter import WDfitter
 from WDPhotTools.reddening import reddening_vector_filter
 from WDPhotTools.reddening import reddening_vector_interpolated
 
+
+matplotlib.use("Agg")
 
 # testing with logg=7.5 and Teff=13000.
 wave_GBRFN = np.array((6218.0, 5110.0, 7769.0, 1535.0, 2301.0))
