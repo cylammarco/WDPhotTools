@@ -7,7 +7,7 @@ import warnings
 import os
 
 import numpy as np
-from scipy import optimize, integrate
+from scipy import integrate
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 
@@ -208,30 +208,17 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         mass_function = self._imf(mass_ms)
 
         mbol = self.mag_to_mbol_itp(mass, mag)
-
-        if (mbol < -2.0) or (mbol > 20.0) or (not np.isfinite(mbol)):
-            return 0.0
-
         logL = (4.75 - mbol) / 2.5 + 33.582744965691276
 
         # Get the WD cooling time
         t_cool = self.cooling_interpolator(logL, mass)
 
-        if t_cool < 0.0:
-            return 0.0
-
         # Get the MS lifetime
         t_ms = self._ms_model(mass_ms)
-
-        if t_ms < 0:
-            return 0.0
 
         # Get the time since star formation
         # and then the SFR
         sfr = self.sfr(t_cool + t_ms)
-
-        if sfr < 0.0:
-            return 0.0
 
         # Get the cooling rate
         dLdt = -self.cooling_rate_interpolator(logL, mass)
@@ -617,7 +604,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         interpolator="CT",
         mass_ms_max=8.0,
         limit=10000,
-        n_points=100,
+        n_points=50,
         epsabs=1e-6,
         epsrel=1e-6,
         normed=True,
@@ -650,7 +637,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             because it can underestimate the density if the star formation periods are short. While too large a value
             will lead to low performance due to oversampling, though the accuracy is guaranteed. The default value is
             sufficient to compute WDLF for star burst as short as 1E8 years. For burst as short as 1E7, we recommand
-            an n_points of 1000 or larger.
+            an n_points of 10000 or larger.
         epsabs: float (Default: 1e-6)
             The absolute tolerance of the integration step. For star burst, we recommend a step smaller than 1e-8.
         epsrel: float (Default: 1e-6)
@@ -686,35 +673,66 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             independent=["mass", passband],
             interpolator=interpolator,
         )
-
-        mass_ms_upper_bound = mass_ms_max
-
+        # perform a search for the limits of integration
+        mass_grid = np.arange(0.4, mass_ms_max + 0.001, 0.001)  # fairly fine
+        spacing = mass_grid[1] - mass_grid[0]
+        v_min = None
+        v_max = None
         for i, mag_i in enumerate(mag):
-            mass_ms_min = optimize.fminbound(
-                self._find_mass_ms_min,
-                0.5,
-                mass_ms_upper_bound,
-                args=[mag_i],
-                xtol=1e-8,
-                maxfun=10000,
-            )
 
-            points = 10.0 ** np.linspace(np.log10(mass_ms_min), np.log10(mass_ms_max), n_points)
+            # Find the lower mass limit for integration
+            for m in mass_grid:
+                mass_wd = self._ifmr(m)
+                mbol = self.mag_to_mbol_itp(mass_wd, mag_i)
+                if ~np.isfinite(mbol) | (mbol < -2.0) | (mbol > 20.0):
+                    continue
+                logL = (4.75 - mbol) / 2.5 + 33.582744965691276
+                # Get the WD cooling time
+                t_cool = self.cooling_interpolator(logL, mass_wd)
+                if t_cool <= 0.0:
+                    continue
+                # Get the MS lifetime
+                t_ms = self._ms_model(m)
+                # get the SFR
+                sfr = self.sfr(t_cool + t_ms)
+                if sfr <= 0.0:
+                    continue
+                v_min = m
+                break
 
-            # Note that the points are needed because it can fail to
-            # integrate if the star burst is too short
-            number_density[i] = integrate.quad(
-                self._integrand,
-                mass_ms_min,
-                mass_ms_max,
-                args=[mag_i],
-                limit=limit,
-                points=points,
-                epsabs=epsabs,
-                epsrel=epsrel,
-            )[0]
+            # Find the upper mass limit for integration
+            for m in mass_grid[::-1]:
+                mass_wd = self._ifmr(m)
+                mbol = self.mag_to_mbol_itp(mass_wd, mag_i)
+                if ~np.isfinite(mbol) | (mbol < -2.0) | (mbol > 20.0):
+                    continue
+                logL = (4.75 - mbol) / 2.5 + 33.582744965691276
+                # Get the WD cooling time
+                t_cool = self.cooling_interpolator(logL, mass_wd)
+                if t_cool <= 0.0:
+                    continue
+                # Get the MS lifetime
+                t_ms = self._ms_model(m)
+                # get the SFR
+                sfr = self.sfr(t_cool + t_ms)
+                if sfr <= 0.0:
+                    continue
+                v_max = m
+                break
 
-            mass_ms_upper_bound = mass_ms_min
+            # If we have found both limits, compute the number density
+            if v_min != v_max:
+                valid_points = np.linspace(v_min - spacing, v_max + spacing, n_points)
+                number_density[i] = integrate.quad(
+                    self._integrand,
+                    valid_points[0],
+                    valid_points[-1],
+                    args=[mag_i],
+                    limit=limit,
+                    points=valid_points,
+                    epsabs=epsabs,
+                    epsrel=epsrel,
+                )[0]
 
         number_density[np.isnan(number_density) | (number_density <= 0.0)] = +0.0
 
@@ -733,7 +751,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
                 _folder = os.path.abspath(folder)
 
             if filename is None:
-                _filename = f"{self.t_start / 1e9:.2f}Gyr" f"{self._filename_middle}csv"
+                _filename = f"{self.t_start / 1e9:.3f}Gyr" f"{self._filename_middle}csv"
 
             else:
                 _filename = filename
@@ -1024,7 +1042,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         _density = self.number_density
 
-        plt.plot(self.mag, _density, label=f"{self.t_start / 1e90:.2f} Gyr")
+        plt.plot(self.mag, _density, label=f"{self.t_start / 1e90:.3f} Gyr")
         plt.xlim(0, 20)
         plt.xlabel(r"M$_{\mathrm{bol}}$ / mag")
 
@@ -1046,7 +1064,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         plt.legend()
 
         if title is None:
-            title = f"WDLF: {self.t_start / 1e9:.2f} Gyr"
+            title = f"WDLF: {self.t_start / 1e9:.3f} Gyr"
 
         plt.title(title)
         plt.tight_layout()
@@ -1067,7 +1085,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
             # Loop through the ext list to save figure into each image type
             for _e in ext:
                 if filename is None:
-                    _filename = f"{self.t_start / 1e9:.2f}Gyr{self._filename_middle}{_e}"
+                    _filename = f"{self.t_start / 1e9:.3f}Gyr{self._filename_middle}{_e}"
 
                 else:
                     _filename = filename + "." + _e
