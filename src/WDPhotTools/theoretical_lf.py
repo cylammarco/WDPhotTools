@@ -471,7 +471,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
 
         """
 
-        if model in self.ms_model_to_file.keys():
+        if model in self.ms_model_to_file:
 
             self.wdlf_params["ms_model"] = model
             datatable = load_ms_lifetime_datatable(self.ms_model_to_file[model])
