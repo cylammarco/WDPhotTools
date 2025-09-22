@@ -364,7 +364,7 @@ def test_compute_density_savefig_folder_none():
     # assert the file exists at where you intend to
     _folder = os.getcwd()
     _filename = (
-        f"{wdlf.t_start / 1e9:.2f}Gyr_"
+        f"{wdlf.t_start / 1e9:.3f}Gyr_"
         + wdlf.wdlf_params["sfr_mode"]
         + "_"
         + wdlf.wdlf_params["ms_model"]
@@ -379,10 +379,7 @@ def test_compute_density_savefig_folder_none():
         + ".csv"
     )
     assert os.path.isfile(os.path.join(_folder, _filename))
-    os.remove(
-        "10.00Gyr_manual_manual_manual_montreal_"
-        "co_da_20_montreal_co_da_20_montreal_co_da_20.csv"
-    )
+    os.remove("10.000Gyr_manual_manual_manual_montreal_" "co_da_20_montreal_co_da_20_montreal_co_da_20.csv")
 
 
 def test_plotting_wdlf_savefig_path_not_exist():
@@ -399,7 +396,7 @@ def test_plotting_wdlf_savefig_path_not_exist():
     # assert the file exists at where you intend to
     for _e in ["png"]:
         _filename = (
-            f"{wdlf.t_start / 1e9:.2f}Gyr_"
+            f"{wdlf.t_start / 1e9:.3f}Gyr_"
             + wdlf.wdlf_params["sfr_mode"]
             + "_"
             + wdlf.wdlf_params["ms_model"]
