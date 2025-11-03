@@ -17,13 +17,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13, macos-14, macos-15, ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        os: [macos-14, macos-15, macos-26, ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -42,26 +42,25 @@ jobs:
       run: |
         coverage run -m pytest --disable-warnings -p no:warnings test
     - name: Coveralls
-      if: startsWith(matrix.os, 'ubuntu') && endsWith(matrix.python-version, 3.9)
-      uses: AndreMiras/coveralls-python-action@develop
+      if: startsWith(matrix.os, 'ubuntu') && endsWith(matrix.python-version, '3.14')
+      uses: coverallsapp/github-action@v2
       with:
         parallel: true
         flag-name: Unit Test
 
   upload_pypi:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: pypi
     permissions:
       id-token: write
     # or, alternatively, upload to PyPI on every tag starting with 'v' (remove on: release above to use this)
     # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.x'
 
       - name: build wheel
         run: |
@@ -79,8 +78,6 @@ jobs:
 
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.test_pypi_password }}
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
 
