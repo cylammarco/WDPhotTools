@@ -49,7 +49,7 @@ jobs:
         flag-name: Unit Test
 
   upload_pypi:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
