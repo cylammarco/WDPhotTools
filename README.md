@@ -78,6 +78,7 @@ and
 
 - @cylammarco
 - @KaWaiYuen
+- @anonzerg
 
 ## Contribution Guide
 
