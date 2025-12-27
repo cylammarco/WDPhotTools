@@ -7,13 +7,11 @@ type: software
 authors:
   - given-names: Marco C
     family-names: Lam
-    email: lam@mail.tau.ac.il
-    affiliation: Tel Aviv University
+    email: mlam@roe.ac.uk
+    affiliation: University of Edinburgh
     orcid: "https://orcid.org/0000-0002-9347-2298"
   - given-names: Ka Wai
     family-names: Yuen
-    email: kawai.yuen@cuhk.edu.hk 
-    affiliation: The Chinese University of Hong Kong
 identifiers:
   - type: doi
     value: 10.5281/zenodo.6595029
