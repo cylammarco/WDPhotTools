@@ -223,7 +223,7 @@ class WDLF(AtmosphereModelReader, CoolingModelReader):
         # Get the cooling rate
         dLdt = -self.cooling_rate_interpolator(logL, mass)
 
-        total_contribution = mass_function * sfr * dLdt
+        total_contribution = float(mass_function * sfr * dLdt)
 
         if np.isfinite(total_contribution):
             if total_contribution < 0.0:
