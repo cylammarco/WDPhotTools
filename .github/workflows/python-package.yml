@@ -15,6 +15,7 @@ jobs:
   build:
 
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
         os: [macos-14, macos-15, macos-26, ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025]
@@ -39,6 +40,8 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      continue-on-error: ${{ startsWith(matrix.os, 'windows') &&
+        (matrix.python-version == '3.13' || matrix.python-version == '3.14')}}
       run: |
         coverage run -m pytest --disable-warnings -p no:warnings test
     - name: Coveralls

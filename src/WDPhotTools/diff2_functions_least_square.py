@@ -24,23 +24,20 @@ def diff2(
 
     mag = np.asarray(mag).reshape(-1)
 
-    # 5 / ln(10) = 2.17147241 converts fractional distance error to mag error
-    # 1 / (ln(10) / 2.5) = 1.1788231063225867 converts magnitude variance to flux variance scaling in the denominator
-    # of residuals squared
-    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 1.1788231063225867
+    # 5 / ln(10) = 2.17147241 converts fractional distance error to magnitude error
+    # (ln(10) / 2.5)^2 = 0.8483036976765438 converts magnitude variance to fractional flux variance
+    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 0.8483036976765438
+
     d2 = ((10.0 ** ((obs - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
         if return_err:
             return d2, e2
-
         else:
             return d2
-
     else:
         if return_err:
             return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-
         else:
             return np.ones_like(obs) * np.inf
 
@@ -362,9 +359,9 @@ def diff2_red_interpolated(
     mag = np.asarray(mag).reshape(-1)
 
     # 5 / ln(10) = 2.17147241 converts fractional distance error to mag error
-    # 1 / (ln(10) / 2.5) = 1.1788231063225867 converts magnitude variance to flux variance scaling in the denominator
+    # (ln(10) / 2.5)^2 = 0.8483036976765438 converts magnitude variance to fractional flux variance
     # of residuals squared
-    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 1.1788231063225867
+    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 0.8483036976765438
     d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
@@ -431,9 +428,9 @@ def diff2_red_filter(
     mag = np.asarray(mag).reshape(-1)
 
     # 5 / ln(10) = 2.17147241 converts fractional distance error to mag error
-    # 1 / (ln(10) / 2.5) = 1.1788231063225867 converts magnitude variance to flux variance scaling in the denominator
+    # (ln(10) / 2.5)^2 = 0.8483036976765438 converts magnitude variance to fractional flux variance
     # of residuals squared
-    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 1.1788231063225867
+    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 0.8483036976765438
     d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
@@ -491,9 +488,9 @@ def diff2_red_filter_fixed_logg(
     mag = np.asarray(mag).reshape(-1)
 
     # 5 / ln(10) = 2.17147241 converts fractional distance error to mag error
-    # 1 / (ln(10) / 2.5) = 1.1788231063225867 converts magnitude variance to flux variance scaling in the denominator
+    # (ln(10) / 2.5)^2 = 0.8483036976765438 converts magnitude variance to fractional flux variance
     # of residuals squared
-    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 1.1788231063225867
+    e2 = (errors**2.0 + (distance_err / distance * 2.17147241) ** 2.0) * 0.8483036976765438
     d2 = ((10.0 ** ((obs - av - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
     if np.isfinite(d2).all():
