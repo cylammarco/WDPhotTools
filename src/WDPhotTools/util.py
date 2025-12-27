@@ -40,9 +40,5 @@ def load_ms_lifetime_datatable(filename):
     Load the MS lifetime CSV files
     """
 
-    datatable = np.loadtxt(
-        str(files("WDPhotTools").joinpath("ms_lifetime", filename)),
-        delimiter=","
-    )
+    datatable = np.loadtxt(str(files("WDPhotTools").joinpath("ms_lifetime", filename)), delimiter=",")
     return datatable
-
