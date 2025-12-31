@@ -874,6 +874,8 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
+                        # NumPy>=2 may return 0-d arrays; convert via .item()
+
                         self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
                     else:
                         self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
@@ -1186,17 +1188,17 @@ class WDfitter(AtmosphereModelReader):
                 # depending on the choise of minimizer.
                 for i in filters:
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(
+                        self.best_fit_params[j][i] = np.asarray(
                             self.interpolator[j][i](self.best_fit_params[j][independent[0]])
-                        )
+                        ).item()
 
                     else:
-                        self.best_fit_params[j][i] = float(
+                        self.best_fit_params[j][i] = np.asarray(
                             self.interpolator[j][i](
                                 self.best_fit_params[j][independent[0]],
                                 self.best_fit_params[j][independent[1]],
                             )
-                        )
+                        ).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = np.percentile(self.samples[j].T[-1], 50.0)
