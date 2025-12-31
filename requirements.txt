@@ -2,5 +2,5 @@ astropy
 corner
 emcee
 matplotlib
-numpy<2.0
+numpy>=1.23,<3
 scipy
