@@ -399,7 +399,8 @@ class WDfitter(AtmosphereModelReader):
         }
 
         if "logg" in independent:
-            logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
+            logg_pos_arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
+            logg_pos = int(logg_pos_arr[0]) if logg_pos_arr.size > 0 else None
 
         # If using the scipy.optimize.minimize()
         if method == "minimize":
