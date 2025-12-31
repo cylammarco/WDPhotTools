@@ -319,11 +319,10 @@ class WDfitter(AtmosphereModelReader):
 
         # Mask the data and interpolator if set to detect None
         if allow_none:
-            # element-wise comparison with None, so using !=
-            mask = np.array(mags) != np.array([None])
-            mags = np.array(mags, dtype=float)[mask]
-            mag_errors = np.array(mag_errors, dtype=float)[mask]
-            filters = np.array(filters)[mask]
+            mask = np.array([m is not None for m in mags], dtype=bool)
+            mags = np.asarray(mags, dtype=float)[mask]
+            mag_errors = np.asarray(mag_errors, dtype=float)[mask]
+            filters = np.asarray(filters, dtype=object)[mask]
 
         else:
             mags = np.array(mags, dtype=float)

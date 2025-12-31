@@ -351,7 +351,7 @@ class AtmosphereModelReader(object):
                 "provided {}.format(atmosphere.lower())"
             )
 
-        independent = np.asarray(independent).reshape(-1)
+        independent = np.asarray(independent, dtype=object).reshape(-1)
 
         independent_list = self.column_key
         independent_list_lower_cases = np.char.lower(independent_list)
