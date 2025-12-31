@@ -309,8 +309,8 @@ class WDfitter(AtmosphereModelReader):
         if isinstance(initial_guess, np.ndarray):
             initial_guess = list(initial_guess.reshape(-1))
 
-        if isinstance(distance, (float, int, np.float32, np.float64)):
-            if not isinstance(distance_err, (float, int, np.float32, np.float64)):
+        if isinstance(distance, (float, int, np.floating)):
+            if not isinstance(distance_err, (float, int, np.floating)):
                 distance_err = np.sqrt(distance)
 
         if distance is None:

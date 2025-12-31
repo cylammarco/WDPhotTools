@@ -478,12 +478,12 @@ class AtmosphereModelReader(object):
                 def atmosphere_interpolator(*x):
                     x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
 
-                    if isinstance(x_0, (float, int, np.int32)):
+                    if isinstance(x_0, (float, int, np.integer)):
                         length0 = 1
                     else:
                         length0 = len(x_0)
 
-                    if isinstance(x_1, (float, int, np.int32)):
+                    if isinstance(x_1, (float, int, np.integer)):
                         length1 = 1
                     else:
                         length1 = len(x_1)
