@@ -559,7 +559,8 @@ class WDfitter(AtmosphereModelReader):
 
                         else:
                             if "logg" in independent:
-                                logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
+                                _arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
+                                logg_pos = int(_arr[0]) if _arr.size > 0 else None
                                 self.results[j] = optimize.minimize(
                                     diff2_red_filter_summed,
                                     initial_guess,
@@ -629,9 +630,9 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[0])).item()
                     else:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[:2])).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = self.results[j].x[-1]
@@ -862,7 +863,7 @@ class WDfitter(AtmosphereModelReader):
                     if distance is None:
                         self.best_fit_params[j][independent[0] + "_err"] = float(_stdev[0])
                     else:
-                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev)
+                        self.best_fit_params[j][independent[0] + "_err"] = float(np.asarray(_stdev).reshape(-1)[0])
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
@@ -875,11 +876,9 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
-                        # NumPy>=2 may return 0-d arrays; convert via .item()
-
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[0])).item()
                     else:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[:2])).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = self.results[j].x[-1]
@@ -1225,17 +1224,17 @@ class WDfitter(AtmosphereModelReader):
 
             for name in ["Teff", "mass", "Mbol", "age"]:
                 if len(independent) == 1:
-                    self.best_fit_params[j][name] = float(
+                    self.best_fit_params[j][name] = np.asarray(
                         self.interpolator[j][name](self.best_fit_params[j][independent[0]])
-                    )
+                    ).item()
 
                 else:
-                    self.best_fit_params[j][name] = float(
+                    self.best_fit_params[j][name] = np.asarray(
                         self.interpolator[j][name](
                             self.best_fit_params[j][independent[0]],
                             self.best_fit_params[j][independent[1]],
                         )
-                    )
+                    ).item()
 
                 if rv > 0.0:
                     if self.extinction_convolved:
