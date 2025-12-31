@@ -404,24 +404,17 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(_x):
-                    if isinstance(_x, (float, int)):
-                        length = 1
-                        _logg = logg
+                    _x_arr = np.asarray(_x).reshape(-1).astype(float)
+                    length = _x_arr.size
+                    _logg = np.full(length, logg, dtype=float)
 
-                    else:
-                        length = len(_x)
-                        _logg = [logg] * length
-
-                    _logg = np.asarray(_logg)
-                    _x = np.asarray(_x)
-
-                    _x[_x < arg_1_min] = arg_1_min
-                    _x[_x > arg_1_max] = arg_1_max
+                    _x_arr[_x_arr < arg_1_min] = arg_1_min
+                    _x_arr[_x_arr > arg_1_max] = arg_1_max
 
                     if independent[1] in ["Teff", "age"]:
-                        _x = np.log10(_x)
+                        _x_arr = np.log10(_x_arr)
 
-                    return _atmosphere_interpolator(np.array([_logg, _x], dtype="object").T.reshape(length, 2))
+                    return _atmosphere_interpolator(np.column_stack((_logg, _x_arr)))
 
             else:
                 raise ValueError("Interpolator should be CT or RBF, {interpolator} is given.")
@@ -505,8 +498,8 @@ class AtmosphereModelReader(object):
                             "size."
                         )
 
-                    _x_0 = np.asarray(x_0)
-                    _x_1 = np.asarray(x_1)
+                    _x_0 = np.asarray(x_0).reshape(-1).astype(float)
+                    _x_1 = np.asarray(x_1).reshape(-1).astype(float)
 
                     _x_0[_x_0 < arg_0_min] = arg_0_min
                     _x_0[_x_0 > arg_0_max] = arg_0_max
@@ -519,7 +512,7 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(np.array([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
+                    return _atmosphere_interpolator(np.column_stack((_x_0, _x_1)))
 
             else:
                 raise ValueError("This should never happen.")
