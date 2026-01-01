@@ -309,8 +309,8 @@ class WDfitter(AtmosphereModelReader):
         if isinstance(initial_guess, np.ndarray):
             initial_guess = list(initial_guess.reshape(-1))
 
-        if isinstance(distance, (float, int, np.float32, np.float64)):
-            if not isinstance(distance_err, (float, int, np.float32, np.float64)):
+        if isinstance(distance, (float, int, np.floating)):
+            if not isinstance(distance_err, (float, int, np.floating)):
                 distance_err = np.sqrt(distance)
 
         if distance is None:
@@ -319,11 +319,10 @@ class WDfitter(AtmosphereModelReader):
 
         # Mask the data and interpolator if set to detect None
         if allow_none:
-            # element-wise comparison with None, so using !=
-            mask = np.array(mags) != np.array([None])
-            mags = np.array(mags, dtype=float)[mask]
-            mag_errors = np.array(mag_errors, dtype=float)[mask]
-            filters = np.array(filters)[mask]
+            mask = np.array([m is not None for m in mags], dtype=bool)
+            mags = np.asarray(mags, dtype=float)[mask]
+            mag_errors = np.asarray(mag_errors, dtype=float)[mask]
+            filters = np.asarray(filters, dtype=object)[mask]
 
         else:
             mags = np.array(mags, dtype=float)
@@ -400,7 +399,8 @@ class WDfitter(AtmosphereModelReader):
         }
 
         if "logg" in independent:
-            logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
+            logg_pos_arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
+            logg_pos = int(logg_pos_arr[0]) if logg_pos_arr.size > 0 else None
 
         # If using the scipy.optimize.minimize()
         if method == "minimize":
@@ -559,7 +559,8 @@ class WDfitter(AtmosphereModelReader):
 
                         else:
                             if "logg" in independent:
-                                logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
+                                _arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
+                                logg_pos = int(_arr[0]) if _arr.size > 0 else None
                                 self.results[j] = optimize.minimize(
                                     diff2_red_filter_summed,
                                     initial_guess,
@@ -629,9 +630,9 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[0])).item()
                     else:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[:2])).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = self.results[j].x[-1]
@@ -862,7 +863,7 @@ class WDfitter(AtmosphereModelReader):
                     if distance is None:
                         self.best_fit_params[j][independent[0] + "_err"] = float(_stdev[0])
                     else:
-                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev)
+                        self.best_fit_params[j][independent[0] + "_err"] = float(np.asarray(_stdev).reshape(-1)[0])
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
@@ -875,9 +876,9 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[0])).item()
                     else:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[:2])).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = self.results[j].x[-1]
@@ -1187,17 +1188,17 @@ class WDfitter(AtmosphereModelReader):
                 # depending on the choise of minimizer.
                 for i in filters:
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(
+                        self.best_fit_params[j][i] = np.asarray(
                             self.interpolator[j][i](self.best_fit_params[j][independent[0]])
-                        )
+                        ).item()
 
                     else:
-                        self.best_fit_params[j][i] = float(
+                        self.best_fit_params[j][i] = np.asarray(
                             self.interpolator[j][i](
                                 self.best_fit_params[j][independent[0]],
                                 self.best_fit_params[j][independent[1]],
                             )
-                        )
+                        ).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = np.percentile(self.samples[j].T[-1], 50.0)
@@ -1223,17 +1224,17 @@ class WDfitter(AtmosphereModelReader):
 
             for name in ["Teff", "mass", "Mbol", "age"]:
                 if len(independent) == 1:
-                    self.best_fit_params[j][name] = float(
+                    self.best_fit_params[j][name] = np.asarray(
                         self.interpolator[j][name](self.best_fit_params[j][independent[0]])
-                    )
+                    ).item()
 
                 else:
-                    self.best_fit_params[j][name] = float(
+                    self.best_fit_params[j][name] = np.asarray(
                         self.interpolator[j][name](
                             self.best_fit_params[j][independent[0]],
                             self.best_fit_params[j][independent[1]],
                         )
-                    )
+                    ).item()
 
                 if rv > 0.0:
                     if self.extinction_convolved:
