@@ -15,7 +15,7 @@ def test_set_ms_model_invalid():
 
 def test_compute_density_manual_sfr_smoke():
     wdlf = WDLF()
-    wdlf.set_sfr_model(mode="manual", sfr=lambda t: 1.0 if t > 0 else 0.0, age=1e9)
+    wdlf.set_sfr_model(mode="manual", sfr_model=lambda t: 1.0 if t > 0 else 0.0, age=1e9)
     mag = np.linspace(5, 15, 5)
     edges, density = wdlf.compute_density(mag)
     assert edges.size == density.size
