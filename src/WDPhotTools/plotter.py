@@ -432,7 +432,7 @@ def plot_cooling_model(
         x_out.append(cooling_model[i][x])
         y_out.append(cooling_model[i][y])
 
-        label = "Mass = {mass:.2f}"
+        label = f"Mass = {mass:.2f}"
         axes.plot(x_out[i], y_out[i], label=label, **kwargs_for_plot)
 
     if log_x:

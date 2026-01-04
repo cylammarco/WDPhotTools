@@ -20,7 +20,7 @@ def diff2(
     mag = []
 
     for interp in interpolator_filter:
-        mag.append(interp(_x))
+        mag.append(interp(_x[:2]))
 
     mag = np.asarray(mag).reshape(-1)
 

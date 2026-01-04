@@ -449,16 +449,57 @@ class AtmosphereModelReader(object):
                     **_kwargs_for_CT,
                 )
 
-                def atmosphere_interpolator(*x):
-                    x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
+                def atmosphere_interpolator(x0, x1=None):
+                    # Support scalar/array inputs for both coordinates, with simple broadcasting
+                    if x1 is None:
+                        arr = np.asarray(x0).reshape(-1)
+                        if arr.size >= 2:
+                            x_0, x_1 = arr[0], arr[1]
+                        elif arr.size == 1:
+                            x_0, x_1 = arr[0], arr[0]
+                        else:
+                            x_0, x_1 = np.nan, np.nan
+                    else:
+                        x_0, x_1 = x0, x1
+
+                    if isinstance(x_0, (float, int, np.integer)):
+                        length0 = 1
+                    else:
+                        length0 = np.asarray(x_0).size
+
+                    if isinstance(x_1, (float, int, np.integer)):
+                        length1 = 1
+                    else:
+                        length1 = np.asarray(x_1).size
+
+                    if length0 == length1:
+                        pass
+                    elif (length0 == 1) and (length1 > 1):
+                        x_0 = [x_0] * length1
+                        length0 = length1
+                    elif (length0 > 1) and (length1 == 1):
+                        x_1 = [x_1] * length0
+                        length1 = length0
+                    else:
+                        raise ValueError(
+                            "Either one variable is a float, int or of size 1, or two variables should have the same size."
+                        )
+
+                    _x_0 = np.asarray(x_0).reshape(-1).astype(float)
+                    _x_1 = np.asarray(x_1).reshape(-1).astype(float)
+
+                    _x_0[_x_0 < arg_0_min] = arg_0_min
+                    _x_0[_x_0 > arg_0_max] = arg_0_max
+                    _x_1[_x_1 < arg_1_min] = arg_1_min
+                    _x_1[_x_1 > arg_1_max] = arg_1_max
 
                     if independent[0] in ["Teff", "age"]:
-                        x_0 = np.log10(x_0)
+                        _x_0 = np.log10(_x_0)
 
                     if independent[1] in ["Teff", "age"]:
-                        x_1 = np.log10(x_1)
+                        _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(x_0, x_1)
+                    return _atmosphere_interpolator(_x_0, _x_1)
 
             elif interpolator.lower() == "rbf":
                 # Interpolate with the scipy RBFInterpolator
@@ -469,17 +510,29 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(*x):
-                    x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
+                    # Accept (x0, x1) or single array-like; use first two values, duplicate if only one
+                    if len(x) == 2:
+                        x_0, x_1 = x
+                    elif len(x) == 1:
+                        arr = np.asarray(x[0]).reshape(-1)
+                        if arr.size >= 2:
+                            x_0, x_1 = arr[0], arr[1]
+                        elif arr.size == 1:
+                            x_0, x_1 = arr[0], arr[0]
+                        else:
+                            x_0, x_1 = np.nan, np.nan
+                    else:
+                        x_0, x_1 = np.nan, np.nan
 
                     if isinstance(x_0, (float, int, np.integer)):
                         length0 = 1
                     else:
-                        length0 = len(x_0)
+                        length0 = np.asarray(x_0).size
 
                     if isinstance(x_1, (float, int, np.integer)):
                         length1 = 1
                     else:
-                        length1 = len(x_1)
+                        length1 = np.asarray(x_1).size
 
                     if length0 == length1:
                         pass
