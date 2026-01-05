@@ -488,10 +488,8 @@ class AtmosphereModelReader(object):
                     _x_0 = np.asarray(x_0).reshape(-1).astype(float)
                     _x_1 = np.asarray(x_1).reshape(-1).astype(float)
 
-                    _x_0[_x_0 < arg_0_min] = arg_0_min
-                    _x_0[_x_0 > arg_0_max] = arg_0_max
-                    _x_1[_x_1 < arg_1_min] = arg_1_min
-                    _x_1[_x_1 > arg_1_max] = arg_1_max
+                    # mark out-of-range inputs to avoid excessive extrapolation
+                    mask_oob = (_x_0 < arg_0_min) | (_x_0 > arg_0_max) | (_x_1 < arg_1_min) | (_x_1 > arg_1_max)
 
                     if independent[0] in ["Teff", "age"]:
                         _x_0 = np.log10(_x_0)
@@ -499,7 +497,11 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(_x_0, _x_1)
+                    out = _atmosphere_interpolator(_x_0, _x_1)
+                    out = np.asarray(out).reshape(-1)
+                    if np.any(mask_oob):
+                        out[mask_oob] = np.nan
+                    return out
 
             elif interpolator.lower() == "rbf":
                 # Interpolate with the scipy RBFInterpolator
@@ -554,10 +556,8 @@ class AtmosphereModelReader(object):
                     _x_0 = np.asarray(x_0).reshape(-1).astype(float)
                     _x_1 = np.asarray(x_1).reshape(-1).astype(float)
 
-                    _x_0[_x_0 < arg_0_min] = arg_0_min
-                    _x_0[_x_0 > arg_0_max] = arg_0_max
-                    _x_1[_x_1 < arg_1_min] = arg_1_min
-                    _x_1[_x_1 > arg_1_max] = arg_1_max
+                    # mark out-of-range inputs to avoid excessive extrapolation
+                    mask_oob = (_x_0 < arg_0_min) | (_x_0 > arg_0_max) | (_x_1 < arg_1_min) | (_x_1 > arg_1_max)
 
                     if independent[0] in ["Teff", "age"]:
                         _x_0 = np.log10(_x_0)
@@ -565,7 +565,11 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(np.column_stack((_x_0, _x_1)))
+                    out = _atmosphere_interpolator(np.column_stack((_x_0, _x_1)))
+                    out = np.asarray(out).reshape(-1)
+                    if np.any(mask_oob):
+                        out[mask_oob] = np.nan
+                    return out
 
             else:
                 raise ValueError("This should never happen.")
