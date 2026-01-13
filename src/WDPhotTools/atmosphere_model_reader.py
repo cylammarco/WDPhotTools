@@ -287,6 +287,7 @@ class AtmosphereModelReader(object):
         interpolator="CT",
         kwargs_for_RBF={},
         kwargs_for_CT={},
+        allow_extrapolation=False,
     ):
         """
         This function interpolates the grid of synthetic photometry and a few
@@ -330,7 +331,7 @@ class AtmosphereModelReader(object):
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
         _kwargs_for_CT = {
-            "fill_value": -np.inf,
+            "fill_value": np.inf,
             "tol": 1e-10,
             "maxiter": 100000,
             "rescale": True,
@@ -408,8 +409,9 @@ class AtmosphereModelReader(object):
                     length = _x_arr.size
                     _logg = np.full(length, logg, dtype=float)
 
-                    _x_arr[_x_arr < arg_1_min] = arg_1_min
-                    _x_arr[_x_arr > arg_1_max] = arg_1_max
+                    if not allow_extrapolation:
+                        _x_arr[_x_arr < arg_1_min] = arg_1_min
+                        _x_arr[_x_arr > arg_1_max] = arg_1_max
 
                     if independent[1] in ["Teff", "age"]:
                         _x_arr = np.log10(_x_arr)
@@ -458,7 +460,7 @@ class AtmosphereModelReader(object):
                         elif arr.size == 1:
                             x_0, x_1 = arr[0], arr[0]
                         else:
-                            x_0, x_1 = np.nan, np.nan
+                            x_0, x_1 = -np.inf, -np.inf
                     else:
                         x_0, x_1 = x0, x1
 
@@ -482,7 +484,8 @@ class AtmosphereModelReader(object):
                         length1 = length0
                     else:
                         raise ValueError(
-                            "Either one variable is a float, int or of size 1, or two variables should have the same size."
+                            "Either one variable is a float, int or of size 1, or two variables should have the same"
+                            "size."
                         )
 
                     _x_0 = np.asarray(x_0).reshape(-1).astype(float)
@@ -499,8 +502,8 @@ class AtmosphereModelReader(object):
 
                     out = _atmosphere_interpolator(_x_0, _x_1)
                     out = np.asarray(out).reshape(-1)
-                    if np.any(mask_oob):
-                        out[mask_oob] = np.nan
+                    if not allow_extrapolation and np.any(mask_oob):
+                        out[mask_oob] = -np.inf
                     return out
 
             elif interpolator.lower() == "rbf":
@@ -522,9 +525,9 @@ class AtmosphereModelReader(object):
                         elif arr.size == 1:
                             x_0, x_1 = arr[0], arr[0]
                         else:
-                            x_0, x_1 = np.nan, np.nan
+                            x_0, x_1 = -np.inf, -np.inf
                     else:
-                        x_0, x_1 = np.nan, np.nan
+                        x_0, x_1 = -np.inf, -np.inf
 
                     if isinstance(x_0, (float, int, np.integer)):
                         length0 = 1
@@ -568,7 +571,7 @@ class AtmosphereModelReader(object):
                     out = _atmosphere_interpolator(np.column_stack((_x_0, _x_1)))
                     out = np.asarray(out).reshape(-1)
                     if np.any(mask_oob):
-                        out[mask_oob] = np.nan
+                        out[mask_oob] = -np.inf
                     return out
 
             else:

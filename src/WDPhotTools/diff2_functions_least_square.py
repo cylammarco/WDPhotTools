@@ -30,16 +30,13 @@ def diff2(
 
     d2 = ((10.0 ** ((obs - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
-    if np.isfinite(d2).all():
-        if return_err:
-            return d2, e2
-        else:
-            return d2
+    # Ensure finite residuals
+    d2 = np.where(np.isfinite(d2), d2, np.float64(1e30))
+    if return_err:
+        e2 = np.where(np.isfinite(e2), e2, np.float64(1e30))
+        return d2, e2
     else:
-        if return_err:
-            return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-        else:
-            return np.ones_like(obs) * np.inf
+        return d2
 
 
 def diff2_distance(_x, obs, errors, interpolator_filter, return_err):

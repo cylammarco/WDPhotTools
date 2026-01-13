@@ -1705,6 +1705,7 @@ class CoolingModelReader(object):
         scaling_factor=1.0,
         kwargs_for_RBF={},
         kwargs_for_CT={},
+        allow_extrapolation=False,
     ):
         """
         Compute the callable CloughTocher2DInterpolator taking (logL, m) and returning the cooling time of the WDs. It
@@ -1874,10 +1875,11 @@ class CoolingModelReader(object):
                 if (_x_1.size == 1) & (_x_0.size > 1):
                     _x_1 = np.repeat(_x_1, _x_0.size)
 
-                _x_0[_x_0 < lum_min] = lum_min
-                _x_0[_x_0 > lum_max] = lum_max
-                _x_1[_x_1 < mass_min] = mass_min
-                _x_1[_x_1 > mass_max] = mass_max
+                if not allow_extrapolation:
+                    _x_0[_x_0 < lum_min] = lum_min
+                    _x_0[_x_0 > lum_max] = lum_max
+                    _x_1[_x_1 < mass_min] = mass_min
+                    _x_1[_x_1 > mass_max] = mass_max
 
                 length0 = _x_0.size
 
@@ -1925,10 +1927,11 @@ class CoolingModelReader(object):
                 if (_x_1.size == 1) & (_x_0.size > 1):
                     _x_0 = np.repeat(_x_1, _x_0.size)
 
-                _x_0[_x_0 < lum_min] = lum_min
-                _x_0[_x_0 > lum_max] = lum_max
-                _x_1[_x_1 < mass_min] = mass_min
-                _x_1[_x_1 > mass_max] = mass_max
+                if not allow_extrapolation:
+                    _x_0[_x_0 < lum_min] = lum_min
+                    _x_0[_x_0 > lum_max] = lum_max
+                    _x_1[_x_1 < mass_min] = mass_min
+                    _x_1[_x_1 > mass_max] = mass_max
 
                 length0 = _x_0.size
 
