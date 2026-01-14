@@ -8,7 +8,7 @@ import os
 from matplotlib import pyplot as plt
 import numpy as np
 
-from WDPhotTools.atmosphere_model_reader import atm_reader
+from WDPhotTools.atmosphere_model_reader import AtmosphereModelReader
 
 
 try:
@@ -17,12 +17,12 @@ except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
 
-atm = atm_reader()
+atm = AtmosphereModelReader()
 
 # Default passband is G3
-G = atm.interp_atm()
-BP = atm.interp_atm(dependent="G3_BP")
-RP = atm.interp_atm(dependent="G3_RP")
+G = atm.interp_am()
+BP = atm.interp_am(dependent="G3_BP")
+RP = atm.interp_am(dependent="G3_RP")
 
 logg = np.arange(7.0, 9.5, 0.5)
 Mbol = np.arange(0.0, 20.0, 0.1)
@@ -33,7 +33,7 @@ for i in logg:
     plt.plot(
         BP(logg_i, Mbol) - RP(logg_i, Mbol),
         G(logg_i, Mbol),
-        label=r"$\log(g) = {i}$",
+        label=rf"$\log(g) = {i}$",
     )
 
 plt.ylim(20.0, 6.0)

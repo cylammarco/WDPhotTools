@@ -1147,9 +1147,9 @@ def test_emcee_teff_logg_distance():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=50,
+        nsteps=5000,
+        nburns=500,
     )
     assert np.isclose(
         ftr31.best_fit_params["H"]["Teff"],
@@ -1304,9 +1304,9 @@ def test_emcee_teff_logg_distance_reddening():
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=50,
+        nsteps=5000,
+        nburns=500,
         rv=RV,
         ebv=EBV,
     )

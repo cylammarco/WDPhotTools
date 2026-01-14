@@ -63,46 +63,39 @@ for i in logg:
     # format the data into matplotlib.tricontour readable format
     _x.append(BP(logg_i, Mbol) - RP(logg_i, Mbol))
     _y.append(G(logg_i, Mbol))
-    _z1.append(wdlf.cooling_rate_interpolator(logL, m_valid))
-    _z2.append(wdlf_nps.cooling_rate_interpolator(logL, m_valid))
+    _z1.append(-wdlf.cooling_rate_interpolator(logL, m_valid))
+    _z2.append(-wdlf_nps.cooling_rate_interpolator(logL, m_valid))
 
 x = np.concatenate(_x)
 y = np.concatenate(_y)
 z1 = np.log10(np.concatenate(_z1))
 z2 = np.log10(np.concatenate(_z2))
 
-# masking the non-finite values
-mask1 = np.isfinite(z1)
-mask2 = np.isfinite(z2)
+# masking the non-finite values across x, y, and z
+mask1 = np.isfinite(x) & np.isfinite(y) & np.isfinite(z1)
+mask2 = np.isfinite(x) & np.isfinite(y) & np.isfinite(z2)
+mask12 = mask1 & mask2
 CMAP = "RdBu_r"
 LEVELS = 50
 
 # make the contour lines
-ax1.tricontour(
-    x[mask1], y[mask1], z1[mask1], levels=LEVELS, linewidths=0.5, colors="k"
-)
-ax2.tricontour(
-    x[mask2], y[mask2], z1[mask2], levels=LEVELS, linewidths=0.5, colors="k"
-)
+ax1.tricontour(x[mask1], y[mask1], z1[mask1], levels=LEVELS, linewidths=0.5, colors="k")
+ax2.tricontour(x[mask2], y[mask2], z2[mask2], levels=LEVELS, linewidths=0.5, colors="k")
 ax3.tricontour(
-    x[mask1 & mask2],
-    y[mask1 & mask2],
-    (z1 / z2)[mask1 & mask2],
+    x[mask12],
+    y[mask12],
+    (z1 / z2)[mask12],
     levels=LEVELS,
     linewidths=0.5,
     colors="k",
 )
 # make the contour shades
-contour1 = ax1.tricontourf(
-    x[mask1], y[mask1], z1[mask1], levels=LEVELS, cmap=CMAP
-)
-contour2 = ax2.tricontourf(
-    x[mask2], y[mask2], z2[mask2], levels=LEVELS, cmap=CMAP
-)
+contour1 = ax1.tricontourf(x[mask1], y[mask1], z1[mask1], levels=LEVELS, cmap=CMAP)
+contour2 = ax2.tricontourf(x[mask2], y[mask2], z2[mask2], levels=LEVELS, cmap=CMAP)
 contour3 = ax3.tricontourf(
-    x[mask1 & mask2],
-    y[mask1 & mask2],
-    (z1 / z2)[mask1 & mask2],
+    x[mask12],
+    y[mask12],
+    (z1 / z2)[mask12],
     levels=LEVELS,
     cmap=CMAP,
 )
@@ -127,6 +120,4 @@ ax3.set_title(r"$\Delta$(PS-nPS)")
 
 plt.suptitle("log(dL/dt) contour plot")
 plt.subplots_adjust(wspace=0.0, left=0.075, right=0.975)
-plt.savefig(
-    os.path.join(HERE, "example_output", "compare_ps_cooling_rates.png")
-)
+plt.savefig(os.path.join(HERE, "example_output", "compare_ps_cooling_rates.png"))

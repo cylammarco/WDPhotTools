@@ -287,6 +287,7 @@ class AtmosphereModelReader(object):
         interpolator="CT",
         kwargs_for_RBF={},
         kwargs_for_CT={},
+        allow_extrapolation=False,
     ):
         """
         This function interpolates the grid of synthetic photometry and a few
@@ -330,7 +331,7 @@ class AtmosphereModelReader(object):
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
         _kwargs_for_CT = {
-            "fill_value": -np.inf,
+            "fill_value": np.inf,
             "tol": 1e-10,
             "maxiter": 100000,
             "rescale": True,
@@ -351,7 +352,7 @@ class AtmosphereModelReader(object):
                 "provided {}.format(atmosphere.lower())"
             )
 
-        independent = np.asarray(independent).reshape(-1)
+        independent = np.asarray(independent, dtype=object).reshape(-1)
 
         independent_list = self.column_key
         independent_list_lower_cases = np.char.lower(independent_list)
@@ -404,24 +405,18 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(_x):
-                    if isinstance(_x, (float, int)):
-                        length = 1
-                        _logg = logg
+                    _x_arr = np.asarray(_x).reshape(-1).astype(float)
+                    length = _x_arr.size
+                    _logg = np.full(length, logg, dtype=float)
 
-                    else:
-                        length = len(_x)
-                        _logg = [logg] * length
-
-                    _logg = np.asarray(_logg)
-                    _x = np.asarray(_x)
-
-                    _x[_x < arg_1_min] = arg_1_min
-                    _x[_x > arg_1_max] = arg_1_max
+                    if not allow_extrapolation:
+                        _x_arr[_x_arr < arg_1_min] = arg_1_min
+                        _x_arr[_x_arr > arg_1_max] = arg_1_max
 
                     if independent[1] in ["Teff", "age"]:
-                        _x = np.log10(_x)
+                        _x_arr = np.log10(_x_arr)
 
-                    return _atmosphere_interpolator(np.array([_logg, _x], dtype="object").T.reshape(length, 2))
+                    return _atmosphere_interpolator(np.column_stack((_logg, _x_arr)))
 
             else:
                 raise ValueError("Interpolator should be CT or RBF, {interpolator} is given.")
@@ -456,16 +451,60 @@ class AtmosphereModelReader(object):
                     **_kwargs_for_CT,
                 )
 
-                def atmosphere_interpolator(*x):
-                    x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
+                def atmosphere_interpolator(x0, x1=None):
+                    # Support scalar/array inputs for both coordinates, with simple broadcasting
+                    if x1 is None:
+                        arr = np.asarray(x0).reshape(-1)
+                        if arr.size >= 2:
+                            x_0, x_1 = arr[0], arr[1]
+                        elif arr.size == 1:
+                            x_0, x_1 = arr[0], arr[0]
+                        else:
+                            x_0, x_1 = -np.inf, -np.inf
+                    else:
+                        x_0, x_1 = x0, x1
+
+                    if isinstance(x_0, (float, int, np.integer)):
+                        length0 = 1
+                    else:
+                        length0 = np.asarray(x_0).size
+
+                    if isinstance(x_1, (float, int, np.integer)):
+                        length1 = 1
+                    else:
+                        length1 = np.asarray(x_1).size
+
+                    if length0 == length1:
+                        pass
+                    elif (length0 == 1) and (length1 > 1):
+                        x_0 = [x_0] * length1
+                        length0 = length1
+                    elif (length0 > 1) and (length1 == 1):
+                        x_1 = [x_1] * length0
+                        length1 = length0
+                    else:
+                        raise ValueError(
+                            "Either one variable is a float, int or of size 1, or two variables should have the same"
+                            "size."
+                        )
+
+                    _x_0 = np.asarray(x_0).reshape(-1).astype(float)
+                    _x_1 = np.asarray(x_1).reshape(-1).astype(float)
+
+                    # mark out-of-range inputs to avoid excessive extrapolation
+                    mask_oob = (_x_0 < arg_0_min) | (_x_0 > arg_0_max) | (_x_1 < arg_1_min) | (_x_1 > arg_1_max)
 
                     if independent[0] in ["Teff", "age"]:
-                        x_0 = np.log10(x_0)
+                        _x_0 = np.log10(_x_0)
 
                     if independent[1] in ["Teff", "age"]:
-                        x_1 = np.log10(x_1)
+                        _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(x_0, x_1)
+                    out = _atmosphere_interpolator(_x_0, _x_1)
+                    out = np.asarray(out).reshape(-1)
+                    if not allow_extrapolation and np.any(mask_oob):
+                        out[mask_oob] = -np.inf
+                    return out
 
             elif interpolator.lower() == "rbf":
                 # Interpolate with the scipy RBFInterpolator
@@ -476,17 +515,29 @@ class AtmosphereModelReader(object):
                 )
 
                 def atmosphere_interpolator(*x):
-                    x_0, x_1 = np.asarray(x, dtype="object").reshape(-1)
+                    # Accept (x0, x1) or single array-like; use first two values, duplicate if only one
+                    if len(x) == 2:
+                        x_0, x_1 = x
+                    elif len(x) == 1:
+                        arr = np.asarray(x[0]).reshape(-1)
+                        if arr.size >= 2:
+                            x_0, x_1 = arr[0], arr[1]
+                        elif arr.size == 1:
+                            x_0, x_1 = arr[0], arr[0]
+                        else:
+                            x_0, x_1 = -np.inf, -np.inf
+                    else:
+                        x_0, x_1 = -np.inf, -np.inf
 
-                    if isinstance(x_0, (float, int, np.int32)):
+                    if isinstance(x_0, (float, int, np.integer)):
                         length0 = 1
                     else:
-                        length0 = len(x_0)
+                        length0 = np.asarray(x_0).size
 
-                    if isinstance(x_1, (float, int, np.int32)):
+                    if isinstance(x_1, (float, int, np.integer)):
                         length1 = 1
                     else:
-                        length1 = len(x_1)
+                        length1 = np.asarray(x_1).size
 
                     if length0 == length1:
                         pass
@@ -505,13 +556,11 @@ class AtmosphereModelReader(object):
                             "size."
                         )
 
-                    _x_0 = np.asarray(x_0)
-                    _x_1 = np.asarray(x_1)
+                    _x_0 = np.asarray(x_0).reshape(-1).astype(float)
+                    _x_1 = np.asarray(x_1).reshape(-1).astype(float)
 
-                    _x_0[_x_0 < arg_0_min] = arg_0_min
-                    _x_0[_x_0 > arg_0_max] = arg_0_max
-                    _x_1[_x_1 < arg_1_min] = arg_1_min
-                    _x_1[_x_1 > arg_1_max] = arg_1_max
+                    # mark out-of-range inputs to avoid excessive extrapolation
+                    mask_oob = (_x_0 < arg_0_min) | (_x_0 > arg_0_max) | (_x_1 < arg_1_min) | (_x_1 > arg_1_max)
 
                     if independent[0] in ["Teff", "age"]:
                         _x_0 = np.log10(_x_0)
@@ -519,7 +568,11 @@ class AtmosphereModelReader(object):
                     if independent[1] in ["Teff", "age"]:
                         _x_1 = np.log10(_x_1)
 
-                    return _atmosphere_interpolator(np.array([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
+                    out = _atmosphere_interpolator(np.column_stack((_x_0, _x_1)))
+                    out = np.asarray(out).reshape(-1)
+                    if np.any(mask_oob):
+                        out[mask_oob] = -np.inf
+                    return out
 
             else:
                 raise ValueError("This should never happen.")

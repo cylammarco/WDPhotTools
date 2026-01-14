@@ -20,7 +20,7 @@ def diff2(
     mag = []
 
     for interp in interpolator_filter:
-        mag.append(interp(_x))
+        mag.append(interp(_x[:2]))
 
     mag = np.asarray(mag).reshape(-1)
 
@@ -30,16 +30,13 @@ def diff2(
 
     d2 = ((10.0 ** ((obs - mag - 5.0 * np.log10(distance) + 5.0) / 2.5) - 1.0) ** 2.0) / e2
 
-    if np.isfinite(d2).all():
-        if return_err:
-            return d2, e2
-        else:
-            return d2
+    # Ensure finite residuals
+    d2 = np.where(np.isfinite(d2), d2, np.float64(1e30))
+    if return_err:
+        e2 = np.where(np.isfinite(e2), e2, np.float64(1e30))
+        return d2, e2
     else:
-        if return_err:
-            return np.ones_like(obs) * np.inf, np.ones_like(obs) * np.inf
-        else:
-            return np.ones_like(obs) * np.inf
+        return d2
 
 
 def diff2_distance(_x, obs, errors, interpolator_filter, return_err):
@@ -238,7 +235,7 @@ def diff2_distance_red_filter(
     else:
         extinction_fraction = get_extinction_fraction(_x[-1], ra, dec, zmin, zmax)
 
-    teff = float(interpolator_teff(_x[:2]))
+    teff = float(np.asarray(interpolator_teff(_x[:2])).reshape(-1)[0])
     logg = _x[logg_pos]
     av = np.array([i([logg, teff, rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
@@ -300,7 +297,7 @@ def diff2_distance_red_filter_fixed_logg(
     else:
         extinction_fraction = get_extinction_fraction(_x[-1], ra, dec, zmin, zmax)
 
-    teff = float(interpolator_teff(_x[:-1]))
+    teff = float(np.asarray(interpolator_teff(_x[:-1])).reshape(-1)[0])
     av = np.array([i([logg, teff, rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
     e2 = errors**2.0
@@ -408,7 +405,7 @@ def diff2_red_filter(
     for interp in interpolator_filter:
         mag.append(interp(_x))
 
-    teff = float(interpolator_teff(_x))
+    teff = float(np.asarray(interpolator_teff(_x)).reshape(-1)[0])
 
     if not np.isfinite(teff):
         if return_err:
@@ -483,7 +480,7 @@ def diff2_red_filter_fixed_logg(
     else:
         extinction_fraction = get_extinction_fraction(distance, ra, dec, zmin, zmax)
 
-    teff = float(interpolator_teff(_x))
+    teff = float(np.asarray(interpolator_teff(_x)).reshape(-1)[0])
     av = np.array([i([logg, teff, rv]) for i in reddening_vector]).reshape(-1) * ebv * extinction_fraction
     mag = np.asarray(mag).reshape(-1)
 

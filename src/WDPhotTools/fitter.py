@@ -116,6 +116,41 @@ class WDfitter(AtmosphereModelReader):
         else:
             raise ValueError("Unknown extinction mode: {mode}.")
 
+    def _clip_to_grid(self, coords, independent, atmosphere):
+        coords = np.array(coords, dtype=float).reshape(-1)
+        model = self.model_da if str(atmosphere).lower() in ("h", "hydrogen", "da") else self.model_db
+        keys = list(independent)[: coords.size]
+        for k in range(coords.size):
+            col = keys[k]
+            if col in self.column_names:
+                grid = np.asarray(model[col], dtype=float)
+                finite = np.isfinite(grid)
+                if not np.any(finite):
+                    continue
+                gmin = float(np.min(grid[finite]))
+                gmax = float(np.max(grid[finite]))
+                val = float(coords[k])
+                if not np.isfinite(val):
+                    coords[k] = gmin
+                else:
+                    coords[k] = min(max(val, gmin), gmax)
+        return coords
+
+    def _grid_bounds(self, independent, atmosphere):
+        model = self.model_da if str(atmosphere).lower() in ("h", "hydrogen", "da") else self.model_db
+        bounds = []
+        for col in independent:
+            if col in self.column_names:
+                grid = np.asarray(model[col], dtype=float)
+                finite = np.isfinite(grid)
+                if np.any(finite):
+                    bounds.append((float(np.min(grid[finite])), float(np.max(grid[finite]))))
+                else:
+                    bounds.append((-np.inf, np.inf))
+            else:
+                bounds.append((-np.inf, np.inf))
+        return bounds
+
     def _interp_am(
         self,
         dependent,
@@ -125,6 +160,7 @@ class WDfitter(AtmosphereModelReader):
         interpolator,
         kwargs_for_RBF,
         kwargs_for_CT,
+        allow_extrapolation,
     ):
         """
         Internal method to interpolate the atmosphere grid models using the atmosphere_model_reader.
@@ -139,6 +175,7 @@ class WDfitter(AtmosphereModelReader):
             interpolator=interpolator,
             kwargs_for_RBF=kwargs_for_RBF,
             kwargs_for_CT=kwargs_for_CT,
+            allow_extrapolation=allow_extrapolation,
         )
 
         return _interpolator
@@ -187,6 +224,7 @@ class WDfitter(AtmosphereModelReader):
         kwargs_for_minimize={},
         kwargs_for_least_squares={},
         kwargs_for_emcee={},
+        allow_extrapolation=False,
     ):
         """
         The method to execute a photometric fit. Pure hydrogen and helium atmospheres fitting are supported. See
@@ -284,7 +322,7 @@ class WDfitter(AtmosphereModelReader):
             "rescale": True,
         }
         _kwargs_for_minimize = {"method": "Powell", "options": {"tol": 0.001}}
-        _kwargs_for_least_squares = {"method": "lm"}
+        _kwargs_for_least_squares = {}
         _kwargs_for_emcee = {}
 
         _kwargs_for_RBF.update(**kwargs_for_RBF)
@@ -309,8 +347,8 @@ class WDfitter(AtmosphereModelReader):
         if isinstance(initial_guess, np.ndarray):
             initial_guess = list(initial_guess.reshape(-1))
 
-        if isinstance(distance, (float, int, np.float32, np.float64)):
-            if not isinstance(distance_err, (float, int, np.float32, np.float64)):
+        if isinstance(distance, (float, int, np.floating)):
+            if not isinstance(distance_err, (float, int, np.floating)):
                 distance_err = np.sqrt(distance)
 
         if distance is None:
@@ -319,11 +357,10 @@ class WDfitter(AtmosphereModelReader):
 
         # Mask the data and interpolator if set to detect None
         if allow_none:
-            # element-wise comparison with None, so using !=
-            mask = np.array(mags) != np.array([None])
-            mags = np.array(mags, dtype=float)[mask]
-            mag_errors = np.array(mag_errors, dtype=float)[mask]
-            filters = np.array(filters)[mask]
+            mask = np.array([m is not None for m in mags], dtype=bool)
+            mags = np.asarray(mags, dtype=float)[mask]
+            mag_errors = np.asarray(mag_errors, dtype=float)[mask]
+            filters = np.asarray(filters, dtype=object)[mask]
 
         else:
             mags = np.array(mags, dtype=float)
@@ -340,6 +377,29 @@ class WDfitter(AtmosphereModelReader):
                 extinction_convolved=extinction_convolved,
                 kernel=kernel,
             )
+
+        # Adjust initial_guess to nearest grid values only if extrapolation is not allowed
+        if not allow_extrapolation:
+            atm0 = atmosphere[0] if isinstance(atmosphere, list) else atmosphere
+            model = self.model_da if str(atm0).lower() in ("h", "hydrogen", "da") else self.model_db
+            indep = list(independent) if isinstance(independent, (list, tuple, np.ndarray)) else [independent]
+            ig = list(initial_guess)
+            for idx, key in enumerate(indep[: len(ig)]):
+                col = key if key in self.column_names else str(key)
+                if col not in self.column_names:
+                    continue
+                grid_vals = np.asarray(model[col], dtype=float)
+                # pick nearest finite grid value to user's guess
+                diffs = np.abs(grid_vals - float(ig[idx]))
+                # ignore NaNs
+                diffs[~np.isfinite(diffs)] = np.inf
+                nearest_idx = int(np.argmin(diffs))
+                ig[idx] = float(grid_vals[nearest_idx])
+            print(
+                "Because extrapolation is not allowed in the initial guess(es) are outside the grid, initial_guess "
+                f"is updated from {initial_guess} to {ig}."
+            )
+            initial_guess = ig
 
         # Reuse the interpolator if instructed or possible
         # The +4 is to account for ['Teff', 'mass', 'Mbol', 'age']
@@ -365,6 +425,7 @@ class WDfitter(AtmosphereModelReader):
                         interpolator=atmosphere_interpolator,
                         kwargs_for_RBF=_kwargs_for_RBF,
                         kwargs_for_CT=_kwargs_for_CT,
+                        allow_extrapolation=allow_extrapolation,
                     )
 
         # Store the fitting params
@@ -400,7 +461,8 @@ class WDfitter(AtmosphereModelReader):
         }
 
         if "logg" in independent:
-            logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
+            logg_pos_arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
+            logg_pos = int(logg_pos_arr[0]) if logg_pos_arr.size > 0 else None
 
         # If using the scipy.optimize.minimize()
         if method == "minimize":
@@ -559,7 +621,8 @@ class WDfitter(AtmosphereModelReader):
 
                         else:
                             if "logg" in independent:
-                                logg_pos = int(np.argwhere(np.array(self.fitting_params["independent"]) == "logg"))
+                                _arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
+                                logg_pos = int(_arr[0]) if _arr.size > 0 else None
                                 self.results[j] = optimize.minimize(
                                     diff2_red_filter_summed,
                                     initial_guess,
@@ -627,11 +690,13 @@ class WDfitter(AtmosphereModelReader):
                 # Get the fitted parameters, the content of results vary
                 # depending on the choise of minimizer.
                 for i in filters:
-                    # the [:2] is to separate the distance from the filters
+                    # build coords (first two params) and clip if extrapolation disallowed
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
+                        coords = [self.results[j].x[0]]
                     else:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
+                        coords = list(self.results[j].x[:2])
+                    coords = self._clip_to_grid(coords, independent, j)
+                    self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](coords)).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = self.results[j].x[-1]
@@ -652,7 +717,19 @@ class WDfitter(AtmosphereModelReader):
                 # distance simultaneously using an assumed logg as provided
                 if distance is None:
                     if ebv <= 0.0:
-                        # with or without logg takes the same for, it is handled in the interpolator
+                        # enforce bounds away from grid edges when not allowing extrapolation
+                        bounds = (-np.inf, np.inf)
+                        if not allow_extrapolation:
+                            lohi = np.array(self._grid_bounds(independent, j))
+                            # small epsilon away from edges
+                            eps = 1e-6
+                            lb = lohi[:, 0] + eps
+                            ub = lohi[:, 1] - eps
+                            bounds = (
+                                (lb.tolist() + [1.0], ub.tolist() + [10000.0])
+                                if len(initial_guess) > 1
+                                else (lb[0], ub[0])
+                            )
                         self.results[j] = optimize.least_squares(
                             diff2_distance,
                             initial_guess,
@@ -662,6 +739,7 @@ class WDfitter(AtmosphereModelReader):
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
+                            bounds=bounds,
                             **_kwargs_for_least_squares,
                         )
 
@@ -758,6 +836,13 @@ class WDfitter(AtmosphereModelReader):
                 # If distance is provided, fit here.
                 else:
                     if ebv <= 0.0:
+                        bounds = (-np.inf, np.inf)
+                        if not allow_extrapolation:
+                            lohi = np.array(self._grid_bounds(independent, j))
+                            eps = 1e-6
+                            lb = lohi[:, 0] + eps
+                            ub = lohi[:, 1] - eps
+                            bounds = (lb.tolist(), ub.tolist())
                         self.results[j] = optimize.least_squares(
                             diff2,
                             initial_guess,
@@ -769,6 +854,7 @@ class WDfitter(AtmosphereModelReader):
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
+                            bounds=bounds,
                             **_kwargs_for_least_squares,
                         )
 
@@ -862,7 +948,7 @@ class WDfitter(AtmosphereModelReader):
                     if distance is None:
                         self.best_fit_params[j][independent[0] + "_err"] = float(_stdev[0])
                     else:
-                        self.best_fit_params[j][independent[0] + "_err"] = float(_stdev)
+                        self.best_fit_params[j][independent[0] + "_err"] = float(np.asarray(_stdev).reshape(-1)[0])
                     self.best_fit_params[j]["logg"] = logg
 
                 else:
@@ -875,9 +961,9 @@ class WDfitter(AtmosphereModelReader):
                 for i in filters:
                     # the [:2] is to separate the distance from the filters
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[0]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[0])).item()
                     else:
-                        self.best_fit_params[j][i] = float(self.interpolator[j][i](self.results[j].x[:2]))
+                        self.best_fit_params[j][i] = np.asarray(self.interpolator[j][i](self.results[j].x[:2])).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = self.results[j].x[-1]
@@ -1187,17 +1273,17 @@ class WDfitter(AtmosphereModelReader):
                 # depending on the choise of minimizer.
                 for i in filters:
                     if len(independent) == 1:
-                        self.best_fit_params[j][i] = float(
+                        self.best_fit_params[j][i] = np.asarray(
                             self.interpolator[j][i](self.best_fit_params[j][independent[0]])
-                        )
+                        ).item()
 
                     else:
-                        self.best_fit_params[j][i] = float(
+                        self.best_fit_params[j][i] = np.asarray(
                             self.interpolator[j][i](
                                 self.best_fit_params[j][independent[0]],
                                 self.best_fit_params[j][independent[1]],
                             )
-                        )
+                        ).item()
 
                     if distance is None:
                         self.best_fit_params[j]["distance"] = np.percentile(self.samples[j].T[-1], 50.0)
@@ -1223,17 +1309,35 @@ class WDfitter(AtmosphereModelReader):
 
             for name in ["Teff", "mass", "Mbol", "age"]:
                 if len(independent) == 1:
-                    self.best_fit_params[j][name] = float(
-                        self.interpolator[j][name](self.best_fit_params[j][independent[0]])
-                    )
-
+                    _coords = [self.best_fit_params[j][independent[0]]]
                 else:
-                    self.best_fit_params[j][name] = float(
-                        self.interpolator[j][name](
-                            self.best_fit_params[j][independent[0]],
-                            self.best_fit_params[j][independent[1]],
-                        )
-                    )
+                    _coords = [
+                        self.best_fit_params[j][independent[0]],
+                        self.best_fit_params[j][independent[1]],
+                    ]
+
+                _coords = self._clip_to_grid(_coords, independent, j)
+                val = np.asarray(self.interpolator[j][name](_coords)).item()
+                if (name == "Teff") and (not np.isfinite(val)):
+                    # snap to nearest finite grid values and re-evaluate
+                    snap = []
+                    model = self.model_da if str(j).lower() in ("h", "hydrogen", "da") else self.model_db
+                    for k, col in enumerate(independent[: len(_coords)]):
+                        grid = np.asarray(model[col], dtype=float)
+                        dif = np.abs(grid - float(_coords[k]))
+                        dif[~np.isfinite(dif)] = np.inf
+                        idx = int(np.argmin(dif))
+                        snap.append(float(grid[idx]))
+                    val = np.asarray(self.interpolator[j][name](snap)).item()
+                    if not np.isfinite(val):
+                        # final fallback: use grid boundary
+                        bounds = []
+                        for k, col in enumerate(independent[: len(_coords)]):
+                            grid = np.asarray(model[col], dtype=float)
+                            finite = np.isfinite(grid)
+                            bounds.append(float(np.min(grid[finite])))
+                        val = np.asarray(self.interpolator[j][name](bounds)).item()
+                self.best_fit_params[j][name] = val
 
                 if rv > 0.0:
                     if self.extinction_convolved:
