@@ -70,7 +70,6 @@ def diff2(
         distance_err=distance_err,
         photometry_space=photometry_space,
     )
-
     # Ensure finite residuals
     d2 = np.where(np.isfinite(d2), d2, np.float64(1e30))
     if return_err:

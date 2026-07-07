@@ -373,7 +373,6 @@ class WDfitter(AtmosphereModelReader):
             len(filters),
             allow_none,
         )
-
         if isinstance(distance, (float, int, np.floating)):
             if not isinstance(distance_err, (float, int, np.floating)):
                 distance_err = np.sqrt(distance)
