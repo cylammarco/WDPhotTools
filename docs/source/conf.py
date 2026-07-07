@@ -61,7 +61,7 @@ templates_path = ["_templates"]
 exclude_patterns = []
 
 # The suffix of source filenames.
-source_suffix = ".rst"
+source_suffix = {".rst": "restructuredtext"}
 
 # The encoding of source files.
 source_encoding = "utf-8-sig"
@@ -85,11 +85,8 @@ mathjax_path = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?" + "config=Te
 master_doc = "index"
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
-if on_rtd:  # only import and set the theme if we're building docs locally
-    import sphinx_rtd_theme
-
+if on_rtd:  # Use RTD theme on Read the Docs builds.
     html_theme = "sphinx_rtd_theme"
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
     html_static_path = ["_static"]
 else:
     html_theme = "alabaster"
