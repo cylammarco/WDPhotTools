@@ -525,109 +525,49 @@ class WDfitter(AtmosphereModelReader):
             logg_pos_arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
             logg_pos = int(logg_pos_arr[0]) if logg_pos_arr.size > 0 else None
 
-        diff2_summed = partial(globals()["diff2_summed"], photometry_space=photometry_space)
-        diff2_red_filter_summed = partial(
-            globals()["diff2_red_filter_summed"],
-            photometry_space=photometry_space,
-        )
-        diff2_red_filter_fixed_logg_summed = partial(
-            globals()["diff2_red_filter_fixed_logg_summed"],
-            photometry_space=photometry_space,
-        )
-        diff2_red_interpolated_summed = partial(
-            globals()["diff2_red_interpolated_summed"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_summed = partial(
-            globals()["diff2_distance_summed"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_filter_summed = partial(
-            globals()["diff2_distance_red_filter_summed"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_filter_fixed_logg_summed = partial(
-            globals()["diff2_distance_red_filter_fixed_logg_summed"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_interpolated_summed = partial(
-            globals()["diff2_distance_red_interpolated_summed"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_interpolated_fixed_logg_summed = partial(
-            globals()["diff2_distance_red_interpolated_fixed_logg_summed"],
-            photometry_space=photometry_space,
+        def _bind_photometry_space(functions):
+            return {name: partial(func, photometry_space=photometry_space) for name, func in functions.items()}
+
+        objective_minimize = _bind_photometry_space(
+            {
+                "main": diff2_summed,
+                "red_filter": diff2_red_filter_summed,
+                "red_filter_fixed_logg": diff2_red_filter_fixed_logg_summed,
+                "red_interpolated": diff2_red_interpolated_summed,
+                "distance": diff2_distance_summed,
+                "distance_red_filter": diff2_distance_red_filter_summed,
+                "distance_red_filter_fixed_logg": diff2_distance_red_filter_fixed_logg_summed,
+                "distance_red_interpolated": diff2_distance_red_interpolated_summed,
+                "distance_red_interpolated_fixed_logg": diff2_distance_red_interpolated_fixed_logg_summed,
+            }
         )
 
-        diff2 = partial(globals()["diff2"], photometry_space=photometry_space)
-        diff2_red_filter = partial(
-            globals()["diff2_red_filter"],
-            photometry_space=photometry_space,
-        )
-        diff2_red_filter_fixed_logg = partial(
-            globals()["diff2_red_filter_fixed_logg"],
-            photometry_space=photometry_space,
-        )
-        diff2_red_interpolated = partial(
-            globals()["diff2_red_interpolated"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance = partial(
-            globals()["diff2_distance"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_filter = partial(
-            globals()["diff2_distance_red_filter"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_filter_fixed_logg = partial(
-            globals()["diff2_distance_red_filter_fixed_logg"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_interpolated = partial(
-            globals()["diff2_distance_red_interpolated"],
-            photometry_space=photometry_space,
-        )
-        diff2_distance_red_interpolated_fixed_logg = partial(
-            globals()["diff2_distance_red_interpolated_fixed_logg"],
-            photometry_space=photometry_space,
+        objective_least_squares = _bind_photometry_space(
+            {
+                "main": diff2,
+                "red_filter": diff2_red_filter,
+                "red_filter_fixed_logg": diff2_red_filter_fixed_logg,
+                "red_interpolated": diff2_red_interpolated,
+                "distance": diff2_distance,
+                "distance_red_filter": diff2_distance_red_filter,
+                "distance_red_filter_fixed_logg": diff2_distance_red_filter_fixed_logg,
+                "distance_red_interpolated": diff2_distance_red_interpolated,
+                "distance_red_interpolated_fixed_logg": diff2_distance_red_interpolated_fixed_logg,
+            }
         )
 
-        log_likelihood = partial(
-            globals()["log_likelihood"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_red_filter = partial(
-            globals()["log_likelihood_red_filter"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_red_filter_fixed_logg = partial(
-            globals()["log_likelihood_red_filter_fixed_logg"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_red_interpolated = partial(
-            globals()["log_likelihood_red_interpolated"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_distance = partial(
-            globals()["log_likelihood_distance"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_distance_red_filter = partial(
-            globals()["log_likelihood_distance_red_filter"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_distance_red_filter_fixed_logg = partial(
-            globals()["log_likelihood_distance_red_filter_fixed_logg"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_distance_red_interpolated = partial(
-            globals()["log_likelihood_distance_red_interpolated"],
-            photometry_space=photometry_space,
-        )
-        log_likelihood_distance_red_interpolated_fixed_logg = partial(
-            globals()["log_likelihood_distance_red_interpolated_fixed_logg"],
-            photometry_space=photometry_space,
+        objective_emcee = _bind_photometry_space(
+            {
+                "main": log_likelihood,
+                "red_filter": log_likelihood_red_filter,
+                "red_filter_fixed_logg": log_likelihood_red_filter_fixed_logg,
+                "red_interpolated": log_likelihood_red_interpolated,
+                "distance": log_likelihood_distance,
+                "distance_red_filter": log_likelihood_distance_red_filter,
+                "distance_red_filter_fixed_logg": log_likelihood_distance_red_filter_fixed_logg,
+                "distance_red_interpolated": log_likelihood_distance_red_interpolated,
+                "distance_red_interpolated_fixed_logg": log_likelihood_distance_red_interpolated_fixed_logg,
+            }
         )
 
         # If using the scipy.optimize.minimize()
@@ -645,7 +585,7 @@ class WDfitter(AtmosphereModelReader):
                     if ebv <= 0.0:
                         # with or without logg takes the same for, it is handled in the interpolator
                         self.results[j] = optimize.minimize(
-                            diff2_distance_summed,
+                            objective_minimize["distance"],
                             initial_guess,
                             args=(
                                 photometry,
@@ -660,7 +600,7 @@ class WDfitter(AtmosphereModelReader):
                         if not extinction_convolved:
                             if "logg" in independent:
                                 self.results[j] = optimize.minimize(
-                                    diff2_distance_red_interpolated_summed,
+                                    objective_minimize["distance_red_interpolated"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -681,7 +621,7 @@ class WDfitter(AtmosphereModelReader):
 
                             else:
                                 self.results[j] = optimize.minimize(
-                                    diff2_distance_red_interpolated_fixed_logg_summed,
+                                    objective_minimize["distance_red_interpolated_fixed_logg"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -702,7 +642,7 @@ class WDfitter(AtmosphereModelReader):
                         else:
                             if "logg" in independent:
                                 self.results[j] = optimize.minimize(
-                                    diff2_distance_red_filter_summed,
+                                    objective_minimize["distance_red_filter"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -725,7 +665,7 @@ class WDfitter(AtmosphereModelReader):
 
                             else:
                                 self.results[j] = optimize.minimize(
-                                    diff2_distance_red_filter_fixed_logg_summed,
+                                    objective_minimize["distance_red_filter_fixed_logg"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -750,7 +690,7 @@ class WDfitter(AtmosphereModelReader):
                 else:
                     if ebv <= 0.0:
                         self.results[j] = optimize.minimize(
-                            diff2_summed,
+                            objective_minimize["main"],
                             initial_guess,
                             args=(
                                 photometry,
@@ -766,7 +706,7 @@ class WDfitter(AtmosphereModelReader):
                     else:
                         if not extinction_convolved:
                             self.results[j] = optimize.minimize(
-                                diff2_red_interpolated_summed,
+                                objective_minimize["red_interpolated"],
                                 initial_guess,
                                 args=(
                                     photometry,
@@ -792,7 +732,7 @@ class WDfitter(AtmosphereModelReader):
                                 _arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
                                 logg_pos = int(_arr[0]) if _arr.size > 0 else None
                                 self.results[j] = optimize.minimize(
-                                    diff2_red_filter_summed,
+                                    objective_minimize["red_filter"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -817,7 +757,7 @@ class WDfitter(AtmosphereModelReader):
 
                             else:
                                 self.results[j] = optimize.minimize(
-                                    diff2_red_filter_fixed_logg_summed,
+                                    objective_minimize["red_filter_fixed_logg"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -901,7 +841,7 @@ class WDfitter(AtmosphereModelReader):
                                 else (lb[0], ub[0])
                             )
                         self.results[j] = optimize.least_squares(
-                            diff2_distance,
+                            objective_least_squares["distance"],
                             initial_guess,
                             args=(
                                 photometry,
@@ -917,7 +857,7 @@ class WDfitter(AtmosphereModelReader):
                         if not extinction_convolved:
                             if "logg" in independent:
                                 self.results[j] = optimize.least_squares(
-                                    diff2_distance_red_interpolated,
+                                    objective_least_squares["distance_red_interpolated"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -938,7 +878,7 @@ class WDfitter(AtmosphereModelReader):
 
                             else:
                                 self.results[j] = optimize.least_squares(
-                                    diff2_distance_red_interpolated_fixed_logg,
+                                    objective_least_squares["distance_red_interpolated_fixed_logg"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -959,7 +899,7 @@ class WDfitter(AtmosphereModelReader):
                         else:
                             if "logg" in independent:
                                 self.results[j] = optimize.least_squares(
-                                    diff2_distance_red_filter,
+                                    objective_least_squares["distance_red_filter"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -982,7 +922,7 @@ class WDfitter(AtmosphereModelReader):
 
                             else:
                                 self.results[j] = optimize.least_squares(
-                                    diff2_distance_red_filter_fixed_logg,
+                                    objective_least_squares["distance_red_filter_fixed_logg"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -1014,7 +954,7 @@ class WDfitter(AtmosphereModelReader):
                             ub = lohi[:, 1] - eps
                             bounds = (lb.tolist(), ub.tolist())
                         self.results[j] = optimize.least_squares(
-                            diff2,
+                            objective_least_squares["main"],
                             initial_guess,
                             args=(
                                 photometry,
@@ -1035,7 +975,7 @@ class WDfitter(AtmosphereModelReader):
                             # as the extinction from SFD12 table 6 has no dependency on
                             # temperature and logg
                             self.results[j] = optimize.least_squares(
-                                diff2_red_interpolated,
+                                objective_least_squares["red_interpolated"],
                                 initial_guess,
                                 args=(
                                     photometry,
@@ -1058,7 +998,7 @@ class WDfitter(AtmosphereModelReader):
                         else:
                             if "logg" in independent:
                                 self.results[j] = optimize.least_squares(
-                                    diff2_red_filter,
+                                    objective_least_squares["red_filter"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -1083,7 +1023,7 @@ class WDfitter(AtmosphereModelReader):
 
                             else:
                                 self.results[j] = optimize.least_squares(
-                                    diff2_red_filter_fixed_logg,
+                                    objective_least_squares["red_filter_fixed_logg"],
                                     initial_guess,
                                     args=(
                                         photometry,
@@ -1164,7 +1104,7 @@ class WDfitter(AtmosphereModelReader):
                         self.sampler[j] = emcee.EnsembleSampler(
                             nwalkers,
                             ndim,
-                            log_likelihood_distance,
+                            objective_emcee["distance"],
                             args=(
                                 photometry,
                                 photometry_errors,
@@ -1180,7 +1120,7 @@ class WDfitter(AtmosphereModelReader):
                                 self.sampler[j] = emcee.EnsembleSampler(
                                     nwalkers,
                                     ndim,
-                                    log_likelihood_distance_red_interpolated,
+                                    objective_emcee["distance_red_interpolated"],
                                     args=(
                                         photometry,
                                         photometry_errors,
@@ -1202,7 +1142,7 @@ class WDfitter(AtmosphereModelReader):
                                 self.sampler[j] = emcee.EnsembleSampler(
                                     nwalkers,
                                     ndim,
-                                    log_likelihood_distance_red_interpolated_fixed_logg,
+                                    objective_emcee["distance_red_interpolated_fixed_logg"],
                                     args=(
                                         photometry,
                                         photometry_errors,
@@ -1224,7 +1164,7 @@ class WDfitter(AtmosphereModelReader):
                                 self.sampler[j] = emcee.EnsembleSampler(
                                     nwalkers,
                                     ndim,
-                                    log_likelihood_distance_red_filter,
+                                    objective_emcee["distance_red_filter"],
                                     args=(
                                         photometry,
                                         photometry_errors,
@@ -1248,7 +1188,7 @@ class WDfitter(AtmosphereModelReader):
                                 self.sampler[j] = emcee.EnsembleSampler(
                                     nwalkers,
                                     ndim,
-                                    log_likelihood_distance_red_filter_fixed_logg,
+                                    objective_emcee["distance_red_filter_fixed_logg"],
                                     args=(
                                         photometry,
                                         photometry_errors,
@@ -1274,7 +1214,7 @@ class WDfitter(AtmosphereModelReader):
                         self.sampler[j] = emcee.EnsembleSampler(
                             nwalkers,
                             ndim,
-                            log_likelihood,
+                            objective_emcee["main"],
                             args=(
                                 photometry,
                                 photometry_errors,
@@ -1291,7 +1231,7 @@ class WDfitter(AtmosphereModelReader):
                             self.sampler[j] = emcee.EnsembleSampler(
                                 nwalkers,
                                 ndim,
-                                log_likelihood_red_interpolated,
+                                objective_emcee["red_interpolated"],
                                 args=(
                                     photometry,
                                     photometry_errors,
@@ -1316,7 +1256,7 @@ class WDfitter(AtmosphereModelReader):
                                 self.sampler[j] = emcee.EnsembleSampler(
                                     nwalkers,
                                     ndim,
-                                    log_likelihood_red_filter,
+                                    objective_emcee["red_filter"],
                                     args=(
                                         photometry,
                                         photometry_errors,
@@ -1345,7 +1285,7 @@ class WDfitter(AtmosphereModelReader):
                                 self.sampler[j] = emcee.EnsembleSampler(
                                     nwalkers,
                                     ndim,
-                                    log_likelihood_red_filter_fixed_logg,
+                                    objective_emcee["red_filter_fixed_logg"],
                                     args=(
                                         photometry,
                                         photometry_errors,

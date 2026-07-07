@@ -14,11 +14,7 @@ def _compute_residual_terms(
     distance_err,
     photometry_space,
 ):
-    """
-    Compute chi-square terms in either magnitude or relative flux space.
-
-    """
-
+    """Compute chi-square terms in either magnitude or relative flux space."""
     if photometry_space == "magnitude":
         if distance_err is None:
             e2 = errors**2.0
