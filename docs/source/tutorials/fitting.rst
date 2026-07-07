@@ -32,19 +32,22 @@ Below is the default setup of the `fit` method, we will go through the 8 cases o
         self,
         atmosphere=["H", "He"],
         filters=["G3", "G3_BP", "G3_RP"],
-        mags=[None, None, None],
-        mag_errors=[1.0, 1.0, 1.0],
+        photometry=None,
+        photometry_errors=None,
+        photometry_space="magnitude",
         allow_none=False,
         distance=None,
         distance_err=None,
         extinction_convolved=True,
         kernel="cubic",
-        rv=0.0,
+        rv=3.1,
         ebv=0.0,
+        ra=None,
+        dec=None,
         independent=["Mbol", "logg"],
         initial_guess=[10.0, 8.0],
         logg=8.0,
-        atmosphere_interpolator="RBF",
+        atmosphere_interpolator="CT",
         reuse_interpolator=False,
         method="minimize",
         nwalkers=100,
@@ -53,11 +56,13 @@ Below is the default setup of the `fit` method, we will go through the 8 cases o
         progress=True,
         refine=False,
         refine_bounds=[5.0, 95.0],
+        prior=log_dummy_prior,
         kwargs_for_RBF={},
         kwargs_for_CT={},
         kwargs_for_minimize={},
         kwargs_for_least_squares={},
         kwargs_for_emcee={},
+        allow_extrapolation=False,
     ):
 
     ...
@@ -65,6 +70,41 @@ Below is the default setup of the `fit` method, we will go through the 8 cases o
     ...
 
 Below shows the example of how the fitter can be configured to fit differently, the argument that is worth particular mentioning is the `independent`. It refers to the mathemtical term *independent variable*, which are the parameters to be fitted. It accepts a list of 1 or 2 strings, one from `["Mbol", "Teff"]`, and one from `["logg", "mass"]`. When distance is to be fitted, it is not configured here, but instead a `None` should be provided to the `distance` argument. See further down for the examples. When a distance is provided, **its uncertainty has to be provided**.
+
+To fit in relative flux space, set `photometry_space="flux"` and provide `photometry` and `photometry_errors`.
+
+.. code:: python
+
+    ftr.fit(
+        atmosphere=["H"],
+        filters=["G3", "G3_BP", "G3_RP"],
+        photometry=[f_g, f_bp, f_rp],
+        photometry_errors=[f_g_err, f_bp_err, f_rp_err],
+        photometry_space="flux",
+        distance=21.0,
+        distance_err=0.1,
+        independent=["Mbol"],
+        initial_guess=[10.0],
+        logg=7.81,
+    )
+
+API migration notes (v0.0.13 -> this branch):
+
+.. list-table::
+    :header-rows: 1
+
+    * - Old API name
+      - New canonical name
+    * - ``mags``
+      - ``photometry``
+    * - ``mag_errors``
+      - ``photometry_errors``
+    * - ``fluxes``
+      - ``photometry`` with ``photometry_space="flux"``
+    * - ``flux_errors``
+      - ``photometry_errors`` with ``photometry_space="flux"``
+    * - ``best_fit_mag`` / ``best_fit_flux``
+      - ``best_fit_photometry``
 
 **Case 1**
 
@@ -77,8 +117,8 @@ When a log(g) is not included in the `independent` list, it will assume a fixed 
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=21.0,
             distance_err=0.1,
             extinction_convolved=True,
@@ -97,8 +137,8 @@ Compared to case 1, this fits for the logg, so we needs to add `"logg"` to the `
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=21.0,
             distance_err=0.1,
             extinction_convolved=True,
@@ -117,8 +157,8 @@ Compared to case 1, this fits for the distance, but we need to change two things
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=None,
             extinction_convolved=True,
             kernel="cubic",
@@ -136,8 +176,8 @@ This requires a very simple change, compared to case 1, we change `ebv` to 0.0, 
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=21.0,
             distance_err=0.1,
             ebv=0.0,
@@ -153,8 +193,8 @@ This is a combination of case 3 and 4, and on top, if we opt to use the other in
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=None,
             ebv=0.0,
             independent=["Mbol"],
@@ -172,8 +212,8 @@ This is a combination of case 2 and 4. We are also demonstrating how to modify t
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=20.1,
             distance_err=0.1,
             ebv=0.0,
@@ -198,8 +238,8 @@ This is the setup that is the most likely to fail because it is fitting 3 unknow
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=None,
             rv=3.1,
             ebv=0.1,
@@ -220,8 +260,8 @@ This is the same as case 7 except the reddening is not considered (ebv is set to
 
     ftr.fit(atmosphere=["H"],
             filters=["G3", "G3_BP", "G3_RP"],
-            mags=[a, b, c],
-            mag_errors=[a_err, b_err, c_err],
+            photometry=[a, b, c],
+            photometry_errors=[a_err, b_err, c_err],
             distance=None,
             ebv=0.0,
             independent=["Mbol", "logg"],

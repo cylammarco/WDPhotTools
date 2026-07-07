@@ -60,9 +60,7 @@ def test_plot_atmosphere_model(mock_show):
 
 @patch("matplotlib.pyplot.show")
 def test_plot_atmosphere_model_different_filters(mock_show):
-    plotter.plot_atmosphere_model(
-        x="B-V", y="U", invert_yaxis=True, display=True
-    )
+    plotter.plot_atmosphere_model(x="B-V", y="U", invert_yaxis=True, display=True)
 
 
 @patch("matplotlib.pyplot.show")
@@ -164,7 +162,9 @@ def test_plot_atmosphere_models_none_folder_savefig(mock_show):
     _folder = os.getcwd()
     for e in ["png"]:
         _filename = "test_plot_atmosphere_models_none_folder_savefig" + "." + e
-        assert os.path.isfile(os.path.join(_folder, _filename))
+        _filepath = os.path.join(_folder, _filename)
+        assert os.path.isfile(_filepath)
+        os.remove(_filepath)
 
 
 # Testing plot_cooling_model savefig

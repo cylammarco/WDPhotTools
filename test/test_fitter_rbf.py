@@ -70,8 +70,8 @@ def test_minimize_teff_logg():
     ftr1 = WDfitter()
     ftr1.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -93,8 +93,8 @@ def test_minimize_teff():
     ftr2 = WDfitter()
     ftr2.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -117,8 +117,8 @@ def test_minimize_teff_reddening():
     ftr3 = WDfitter()
     ftr3.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -143,8 +143,8 @@ def test_minimize_teff_reddening_interpolated():
     ftr4 = WDfitter()
     ftr4.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         extinction_convolved=False,
@@ -170,8 +170,8 @@ def test_minimize_teff_logg_reddening():
     ftr5 = WDfitter()
     ftr5.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -195,8 +195,8 @@ def test_minimize_teff_logg_reddening_interpolated():
     ftr6 = WDfitter()
     ftr6.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         extinction_convolved=False,
@@ -221,8 +221,8 @@ def test_minimize_teff_logg_distance():
     ftr7 = WDfitter()
     ftr7.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -242,8 +242,8 @@ def test_minimize_teff_distance():
     ftr8 = WDfitter()
     ftr8.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -264,8 +264,8 @@ def test_minimize_teff_distance_reddening():
     ftr9 = WDfitter()
     ftr9.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -288,8 +288,8 @@ def test_minimize_teff_distance_reddening_interpolated():
     ftr10 = WDfitter()
     ftr10.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="minimize",
         extinction_convolved=False,
@@ -313,8 +313,8 @@ def test_minimize_teff_logg_distance_reddening():
     ftr11 = WDfitter()
     ftr11.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         atmosphere_interpolator="RBF",
@@ -336,8 +336,8 @@ def test_minimize_teff_logg_distance_reddening_interpolated():
     ftr12 = WDfitter()
     ftr12.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="minimize",
         extinction_convolved=False,
@@ -366,8 +366,8 @@ def test_lsq_teff_logg():
     ftr13 = WDfitter()
     ftr13.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -389,8 +389,8 @@ def test_lsq_teff():
     ftr14 = WDfitter()
     ftr14.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -413,8 +413,8 @@ def test_lsq_teff_reddening():
     ftr15 = WDfitter()
     ftr15.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -439,8 +439,8 @@ def test_lsq_teff_reddening_interpolated():
     ftr16 = WDfitter()
     ftr16.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         extinction_convolved=False,
@@ -466,8 +466,8 @@ def test_lsq_teff_logg_reddening():
     ftr17 = WDfitter()
     ftr17.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -491,8 +491,8 @@ def test_lsq_teff_logg_reddening_interpolated():
     ftr18 = WDfitter()
     ftr18.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         extinction_convolved=False,
@@ -517,8 +517,8 @@ def test_lsq_teff_logg_distance():
     ftr19 = WDfitter()
     ftr19.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -538,8 +538,8 @@ def test_lsq_teff_distance():
     ftr20 = WDfitter()
     ftr20.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -560,8 +560,8 @@ def test_lsq_teff_distance_reddening():
     ftr21 = WDfitter()
     ftr21.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -584,8 +584,8 @@ def test_lsq_teff_distance_reddening_interpolated():
     ftr22 = WDfitter()
     ftr22.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="least_squares",
         extinction_convolved=False,
@@ -609,8 +609,8 @@ def test_lsq_teff_logg_distance_reddening():
     ftr23 = WDfitter()
     ftr23.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="RBF",
@@ -632,8 +632,8 @@ def test_lsq_teff_logg_distance_reddening_interpolated():
     ftr24 = WDfitter()
     ftr24.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="least_squares",
         extinction_convolved=False,
@@ -660,16 +660,16 @@ def test_emcee_teff_logg():
     ftr25.fit(
         atmosphere="H",
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         distance=10.0,
         distance_err=0.1,
     )
@@ -688,16 +688,16 @@ def test_emcee_teff():
     ftr26.fit(
         atmosphere="H",
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -717,16 +717,16 @@ def test_emcee_teff_reddening():
     ftr27.fit(
         atmosphere="H",
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -748,17 +748,17 @@ def test_emcee_teff_reddening_interpolated():
     ftr28.fit(
         atmosphere="H",
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
         extinction_convolved=False,
         initial_guess=[13000.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         logg=7.5,
         distance=10.0,
         distance_err=0.1,
@@ -780,16 +780,16 @@ def test_emcee_teff_logg_reddening():
     ftr29.fit(
         atmosphere="H",
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         distance=10.0,
         distance_err=0.1,
         rv=RV,
@@ -810,17 +810,17 @@ def test_emcee_teff_logg_reddening_interpolated():
     ftr30.fit(
         atmosphere="H",
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         distance=10.0,
         distance_err=0.1,
         rv=RV,
@@ -841,16 +841,16 @@ def test_emcee_teff_logg_distance():
     ftr31.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate((mags, mags_grizyJHK)),
-        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
+        photometry=np.concatenate((mags, mags_grizyJHK)),
+        photometry_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
     )
     results31 = ftr31.best_fit_params["H"]["Teff"]
     assert np.isclose(results31, 13000.0, rtol=1e-01, atol=1e-01)
@@ -867,16 +867,16 @@ def test_emcee_teff_distance():
     ftr32.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate((mags, mags_grizyJHK)),
-        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
+        photometry=np.concatenate((mags, mags_grizyJHK)),
+        photometry_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         logg=7.5,
     )
     results32 = ftr32.best_fit_params["H"]["Teff"]
@@ -894,16 +894,16 @@ def test_emcee_teff_distance_reddening():
     ftr33.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate((mags + extinction, mags_grizyJHK + extinction_grizyJHK)),
-        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
+        photometry=np.concatenate((mags + extinction, mags_grizyJHK + extinction_grizyJHK)),
+        photometry_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         logg=7.5,
         rv=RV,
         ebv=EBV,
@@ -923,22 +923,22 @@ def test_emcee_teff_distance_reddening_interpolated():
     ftr34.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate(
+        photometry=np.concatenate(
             (
                 mags + extinction_interpolated,
                 mags_grizyJHK + extinction_grizyJHK_interpolated,
             )
         ),
-        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
+        photometry_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff"],
         method="emcee",
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         logg=7.5,
         rv=RV,
         ebv=EBV,
@@ -958,16 +958,16 @@ def test_emcee_teff_logg_distance_reddening():
     ftr35.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate((mags + extinction, mags_grizyJHK + extinction_grizyJHK)),
-        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
+        photometry=np.concatenate((mags + extinction, mags_grizyJHK + extinction_grizyJHK)),
+        photometry_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         rv=RV,
         ebv=EBV,
     )
@@ -986,22 +986,22 @@ def test_emcee_teff_logg_distance_reddening_interpolated():
     ftr36.fit(
         atmosphere="H",
         filters=thirteen_filters_name_list,
-        mags=np.concatenate(
+        photometry=np.concatenate(
             (
                 mags + extinction_interpolated,
                 mags_grizyJHK + extinction_grizyJHK_interpolated,
             )
         ),
-        mag_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
+        photometry_errors=np.ones(thirteen_filters_name_list.size) * 0.02,
         independent=["Teff", "logg"],
         method="emcee",
         extinction_convolved=False,
         atmosphere_interpolator="RBF",
         initial_guess=[13000.0, 7.5, 10.0],
         refine=False,
-        nwalkers=20,
-        nsteps=1000,
-        nburns=100,
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
         rv=RV,
         ebv=EBV,
     )

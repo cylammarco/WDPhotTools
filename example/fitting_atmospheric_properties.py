@@ -31,7 +31,7 @@ ftr.fit(
         "H_mko",
         "K_mko",
     ],
-    mags=[
+    photometry=[
         21.1437,
         19.9678,
         19.4993,
@@ -44,7 +44,7 @@ ftr.fit(
         19.96 - 1.39,
         20.40 - 1.85,
     ],
-    mag_errors=[
+    photometry_errors=[
         0.0321,
         0.0229,
         0.0083,
@@ -92,7 +92,7 @@ ftr.fit(
         "H_mko",
         "K_mko",
     ],
-    mags=[
+    photometry=[
         21.1437,
         19.9678,
         19.4993,
@@ -105,7 +105,7 @@ ftr.fit(
         19.96 - 1.39,
         20.40 - 1.85,
     ],
-    mag_errors=[
+    photometry_errors=[
         0.0321,
         0.0229,
         0.0083,
@@ -151,7 +151,7 @@ ftr.fit(
         "H_mko",
         "K_mko",
     ],
-    mags=[
+    photometry=[
         21.1437,
         19.9678,
         19.4993,
@@ -164,7 +164,7 @@ ftr.fit(
         19.96 - 1.39,
         20.40 - 1.85,
     ],
-    mag_errors=[
+    photometry_errors=[
         0.0321,
         0.0229,
         0.0083,

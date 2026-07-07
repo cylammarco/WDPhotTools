@@ -30,13 +30,23 @@ def log_likelihood(
     distance_err,
     interpolator_filter,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
 
     """
 
-    d2, e2 = diff2(_x, obs, errors, distance, distance_err, interpolator_filter, True)
+    d2, e2 = diff2(
+        _x,
+        obs,
+        errors,
+        distance,
+        distance_err,
+        interpolator_filter,
+        True,
+        photometry_space=photometry_space,
+    )
     p = prior(*_x)
 
     if np.isfinite(d2).all():
@@ -46,14 +56,28 @@ def log_likelihood(
         return -np.inf
 
 
-def log_likelihood_distance(_x, obs, errors, interpolator_filter, prior):
+def log_likelihood_distance(
+    _x,
+    obs,
+    errors,
+    interpolator_filter,
+    prior,
+    photometry_space="magnitude",
+):
     """
     Internal method for computing the ch2-squared value in cases when
     the distance is not provided (for emcee).
 
     """
 
-    d2, e2 = diff2_distance(_x, obs, errors, interpolator_filter, True)
+    d2, e2 = diff2_distance(
+        _x,
+        obs,
+        errors,
+        interpolator_filter,
+        True,
+        photometry_space=photometry_space,
+    )
     p = prior(*_x)
 
     if np.isfinite(d2).all():
@@ -79,6 +103,7 @@ def log_likelihood_distance_red_filter(
     z_min,
     z_max,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -101,6 +126,7 @@ def log_likelihood_distance_red_filter(
         z_min,
         z_max,
         True,
+        photometry_space=photometry_space,
     )
     p = prior(*_x)
 
@@ -127,6 +153,7 @@ def log_likelihood_distance_red_filter_fixed_logg(
     z_min,
     z_max,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -149,6 +176,7 @@ def log_likelihood_distance_red_filter_fixed_logg(
         z_min,
         z_max,
         True,
+        photometry_space=photometry_space,
     )
     p = prior(*_x)
 
@@ -173,6 +201,7 @@ def log_likelihood_distance_red_interpolated(
     z_min,
     z_max,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -193,6 +222,7 @@ def log_likelihood_distance_red_interpolated(
         z_min,
         z_max,
         True,
+        photometry_space=photometry_space,
     )
     p = prior(*_x)
 
@@ -217,6 +247,7 @@ def log_likelihood_distance_red_interpolated_fixed_logg(
     z_min,
     z_max,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -237,6 +268,7 @@ def log_likelihood_distance_red_interpolated_fixed_logg(
         z_min,
         z_max,
         True,
+        photometry_space=photometry_space,
     )
     p = prior(*_x)
 
@@ -265,6 +297,7 @@ def log_likelihood_red_filter(
     z_min,
     z_max,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -289,6 +322,7 @@ def log_likelihood_red_filter(
         z_min,
         z_max,
         True,
+        photometry_space=photometry_space,
     )
     p = prior(*_x)
 
@@ -317,6 +351,7 @@ def log_likelihood_red_filter_fixed_logg(
     z_min,
     z_max,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -341,6 +376,7 @@ def log_likelihood_red_filter_fixed_logg(
         z_min,
         z_max,
         True,
+        photometry_space=photometry_space,
     )
     p = prior(*_x)
 
@@ -367,6 +403,7 @@ def log_likelihood_red_interpolated(
     z_min,
     z_max,
     prior,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for emcee).
@@ -389,6 +426,7 @@ def log_likelihood_red_interpolated(
         z_min,
         z_max,
         True,
+        photometry_space=photometry_space,
     )
     p = prior(*_x)
 

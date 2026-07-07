@@ -70,8 +70,8 @@ def test_minimize_teff_mass_reddening():
     ftr5 = WDfitter()
     ftr5.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="minimize",
         atmosphere_interpolator="CT",
@@ -105,8 +105,8 @@ def test_minimize_teff_mass_reddening_interpolated():
     ftr6 = WDfitter()
     ftr6.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="minimize",
         extinction_convolved=False,
@@ -141,8 +141,8 @@ def test_minimize_teff_mass_distance():
     ftr7 = WDfitter()
     ftr7.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="minimize",
         atmosphere_interpolator="CT",
@@ -172,8 +172,8 @@ def test_minimize_teff_mass_distance_reddening():
     ftr11 = WDfitter()
     ftr11.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="minimize",
         atmosphere_interpolator="CT",
@@ -205,8 +205,8 @@ def test_minimize_teff_mass_distance_reddening_interpolated():
     ftr12 = WDfitter()
     ftr12.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="minimize",
         extinction_convolved=False,
@@ -242,8 +242,8 @@ def test_lsq_teff_mass():
     ftr13 = WDfitter()
     ftr13.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="least_squares",
         atmosphere_interpolator="CT",
@@ -275,8 +275,8 @@ def test_lsq_teff_mass_reddening():
     ftr17 = WDfitter()
     ftr17.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="least_squares",
         atmosphere_interpolator="CT",
@@ -310,8 +310,8 @@ def test_lsq_teff_mass_reddening_interpolated():
     ftr18 = WDfitter()
     ftr18.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="least_squares",
         extinction_convolved=False,
@@ -346,8 +346,8 @@ def test_lsq_teff_mass_distance():
     ftr19 = WDfitter()
     ftr19.fit(
         filters=five_filters_name_list,
-        mags=mags,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="least_squares",
         atmosphere_interpolator="CT",
@@ -377,8 +377,8 @@ def test_lsq_teff_mass_distance_reddening():
     ftr23 = WDfitter()
     ftr23.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="least_squares",
         atmosphere_interpolator="CT",
@@ -410,8 +410,8 @@ def test_lsq_teff_mass_distance_reddening_interpolated():
     ftr24 = WDfitter()
     ftr24.fit(
         filters=five_filters_name_list,
-        mags=mags + extinction_interpolated,
-        mag_errors=np.ones(five_filters_name_list.size) * 0.02,
+        photometry=mags + extinction_interpolated,
+        photometry_errors=np.ones(five_filters_name_list.size) * 0.02,
         independent=["Teff", "mass"],
         method="least_squares",
         extinction_convolved=False,
