@@ -22,6 +22,25 @@ def test_diff2_basic_shapes():
     assert d2.shape == obs.shape and e2.shape == obs.shape
 
 
+def test_diff2_flux_mode_shapes():
+    interps = [_const_interp(10.0) for _ in range(3)]
+    model_flux = np.ones(3) * 10.0 ** (-0.4 * (10.0 + 5.0 * np.log10(10.0) - 5.0))
+    obs = model_flux.copy()
+    err = np.ones(3) * 1e-4
+    d2, e2 = diff2(
+        np.array([0.0]),
+        obs,
+        err,
+        10.0,
+        0.1,
+        interps,
+        True,
+        photometry_space="flux",
+    )
+    assert d2.shape == obs.shape and e2.shape == obs.shape
+    assert np.isfinite(d2).all() and np.isfinite(e2).all()
+
+
 def test_diff2_distance_red_filter_invalid_distance_returns_inf():
     interps = [_const_interp(10.0) for _ in range(2)]
     teff_itp = _const_interp(10000.0)

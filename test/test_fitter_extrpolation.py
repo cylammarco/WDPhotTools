@@ -20,8 +20,8 @@ def test_fitter_extrapolation_rbf(allow_extrapolation):
     f.fit(
         atmosphere=["H"],
         filters=filters,
-        mags=mags,
-        mag_errors=mag_errors,
+        photometry=mags,
+        photometry_errors=mag_errors,
         distance=10.0,
         distance_err=1.0,
         independent=["Mbol", "logg"],
@@ -50,8 +50,8 @@ def test_fitter_extrapolation_ct(allow_extrapolation):
     f.fit(
         atmosphere=["H"],
         filters=filters,
-        mags=mags,
-        mag_errors=mag_errors,
+        photometry=mags,
+        photometry_errors=mag_errors,
         distance=10.0,
         distance_err=1.0,
         independent=["Mbol", "logg"],
@@ -83,8 +83,8 @@ def test_fitter_extrapolation_rbf_initial_guess_outisde_grid(allow_extrapolation
     f.fit(
         atmosphere=["H"],
         filters=filters,
-        mags=mags,
-        mag_errors=mag_errors,
+        photometry=mags,
+        photometry_errors=mag_errors,
         distance=10.0,
         distance_err=1.0,
         independent=["Mbol", "logg"],
@@ -115,8 +115,8 @@ def test_fitter_extrapolation_ct_initial_guess_outisde_grid(allow_extrapolation)
     f.fit(
         atmosphere=["H"],
         filters=filters,
-        mags=mags,
-        mag_errors=mag_errors,
+        photometry=mags,
+        photometry_errors=mag_errors,
         distance=10.0,
         distance_err=1.0,
         independent=["Mbol", "logg"],

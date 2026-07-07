@@ -10,8 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import configparser
 import os
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.abspath("../.."))
 sys.path.insert(0, os.path.abspath("../../src"))
@@ -19,9 +21,18 @@ sys.path.insert(0, os.path.abspath("../../src"))
 # -- Project information -----------------------------------------------------
 
 project = "WDPhotTools"
-copyright = "2020-2025, Marco C Lam"
+copyright = "2020-2026, Marco C Lam"
 author = "Marco C Lam"
-__version__ = "0.0.10"
+
+
+def _load_version():
+    parser = configparser.ConfigParser()
+    setup_cfg = Path(__file__).resolve().parents[2] / "setup.cfg"
+    parser.read(setup_cfg)
+    return parser.get("metadata", "version", fallback="0.0.0")
+
+
+__version__ = _load_version()
 
 # The full version, including alpha/beta/rc tags
 version = __version__

@@ -241,8 +241,8 @@ ftr = WDfitter()
 ftr.fit(
     atmosphere="H",
     filters=["g_ps1", "r_ps1", "i_ps1", "z_ps1", "y_ps1", "G3", "G3_BP", "G3_RP", "J_mko", "H_mko", "K_mko"],
-    mags=[21.1437, 19.9678, 19.4993, 19.2981, 19.1478, 20.0533, 20.7883, 19.1868, 19.45-0.91, 19.96-1.39, 20.40-1.85],
-    mag_errors=[0.0321, 0.0229, 0.0083, 0.0234, 0.0187, 0.006322, 0.118615, 0.070880, 0.05, 0.03, 0.05],
+    photometry=[21.1437, 19.9678, 19.4993, 19.2981, 19.1478, 20.0533, 20.7883, 19.1868, 19.45-0.91, 19.96-1.39, 20.40-1.85],
+    photometry_errors=[0.0321, 0.0229, 0.0083, 0.0234, 0.0187, 0.006322, 0.118615, 0.070880, 0.05, 0.03, 0.05],
     independent=["Teff", "logg"],
     initial_guess=[4000.0, 7.5],
     distance=71.231,
@@ -263,6 +263,46 @@ ftr.show_corner_plot(
     },
 )
 ```
+
+### Fitting in relative flux space
+
+`WDfitter.fit` also supports relative flux fitting through `photometry_space="flux"`.
+
+```python
+import numpy as np
+from WDPhotTools.fitter import WDfitter
+
+filters = ["G3", "G3_BP", "G3_RP"]
+magnitudes = np.array([10.882, 10.853, 10.946], dtype=float)
+magnitude_errors = np.array([0.02, 0.02, 0.02], dtype=float)
+flux_photometry = 10.0 ** (-0.4 * magnitudes)
+flux_photometry_errors = flux_photometry * np.log(10.0) / 2.5 * magnitude_errors
+
+ftr = WDfitter()
+ftr.fit(
+    atmosphere="H",
+    filters=filters,
+    photometry=flux_photometry,
+    photometry_errors=flux_photometry_errors,
+    photometry_space="flux",
+    independent=["Teff"],
+    initial_guess=[13000.0],
+    logg=7.5,
+    distance=10.0,
+    distance_err=0.1,
+)
+ftr.show_best_fit(display=False)
+```
+
+### API migration (v0.0.13 -> this branch)
+
+| Old API name | New canonical name |
+| --- | --- |
+| `mags` | `photometry` |
+| `mag_errors` | `photometry_errors` |
+| `fluxes` | `photometry` + `photometry_space="flux"` |
+| `flux_errors` | `photometry_errors` + `photometry_space="flux"` |
+| `best_fit_mag` / `best_fit_flux` | `best_fit_photometry` |
 
 ### Reddening model
 

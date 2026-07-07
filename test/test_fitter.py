@@ -77,8 +77,8 @@ def test_fitting_teff(mock_show):
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
@@ -107,8 +107,8 @@ def test_fitting_teff_with_none():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, None],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -121,8 +121,8 @@ def test_fitting_teff_with_none():
     assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -135,8 +135,8 @@ def test_fitting_teff_with_none():
     assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, None],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -159,8 +159,8 @@ def test_fitting_logg_and_mbol():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         distance=10.0,
@@ -192,8 +192,8 @@ def test_fitting_logg_teff_distance():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
@@ -219,8 +219,8 @@ def test_fitting_logg_teff_distance_nelder_mead():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
@@ -246,8 +246,8 @@ def test_fitting_teff_red():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
@@ -278,8 +278,8 @@ def test_fitting_logg_and_teff_red():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         distance=10.0,
@@ -314,8 +314,8 @@ def test_fitting_logg_teff_distance_red():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
@@ -344,8 +344,8 @@ def test_fitting_logg_teff_distance_red_best_fit_plot_colour():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         initial_guess=[13000.0, 7.5, 10.0],
@@ -385,8 +385,8 @@ def test_fitting_teff_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         distance=10.0,
@@ -415,8 +415,8 @@ def test_fitting_teff_with_none_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, None],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -430,8 +430,8 @@ def test_fitting_teff_with_none_lsq():
     assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -444,8 +444,8 @@ def test_fitting_teff_with_none_lsq():
     assert np.isclose(ftr.results["H"].x, np.array([13000.0]), rtol=2.5e-02, atol=2.5e-02).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, None],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
@@ -469,8 +469,8 @@ def test_fitting_logg_and_teff_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         distance=10.0,
         distance_err=0.1,
@@ -503,8 +503,8 @@ def test_fitting_logg_teff_distance_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         method="least_squares",
         atmosphere_interpolator="CT",
@@ -531,8 +531,8 @@ def test_fitting_logg_teff_distance_nelder_mead_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         initial_guess=[13000.0, 7.5, 10.0],
         method="least_squares",
@@ -558,8 +558,8 @@ def test_fitting_teff_red_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         distance=10.0,
@@ -591,8 +591,8 @@ def test_fitting_logg_and_teff_red_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         distance=10.0,
         distance_err=0.1,
@@ -628,8 +628,8 @@ def test_fitting_logg_teff_distance_red_lsq():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         initial_guess=[13000.0, 7.5, 10.0],
         method="least_squares",
@@ -663,12 +663,16 @@ def test_fitting_teff_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
+        progress=False,
         distance=10.0,
         distance_err=0.1,
         initial_guess=[13000.0],
@@ -705,14 +709,18 @@ def test_fitting_teff_with_none_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, None],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
+        progress=False,
         distance=10.0,
         distance_err=0.1,
         refine=True,
@@ -728,14 +736,18 @@ def test_fitting_teff_with_none_emcee():
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, 10.350],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 0.1],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
+        progress=False,
         distance=10.0,
         distance_err=0.1,
         refine=True,
@@ -750,14 +762,18 @@ def test_fitting_teff_with_none_emcee():
     ).all()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV", "U"],
-        mags=[10.882, 10.853, 10.946, 11.301, 11.183, None],
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
+        photometry=[10.882, 10.853, 10.946, 11.301, 11.183, None],
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02, 10.0],
         allow_none=True,
         atmosphere="H",
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
+        progress=False,
         distance=10.0,
         distance_err=0.1,
         refine=True,
@@ -782,12 +798,16 @@ def test_fitting_teff_red_emcee():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         logg=7.5,
         independent=["Teff"],
         atmosphere_interpolator="CT",
         method="emcee",
+        nwalkers=12,
+        nsteps=120,
+        nburns=20,
+        progress=False,
         distance=10.0,
         distance_err=0.1,
         initial_guess=[13000.0],
@@ -827,8 +847,8 @@ def test_chi2_minimization_red_interpolated():
     ftr = WDfitter()
     ftr.fit(
         filters=["G3", "G3_BP", "G3_RP", "FUV", "NUV"],
-        mags=mags + extinction_interpolated,
-        mag_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
+        photometry=mags + extinction_interpolated,
+        photometry_errors=[0.02, 0.02, 0.02, 0.02, 0.02],
         independent=["Teff", "logg"],
         atmosphere_interpolator="CT",
         method="least_squares",

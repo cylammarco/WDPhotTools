@@ -4,6 +4,7 @@
 """Core of the WD photometry fitter"""
 
 import copy
+import logging
 import os
 import time
 from functools import partial
@@ -55,6 +56,14 @@ from .util import get_uncertainty_emcee, get_uncertainty_least_squares
 plt.rc("font", size=18)
 plt.rc("legend", fontsize=12)
 
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s"))
+    logger.addHandler(_handler)
+logger.setLevel(logging.INFO)
+logger.propagate = False
+
 
 class WDfitter(AtmosphereModelReader):
     """
@@ -70,7 +79,7 @@ class WDfitter(AtmosphereModelReader):
         # Only used if minimize or least_squares are the fitting method
         self.results = {"H": {}, "He": {}}
         self.best_fit_params = {"H": {}, "He": {}}
-        self.best_fit_mag = {"H": [], "He": []}
+        self.best_fit_photometry = {"H": [], "He": []}
         # Only used if emcee is the fitting method
         self.sampler = {"H": [], "He": []}
         self.samples = {"H": [], "He": []}
@@ -195,8 +204,9 @@ class WDfitter(AtmosphereModelReader):
         self,
         atmosphere=["H", "He"],
         filters=["G3", "G3_BP", "G3_RP"],
-        mags=[None, None, None],
-        mag_errors=[1.0, 1.0, 1.0],
+        photometry=None,
+        photometry_errors=None,
+        photometry_space="magnitude",
         allow_none=False,
         distance=None,
         distance_err=None,
@@ -227,12 +237,13 @@ class WDfitter(AtmosphereModelReader):
         allow_extrapolation=False,
     ):
         """
-        The method to execute a photometric fit. Pure hydrogen and helium atmospheres fitting are supported. See
-        `atmosphere_model_reader` for more information. Set allow_none to True so that `mags` can be provided in None
-        to Default non-detection, it is not used in the fit but it allows the fitter to be reused over a large dataset
-        where non-detections occur occasionally. In practice, one can add the full list of filters and set None for all
-        the non-detections, however this is highly inefficent in memory usage: most of the interpolated grid is not
-        used, and masking takes time.
+        The method to execute a photometric fit. Pure hydrogen and helium
+        atmospheres fitting are supported. See `atmosphere_model_reader` for
+        more information. Set allow_none to True so that `photometry` can be
+        provided with None values for non-detections. In practice, one can add
+        the full list of filters and set None for all the non-detections,
+        however this is highly inefficient in memory usage: most of the
+        interpolated grid is not used, and masking takes time.
 
         Parameters
         ----------
@@ -240,15 +251,17 @@ class WDfitter(AtmosphereModelReader):
             Choose to fit with pure hydrogen atmosphere model and/or pure helium atmosphere model.
         filters: list/array of str (Default: ['G3', 'G3_BP', 'G3_RP'])
             Choose the filters to be fitted with.
-        mags: list/array of float (Default: [None, None, None])
-            The magnitudes in the chosen filters, in their respective magnitude system. None can be provided as
-            non-detection, it does not contribute to the fitting.
-        mag_errors: list/array of float (Default: [1., 1., 1.])
-            The uncertainties in the magnitudes provided.
+        photometry: list/array of float (Default: None)
+            Observed photometry in the selected `photometry_space`.
+            This is required.
+        photometry_errors: list/array of float (Default: None)
+            Uncertainties of `photometry`. This is required.
+        photometry_space: str (Default: 'magnitude')
+            Choose from 'magnitude' and 'flux'.
         allow_none: bool (Default: False)
-            Set to True to detect None in the `mags` list to create a mask, this check requires extra run-time.
+            Set to True to detect None in the input photometry list to create a mask, this check requires extra run-time.
         distance: float (Default: None)
-            The distance to the source, in parsec. Set to None if the distance is to be fitted simultanenous. Provide
+            The distance to the source, in parsec. Set to None if the distance is to be fitted simultaneously. Provide
             an initial guess in the `initial_guess`, or it will be initialised at 10.0 pc.
         distance_err: float (Default: None)
             The uncertainty of the distance.
@@ -274,7 +287,7 @@ class WDfitter(AtmosphereModelReader):
             be initialise as 50.0 pc if not provided.
         logg: float (Default: 8.0)
             Only used if 'logg' is not included in the `independent` argument.
-        atmosphere_interpolator: str (Default: 'RBF')
+        atmosphere_interpolator: str (Default: 'CT')
             Choose between 'RBF' and 'CT'.
         reuse_interpolator: bool (Default: False)
             Set to use the existing interpolated grid, it should be set to True if the same collection of data is
@@ -290,10 +303,10 @@ class WDfitter(AtmosphereModelReader):
             Number of steps is discarded as burn-in (emcee method only).
         progress: bool (Default: True)
             Show the progress of the emcee sampling (emcee method only).
-        refine: cool (Default: True)
+        refine: bool (Default: False)
             Set to True to refine the minimum with `scipy.optimize.minimize`.
-        refine_bounds: str (Default: [5, 95])
-            The bounds of the minimizer are definited by the percentiles ofthe samples.
+        refine_bounds: list/array of float (Default: [5, 95])
+            The bounds of the minimizer are defined by the percentiles of the samples.
         prior: function (Default: log_dummy_prior)
             The prior function for the emcee method. Default is a dummy prior that always return 0.
         kwargs_for_RBF: dict (Default: {})
@@ -303,7 +316,7 @@ class WDfitter(AtmosphereModelReader):
         kwargs_for_minimize: dict (Default: {'method': 'Powell', 'options': {'xtol': 0.001}})
             Keyword argument for the minimizer, see `scipy.optimize.minimize`.
         kwargs_for_least_squares: dict (Default: {})
-            keywprd argument for the minimizer, see `scipy.optimize.least_squares`.
+            Keyword argument for the minimizer, see `scipy.optimize.least_squares`.
         kwargs_for_emcee: dict (Default: {})
             Keyword argument for the emcee walker.
 
@@ -347,25 +360,59 @@ class WDfitter(AtmosphereModelReader):
         if isinstance(initial_guess, np.ndarray):
             initial_guess = list(initial_guess.reshape(-1))
 
+        if photometry_space not in ["magnitude", "flux"]:
+            raise ValueError("Unknown photometry_space. Please choose from 'magnitude' and 'flux'.")
+        if (photometry is None) or (photometry_errors is None):
+            raise ValueError("Please provide photometry and photometry_errors for the selected photometry_space.")
+
+        logger.info(
+            "Starting fit: method=%s space=%s atmospheres=%s filters=%d allow_none=%s",
+            method,
+            photometry_space,
+            atmosphere,
+            len(filters),
+            allow_none,
+        )
+
         if isinstance(distance, (float, int, np.floating)):
             if not isinstance(distance_err, (float, int, np.floating)):
                 distance_err = np.sqrt(distance)
+                logger.info(
+                    "distance_err not provided; using sqrt(distance)=%.6g",
+                    distance_err,
+                )
 
-        if distance is None:
-            if len(initial_guess) == len(independent):
-                initial_guess = initial_guess + [50.0]
+        if distance is None and len(initial_guess) == len(independent):
+            initial_guess = initial_guess + [50.0]
+            logger.info("Distance is free parameter; extending initial_guess with default distance=50.0 pc.")
 
-        # Mask the data and interpolator if set to detect None
+        filters = np.asarray(filters, dtype=object)
+        if len(photometry) != len(photometry_errors):
+            raise ValueError("photometry and photometry_errors must have the same length.")
+        if len(photometry) != len(filters):
+            raise ValueError("filters and photometry must have the same length.")
+
+        # Mask the data and interpolator if set to detect None.
         if allow_none:
-            mask = np.array([m is not None for m in mags], dtype=bool)
-            mags = np.asarray(mags, dtype=float)[mask]
-            mag_errors = np.asarray(mag_errors, dtype=float)[mask]
-            filters = np.asarray(filters, dtype=object)[mask]
-
+            mask = np.asarray([m is not None for m in photometry], dtype=bool)
+            photometry = np.asarray(photometry, dtype=float)[mask]
+            photometry_errors = np.asarray(photometry_errors, dtype=float)[mask]
+            filters = filters[mask]
+            logger.info(
+                "Applied allow_none mask; using %d/%d photometry points.",
+                photometry.size,
+                mask.size,
+            )
+            if photometry.size == 0:
+                raise ValueError("No valid photometry remains after allow_none masking.")
         else:
-            mags = np.array(mags, dtype=float)
-            mag_errors = np.array(mag_errors, dtype=float)
-            filters = np.array(filters)
+            photometry = np.asarray(photometry, dtype=float)
+            photometry_errors = np.asarray(photometry_errors, dtype=float)
+
+        if photometry.size != photometry_errors.size or photometry.size != filters.size:
+            raise ValueError(
+                "Length mismatch after preprocessing: filters, photometry, and photometry_errors must match."
+            )
 
         if (
             ((rv >= 0.0) and (self.reddening_vector is None))
@@ -395,10 +442,18 @@ class WDfitter(AtmosphereModelReader):
                 diffs[~np.isfinite(diffs)] = np.inf
                 nearest_idx = int(np.argmin(diffs))
                 ig[idx] = float(grid_vals[nearest_idx])
-            print(
-                "Because extrapolation is not allowed in the initial guess(es) are outside the grid, initial_guess "
-                f"is updated from {initial_guess} to {ig}."
-            )
+            if not np.allclose(
+                np.asarray(ig, dtype=float),
+                np.asarray(initial_guess, dtype=float),
+                rtol=0.0,
+                atol=0.0,
+                equal_nan=True,
+            ):
+                logger.warning(
+                    "Adjusted initial_guess to nearest grid point because allow_extrapolation=False: %s -> %s",
+                    initial_guess,
+                    ig,
+                )
             initial_guess = ig
 
         # Reuse the interpolator if instructed or possible
@@ -408,9 +463,15 @@ class WDfitter(AtmosphereModelReader):
             & (self.interpolator[atmosphere[0]] != [])
             & (len(self.interpolator[atmosphere[0]]) == (len(filters) + 4))
         ):
-            pass
+            logger.info("Reusing existing interpolators for %d filters.", len(filters))
 
         else:
+            logger.info(
+                "Building interpolators: interpolator=%s filters=%d atmospheres=%s",
+                atmosphere_interpolator,
+                len(filters),
+                atmosphere,
+            )
             self.interpolator = {"H": {}, "He": {}}
 
             for j in atmosphere:
@@ -432,8 +493,9 @@ class WDfitter(AtmosphereModelReader):
         self.fitting_params = {
             "atmosphere": atmosphere,
             "filters": filters,
-            "mags": mags,
-            "mag_errors": mag_errors,
+            "photometry_space": photometry_space,
+            "photometry": photometry,
+            "photometry_errors": photometry_errors,
             "distance": distance,
             "distance_err": distance_err,
             "independent": independent,
@@ -464,10 +526,117 @@ class WDfitter(AtmosphereModelReader):
             logg_pos_arr = np.where(np.array(self.fitting_params["independent"]) == "logg")[0]
             logg_pos = int(logg_pos_arr[0]) if logg_pos_arr.size > 0 else None
 
+        diff2_summed = partial(globals()["diff2_summed"], photometry_space=photometry_space)
+        diff2_red_filter_summed = partial(
+            globals()["diff2_red_filter_summed"],
+            photometry_space=photometry_space,
+        )
+        diff2_red_filter_fixed_logg_summed = partial(
+            globals()["diff2_red_filter_fixed_logg_summed"],
+            photometry_space=photometry_space,
+        )
+        diff2_red_interpolated_summed = partial(
+            globals()["diff2_red_interpolated_summed"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_summed = partial(
+            globals()["diff2_distance_summed"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_filter_summed = partial(
+            globals()["diff2_distance_red_filter_summed"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_filter_fixed_logg_summed = partial(
+            globals()["diff2_distance_red_filter_fixed_logg_summed"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_interpolated_summed = partial(
+            globals()["diff2_distance_red_interpolated_summed"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_interpolated_fixed_logg_summed = partial(
+            globals()["diff2_distance_red_interpolated_fixed_logg_summed"],
+            photometry_space=photometry_space,
+        )
+
+        diff2 = partial(globals()["diff2"], photometry_space=photometry_space)
+        diff2_red_filter = partial(
+            globals()["diff2_red_filter"],
+            photometry_space=photometry_space,
+        )
+        diff2_red_filter_fixed_logg = partial(
+            globals()["diff2_red_filter_fixed_logg"],
+            photometry_space=photometry_space,
+        )
+        diff2_red_interpolated = partial(
+            globals()["diff2_red_interpolated"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance = partial(
+            globals()["diff2_distance"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_filter = partial(
+            globals()["diff2_distance_red_filter"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_filter_fixed_logg = partial(
+            globals()["diff2_distance_red_filter_fixed_logg"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_interpolated = partial(
+            globals()["diff2_distance_red_interpolated"],
+            photometry_space=photometry_space,
+        )
+        diff2_distance_red_interpolated_fixed_logg = partial(
+            globals()["diff2_distance_red_interpolated_fixed_logg"],
+            photometry_space=photometry_space,
+        )
+
+        log_likelihood = partial(
+            globals()["log_likelihood"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_red_filter = partial(
+            globals()["log_likelihood_red_filter"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_red_filter_fixed_logg = partial(
+            globals()["log_likelihood_red_filter_fixed_logg"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_red_interpolated = partial(
+            globals()["log_likelihood_red_interpolated"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_distance = partial(
+            globals()["log_likelihood_distance"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_distance_red_filter = partial(
+            globals()["log_likelihood_distance_red_filter"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_distance_red_filter_fixed_logg = partial(
+            globals()["log_likelihood_distance_red_filter_fixed_logg"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_distance_red_interpolated = partial(
+            globals()["log_likelihood_distance_red_interpolated"],
+            photometry_space=photometry_space,
+        )
+        log_likelihood_distance_red_interpolated_fixed_logg = partial(
+            globals()["log_likelihood_distance_red_interpolated_fixed_logg"],
+            photometry_space=photometry_space,
+        )
+
         # If using the scipy.optimize.minimize()
         if method == "minimize":
+            logger.info("Running scipy.optimize.minimize for atmospheres=%s", atmosphere)
             # Iterative through the list of atmospheres
             for j in atmosphere:
+                logger.info("Starting minimize fit for atmosphere=%s", j)
                 if extinction_convolved:
                     interpolator_teff = self.interpolator[j]["Teff"]
 
@@ -480,8 +649,8 @@ class WDfitter(AtmosphereModelReader):
                             diff2_distance_summed,
                             initial_guess,
                             args=(
-                                mags,
-                                mag_errors,
+                                photometry,
+                                photometry_errors,
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
@@ -495,8 +664,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_interpolated_summed,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         rv,
                                         self.extinction_mode,
@@ -516,8 +685,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_interpolated_fixed_logg_summed,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         rv,
                                         self.extinction_mode,
@@ -537,8 +706,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_filter_summed,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg_pos,
@@ -560,8 +729,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_filter_fixed_logg_summed,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
@@ -585,8 +754,8 @@ class WDfitter(AtmosphereModelReader):
                             diff2_summed,
                             initial_guess,
                             args=(
-                                mags,
-                                mag_errors,
+                                photometry,
+                                photometry_errors,
                                 distance,
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
@@ -601,8 +770,8 @@ class WDfitter(AtmosphereModelReader):
                                 diff2_red_interpolated_summed,
                                 initial_guess,
                                 args=(
-                                    mags,
-                                    mag_errors,
+                                    photometry,
+                                    photometry_errors,
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
@@ -627,8 +796,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_red_filter_summed,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         distance,
                                         distance_err,
                                         [self.interpolator[j][i] for i in filters],
@@ -652,8 +821,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_red_filter_fixed_logg_summed,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         distance,
                                         distance_err,
                                         [self.interpolator[j][i] for i in filters],
@@ -708,8 +877,10 @@ class WDfitter(AtmosphereModelReader):
 
         # If using scipy.optimize.least_squares
         elif method == "least_squares":
+            logger.info("Running scipy.optimize.least_squares for atmospheres=%s", atmosphere)
             # Iterative through the list of atmospheres
             for j in atmosphere:
+                logger.info("Starting least_squares fit for atmosphere=%s", j)
                 if extinction_convolved:
                     interpolator_teff = self.interpolator[j]["Teff"]
 
@@ -734,8 +905,8 @@ class WDfitter(AtmosphereModelReader):
                             diff2_distance,
                             initial_guess,
                             args=(
-                                mags,
-                                mag_errors,
+                                photometry,
+                                photometry_errors,
                                 [self.interpolator[j][i] for i in filters],
                                 False,
                             ),
@@ -750,8 +921,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_interpolated,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         rv,
                                         self.extinction_mode,
@@ -771,8 +942,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_interpolated_fixed_logg,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         rv,
                                         self.extinction_mode,
@@ -792,8 +963,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_filter,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg_pos,
@@ -815,8 +986,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_distance_red_filter_fixed_logg,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         self.interpolator[j]["Teff"],
                                         logg,
@@ -847,8 +1018,8 @@ class WDfitter(AtmosphereModelReader):
                             diff2,
                             initial_guess,
                             args=(
-                                mags,
-                                mag_errors,
+                                photometry,
+                                photometry_errors,
                                 distance,
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
@@ -868,8 +1039,8 @@ class WDfitter(AtmosphereModelReader):
                                 diff2_red_interpolated,
                                 initial_guess,
                                 args=(
-                                    mags,
-                                    mag_errors,
+                                    photometry,
+                                    photometry_errors,
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
@@ -891,8 +1062,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_red_filter,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         distance,
                                         distance_err,
                                         [self.interpolator[j][i] for i in filters],
@@ -916,8 +1087,8 @@ class WDfitter(AtmosphereModelReader):
                                     diff2_red_filter_fixed_logg,
                                     initial_guess,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         distance,
                                         distance_err,
                                         [self.interpolator[j][i] for i in filters],
@@ -975,6 +1146,7 @@ class WDfitter(AtmosphereModelReader):
 
         # If using emcee
         elif method == "emcee":
+            logger.info("Running emcee for atmospheres=%s", atmosphere)
             _initial_guess = np.array(initial_guess)
             ndim = len(_initial_guess)
             nwalkers = int(nwalkers)
@@ -982,6 +1154,7 @@ class WDfitter(AtmosphereModelReader):
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
+                logger.info("Starting emcee fit for atmosphere=%s", j)
                 if extinction_convolved:
                     interpolator_teff = self.interpolator[j]["Teff"]
 
@@ -994,8 +1167,8 @@ class WDfitter(AtmosphereModelReader):
                             ndim,
                             log_likelihood_distance,
                             args=(
-                                mags,
-                                mag_errors,
+                                photometry,
+                                photometry_errors,
                                 [self.interpolator[j][i] for i in filters],
                                 prior,
                             ),
@@ -1010,8 +1183,8 @@ class WDfitter(AtmosphereModelReader):
                                     ndim,
                                     log_likelihood_distance_red_interpolated,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         rv,
                                         self.extinction_mode,
@@ -1032,8 +1205,8 @@ class WDfitter(AtmosphereModelReader):
                                     ndim,
                                     log_likelihood_distance_red_interpolated_fixed_logg,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         rv,
                                         self.extinction_mode,
@@ -1054,8 +1227,8 @@ class WDfitter(AtmosphereModelReader):
                                     ndim,
                                     log_likelihood_distance_red_filter,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg_pos,
@@ -1078,8 +1251,8 @@ class WDfitter(AtmosphereModelReader):
                                     ndim,
                                     log_likelihood_distance_red_filter_fixed_logg,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         [self.interpolator[j][i] for i in filters],
                                         interpolator_teff,
                                         logg,
@@ -1104,8 +1277,8 @@ class WDfitter(AtmosphereModelReader):
                             ndim,
                             log_likelihood,
                             args=(
-                                mags,
-                                mag_errors,
+                                photometry,
+                                photometry_errors,
                                 distance,
                                 distance_err,
                                 [self.interpolator[j][i] for i in filters],
@@ -1121,8 +1294,8 @@ class WDfitter(AtmosphereModelReader):
                                 ndim,
                                 log_likelihood_red_interpolated,
                                 args=(
-                                    mags,
-                                    mag_errors,
+                                    photometry,
+                                    photometry_errors,
                                     distance,
                                     distance_err,
                                     [self.interpolator[j][i] for i in filters],
@@ -1146,8 +1319,8 @@ class WDfitter(AtmosphereModelReader):
                                     ndim,
                                     log_likelihood_red_filter,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         distance,
                                         distance_err,
                                         [self.interpolator[j][i] for i in filters],
@@ -1175,8 +1348,8 @@ class WDfitter(AtmosphereModelReader):
                                     ndim,
                                     log_likelihood_red_filter_fixed_logg,
                                     args=(
-                                        mags,
-                                        mag_errors,
+                                        photometry,
+                                        photometry_errors,
                                         distance,
                                         distance_err,
                                         [self.interpolator[j][i] for i in filters],
@@ -1197,6 +1370,14 @@ class WDfitter(AtmosphereModelReader):
 
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
                 self.samples[j] = self.sampler[j].get_chain(discard=nburns, flat=True)
+                logger.info(
+                    "Completed emcee sampling for atmosphere=%s: nwalkers=%d nsteps=%d nburns=%d nsamples=%d",
+                    j,
+                    nwalkers,
+                    nsteps,
+                    nburns,
+                    self.samples[j].shape[0],
+                )
 
                 # Save the best fit results
                 if len(independent) == 1:
@@ -1220,7 +1401,11 @@ class WDfitter(AtmosphereModelReader):
                     kwargs = copy.deepcopy(_kwargs_for_minimize)
                     kwargs["bounds"] = np.percentile(self.samples[j], refine_bounds, axis=0).T
 
-                    print("Refining")
+                    logger.info(
+                        "Refining emcee solution with minimize for atmosphere=%s bounds=%s",
+                        j,
+                        refine_bounds,
+                    )
 
                     _initial_guess = np.percentile(self.samples[j], 50.0, axis=0)
 
@@ -1230,8 +1415,9 @@ class WDfitter(AtmosphereModelReader):
                         # intial_guess when distance has to be found
                         self.fit(
                             filters=filters,
-                            mags=mags,
-                            mag_errors=mag_errors,
+                            photometry=photometry,
+                            photometry_errors=photometry_errors,
+                            photometry_space=photometry_space,
                             allow_none=allow_none,
                             atmosphere=atmosphere,
                             logg=logg,
@@ -1251,8 +1437,9 @@ class WDfitter(AtmosphereModelReader):
                     else:
                         self.fit(
                             filters=filters,
-                            mags=mags,
-                            mag_errors=mag_errors,
+                            photometry=photometry,
+                            photometry_errors=photometry_errors,
+                            photometry_space=photometry_space,
                             allow_none=allow_none,
                             atmosphere=atmosphere,
                             logg=logg,
@@ -1296,16 +1483,13 @@ class WDfitter(AtmosphereModelReader):
         else:
             raise ValueError("Unknown method. Please choose from minimize, least_squares and emcee.")
 
-        # Save the pivot wavelength and magnitude for each filter
+        # Save the pivot wavelength for each filter.
         self.pivot_wavelengths = []
         for i in self.fitting_params["filters"]:
             self.pivot_wavelengths.append(self.column_wavelengths[i])
 
         for j in atmosphere:
-            self.best_fit_mag[j] = []
-
-            for i in self.fitting_params["filters"]:
-                self.best_fit_mag[j].append(self.best_fit_params[j][i])
+            model_mag = [self.best_fit_params[j][i] for i in self.fitting_params["filters"]]
 
             for name in ["Teff", "mass", "Mbol", "age"]:
                 if len(independent) == 1:
@@ -1374,6 +1558,25 @@ class WDfitter(AtmosphereModelReader):
 
                 for i, _f in enumerate(self.fitting_params["filters"]):
                     self.best_fit_params[j]["Av_" + _f] = Av[i]
+
+            reddening = np.array(
+                [self.best_fit_params[j]["Av_" + f] for f in self.fitting_params["filters"]],
+                dtype=np.float64,
+            )
+            apparent_mag = np.array(model_mag, dtype=np.float64) + self.best_fit_params[j]["dist_mod"] + reddening
+            if photometry_space == "flux":
+                self.best_fit_photometry[j] = (10.0 ** (-0.4 * apparent_mag)).tolist()
+            else:
+                self.best_fit_photometry[j] = apparent_mag.tolist()
+
+            logger.info(
+                "Completed fit atmosphere=%s: Teff=%.6g logg=%.6g distance=%.6g chi2=%.6g",
+                j,
+                self.best_fit_params[j].get("Teff", np.nan),
+                self.best_fit_params[j].get("logg", np.nan),
+                self.best_fit_params[j].get("distance", np.nan),
+                self.best_fit_params[j].get("chi2", np.nan),
+            )
 
     def show_corner_plot(
         self,
@@ -1502,7 +1705,7 @@ class WDfitter(AtmosphereModelReader):
         return_fig=True,
     ):
         """
-        Generate a figure with the given and fitted photometry.
+        Generate a figure with the given and fitted photometry in magnitude or flux space.
 
         Parameters
         ----------
@@ -1543,12 +1746,16 @@ class WDfitter(AtmosphereModelReader):
 
         fig = plt.figure(figsize=figsize)
         _ax = fig.gca()
+        photometry_space = self.fitting_params.get("photometry_space", "magnitude")
 
-        # Plot the photometry provided
+        # Plot the photometry provided.
+        observed = self.fitting_params["photometry"]
+        observed_err = self.fitting_params["photometry_errors"]
+
         _ax.errorbar(
             self.pivot_wavelengths,
-            self.fitting_params["mags"],
-            yerr=self.fitting_params["mag_errors"],
+            observed,
+            yerr=observed_err,
             linestyle="None",
             capsize=3,
             fmt="s",
@@ -1561,11 +1768,10 @@ class WDfitter(AtmosphereModelReader):
             if self.best_fit_params[k] == {}:
                 continue
 
-            reddening = [self.best_fit_params[k]["Av_" + f] for f in self.fitting_params["filters"]]
-
+            best_fit = np.array(self.best_fit_photometry[k], dtype=np.float64)
             _ax.scatter(
                 np.array(self.pivot_wavelengths),
-                np.array(self.best_fit_mag[k]) + self.best_fit_params[k]["dist_mod"] + np.array(reddening),
+                best_fit,
                 label=f"Best-fit {k}",
                 color=color[j],
                 zorder=15,
@@ -1573,11 +1779,14 @@ class WDfitter(AtmosphereModelReader):
 
         # Other decorative stuff
         _ax.legend()
-        _ax.invert_yaxis()
         _ax.grid()
 
         _ax.set_xlabel("Wavelength / A")
-        _ax.set_ylabel("Magnitude / mag")
+        if photometry_space == "flux":
+            _ax.set_ylabel("Relative flux")
+        else:
+            _ax.invert_yaxis()
+            _ax.set_ylabel("Magnitude / mag")
 
         # Configure the title
         if title is None:
