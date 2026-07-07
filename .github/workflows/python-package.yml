@@ -52,7 +52,7 @@ jobs:
         flag-name: Unit Test
 
   upload_pypi:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -80,6 +80,7 @@ jobs:
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
+        if: github.event_name == 'push'
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
