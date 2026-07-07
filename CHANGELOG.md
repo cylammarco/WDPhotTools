@@ -1,3 +1,5 @@
+# CHANGELOG
+
 All notable changes to WDPhotTools are documented in this file.
 
 The 0.0.x line is treated as the beta series. Entries below are listed newest
