@@ -80,7 +80,6 @@ jobs:
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
-        if: github.event_name == 'push'
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
