@@ -12,6 +12,12 @@ to oldest and aligned to the 10 beta tags (`0.0.4` to `v0.0.13`).
 - New feature: Added fitting in flux space alongside magnitude space.
 - New feature: Added `self.best_fit_photometry` in the selected
   `photometry_space`.
+- New feature: Added opt-in interpolator extrapolation controls for atmosphere
+  and cooling model readers (default remains disabled).
+- New feature: Added sanitisation for extrapolated values to avoid aphysical
+  outputs (`NaN`, `inf`, and impossible negatives) in affected paths.
+- Behavior: Kept in-range interpolation and boundary behavior unchanged when
+  extrapolation is disabled.
 - API change (breaking): Removed legacy fit inputs `mags`, `mag_errors`,
   `fluxes`, and `flux_errors`.
 - API change (breaking): Standardized `self.fitting_params` to only
@@ -23,10 +29,16 @@ to oldest and aligned to the 10 beta tags (`0.0.4` to `v0.0.13`).
 - Documentation: Updated README, examples, and docstrings to the canonical
   photometry API.
 - Documentation: Updated RTD configuration/build and migration guidance.
+- Documentation: Added extrapolation guidance and a success-rate table across
+  10% to 50% extrapolation levels.
 - Tests: Updated fitter tests to canonical API calls.
 - Tests: Added deterministic flux-vs-magnitude parity tests.
 - Tests: Added deterministic regression checks against `origin/main`.
 - Tests: Reduced runtime for the new parity/regression matrix.
+- Tests: Added extrapolation safety and boundary-behavior coverage for
+  atmosphere/cooling interpolators.
+- Examples: Updated example scripts for the new API/workflow expectations and
+  checked near-identical behavior against `v0.0.13` where deterministic.
 
 ## [v0.0.13] - 2026-01-14
 
