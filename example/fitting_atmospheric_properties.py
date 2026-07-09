@@ -6,6 +6,7 @@
 import os
 
 from WDPhotTools.fitter import WDfitter
+from example_utils import get_example_output_dir
 
 
 try:
@@ -13,6 +14,7 @@ try:
 except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
+OUTPUT_DIR = get_example_output_dir()
 
 ftr = WDfitter()
 
@@ -68,7 +70,7 @@ print(ftr.results["He"])
 ftr.show_best_fit(
     display=False,
     savefig=True,
-    folder=os.path.join(HERE, "example_output"),
+    folder=OUTPUT_DIR,
     filename="PSOJ1801p6254",
 )
 
@@ -129,7 +131,7 @@ print(ftr.results["He"])
 ftr.show_best_fit(
     display=False,
     savefig=True,
-    folder=os.path.join(HERE, "example_output"),
+    folder=OUTPUT_DIR,
     filename="PSOJ1801p6254_least_squares",
 )
 
@@ -192,14 +194,14 @@ ftr.show_best_fit(
     atmosphere="H",
     display=False,
     savefig=True,
-    folder=os.path.join(HERE, "example_output"),
+    folder=OUTPUT_DIR,
     filename="PSOJ1801p6254_emcee",
 )
 ftr.show_corner_plot(
     figsize=(10, 10),
     display=True,
     savefig=True,
-    folder=os.path.join(HERE, "example_output"),
+    folder=OUTPUT_DIR,
     filename="PSOJ1801p6254_emcee_corner",
     kwarg={
         "quantiles": [0.158655, 0.5, 0.841345],

@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from WDPhotTools.atmosphere_model_reader import AtmosphereModelReader
+from example_utils import get_example_output_dir
 
 
 try:
@@ -16,6 +17,7 @@ try:
 except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
+OUTPUT_DIR = get_example_output_dir()
 
 atm = AtmosphereModelReader()
 
@@ -43,4 +45,4 @@ plt.xlabel("(BP - RP) / mag")
 plt.ylabel("G / mag")
 plt.title("DA Cooling tracks")
 plt.tight_layout()
-plt.savefig(os.path.join(HERE, "example_output", "DA_cooling_tracks.png"))
+plt.savefig(os.path.join(OUTPUT_DIR, "DA_cooling_tracks.png"))

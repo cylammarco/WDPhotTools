@@ -6,7 +6,9 @@
 import numpy as np
 
 from WDPhotTools import theoretical_lf
+from example_utils import get_example_output_dir
 
+OUTPUT_DIR = get_example_output_dir()
 
 wdlf = theoretical_lf.WDLF()
 
@@ -20,7 +22,7 @@ fig_input_models = wdlf.plot_input_models(
     cooling_model_use_mag=False,
     imf_log=True,
     display=True,
-    folder="example_output",
+    folder=OUTPUT_DIR,
     ext=["png", "pdf"],
     savefig=True,
 )
