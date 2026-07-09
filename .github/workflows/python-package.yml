@@ -73,8 +73,7 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
           python setup.py sdist bdist_wheel
-
-          - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true
