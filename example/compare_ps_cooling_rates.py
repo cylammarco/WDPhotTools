@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 
 from WDPhotTools import atmosphere_model_reader as amr
 from WDPhotTools import theoretical_lf
+from example_utils import get_example_output_dir
 
 
 try:
@@ -17,6 +18,7 @@ try:
 except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
+OUTPUT_DIR = get_example_output_dir()
 
 # Salaris' model with phase separation
 wdlf = theoretical_lf.WDLF()
@@ -120,4 +122,4 @@ ax3.set_title(r"$\Delta$(PS-nPS)")
 
 plt.suptitle("log(dL/dt) contour plot")
 plt.subplots_adjust(wspace=0.0, left=0.075, right=0.975)
-plt.savefig(os.path.join(HERE, "example_output", "compare_ps_cooling_rates.png"))
+plt.savefig(os.path.join(OUTPUT_DIR, "compare_ps_cooling_rates.png"))

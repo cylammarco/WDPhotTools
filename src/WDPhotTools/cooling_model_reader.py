@@ -1723,6 +1723,10 @@ class CoolingModelReader(object):
             Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
         kwargs_for_CT: dict (Default: {'fill_value': -np.inf, 'tol': 1e-10, 'maxiter': 100000})
             Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
+        allow_extrapolation: bool (Default: False)
+            If True, allow smooth extrapolation up to 50% outside each interpolation axis span. Extrapolated cooling
+            ages are sanitised to finite positive values and extrapolated cooling rates are sanitised to finite
+            non-positive values.
 
         """
 
@@ -1844,98 +1848,175 @@ class CoolingModelReader(object):
         }
         _kwargs_for_RBF.update(**kwargs_for_RBF)
 
+        max_extrapolation_fraction = 0.5
+        lum_grid = np.log10(self.luminosity)
+        lum_min = float(np.nanmin(lum_grid))
+        lum_max = float(np.nanmax(lum_grid))
+        mass_min = float(np.nanmin(self.mass))
+        mass_max = float(np.nanmax(self.mass))
+        age_floor = (
+            float(np.nanmin(self.age[self.age > 0.0])) if np.any(self.age > 0.0) else float(np.finfo(float).tiny)
+        )
+        finite_age = self.age[np.isfinite(self.age)]
+        age_fallback = float(np.nanmedian(finite_age)) if finite_age.size else age_floor
+
+        def _clip_with_fraction(values, value_min, value_max, fraction):
+            span = max(float(value_max - value_min), float(np.finfo(float).eps))
+            return np.clip(values, value_min - span * fraction, value_max + span * fraction)
+
+        def _prepare_inputs(x_0, x_1):
+            _x_0 = np.asarray(x_0, dtype=float).reshape(-1)
+            _x_1 = np.asarray(x_1, dtype=float).reshape(-1)
+
+            if (_x_0.size == 1) and (_x_1.size > 1):
+                _x_0 = np.repeat(_x_0, _x_1.size)
+            elif (_x_1.size == 1) and (_x_0.size > 1):
+                _x_1 = np.repeat(_x_1, _x_0.size)
+            elif _x_0.size != _x_1.size:
+                raise ValueError("x_0 and x_1 should have the same size or one should have size 1.")
+
+            mask_oob = (_x_0 < lum_min) | (_x_0 > lum_max) | (_x_1 < mass_min) | (_x_1 > mass_max)
+
+            if allow_extrapolation:
+                _x_0 = _clip_with_fraction(_x_0, lum_min, lum_max, max_extrapolation_fraction)
+                _x_1 = _clip_with_fraction(_x_1, mass_min, mass_max, max_extrapolation_fraction)
+            else:
+                _x_0 = np.clip(_x_0, lum_min, lum_max)
+                _x_1 = np.clip(_x_1, mass_min, mass_max)
+
+            return _x_0, _x_1, mask_oob
+
+        def _sanitize_cooling_age(values):
+            out = np.asarray(values, dtype=float).reshape(-1)
+            out[~np.isfinite(out)] = age_fallback
+            out = np.maximum(out, age_floor)
+            return out
+
+        def _sanitize_extrapolated(values, mask_oob, sanitizer):
+            out = np.asarray(values, dtype=float).reshape(-1)
+            mask_oob = np.asarray(mask_oob, dtype=bool).reshape(-1)
+            sanitize_mask = mask_oob | (~np.isfinite(out))
+            if np.any(sanitize_mask):
+                out[sanitize_mask] = sanitizer(out[sanitize_mask])
+            return out
+
         if interpolator.lower() == "ct":
-            # Interpolate with the scipy CloughTocher2DInterpolator
-            self.cooling_interpolator = CloughTocher2DInterpolator(
-                (np.log10(self.luminosity), self.mass),
+            _cooling_interpolator = CloughTocher2DInterpolator(
+                (lum_grid, self.mass),
                 self.age,
                 **_kwargs_for_CT,
             )
+            _cooling_rbf_extrapolator = None
+            if allow_extrapolation:
+                _cooling_rbf_extrapolator = RBFInterpolator(
+                    np.stack((lum_grid, self.mass), -1),
+                    self.age,
+                    **_kwargs_for_RBF,
+                )
+
+            def cooling_interpolator(x_0, x_1):
+                _x_0, _x_1, mask_oob = _prepare_inputs(x_0, x_1)
+                out = np.asarray(_cooling_interpolator(_x_0, _x_1), dtype=float).reshape(-1)
+                if allow_extrapolation:
+                    bad = ~np.isfinite(out)
+                    if np.any(bad):
+                        out[bad] = np.asarray(
+                            _cooling_rbf_extrapolator(np.column_stack((_x_0[bad], _x_1[bad]))),
+                            dtype=float,
+                        ).reshape(-1)
+                    out = _sanitize_extrapolated(out, mask_oob, _sanitize_cooling_age)
+                elif np.any(mask_oob):
+                    out[mask_oob] = -np.inf
+                return out
+
+            self.cooling_interpolator = cooling_interpolator
 
         elif interpolator.lower() == "rbf":
-            # Interpolate with the scipy RBFInterpolator
             _cooling_interpolator = RBFInterpolator(
-                np.stack((np.log10(self.luminosity), self.mass), -1),
+                np.stack((lum_grid, self.mass), -1),
                 self.age,
                 **_kwargs_for_RBF,
             )
 
-            lum_min = np.nanmin(np.log10(self.luminosity))
-            lum_max = np.nanmax(np.log10(self.luminosity))
-            mass_min = np.nanmin(self.mass)
-            mass_max = np.nanmax(self.mass)
-
             def cooling_interpolator(x_0, x_1):
-                _x_0 = np.array(x_0)
-                _x_1 = np.array(x_1)
-
-                if (_x_0.size == 1) & (_x_1.size > 1):
-                    _x_0 = np.repeat(_x_0, _x_1.size)
-
-                if (_x_1.size == 1) & (_x_0.size > 1):
-                    _x_1 = np.repeat(_x_1, _x_0.size)
-
-                if not allow_extrapolation:
-                    _x_0[_x_0 < lum_min] = lum_min
-                    _x_0[_x_0 > lum_max] = lum_max
-                    _x_1[_x_1 < mass_min] = mass_min
-                    _x_1[_x_1 > mass_max] = mass_max
-
-                length0 = _x_0.size
-
-                return _cooling_interpolator(np.array([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
+                _x_0, _x_1, mask_oob = _prepare_inputs(x_0, x_1)
+                out = np.asarray(
+                    _cooling_interpolator(np.column_stack((_x_0, _x_1))),
+                    dtype=float,
+                ).reshape(-1)
+                if allow_extrapolation:
+                    out = _sanitize_extrapolated(out, mask_oob, _sanitize_cooling_age)
+                elif np.any(mask_oob):
+                    out[mask_oob] = -np.inf
+                return out
 
             self.cooling_interpolator = cooling_interpolator
 
         else:
             raise ValueError(f"Interpolator should be CT or RBF, {interpolator} is given.")
 
-        self.dLdt = self._itp2d_gradient(self.cooling_interpolator, np.log10(self.luminosity), self.mass)
-
+        self.dLdt = self._itp2d_gradient(self.cooling_interpolator, lum_grid, self.mass)
         finite_mask = np.isfinite(self.dLdt)
 
+        finite_rate = self.dLdt[finite_mask]
+        finite_rate_nonpositive = finite_rate[finite_rate <= 0.0]
+        rate_fallback = float(np.nanmedian(finite_rate_nonpositive)) if finite_rate_nonpositive.size else 0.0
+
+        def _sanitize_cooling_rate(values):
+            out = np.asarray(values, dtype=float).reshape(-1)
+            out[~np.isfinite(out)] = rate_fallback
+            out[out > 0.0] = 0.0
+            return out
+
         if interpolator.lower() == "ct":
-            self.cooling_rate_interpolator = CloughTocher2DInterpolator(
-                (
-                    np.log10(self.luminosity)[finite_mask],
-                    self.mass[finite_mask],
-                ),
+            _cooling_rate_interpolator = CloughTocher2DInterpolator(
+                (lum_grid[finite_mask], self.mass[finite_mask]),
                 self.dLdt[finite_mask],
                 **_kwargs_for_CT,
             )
+            _cooling_rate_rbf_extrapolator = None
+            if allow_extrapolation:
+                _cooling_rate_rbf_extrapolator = RBFInterpolator(
+                    np.stack((lum_grid[finite_mask], self.mass[finite_mask]), -1),
+                    self.dLdt[finite_mask],
+                    **_kwargs_for_RBF,
+                )
+
+            def cooling_rate_interpolator(x_0, x_1):
+                _x_0, _x_1, mask_oob = _prepare_inputs(x_0, x_1)
+                out = np.asarray(_cooling_rate_interpolator(_x_0, _x_1), dtype=float).reshape(-1)
+                if allow_extrapolation:
+                    bad = ~np.isfinite(out)
+                    if np.any(bad):
+                        out[bad] = np.asarray(
+                            _cooling_rate_rbf_extrapolator(np.column_stack((_x_0[bad], _x_1[bad]))),
+                            dtype=float,
+                        ).reshape(-1)
+                    out = _sanitize_extrapolated(out, mask_oob, _sanitize_cooling_rate)
+                elif np.any(mask_oob):
+                    out[mask_oob] = -np.inf
+                return out
+
+            self.cooling_rate_interpolator = cooling_rate_interpolator
 
         elif interpolator.lower() == "rbf":
-            # Interpolate with the scipy RBFInterpolator
             _cooling_rate_interpolator = RBFInterpolator(
-                np.stack((np.log10(self.luminosity)[finite_mask], self.mass[finite_mask]), -1),
+                np.stack((lum_grid[finite_mask], self.mass[finite_mask]), -1),
                 self.dLdt[finite_mask],
                 **_kwargs_for_RBF,
             )
 
-            lum_min = np.nanmin(np.log10(self.luminosity))
-            lum_max = np.nanmax(np.log10(self.luminosity))
-            mass_min = np.nanmin(self.mass)
-            mass_max = np.nanmax(self.mass)
-
             def cooling_rate_interpolator(x_0, x_1):
-                _x_0 = np.asarray(x_0)
-                _x_1 = np.asarray(x_1)
-
-                if (_x_0.size == 1) & (_x_1.size > 1):
-                    _x_0 = np.repeat(_x_0, _x_1.size)
-
-                if (_x_1.size == 1) & (_x_0.size > 1):
-                    _x_0 = np.repeat(_x_1, _x_0.size)
-
-                if not allow_extrapolation:
-                    _x_0[_x_0 < lum_min] = lum_min
-                    _x_0[_x_0 > lum_max] = lum_max
-                    _x_1[_x_1 < mass_min] = mass_min
-                    _x_1[_x_1 > mass_max] = mass_max
-
-                length0 = _x_0.size
-
-                return _cooling_rate_interpolator(np.asarray([_x_0, _x_1], dtype="object").T.reshape(length0, 2))
+                _x_0, _x_1, mask_oob = _prepare_inputs(x_0, x_1)
+                out = np.asarray(
+                    _cooling_rate_interpolator(np.column_stack((_x_0, _x_1))),
+                    dtype=float,
+                ).reshape(-1)
+                if allow_extrapolation:
+                    out = _sanitize_extrapolated(out, mask_oob, _sanitize_cooling_rate)
+                elif np.any(mask_oob):
+                    out[mask_oob] = -np.inf
+                return out
 
             self.cooling_rate_interpolator = cooling_rate_interpolator
 

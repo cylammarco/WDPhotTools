@@ -36,6 +36,9 @@ Supports NumPy v1 and v2 (>=1.23,<3). For best performance with RBFInterpolator,
 
 Documentation and more examples can be found at
 [Read the Docs](https://wdphottools.readthedocs.io/en/latest/).
+For extrapolation behaviour and success-rate estimates from 10%-50% beyond the
+grid span, see the
+[interpolator extrapolation table](https://wdphottools.readthedocs.io/en/latest/background/extrapolation.html).
 
 ## Attribution
 
