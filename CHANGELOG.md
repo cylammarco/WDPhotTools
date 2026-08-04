@@ -16,11 +16,11 @@ to oldest and aligned to the 10 beta tags (`0.0.4` to `v0.0.13`).
   and cooling model readers (default remains disabled).
 - New feature: Added sanitisation for extrapolated values to avoid aphysical
   outputs (`NaN`, `inf`, and impossible negatives) in affected paths.
-- Behavior: Kept in-range interpolation and boundary behavior unchanged when
+- Behaviour: Kept in-range interpolation and boundary behaviour unchanged when
   extrapolation is disabled.
 - API change (breaking): Removed legacy fit inputs `mags`, `mag_errors`,
   `fluxes`, and `flux_errors`.
-- API change (breaking): Standardized `self.fitting_params` to only
+- API change (breaking): Standardised `self.fitting_params` to only
   `photometry`, `photometry_errors`, and `photometry_space`.
 - API change (breaking): Removed legacy output aliases `best_fit_mag` and
   `best_fit_flux`.
@@ -35,10 +35,11 @@ to oldest and aligned to the 10 beta tags (`0.0.4` to `v0.0.13`).
 - Tests: Added deterministic flux-vs-magnitude parity tests.
 - Tests: Added deterministic regression checks against `origin/main`.
 - Tests: Reduced runtime for the new parity/regression matrix.
-- Tests: Added extrapolation safety and boundary-behavior coverage for
+- Tests: Added extrapolation safety and boundary-behaviour coverage for
   atmosphere/cooling interpolators.
 - Examples: Updated example scripts for the new API/workflow expectations and
-  checked near-identical behavior against `v0.0.13` where deterministic.
+  checked near-identical behaviour against `v0.0.13` where deterministic.
+- Documentation: Added interpolation scheme explanation
 
 ## [v0.0.13] - 2026-01-14
 
@@ -91,9 +92,9 @@ to oldest and aligned to the 10 beta tags (`0.0.4` to `v0.0.13`).
 - Fix: Corrected fitting-mass bug.
 - Fix: Corrected independent-variable name comparison robustness.
 - Fix: Migrated from deprecated `interp2d` to RBF interpolation.
-- Fix: Standardized fitter method outputs to scalar floats.
+- Fix: Standardised fitter method outputs to scalar floats.
 - Documentation: Updated README and RTD content plus citation references.
-- Documentation: Added clarifications on uncertainty/error estimation behavior.
+- Documentation: Added clarifications on uncertainty/error estimation behaviour.
 
 ## [v0.0.7] - 2022-12-04
 
@@ -130,7 +131,7 @@ to oldest and aligned to the 10 beta tags (`0.0.4` to `v0.0.13`).
 
 - Compatibility: Adapted to SciPy 1.9 stricter data-type requirements.
 - Compatibility: Added SciPy-version handling for RegularGridInterpolator
-  behavior.
-- Fix: Corrected NaN-extinction behavior when reddening is not fitted.
+  behaviour.
+- Fix: Corrected NaN-extinction behaviour when reddening is not fitted.
 - Fix: Corrected K01 IMF normalization bug.
 - Fix: Corrected README/docs typos and fitter docstrings.

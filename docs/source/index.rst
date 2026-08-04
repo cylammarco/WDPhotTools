@@ -28,6 +28,7 @@ User Guide
    background/atmosphere
    background/cooling
    background/extrapolation
+   background/interpolation_scheme
    background/photometric_fit
    background/wdlf
 
