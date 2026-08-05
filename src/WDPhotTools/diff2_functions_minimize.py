@@ -13,13 +13,31 @@ from .diff2_functions_least_square import (
 )
 
 
-def diff2_summed(_x, obs, errors, distance, distance_err, interpolator_filter, return_err):
+def diff2_summed(
+    _x,
+    obs,
+    errors,
+    distance,
+    distance_err,
+    interpolator_filter,
+    return_err,
+    photometry_space="magnitude",
+):
     """
     Internal method for computing the ch2-squared value (for scipy.optimize.minimize).
 
     """
 
-    d2, e2 = diff2(_x, obs, errors, distance, distance_err, interpolator_filter, True)
+    d2, e2 = diff2(
+        _x,
+        obs,
+        errors,
+        distance,
+        distance_err,
+        interpolator_filter,
+        True,
+        photometry_space=photometry_space,
+    )
 
     if return_err:
         return np.sum(d2), 1.0 / np.sum(1.0 / e2)
@@ -46,6 +64,7 @@ def diff2_red_filter_summed(
     zmin,
     zmax,
     return_err,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for scipy.optimize.minimize).
@@ -69,6 +88,7 @@ def diff2_red_filter_summed(
         zmin,
         zmax,
         True,
+        photometry_space=photometry_space,
     )
 
     if return_err:
@@ -96,6 +116,7 @@ def diff2_red_filter_fixed_logg_summed(
     zmin,
     zmax,
     return_err,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value (for scipy.optimize.minimize).
@@ -119,6 +140,7 @@ def diff2_red_filter_fixed_logg_summed(
         zmin,
         zmax,
         True,
+        photometry_space=photometry_space,
     )
 
     if return_err:
@@ -144,6 +166,7 @@ def diff2_red_interpolated_summed(
     zmin,
     zmax,
     return_err,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value in cases when the distance is not provided (for
@@ -167,6 +190,7 @@ def diff2_red_interpolated_summed(
         zmin,
         zmax,
         True,
+        photometry_space=photometry_space,
     )
     if return_err:
         return np.sum(d2), 1.0 / np.sum(1.0 / e2)
@@ -191,6 +215,7 @@ def diff2_distance_red_filter_summed(
     zmin,
     zmax,
     return_err,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value in cases when the distance is not provided (for
@@ -214,6 +239,7 @@ def diff2_distance_red_filter_summed(
         zmin,
         zmax,
         True,
+        photometry_space=photometry_space,
     )
     if return_err:
         return np.sum(d2), 1.0 / np.sum(1.0 / e2)
@@ -238,6 +264,7 @@ def diff2_distance_red_filter_fixed_logg_summed(
     zmin,
     zmax,
     return_err,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value in cases when the distance is not provided (for
@@ -261,6 +288,7 @@ def diff2_distance_red_filter_fixed_logg_summed(
         zmin,
         zmax,
         True,
+        photometry_space=photometry_space,
     )
     if return_err:
         return np.sum(d2), 1.0 / np.sum(1.0 / e2)
@@ -269,14 +297,28 @@ def diff2_distance_red_filter_fixed_logg_summed(
         return np.sum(d2)
 
 
-def diff2_distance_summed(_x, obs, errors, interpolator_filter, return_error):
+def diff2_distance_summed(
+    _x,
+    obs,
+    errors,
+    interpolator_filter,
+    return_error,
+    photometry_space="magnitude",
+):
     """
     Internal method for computing the ch2-squared value in cases when the distance is not provided (for
     scipy.optimize.minimize).
 
     """
 
-    d2, e2 = diff2_distance(_x, obs, errors, interpolator_filter, True)
+    d2, e2 = diff2_distance(
+        _x,
+        obs,
+        errors,
+        interpolator_filter,
+        True,
+        photometry_space=photometry_space,
+    )
 
     if return_error:
         return np.sum(d2), 1.0 / np.sum(1.0 / e2)
@@ -299,6 +341,7 @@ def diff2_distance_red_interpolated_summed(
     zmin,
     zmax,
     return_err,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value in cases when the distance is not provided (for
@@ -320,6 +363,7 @@ def diff2_distance_red_interpolated_summed(
         zmin,
         zmax,
         True,
+        photometry_space=photometry_space,
     )
 
     if return_err:
@@ -343,6 +387,7 @@ def diff2_distance_red_interpolated_fixed_logg_summed(
     zmin,
     zmax,
     return_err,
+    photometry_space="magnitude",
 ):
     """
     Internal method for computing the ch2-squared value in cases when the distance is not provided (for
@@ -364,6 +409,7 @@ def diff2_distance_red_interpolated_fixed_logg_summed(
         zmin,
         zmax,
         True,
+        photometry_space=photometry_space,
     )
 
     if return_err:

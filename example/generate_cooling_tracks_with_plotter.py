@@ -1,22 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Create the default cooling tracks"""
-
-import os
+"""Create the default cooling tracks."""
 
 from WDPhotTools import plotter
+from example_utils import get_example_output_dir
 
-
-try:
-    HERE = os.path.dirname(os.path.realpath(__file__))
-
-except NameError:
-    HERE = os.path.dirname(os.path.realpath(__name__))
+OUTPUT_DIR = get_example_output_dir()
 
 plotter.plot_atmosphere_model(
     invert_yaxis=True,
     savefig=True,
-    folder="example_output",
+    folder=OUTPUT_DIR,
     filename="DA_cooling_tracks_from_plotter",
 )

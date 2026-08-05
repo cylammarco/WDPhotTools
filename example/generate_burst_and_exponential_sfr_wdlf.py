@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from WDPhotTools import theoretical_lf
+from example_utils import get_example_output_dir
 
 
 try:
@@ -16,6 +17,7 @@ try:
 except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
+OUTPUT_DIR = get_example_output_dir()
 
 wdlf = theoretical_lf.WDLF()
 
@@ -40,7 +42,7 @@ for i, age in enumerate(age_list):
         mag=mag,
         passband="G3",
         save_csv=True,
-        folder=os.path.join(HERE, "example_output"),
+        folder=OUTPUT_DIR,
     )
     ax1.plot(mag, np.log10(burst_density), label=f"{age / 1e9:.2f} Gyr")
 
@@ -52,7 +54,7 @@ for i, age in enumerate(age_list):
         mag=mag,
         passband="G3",
         save_csv=True,
-        folder=os.path.join(HERE, "example_output"),
+        folder=OUTPUT_DIR,
     )
     ax2.plot(mag, np.log10(decay_density), label=f"{age / 1e9:.2f} Gyr")
 
@@ -65,10 +67,8 @@ ax1.set_ylim(-5, 0)
 ax1.set_title("Star Formation History: 1 Gyr Burst")
 fig1.savefig(
     os.path.join(
-        HERE,
-        "example_output",
-        "burst_C16_C08_montreal_co_da_20_"
-        "montreal_co_da_20_montreal_co_da_20.png",
+        OUTPUT_DIR,
+        "burst_C16_C08_montreal_co_da_20_" "montreal_co_da_20_montreal_co_da_20.png",
     )
 )
 
@@ -81,9 +81,7 @@ ax2.set_ylim(-5, 0)
 ax2.set_title("Star Formation History: Exponential Decay")
 fig2.savefig(
     os.path.join(
-        HERE,
-        "example_output",
-        "decay_C16_C08_montreal_co_da_20_"
-        "montreal_co_da_20_montreal_co_da_20.png",
+        OUTPUT_DIR,
+        "decay_C16_C08_montreal_co_da_20_" "montreal_co_da_20_montreal_co_da_20.png",
     )
 )

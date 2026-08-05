@@ -9,12 +9,14 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 from WDPhotTools import theoretical_lf
+from example_utils import get_example_output_dir
 
 try:
     HERE = os.path.dirname(os.path.realpath(__file__))
 except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
+OUTPUT_DIR = get_example_output_dir()
 wdlf = theoretical_lf.WDLF()
 wdlf.set_ifmr_model("C08")
 wdlf.compute_cooling_age_interpolator()
@@ -22,9 +24,7 @@ wdlf.compute_cooling_age_interpolator()
 mag = np.arange(0, 20.0, 0.1)
 age_list = 1e9 * np.arange(2, 15, 2)
 
-fig1, (ax1, ax2, ax3) = plt.subplots(
-    3, 1, sharex=True, sharey=True, figsize=(10, 15)
-)
+fig1, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, sharey=True, figsize=(10, 15))
 
 for i, age in enumerate(age_list):
     # Constant SFR
@@ -58,8 +58,7 @@ ax3.set_title(r"Star Formation History: Exponential Decay ($\tau=3$)")
 
 plt.savefig(
     os.path.join(
-        HERE,
-        "example_output",
+        OUTPUT_DIR,
         "wdlf_compare_sfr.png",
     )
 )

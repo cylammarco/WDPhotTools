@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from WDPhotTools import theoretical_lf
+from example_utils import get_example_output_dir
 
 
 try:
@@ -16,6 +17,7 @@ try:
 except NameError:
     HERE = os.path.dirname(os.path.realpath(__name__))
 
+OUTPUT_DIR = get_example_output_dir()
 
 wdlf = theoretical_lf.WDLF()
 wdlf.compute_cooling_age_interpolator()
@@ -29,9 +31,7 @@ ax1 = plt.gca()
 for i, age in enumerate(age_list):
     # Constant SFR
     wdlf.set_sfr_model(age=age)
-    _, constant_density = wdlf.compute_density(
-        mag=mag, save_csv=True, folder=os.path.join(HERE, "example_output")
-    )
+    _, constant_density = wdlf.compute_density(mag=mag, save_csv=True, folder=OUTPUT_DIR)
     ax1.plot(mag, np.log10(constant_density), label=f"{age / 1e9:.2f} Gyr")
 
 ax1.legend()
@@ -43,9 +43,7 @@ ax1.set_ylim(-5, 0)
 ax1.set_title("Star Formation History: Constant")
 fig1.savefig(
     os.path.join(
-        HERE,
-        "example_output",
-        "constant_C16_C08_montreal_co_da_20_"
-        "montreal_co_da_20_montreal_co_da_20.png",
+        OUTPUT_DIR,
+        "constant_C16_C08_montreal_co_da_20_" "montreal_co_da_20_montreal_co_da_20.png",
     )
 )

@@ -1,0 +1,14 @@
+{
+  "default": true,
+  "MD013": false,
+  "MD022": false,
+  "MD024": false,
+  "MD032": false,
+  "MD041": false,
+  "MD043": {
+    "headings": [
+      "# CHANGELOG",
+      "+"
+    ]
+  }
+}
