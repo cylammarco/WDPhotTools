@@ -26,12 +26,13 @@ __all__ = [
     "cooling_model_reader",
     "diff2_functions_least_square",
     "diff2_functions_minimize",
+    "extinction",
     "fitter",
+    "likelihood_functions",
     "plotter",
     "reddening",
     "theoretical_lf",
     "util",
 ]
-__credits__ = ["K W Yuen", "M Green", "W Li"]
+__credits__ = ["K W Yuen"]
 __status__ = "Production"
-
