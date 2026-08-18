@@ -2,10 +2,10 @@
 
 All notable changes to WDPhotTools are documented in this file.
 
-The 0.0.x line is treated as the beta series. Entries below are listed newest
-to oldest and aligned to the 10 beta tags (`0.0.4` to `v0.0.14`).
+Entries below are listed newest to oldest and aligned to the 10 beta tags
+ (`0.0.4` to `v0.0.14`).
 
-## [v0.0.14] - 2026-07-07
+## [v0.0.14] - 2026-08-19
 
 - New feature: Added canonical photometry API support in `WDfitter.fit` with
   `photometry`, `photometry_errors`, and `photometry_space`.
