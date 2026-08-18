@@ -65,6 +65,26 @@ logger.setLevel(logging.INFO)
 logger.propagate = False
 
 
+def _initialise_emcee_walkers(sampler, initial_guess, nwalkers):
+    """Create finite, independent walker positions near ``initial_guess``."""
+
+    initial_guess = np.asarray(initial_guess, dtype=float)
+    if initial_guess.ndim != 1 or not np.isfinite(initial_guess).all():
+        raise ValueError("initial_guess for emcee must contain only finite values.")
+
+    scale = np.maximum(np.abs(initial_guess), 1.0) * 1e-3
+    for _ in range(8):
+        positions = initial_guess + np.random.normal(size=(nwalkers, initial_guess.size)) * scale
+        log_probability, _ = sampler.compute_log_prob(positions)
+        if np.isfinite(log_probability).all():
+            return positions
+
+    raise ValueError(
+        "Unable to initialize emcee walkers with finite log probabilities. "
+        "Choose an initial_guess within the supported model grid."
+    )
+
+
 class WDfitter(AtmosphereModelReader):
     """
     This class provide a set of methods to fit white dwarf properties
@@ -1086,10 +1106,9 @@ class WDfitter(AtmosphereModelReader):
         # If using emcee
         elif method == "emcee":
             logger.info("Running emcee for atmospheres=%s", atmosphere)
-            _initial_guess = np.array(initial_guess)
+            _initial_guess = np.asarray(initial_guess, dtype=float)
             ndim = len(_initial_guess)
             nwalkers = int(nwalkers)
-            pos = (np.random.random((nwalkers, ndim)) - 0.5) * np.sqrt(_initial_guess) + _initial_guess
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
@@ -1307,6 +1326,7 @@ class WDfitter(AtmosphereModelReader):
                                     **_kwargs_for_emcee,
                                 )
 
+                pos = _initialise_emcee_walkers(self.sampler[j], _initial_guess, nwalkers)
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
                 self.samples[j] = self.sampler[j].get_chain(discard=nburns, flat=True)
                 logger.info(
