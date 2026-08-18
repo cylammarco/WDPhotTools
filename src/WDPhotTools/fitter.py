@@ -285,7 +285,7 @@ class WDfitter(AtmosphereModelReader):
         photometry_space: str (Default: 'magnitude')
             Choose from 'magnitude' and 'flux'.
         allow_none: bool (Default: False)
-            Set to True to detect None in the input photometry list to create a mask, this check requires extra run-time.
+            Set to True to detect None in the input photometry list to create a mask, this check requires extra runtime.
         distance: float (Default: None)
             The distance to the source, in parsec. Set to None if the distance is to be fitted simultaneously. Provide
             an initial guess in the `initial_guess`, or it will be initialised at 10.0 pc.
