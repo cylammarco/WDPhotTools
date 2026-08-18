@@ -74,10 +74,16 @@ def _initialise_emcee_walkers(sampler, initial_guess, nwalkers):
 
     scale = np.maximum(np.abs(initial_guess), 1.0) * 1e-3
     for _ in range(8):
-        positions = initial_guess + np.random.normal(size=(nwalkers, initial_guess.size)) * scale
-        log_probability, _ = sampler.compute_log_prob(positions)
-        if np.isfinite(log_probability).all():
-            return positions
+        # A valid initial point can lie on a hard prior boundary.  Draw more
+        # proposals than walkers and retain only points with finite posterior
+        # rather than discarding a whole batch when one proposal is rejected.
+        candidates = initial_guess + np.random.normal(size=(max(4 * nwalkers, 16), initial_guess.size)) * scale
+        log_probability, _ = sampler.compute_log_prob(candidates)
+        positions = candidates[np.isfinite(log_probability)]
+        if positions.shape[0] >= nwalkers:
+            positions = positions[:nwalkers]
+            if np.linalg.matrix_rank(positions - positions.mean(axis=0)) == initial_guess.size:
+                return positions
 
     raise ValueError(
         "Unable to initialize emcee walkers with finite log probabilities. "
