@@ -15,6 +15,8 @@ def _compute_residual_terms(
     photometry_space,
 ):
     """Compute chi-square terms in either magnitude or relative flux space."""
+    invalid_model = ~np.isfinite(model_mag)
+
     if photometry_space == "magnitude":
         if distance_err is None:
             e2 = errors**2.0
@@ -23,7 +25,7 @@ def _compute_residual_terms(
             # (ln(10) / 2.5)^2 converts magnitude variance to fractional flux variance.
             e2 = (errors**2.0 + (distance_err / distance * _MAG_DISTANCE_FACTOR) ** 2.0) * _MAG_TO_FRAC_FLUX_VAR
         d2 = ((10.0 ** ((obs - model_mag) / 2.5) - 1.0) ** 2.0) / e2
-        return d2, e2
+        return np.where(invalid_model, np.inf, d2), e2
 
     if photometry_space == "flux":
         model_flux = 10.0 ** (-0.4 * model_mag)
@@ -32,7 +34,7 @@ def _compute_residual_terms(
             # Relative flux follows d^-2, so sigma_f = 2 * sigma_d / d * f.
             e2 = e2 + (2.0 * distance_err / distance * model_flux) ** 2.0
         d2 = ((obs - model_flux) ** 2.0) / e2
-        return d2, e2
+        return np.where(invalid_model, np.inf, d2), e2
 
     raise ValueError("Unknown photometry_space. Please choose from 'magnitude' and 'flux'.")
 

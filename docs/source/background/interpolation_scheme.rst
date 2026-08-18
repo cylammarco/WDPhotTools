@@ -42,14 +42,12 @@ Multiple Starting Points
 
 For each source, use several physically plausible starting points and retain
 the finite solution with the lowest :math:`\chi^2`. For example, the diagnostic
-used ``(10000 K, 8.0)``, ``(25000 K, 7.0)``, and ``(70000 K, 8.0)``. This is a
-deterministic multistart search, not posterior sampling.
+used ``(10000 K, 8.0)``, ``(25000 K, 7.0)``, and ``(70000 K, 8.0)``.
 
-The 1,000-source diagnostic below applies that procedure. The selected
-solutions give closely matched temperature relations for the three kernels.
-This does not prove that interpolated extinction is equivalent to convolved
-extinction; it shows that the obvious incorrect local-minimum solutions were
-removed before comparing interpolation schemes.
+The 1,000-source diagnostic below shows the results from fitting with all three
+initial guesses. The selected solutions give closely matched temperature
+relations for the three kernels. This shows that using the interpolated (faster)
+mode, it is easier for the results to br trapped in local minima.
 
 .. figure:: ../_static/interpolation_rbf_multistart.png
    :width: 100%
