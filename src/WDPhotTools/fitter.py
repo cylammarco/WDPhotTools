@@ -339,7 +339,7 @@ class WDfitter(AtmosphereModelReader):
             Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
         kwargs_for_CT: dict (Default: {})
             Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
-        kwargs_for_minimize: dict (Default: {'method': 'Powell', 'options': {'xtol': 0.001}})
+        kwargs_for_minimize: dict (Default: {'method': 'Powell', 'tol': 0.001})
             Keyword argument for the minimizer, see `scipy.optimize.minimize`.
         kwargs_for_least_squares: dict (Default: {})
             Keyword argument for the minimizer, see `scipy.optimize.least_squares`.
@@ -1364,7 +1364,16 @@ class WDfitter(AtmosphereModelReader):
 
                 if refine:
                     kwargs = copy.deepcopy(_kwargs_for_minimize)
-                    kwargs["bounds"] = np.percentile(self.samples[j], refine_bounds, axis=0).T
+                    bounds = np.percentile(self.samples[j], refine_bounds, axis=0).T
+
+                    if not np.all(np.isfinite(bounds)) or np.any(bounds[:, 0] >= bounds[:, 1]):
+                        logger.warning(
+                            "Refining emcee solution without bounds for atmosphere=%s because posterior bounds are invalid: %s",
+                            j,
+                            bounds,
+                        )
+                    else:
+                        kwargs["bounds"] = bounds
 
                     logger.info(
                         "Refining emcee solution with minimize for atmosphere=%s bounds=%s",
@@ -1384,7 +1393,8 @@ class WDfitter(AtmosphereModelReader):
                             photometry_errors=photometry_errors,
                             photometry_space=photometry_space,
                             allow_none=allow_none,
-                            atmosphere=atmosphere,
+                            allow_extrapolation=True,
+                            atmosphere=j,
                             logg=logg,
                             independent=independent,
                             reuse_interpolator=True,
@@ -1406,7 +1416,8 @@ class WDfitter(AtmosphereModelReader):
                             photometry_errors=photometry_errors,
                             photometry_space=photometry_space,
                             allow_none=allow_none,
-                            atmosphere=atmosphere,
+                            allow_extrapolation=True,
+                            atmosphere=j,
                             logg=logg,
                             independent=independent,
                             reuse_interpolator=True,
