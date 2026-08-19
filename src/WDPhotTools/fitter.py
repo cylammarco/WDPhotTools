@@ -65,6 +65,32 @@ logger.setLevel(logging.INFO)
 logger.propagate = False
 
 
+def _initialise_emcee_walkers(sampler, initial_guess, nwalkers):
+    """Create finite, independent walker positions near ``initial_guess``."""
+
+    initial_guess = np.asarray(initial_guess, dtype=float)
+    if initial_guess.ndim != 1 or not np.isfinite(initial_guess).all():
+        raise ValueError("initial_guess for emcee must contain only finite values.")
+
+    scale = np.maximum(np.abs(initial_guess), 1.0) * 1e-3
+    for _ in range(8):
+        # A valid initial point can lie on a hard prior boundary.  Draw more
+        # proposals than walkers and retain only points with finite posterior
+        # rather than discarding a whole batch when one proposal is rejected.
+        candidates = initial_guess + np.random.normal(size=(max(4 * nwalkers, 16), initial_guess.size)) * scale
+        log_probability, _ = sampler.compute_log_prob(candidates)
+        positions = candidates[np.isfinite(log_probability)]
+        if positions.shape[0] >= nwalkers:
+            positions = positions[:nwalkers]
+            if np.linalg.matrix_rank(positions - positions.mean(axis=0)) == initial_guess.size:
+                return positions
+
+    raise ValueError(
+        "Unable to initialize emcee walkers with finite log probabilities. "
+        "Choose an initial_guess within the supported model grid."
+    )
+
+
 class WDfitter(AtmosphereModelReader):
     """
     This class provide a set of methods to fit white dwarf properties
@@ -259,7 +285,7 @@ class WDfitter(AtmosphereModelReader):
         photometry_space: str (Default: 'magnitude')
             Choose from 'magnitude' and 'flux'.
         allow_none: bool (Default: False)
-            Set to True to detect None in the input photometry list to create a mask, this check requires extra run-time.
+            Set to True to detect None in the input photometry list to create a mask, this check requires extra runtime.
         distance: float (Default: None)
             The distance to the source, in parsec. Set to None if the distance is to be fitted simultaneously. Provide
             an initial guess in the `initial_guess`, or it will be initialised at 10.0 pc.
@@ -313,7 +339,7 @@ class WDfitter(AtmosphereModelReader):
             Keyword argument for the interpolator. See `scipy.interpolate.RBFInterpolator`.
         kwargs_for_CT: dict (Default: {})
             Keyword argument for the interpolator. See `scipy.interpolate.CloughTocher2DInterpolator`.
-        kwargs_for_minimize: dict (Default: {'method': 'Powell', 'options': {'xtol': 0.001}})
+        kwargs_for_minimize: dict (Default: {'method': 'Powell', 'tol': 0.001})
             Keyword argument for the minimizer, see `scipy.optimize.minimize`.
         kwargs_for_least_squares: dict (Default: {})
             Keyword argument for the minimizer, see `scipy.optimize.least_squares`.
@@ -334,7 +360,7 @@ class WDfitter(AtmosphereModelReader):
             "maxiter": 100000,
             "rescale": True,
         }
-        _kwargs_for_minimize = {"method": "Powell", "options": {"tol": 0.001}}
+        _kwargs_for_minimize = {"method": "Powell", "tol": 0.001}
         _kwargs_for_least_squares = {}
         _kwargs_for_emcee = {}
 
@@ -1086,10 +1112,9 @@ class WDfitter(AtmosphereModelReader):
         # If using emcee
         elif method == "emcee":
             logger.info("Running emcee for atmospheres=%s", atmosphere)
-            _initial_guess = np.array(initial_guess)
+            _initial_guess = np.asarray(initial_guess, dtype=float)
             ndim = len(_initial_guess)
             nwalkers = int(nwalkers)
-            pos = (np.random.random((nwalkers, ndim)) - 0.5) * np.sqrt(_initial_guess) + _initial_guess
 
             # Iterative through the list of atmospheres
             for j in atmosphere:
@@ -1307,6 +1332,7 @@ class WDfitter(AtmosphereModelReader):
                                     **_kwargs_for_emcee,
                                 )
 
+                pos = _initialise_emcee_walkers(self.sampler[j], _initial_guess, nwalkers)
                 self.sampler[j].run_mcmc(pos, nsteps, progress=progress)
                 self.samples[j] = self.sampler[j].get_chain(discard=nburns, flat=True)
                 logger.info(
@@ -1338,7 +1364,16 @@ class WDfitter(AtmosphereModelReader):
 
                 if refine:
                     kwargs = copy.deepcopy(_kwargs_for_minimize)
-                    kwargs["bounds"] = np.percentile(self.samples[j], refine_bounds, axis=0).T
+                    bounds = np.percentile(self.samples[j], refine_bounds, axis=0).T
+
+                    if not np.all(np.isfinite(bounds)) or np.any(bounds[:, 0] >= bounds[:, 1]):
+                        logger.warning(
+                            "Refining emcee solution without bounds for atmosphere=%s because posterior bounds are invalid: %s",
+                            j,
+                            bounds,
+                        )
+                    else:
+                        kwargs["bounds"] = bounds
 
                     logger.info(
                         "Refining emcee solution with minimize for atmosphere=%s bounds=%s",
@@ -1358,7 +1393,8 @@ class WDfitter(AtmosphereModelReader):
                             photometry_errors=photometry_errors,
                             photometry_space=photometry_space,
                             allow_none=allow_none,
-                            atmosphere=atmosphere,
+                            allow_extrapolation=True,
+                            atmosphere=j,
                             logg=logg,
                             independent=independent,
                             reuse_interpolator=True,
@@ -1380,7 +1416,8 @@ class WDfitter(AtmosphereModelReader):
                             photometry_errors=photometry_errors,
                             photometry_space=photometry_space,
                             allow_none=allow_none,
-                            atmosphere=atmosphere,
+                            allow_extrapolation=True,
+                            atmosphere=j,
                             logg=logg,
                             independent=independent,
                             reuse_interpolator=True,

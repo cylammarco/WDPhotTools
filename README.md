@@ -30,7 +30,7 @@ systems availalbe from the atmosphere model.
 When using the `RBFInterpolator`, we strongly encourage the use of scipy 1.9+
 which provides a speed gain of O(100) times.
 
-Up to v0.0.12, we only numpy NumPy 1. As of v0.0.13, we support both NumPy v1 and v2. 
+Up to v0.0.12, we only numpy NumPy 1. As of v0.0.13, we support both NumPy v1 and v2.
 
 For best performance with RBFInterpolator, use SciPy 1.9+.
 
