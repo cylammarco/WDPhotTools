@@ -360,7 +360,7 @@ class WDfitter(AtmosphereModelReader):
             "maxiter": 100000,
             "rescale": True,
         }
-        _kwargs_for_minimize = {"method": "Powell", "options": {"tol": 0.001}}
+        _kwargs_for_minimize = {"method": "Powell", "tol": 0.001}
         _kwargs_for_least_squares = {}
         _kwargs_for_emcee = {}
 
@@ -1448,7 +1448,8 @@ class WDfitter(AtmosphereModelReader):
         else:
             raise ValueError("Unknown method. Please choose from minimize, least_squares and emcee.")
 
-        # Save the pivot wavelength for each filter.        self.pivot_wavelengths = []
+        # Save the pivot wavelength for each filter.
+        self.pivot_wavelengths = []
         for i in self.fitting_params["filters"]:
             self.pivot_wavelengths.append(self.column_wavelengths[i])
 
